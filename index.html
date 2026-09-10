@@ -369,7 +369,7 @@ const CONTADORES = {
   rodrigo: {label:'Rodrigo Miranda', initials:'RM', color:'var(--violet)', soft:'var(--violet-soft)'},
 };
 const SUGGESTED_FASES = ['Despacho de Nomeação','Quesitos das Partes','Perícia em Campo / Diligência','Laudo Pericial','Manifestação das Partes','Impugnação','Decisão / Sentença'];
-const MAX_EMBED_BYTES = 150000; // ~150KB — mantém cada documento bem abaixo do limite de 256KB por registro
+const MAX_EMBED_BYTES = 5 * 1024 * 1024; // 5MB — limite prático de armazenamento local; arquivos maiores continuam sincronizados normalmente via Google Drive quando conectado
 
 const KEYWORD_MAP = [
   {re:/despacho/, tipo:'Despacho', fase:'Despacho'},
@@ -418,8 +418,16 @@ function loadCasosFromLocalStorage(){
 }
 function persistCasosToLocalStorage(){
   if(!usingLocalStorage) return;
-  try{ localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos)); }
-  catch(e){ }
+  try{
+    localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos));
+  }catch(e){
+    const el = document.getElementById('banner');
+    if(el){
+      el.innerHTML = driveConnected
+        ? '<div class="banner">O armazenamento local deste navegador está cheio, mas seus dados continuam salvos no Google Drive normalmente.</div>'
+        : '<div class="banner">O armazenamento local deste navegador está cheio e a última alteração pode não ter sido salva. Conecte o Google Drive para liberar espaço e manter seus dados seguros, ou remova documentos grandes que não sejam mais necessários.</div>';
+    }
+  }
   driveScheduleSync();
 }
 
