@@ -123,6 +123,9 @@ h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; margin:0; text-wrap:balan
   background:var(--warning-soft); color:var(--warning); border:1px solid var(--warning);
   border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:20px; display:flex; gap:8px; align-items:center;
 }
+.banner-info{
+  background:var(--success-soft); color:var(--success); border:1px solid var(--success);
+}
 
 .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
 .stat{
@@ -400,7 +403,20 @@ function seedData(){
 }
 
 let casos = seedData();
-let db = null, usingDb = false;
+let db = null, usingDb = false, usingLocalStorage = false;
+const LS_CASOS_KEY = 'pericias.casos.v1';
+function loadCasosFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(LS_CASOS_KEY);
+    if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) return parsed; }
+  }catch(e){ }
+  return null;
+}
+function persistCasosToLocalStorage(){
+  if(!usingLocalStorage) return;
+  try{ localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos)); }
+  catch(e){ }
+}
 let activeContador = (function(){
   try{ const saved = localStorage.getItem('pericias.activeContador'); if(saved && CONTADORES[saved]) return saved; }catch(e){}
   return 'jonatas';
@@ -668,7 +684,11 @@ async function initDb(){
     db = window.claude && window.claude.use ? await window.claude.use('db') : null;
   }catch(e){ db = null; }
   if(!db){
-    document.getElementById('banner').innerHTML = `<div class="banner">Armazenamento não disponível nesta visualização — as alterações não serão salvas permanentemente.</div>`;
+    const loaded = loadCasosFromLocalStorage();
+    if(loaded) casos = loaded;
+    usingLocalStorage = true;
+    persistCasosToLocalStorage();
+        document.getElementById('banner').innerHTML = `<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Se limpar os dados do navegador ou acessar de outro dispositivo, os dados nao estarao la.</div>`;
     renderAll();
     return;
   }
@@ -705,6 +725,7 @@ async function saveCaso(id, patch){
     try{ await db.collection('casos').doc(id).update(patch); }
     catch(e){ /* keep optimistic local state */ }
   } else {
+        persistCasosToLocalStorage();
     renderAll();
   }
 }
@@ -715,6 +736,8 @@ async function criarCaso(data){
   casos.push(novo);
   if(usingDb){
     try{ await db.collection('casos').doc(id).set(data); }catch(e){}
+    } else {
+    persistCasosToLocalStorage();
   }
   renderAll();
   return id;
@@ -728,6 +751,8 @@ async function excluirCaso(id){
       for(const d of snap.docs){ await db.collection('casos').doc(id).collection('documentos').doc(d.id).delete(); }
     }catch(e){}
     try{ await db.collection('casos').doc(id).delete(); }catch(e){}
+  } else {
+    persistCasosToLocalStorage();
   }
   closeDrawer();
   renderAll();
@@ -780,6 +805,7 @@ async function addDoc(casoId, data){
   const c = casos.find(x => x.id === casoId);
   if(!c) return;
   c.documentos = [...(c.documentos||[]), {id:'d'+Date.now()+Math.random().toString(36).slice(2,6), ...data}];
+  persistCasosToLocalStorage();
 }
 async function updateDoc(casoId, docId, patch){
   if(usingDb){
@@ -789,6 +815,7 @@ async function updateDoc(casoId, docId, patch){
   const c = casos.find(x => x.id === casoId);
   if(!c) return;
   c.documentos = c.documentos.map(d => d.id === docId ? {...d, ...patch} : d);
+  persistCasosToLocalStorage();
 }
 async function removeDoc(casoId, docId){
   if(usingDb){
@@ -796,6 +823,7 @@ async function removeDoc(casoId, docId){
     catch(e){}  } else {
     const c = casos.find(x => x.id === casoId);
     if(c) c.documentos = c.documentos.filter(d => d.id !== docId);
+    persistCasosToLocalStorage();
   }
   renderDrawer(); renderList();
 }
