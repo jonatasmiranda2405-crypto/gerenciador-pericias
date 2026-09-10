@@ -1,1 +1,1185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciador de Perícias</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<style>
+:root{
+  --paper:#F2F4EF;
+  --surface:#FFFFFF;
+  --surface-2:#E9ECE4;
+  --ink:#1B242C;
+  --muted:#5C6670;
+  --line:#D7DAD1;
+  --accent:#2B4C7E;
+  --accent-deep:#1B3A61;
+  --accent-soft:#E4EAF2;
+  --success:#2F6E51;
+  --success-soft:#DFEDE6;
+  --warning:#8A5F10;
+  --warning-soft:#F2E7CE;
+  --danger:#9C3B2E;
+  --danger-soft:#F3E0DC;
+  --violet:#6E4F91;
+  --violet-deep:#4E3868;
+  --violet-soft:#EAE1F2;
+  --shadow: 0 1px 2px rgba(27,36,44,.06), 0 8px 24px -12px rgba(27,36,44,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10161C;
+    --surface:#161D24;
+    --surface-2:#1C242C;
+    --ink:#E7ECEE;
+    --muted:#93A0AA;
+    --line:#2A333B;
+    --accent:#7EA0CE;
+    --accent-deep:#B0C7E7;
+    --accent-soft:#213248;
+    --success:#74C39A;
+    --success-soft:#1C3327;
+    --warning:#D9A857;
+    --warning-soft:#3A2E17;
+    --danger:#E08B7A;
+    --danger-soft:#3A211C;
+    --violet:#C6A8E8;
+    --violet-deep:#DCC4F2;
+    --violet-soft:#2E2440;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px -12px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10161C;
+  --surface:#161D24;
+  --surface-2:#1C242C;
+  --ink:#E7ECEE;
+  --muted:#93A0AA;
+  --line:#2A333B;
+  --accent:#7EA0CE;
+  --accent-deep:#B0C7E7;
+  --accent-soft:#213248;
+  --success:#74C39A;
+  --success-soft:#1C3327;
+  --warning:#D9A857;
+  --warning-soft:#3A2E17;
+  --danger:#E08B7A;
+  --danger-soft:#3A211C;
+  --violet:#C6A8E8;
+  --violet-deep:#DCC4F2;
+  --violet-soft:#2E2440;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px -12px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans', system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'IBM Plex Mono', 'SFMono-Regular', monospace;}
+h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; margin:0; text-wrap:balance;}
+.wrap{max-width:1120px; margin:0 auto; padding:32px 24px 80px;}
 
+.topbar{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:28px; flex-wrap:wrap;}
+.topbar .eyebrow{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:6px;}
+.topbar h1{font-size:30px; color:var(--ink); font-weight:700;}
+.topbar p{margin:6px 0 0; color:var(--muted); font-size:14px; max-width:46ch;}
+
+.profile-tabs{display:flex; gap:12px; margin-bottom:24px;}
+.profile-tab{
+  flex:1; display:flex; align-items:center; gap:12px; padding:13px 16px; text-align:left;
+  border:1.5px solid var(--line); border-radius:12px; background:var(--surface); cursor:pointer;
+  box-shadow:var(--shadow); font-family:inherit; transition:border-color .12s, background .12s;
+}
+.profile-tab.active{border-color:var(--pcolor); background:var(--pcolor-soft);}
+.profile-avatar{
+  width:36px; height:36px; border-radius:50%; background:var(--pcolor); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;
+}
+.profile-tab .p-info{display:flex; flex-direction:column; gap:1px; min-width:0;}
+.profile-tab .p-name{font-weight:700; font-size:14.5px; color:var(--ink);}
+.profile-tab .p-count{font-size:12px; color:var(--muted);}
+@media (max-width:560px){ .profile-tabs{flex-direction:column;} }
+.btn{
+  border:1px solid transparent; border-radius:8px; padding:10px 16px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  transition:background .12s, border-color .12s, color .12s;
+}
+.btn-primary{background:var(--accent); color:#fff;}
+.btn-primary:hover{background:var(--accent-deep);}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+.btn-ghost:hover{background:var(--surface-2);}
+.btn-danger{background:transparent; color:var(--danger); border-color:var(--danger);}
+.btn-danger:hover{background:var(--danger-soft);}
+.btn-sm{padding:6px 11px; font-size:12.5px;}
+.btn[disabled]{opacity:.55; cursor:default;}
+
+.banner{
+  background:var(--warning-soft); color:var(--warning); border:1px solid var(--warning);
+  border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:20px; display:flex; gap:8px; align-items:center;
+}
+
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
+.stat{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.stat .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600;}
+.stat .value{font-family:'Source Serif 4', serif; font-size:28px; font-weight:600; margin-top:6px; font-variant-numeric:tabular-nums;}
+.stat.tone-danger .value{color:var(--danger);}
+.stat.tone-accent .value{color:var(--accent);}
+.stat.tone-success .value{color:var(--success);}
+
+.toolbar{display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
+.search{
+  flex:1 1 260px; position:relative;
+}
+.search input{
+  width:100%; padding:11px 14px 11px 38px; border-radius:9px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink); font-size:14px; font-family:inherit;
+}
+.search input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--muted);}
+.chips{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{
+  border:1px solid var(--line); background:var(--surface); color:var(--muted); border-radius:999px;
+  padding:7px 13px; font-size:12.5px; font-weight:600; cursor:pointer;
+}
+.chip.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+.summary{
+  background:var(--accent-soft); border:1px solid var(--accent); border-radius:12px; padding:16px 18px; margin-bottom:20px;
+}
+.summary h3{font-size:14px; color:var(--accent-deep); font-family:'IBM Plex Sans'; font-weight:700; margin-bottom:10px; text-transform:uppercase; letter-spacing:.03em;}
+.summary .row{display:flex; gap:22px; flex-wrap:wrap; margin-bottom:10px;}
+.summary .kv .k{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+.summary .kv .v{font-size:18px; font-weight:600; font-variant-numeric:tabular-nums;}
+.summary .matches{display:flex; flex-direction:column; gap:6px; margin-top:8px;}
+.summary .match-item{
+  display:flex; justify-content:space-between; gap:10px; font-size:13px; background:var(--surface);
+  border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer;
+}
+.summary .match-item:hover{border-color:var(--accent);}
+.summary .empty{color:var(--muted); font-size:13.5px;}
+
+.list{display:flex; flex-direction:column; gap:10px;}
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px;
+  display:grid; grid-template-columns:auto 1fr auto auto; gap:16px; align-items:center; cursor:pointer;
+  box-shadow:var(--shadow);
+}
+.card:hover{border-color:var(--accent);}
+.card .codigo{font-size:12px; color:var(--accent); background:var(--accent-soft); padding:4px 8px; border-radius:6px; font-weight:600;}
+.card .title{min-width:0;}
+.card .title .nome{font-weight:600; font-size:15px; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.card .title .meta{font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.card .prazo{font-size:13px; text-align:right; white-space:nowrap;}
+.card .prazo .lbl{font-size:10.5px; text-transform:uppercase; color:var(--muted); letter-spacing:.05em;}
+.card .prazo .d{font-weight:600; font-variant-numeric:tabular-nums;}
+.card .prazo.atrasada .d{color:var(--danger);}
+.card .prazo.proxima .d{color:var(--warning);}
+.card .right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; white-space:nowrap;}
+.card .valor{font-weight:600; font-variant-numeric:tabular-nums; font-size:14px;}
+.pill{font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px; display:inline-block;}
+.pill-muted{background:var(--surface-2); color:var(--muted);}
+.pill-accent{background:var(--accent-soft); color:var(--accent-deep);}
+.pill-warning{background:var(--warning-soft); color:var(--warning);}
+.pill-success{background:var(--success-soft); color:var(--success);}
+.pill-danger{background:var(--danger-soft); color:var(--danger);}
+.empty-state{text-align:center; padding:60px 20px; color:var(--muted);}
+.empty-state h3{color:var(--ink); margin-bottom:8px;}
+
+.drawer{
+  position:fixed; inset:0; background:var(--surface); z-index:41;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none; transform:scale(.99);  transition:opacity .16s ease, transform .16s ease;
+}
+.drawer.open{opacity:1; visibility:visible; pointer-events:auto; transform:scale(1);}
+.drawer-head{padding:14px 28px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; flex-shrink:0;}
+.back-btn{
+  background:none; border:none; color:var(--muted); cursor:pointer; font-size:13.5px; font-weight:600;
+  display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:7px; flex-shrink:0; font-family:inherit;
+}
+.back-btn:hover{background:var(--surface-2); color:var(--ink);}
+.drawer-head .codigo-input{
+  font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--accent); background:var(--accent-soft);
+  border:none; border-radius:6px; padding:6px 9px; font-weight:600; width:140px; flex-shrink:0;
+}
+.drawer-head .nome-input{
+  font-family:'Source Serif 4', serif; font-size:20px; font-weight:600; border:none; background:transparent;
+  color:var(--ink); flex:1; padding:0; min-width:0;
+}
+.drawer-head .nome-input:focus, .drawer-head .codigo-input:focus{outline:1px solid var(--accent); outline-offset:2px;}
+.meta-grid{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px;
+  padding:18px 28px; border-bottom:1px solid var(--line); flex-shrink:0;
+}
+.meta-item{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.meta-item label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700;}
+.meta-item input, .meta-item select{
+  border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:13px; background:var(--paper);
+  color:var(--ink); font-family:inherit; width:100%;
+}
+.meta-item input:focus, .meta-item select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.meta-item .readout{padding:7px 0; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;}
+.drawer-columns{flex:1; display:grid; grid-template-columns:1.3fr 1fr; min-height:0;}
+.col-pane{overflow-y:auto; padding:22px 28px;}
+.col-documentos{border-right:1px solid var(--line);}
+@media (max-width:860px){
+  .drawer-columns{grid-template-columns:1fr; overflow-y:auto;}
+  .col-pane{overflow-y:visible; border-right:none; border-bottom:1px solid var(--line);}
+}
+.section{margin-bottom:24px;}
+.section h4{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; margin-bottom:10px;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.field{display:flex; flex-direction:column; gap:4px; margin-bottom:10px;}
+.field label{font-size:11.5px; color:var(--muted);}
+.field input, .field select, .field textarea{
+  border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13.5px; background:var(--paper);
+  color:var(--ink); font-family:inherit;
+}
+.field textarea{resize:vertical; min-height:56px;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.saldo-line{display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-top:1px solid var(--line); margin-top:4px;}
+.saldo-line.total{font-weight:700; font-size:14px;}
+
+.fase-group{border-left:2px solid var(--line); padding-left:14px; margin:0 0 16px 4px; position:relative;}
+.fase-group:before{content:''; position:absolute; left:-5px; top:2px; width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.fase-title{display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:700; font-size:13px; margin-bottom:8px; color:var(--ink);}
+
+.doc-item, .obs-item{
+  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:13px;
+  display:flex; justify-content:space-between; gap:10px; background:var(--paper); align-items:flex-start;
+}
+.doc-item .d-name{font-weight:600;}
+.doc-item .d-meta, .obs-item .o-date{font-size:11.5px; color:var(--muted); margin-top:3px;}
+.doc-item .d-actions{display:flex; gap:4px; flex-shrink:0;}
+.doc-item.editing{display:block;}
+.doc-item.has-file{cursor:pointer;}
+.doc-item.has-file:hover{border-color:var(--accent);}
+.remove-x{background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px 4px; border-radius:5px;}
+.remove-x:hover{color:var(--danger); background:var(--danger-soft);}
+
+.viewer-overlay{
+  position:fixed; inset:0; background:rgba(10,14,18,.72); z-index:60; display:flex; align-items:center; justify-content:center;
+  padding:24px; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s;
+}
+.viewer-overlay.open{opacity:1; visibility:visible; pointer-events:auto;}
+.viewer-box{background:var(--surface); border-radius:12px; width:min(880px,100%); height:min(88vh,100%); display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.5);}
+.viewer-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 18px; border-bottom:1px solid var(--line); flex-shrink:0;}
+.viewer-head .v-title{font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.viewer-close{background:none; border:none; color:var(--muted); cursor:pointer; font-size:20px; line-height:1; padding:4px; flex-shrink:0;}
+.viewer-close:hover{color:var(--danger);}
+.viewer-body{flex:1; overflow:auto; background:var(--paper); display:flex; align-items:center; justify-content:center;}
+.viewer-body iframe{width:100%; height:100%; border:none;}
+.viewer-body img{max-width:100%; max-height:100%; object-fit:contain;}
+.viewer-fallback{padding:40px; text-align:center; color:var(--muted); font-size:13.5px;}
+.add-row{display:flex; gap:8px; margin-top:6px;}
+.add-row input, .add-row select{flex:1; border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit; min-width:0;}
+.add-row .btn{flex:0 0 auto;}
+.confirm-box{background:var(--danger-soft); border:1px solid var(--danger); border-radius:8px; padding:10px 12px; font-size:13px; margin-top:8px;}
+.confirm-box .row{display:flex; gap:8px; margin-top:8px;}
+.hint{font-size:11.5px; color:var(--muted); margin-top:6px;}
+.import-box{border-top:1px solid var(--line); padding-top:12px; margin-top:6px;}
+@media (max-width:720px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .card{grid-template-columns:1fr; text-align:left;}
+  .card .right, .card .prazo{align-items:flex-start; text-align:left;}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Perícia contábil judicial</div>
+      <h1>Gerenciador de Perícias</h1>
+      <p>Casos, prazos, honorários e documentos de cada perícia em um só painel.</p>
+    </div>
+    <button class="btn btn-primary" onclick="novaPericia()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Nova perícia
+    </button>
+  </div>
+
+  <div class="profile-tabs" id="profileTabs"></div>
+
+  <div id="banner"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="text" placeholder="Buscar por código, nome, processo, comarca ou partes..." oninput="onSearch()">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="summary"></div>
+  <div class="list" id="list"></div>
+</div>
+
+<div class="drawer" id="drawer"></div>
+
+<div class="viewer-overlay" id="viewerOverlay" onclick="if(event.target===this) closeViewer();">
+  <div class="viewer-box">
+    <div class="viewer-head">
+      <span class="v-title" id="viewerTitle"></span>
+      <button class="viewer-close" onclick="closeViewer()">×</button>
+    </div>
+    <div class="viewer-body" id="viewerBody"></div>
+  </div>
+</div>
+
+<script>
+const STATUS = {
+  aguardando_nomeacao: {label:'Aguardando nomeação', pill:'pill-muted', final:false},
+  em_andamento:        {label:'Em andamento',        pill:'pill-accent', final:false},
+  aguardando_quesitos: {label:'Aguardando quesitos',  pill:'pill-warning', final:false},
+  laudo_entregue:      {label:'Laudo entregue',       pill:'pill-success', final:true},
+  concluida:           {label:'Concluída',            pill:'pill-success', final:true},
+};
+const DOC_TYPES = ['Despacho','Laudo Pericial','Quesitos','Procuração','Comprovante de Pagamento','Ofício','Ata de Audiência','Manifestação','Decisão/Sentença','Outro'];
+const STATUS_PROCESSO = {
+  em_tramitacao:  {label:'Em tramitação'},
+  suspenso:       {label:'Suspenso'},
+  sobrestado:     {label:'Sobrestado'},
+  aguardando_julgamento: {label:'Aguardando julgamento'},
+  baixado:        {label:'Baixado para cumprimento'},
+  arquivado:      {label:'Arquivado'},
+  transitado:     {label:'Transitado em julgado'},
+  extinto:        {label:'Extinto'},
+};
+const CONTADORES = {
+  jonatas: {label:'Jonatas Miranda', initials:'JM', color:'var(--accent)', soft:'var(--accent-soft)'},
+  rodrigo: {label:'Rodrigo Miranda', initials:'RM', color:'var(--violet)', soft:'var(--violet-soft)'},
+};
+const SUGGESTED_FASES = ['Despacho de Nomeação','Quesitos das Partes','Perícia em Campo / Diligência','Laudo Pericial','Manifestação das Partes','Impugnação','Decisão / Sentença'];
+const MAX_EMBED_BYTES = 150000; // ~150KB — mantém cada documento bem abaixo do limite de 256KB por registro
+
+const KEYWORD_MAP = [
+  {re:/despacho/, tipo:'Despacho', fase:'Despacho'},
+  {re:/laudo/, tipo:'Laudo Pericial', fase:'Laudo Pericial'},
+  {re:/quesito/, tipo:'Quesitos', fase:'Quesitos das Partes'},
+  {re:/procuracao/, tipo:'Procuração', fase:null},
+  {re:/comprovante/, tipo:'Comprovante de Pagamento', fase:null},
+  {re:/oficio/, tipo:'Ofício', fase:null},
+  {re:/\bata\b/, tipo:'Ata de Audiência', fase:'Ata de Audiência'},
+  {re:/manifestacao|impugnacao/, tipo:'Manifestação', fase:'Manifestação das Partes'},
+  {re:/sentenca|decisao/, tipo:'Decisão/Sentença', fase:'Decisão / Sentença'},
+];
+
+function seedData(){
+  return [
+    {id:'seed-1', contador:'jonatas', codigo:'PER-2026-014', nome:'Divórcio Litigioso — Partilha de Bens', numeroProcesso:'0812345-67.2025.8.26.0100', codigoAcesso:'JF7K92QX', statusProcesso:'em_tramitacao', vara:'3ª Vara de Família', comarca:'São Paulo/SP', partes:'Rocha x Almeida', dataNomeacao:'2026-06-02', prazoEntrega:'2026-09-25', honorarios:8500, valorRecebido:4250, statusCaso:'em_andamento',
+      documentos:[
+        {id:'d1', nome:'Procuração', tipo:'Procuração', fase:'Habilitação das Partes', data:'2026-06-10', obs:''},
+        {id:'d2', nome:'Quesitos do juízo', tipo:'Quesitos', fase:'Quesitos das Partes', data:'2026-07-01', obs:'Recebidos via DJE'}
+      ],
+      observacoes:[{id:'o1',data:'2026-07-15',texto:'Aguardando resposta do banco sobre extratos societários solicitados por ofício.'}]},
+    {id:'seed-2', contador:'rodrigo', codigo:'PER-2026-009', nome:'Apuração de Haveres — Dissolução Societária', numeroProcesso:'1002233-11.2024.8.26.0224', codigoAcesso:'RN4T18BZ', statusProcesso:'transitado', vara:'2ª Vara Empresarial', comarca:'Guarulhos/SP', partes:'Ferraz x Nogueira', dataNomeacao:'2026-03-14', prazoEntrega:'2026-08-20', honorarios:14000, valorRecebido:14000, statusCaso:'concluida',
+      documentos:[
+        {id:'d3', nome:'Laudo Pericial Contábil', tipo:'Laudo Pericial', fase:'Laudo Pericial', data:'2026-08-18', obs:'Protocolado nos autos'}
+      ],
+      observacoes:[{id:'o2',data:'2026-08-19',texto:'Levantamento concluído; honorários integralmente recebidos.'}]},
+    {id:'seed-3', contador:'jonatas', codigo:'PER-2026-002', nome:'Revisão de Cálculos Trabalhistas — Execução', numeroProcesso:'0045566-90.2023.5.02.0031', codigoAcesso:'', statusProcesso:'suspenso', vara:'31ª Vara do Trabalho', comarca:'São Paulo/SP', partes:'Souza x Transportes Vale Ltda', dataNomeacao:'2025-11-20', prazoEntrega:'2026-08-30', honorarios:6200, valorRecebido:0, statusCaso:'aguardando_quesitos',
+      documentos:[
+        {id:'d5', nome:'Despacho — quesitos suplementares', tipo:'Despacho', fase:'Despacho de Quesitos Suplementares', data:'2026-06-01', obs:''}
+      ],
+      observacoes:[{id:'o3',data:'2026-06-02',texto:'Partes intimadas para apresentação de quesitos suplementares.'}]},
+    {id:'seed-4', contador:'rodrigo', codigo:'PER-2026-021', nome:'Prestação de Contas — Espólio', numeroProcesso:'0678812-45.2025.8.26.0577', codigoAcesso:'', statusProcesso:'em_tramitacao', vara:'1ª Vara de Sucessões', comarca:'São José dos Campos/SP', partes:'Espólio Martins x Herdeiros', dataNomeacao:'2026-08-01', prazoEntrega:'2026-11-30', honorarios:9800, valorRecebido:0, statusCaso:'aguardando_nomeacao',
+      documentos:[],
+      observacoes:[{id:'o4',data:'2026-08-05',texto:'Nomeação publicada no DJE; aguardando decurso do prazo recursal das partes.'}]},  ];
+}
+
+let casos = seedData();
+let db = null, usingDb = false;
+let activeContador = (function(){
+  try{ const saved = localStorage.getItem('pericias.activeContador'); if(saved && CONTADORES[saved]) return saved; }catch(e){}
+  return 'jonatas';
+})();
+let activeFilter = 'todas';
+let searchQuery = '';
+let drawerCasoId = null;
+let editingDocId = null;
+let currentDocsUnsub = null;
+
+const fmtMoney = v => (v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-BR') : '—';
+const todayIso = () => new Date().toISOString().slice(0,10);
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function normalizeText(s){ return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+function extOf(filename){ const m = filename.match(/\.([a-zA-Z0-9]+)$/); return m ? m[1].toLowerCase() : ''; }
+function mimeFor(ext){
+  const map = {pdf:'application/pdf', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp',
+    doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls:'application/vnd.ms-excel', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    txt:'text/plain', csv:'text/csv', zip:'application/zip'};
+  return map[ext] || 'application/octet-stream';
+}
+function fmtBytes(n){
+  if(!n) return '';
+  if(n < 1024) return n+' B';
+  if(n < 1024*1024) return (n/1024).toFixed(1)+' KB';
+  return (n/1024/1024).toFixed(1)+' MB';
+}
+function bytesToBase64(bytes){
+  let binary=''; const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){ binary += String.fromCharCode.apply(null, bytes.subarray(i,i+chunk)); }
+  return btoa(binary);
+}
+function base64ToBytes(base64){
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return bytes;
+}
+function guessFromFilename(filename){
+  const norm = normalizeText(filename);
+  for(const k of KEYWORD_MAP){ if(k.re.test(norm)) return {tipo:k.tipo, fase:k.fase}; }
+  return {tipo:'Outro', fase:null};
+}
+function cleanFolderName(folder){
+  if(!folder) return null;
+  const cleaned = folder.replace(/^[\d]+[\s\-_.]+/,'').replace(/[_]+/g,' ').trim();
+  return cleaned || folder;
+}
+function guessDateFromFilename(filename){
+  let m;
+  if((m = filename.match(/(\d{4})[-_.](\d{2})[-_.](\d{2})/))) return `${m[1]}-${m[2]}-${m[3]}`;
+  if((m = filename.match(/(\d{2})[-_.](\d{2})[-_.](\d{4})/))) return `${m[3]}-${m[2]}-${m[1]}`;
+  if((m = filename.match(/(?:^|[^\d])(\d{8})(?:[^\d]|$)/))){
+    const s = m[1], y = s.slice(0,4);
+    if(y >= '1990' && y <= '2100') return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+  }
+  return null;
+}
+function guessProcessoFromFilename(filename){
+  let m = filename.match(/(\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4})/);
+  if(m) return m[1];
+  m = filename.match(/(?:^|[^\d])(\d{20})(?:[^\d]|$)/);
+  if(m){
+    const s = m[1];
+    return `${s.slice(0,7)}-${s.slice(7,9)}.${s.slice(9,13)}.${s.slice(13,14)}.${s.slice(14,16)}.${s.slice(16,20)}`;
+  }
+  return null;
+}
+function isoFromDate(d){ try{ return d.toISOString().slice(0,10); }catch(e){ return todayIso(); } }
+function mimeFromDataUrl(dataUrl){
+  const m = dataUrl && dataUrl.match(/^data:([^;]+);/);
+  return m ? m[1] : 'application/octet-stream';
+}
+function guessCodigoAcessoFromText(text){
+  const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,20})/i);
+  return m ? m[1].toUpperCase() : null;
+}
+let pdfJsReady = false;
+function ensurePdfJs(){
+  if(typeof pdfjsLib === 'undefined') return false;
+  if(!pdfJsReady){
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      pdfJsReady = true;
+    }catch(e){ return false; }
+  }
+  return true;
+}
+async function extractPdfInfo(bytes){
+  const result = {processo:null, codigoAcesso:null};
+  if(!ensurePdfJs()) return result;
+  try{
+    const doc = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+    let text = '';
+    const maxPages = Math.min(doc.numPages, 3);
+    for(let i=1; i<=maxPages; i++){
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text += ' ' + content.items.map(it => it.str).join(' ');
+      if(text.length > 20000) break;
+    }
+    result.processo = guessProcessoFromFilename(text);
+    result.codigoAcesso = guessCodigoAcessoFromText(text);
+  }catch(e){ /* PDF sem camada de texto (escaneado), corrompido, ou leitor indisponível — segue sem esses dados */ }
+  return result;
+}
+function pillForTipo(tipo){
+  const map = {'Despacho':'pill-accent','Laudo Pericial':'pill-success','Decisão/Sentença':'pill-success','Quesitos':'pill-warning','Manifestação':'pill-warning'};
+  return map[tipo] || 'pill-muted';
+}
+
+function prazoState(caso){
+  const meta = STATUS[caso.statusCaso];
+  if(meta && meta.final) return 'ok';
+  const diff = (new Date(caso.prazoEntrega+'T00:00:00') - new Date(todayIso()+'T00:00:00')) / 86400000;
+  if(diff < 0) return 'atrasada';
+  if(diff <= 7) return 'proxima';
+  return 'ok';
+}
+
+function matchesQuery(c, q){
+  if(!q) return true;
+  const hay = [c.codigo, c.nome, c.numeroProcesso, c.comarca, c.vara, c.partes].join(' ').toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+function matchesFilter(c, f){
+  if(f === 'todas') return true;
+  if(f === 'ativas') return !STATUS[c.statusCaso].final;
+  if(f === 'atrasadas') return prazoState(c) === 'atrasada';
+  if(f === 'concluidas') return STATUS[c.statusCaso].final;
+  return true;
+}
+function casosDoContador(contador){
+  contador = contador || activeContador;
+  return casos.filter(c => c.contador === contador);
+}
+function visibleCasos(){
+  return casosDoContador()
+    .filter(c => matchesFilter(c, activeFilter) && matchesQuery(c, searchQuery))
+    .sort((a,b) => a.prazoEntrega.localeCompare(b.prazoEntrega));
+}
+
+function setContador(key){
+  if(!CONTADORES[key] || key === activeContador) return;
+  activeContador = key;
+  activeFilter = 'todas';
+  searchQuery = '';
+  const input = document.getElementById('searchInput'); if(input) input.value = '';
+  try{ localStorage.setItem('pericias.activeContador', key); }catch(e){}
+  renderAll();
+}
+function renderProfileTabs(){
+  document.getElementById('profileTabs').innerHTML = Object.entries(CONTADORES).map(([key, meta]) => {
+    const count = casosDoContador(key).length;
+    return `
+      <button class="profile-tab ${activeContador===key?'active':''}" style="--pcolor:${meta.color}; --pcolor-soft:${meta.soft};" onclick="setContador('${key}')">
+        <span class="profile-avatar">${meta.initials}</span>
+        <span class="p-info">
+          <span class="p-name">${meta.label}</span>
+          <span class="p-count">${count} perícia${count===1?'':'s'}</span>
+        </span>
+      </button>`;
+  }).join('');
+}
+
+function renderStats(){
+  const base = casosDoContador();
+  const ativas = base.filter(c => !STATUS[c.statusCaso].final).length;
+  const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
+  const aReceber = base.reduce((s,c) => s + Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)), 0);
+  const concluidas = base.filter(c => STATUS[c.statusCaso].final).length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat tone-accent"><div class="label">Em andamento</div><div class="value">${ativas}</div></div>
+    <div class="stat tone-danger"><div class="label">Prazos atrasados</div><div class="value">${atrasadas}</div></div>
+    <div class="stat"><div class="label">Honorários a receber</div><div class="value">${fmtMoney(aReceber)}</div></div>
+    <div class="stat tone-success"><div class="label">Concluídas</div><div class="value">${concluidas}</div></div>
+  `;
+}
+function renderChips(){
+  const chips = [['todas','Todas'], ['ativas','Ativas'], ['atrasadas','Atrasadas'], ['concluidas','Concluídas']];
+  document.getElementById('chips').innerHTML = chips.map(([k,label]) =>
+    `<button class="chip ${activeFilter===k?'active':''}" onclick="setFilter('${k}')">${label}</button>`
+  ).join('');
+}
+function setFilter(f){ activeFilter = f; renderAll(); }
+function onSearch(){
+  searchQuery = document.getElementById('searchInput').value.trim();
+  renderAll();
+}function renderSummary(){
+  const el = document.getElementById('summary');
+  if(!searchQuery){ el.innerHTML=''; return; }
+  const matches = casosDoContador().filter(c => matchesQuery(c, searchQuery));
+  if(matches.length === 0){
+    el.innerHTML = `<div class="summary"><h3>Resumo da busca</h3><div class="empty">Nenhuma perícia encontrada para "${escapeHtml(searchQuery)}".</div></div>`;
+    return;
+  }
+  const totalHonorarios = matches.reduce((s,c)=>s+(c.honorarios||0),0);
+  const totalAReceber = matches.reduce((s,c)=>s+Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)),0);
+  const atrasadasN = matches.filter(c=>prazoState(c)==='atrasada').length;
+  el.innerHTML = `
+    <div class="summary">
+      <h3>Resumo da busca — "${escapeHtml(searchQuery)}"</h3>
+      <div class="row">
+        <div class="kv"><div class="k">Encontradas</div><div class="v">${matches.length}</div></div>
+        <div class="kv"><div class="k">Honorários (total)</div><div class="v">${fmtMoney(totalHonorarios)}</div></div>
+        <div class="kv"><div class="k">A receber</div><div class="v">${fmtMoney(totalAReceber)}</div></div>
+        <div class="kv"><div class="k">Com prazo atrasado</div><div class="v">${atrasadasN}</div></div>
+      </div>
+      <div class="matches">
+        ${matches.map(c => `
+          <div class="match-item" onclick="openDrawer('${c.id}')">
+            <span><span class="mono">${escapeHtml(c.codigo)}</span> — ${escapeHtml(c.nome)}</span>
+            <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderList(){
+  const items = visibleCasos();
+  const el = document.getElementById('list');
+  if(items.length === 0){
+    el.innerHTML = `<div class="empty-state"><h3>Nenhuma perícia aqui</h3><p>Ajuste os filtros ou crie uma nova perícia.</p></div>`;
+    return;
+  }
+  el.innerHTML = items.map(c => {
+    const st = prazoState(c);
+    const saldo = Math.max(0,(c.honorarios||0)-(c.valorRecebido||0));
+    return `
+    <div class="card" onclick="openDrawer('${c.id}')">
+      <span class="codigo mono">${escapeHtml(c.codigo)}</span>
+      <div class="title">
+        <div class="nome">${escapeHtml(c.nome)}</div>
+        <div class="meta">${escapeHtml(c.partes)} · ${escapeHtml(c.comarca)}${c.statusProcesso && STATUS_PROCESSO[c.statusProcesso] ? ' · '+STATUS_PROCESSO[c.statusProcesso].label : ''}</div>
+      </div>
+      <div class="prazo ${st}">
+        <div class="lbl">Prazo</div>
+        <div class="d mono">${fmtDate(c.prazoEntrega)}</div>
+      </div>
+      <div class="right">
+        <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}${st==='atrasada' ? ' · atrasada' : ''}</span>
+        <span class="valor">${saldo>0 ? fmtMoney(saldo)+' a receber' : 'pago'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){
+  renderProfileTabs();
+  renderStats();
+  renderChips();
+  renderSummary();
+  renderList();
+  if(drawerCasoId) renderDrawer();
+}
+
+// ---------- persistence: casos ----------
+async function initDb(){
+  try{
+    db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+  }catch(e){ db = null; }
+  if(!db){
+    document.getElementById('banner').innerHTML = `<div class="banner">Armazenamento não disponível nesta visualização — as alterações não serão salvas permanentemente.</div>`;
+    renderAll();
+    return;
+  }
+  usingDb = true;
+  try{
+    const snap = await db.collection('casos').get();
+    if(snap.empty){
+      for(const c of casos){
+        const {id, documentos, ...data} = c;
+        await db.collection('casos').doc(id).set(data);
+        for(const d of (documentos||[])){
+          const {id:docId, ...docData} = d;
+          await db.collection('casos').doc(id).collection('documentos').doc(docId).set(docData);
+        }
+      }
+    }
+  }catch(e){ /* proceed to subscribe regardless */ }
+  db.collection('casos').onSnapshot(snap => {
+    const prevDocs = {};
+    casos.forEach(c => { prevDocs[c.id] = c.documentos; });
+    casos = snap.docs.map(d => ({id:d.id, documentos: prevDocs[d.id] || [], ...d.data()}));
+    renderAll();
+  }, err => {
+    document.getElementById('banner').innerHTML = `<div class="banner">Não foi possível sincronizar os dados agora (${escapeHtml(err.code||'erro')}). Exibindo a última versão conhecida.</div>`;
+  });
+  if(drawerCasoId) subscribeDocumentos(drawerCasoId);
+}
+
+async function saveCaso(id, patch){
+  const idx = casos.findIndex(c => c.id === id);
+  if(idx === -1) return;
+  casos[idx] = {...casos[idx], ...patch};
+  if(usingDb){
+    try{ await db.collection('casos').doc(id).update(patch); }
+    catch(e){ /* keep optimistic local state */ }
+  } else {
+    renderAll();
+  }
+}
+
+async function criarCaso(data){
+  const id = 'c' + Date.now();
+  const novo = {id, documentos:[], ...data};
+  casos.push(novo);
+  if(usingDb){
+    try{ await db.collection('casos').doc(id).set(data); }catch(e){}
+  }
+  renderAll();
+  return id;
+}
+
+async function excluirCaso(id){
+  casos = casos.filter(c => c.id !== id);
+  if(usingDb){
+    try{
+      const snap = await db.collection('casos').doc(id).collection('documentos').get();
+      for(const d of snap.docs){ await db.collection('casos').doc(id).collection('documentos').doc(d.id).delete(); }
+    }catch(e){}
+    try{ await db.collection('casos').doc(id).delete(); }catch(e){}
+  }
+  closeDrawer();
+  renderAll();
+}
+
+function nextCodigo(){
+  const year = new Date().getFullYear();
+  const n = casos.length + 1;
+  return `PER-${year}-${String(n).padStart(3,'0')}`;
+}
+
+async function novaPericia(){
+  const data = {
+    contador: activeContador, codigo: nextCodigo(), nome:'Nova perícia', numeroProcesso:'', vara:'', comarca:'', partes:'',
+    dataNomeacao: todayIso(), prazoEntrega: todayIso(), honorarios:0, valorRecebido:0,
+    statusCaso:'aguardando_nomeacao', observacoes:[]
+  };
+  const id = await criarCaso(data);
+  openDrawer(id);
+}
+
+async function changeContadorDoCaso(id, val){
+  await saveCaso(id, {contador: val});
+  renderAll();
+}
+
+function fieldUpdate(id, key, val, isNumber){
+  saveCaso(id, {[key]: isNumber ? (parseFloat(val)||0) : val});
+}
+
+// ---------- persistence: documentos (subcoleção por perícia) ----------
+function subscribeDocumentos(casoId){
+  if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+  if(!usingDb) return;
+  const c = casos.find(x => x.id === casoId);
+  if(c && !Array.isArray(c.documentos)) c.documentos = [];
+  currentDocsUnsub = db.collection('casos').doc(casoId).collection('documentos').onSnapshot(snap => {
+    const cc = casos.find(x => x.id === casoId);
+    if(!cc) return;
+    cc.documentos = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    if(drawerCasoId === casoId) renderDrawer();
+  }, err => { /* mantém último estado conhecido */ });
+}
+
+async function addDoc(casoId, data){
+  if(usingDb){
+    try{ await db.collection('casos').doc(casoId).collection('documentos').add(data); return; }
+    catch(e){ /* cai para o modo local abaixo */ }
+  }
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return;
+  c.documentos = [...(c.documentos||[]), {id:'d'+Date.now()+Math.random().toString(36).slice(2,6), ...data}];
+}
+async function updateDoc(casoId, docId, patch){
+  if(usingDb){
+    try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).update(patch); return; }
+    catch(e){}
+  }
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return;
+  c.documentos = c.documentos.map(d => d.id === docId ? {...d, ...patch} : d);
+}
+async function removeDoc(casoId, docId){
+  if(usingDb){
+    try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).delete(); }
+    catch(e){}  } else {
+    const c = casos.find(x => x.id === casoId);
+    if(c) c.documentos = c.documentos.filter(d => d.id !== docId);
+  }
+  renderDrawer(); renderList();
+}
+
+async function addDocFromForm(casoId){
+  const nomeInput = document.getElementById(`docNome-${casoId}`);
+  const nome = nomeInput.value.trim();
+  if(!nome) return;
+  const fase = document.getElementById(`docFase-${casoId}`).value.trim() || 'Sem fase identificada';
+  const tipo = document.getElementById(`docTipo-${casoId}`).value;
+  const data = document.getElementById(`docData-${casoId}`).value || todayIso();
+  let obs = document.getElementById(`docObs-${casoId}`).value.trim();
+  const fileInput = document.getElementById(`docArquivo-${casoId}`);
+  let arquivo = null, tamanho = null;
+  let processo = guessProcessoFromFilename(nome);
+  let codigoAcesso = null;
+  if(fileInput.files[0]){
+    const f = fileInput.files[0];
+    processo = processo || guessProcessoFromFilename(f.name);
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    tamanho = bytes.length;
+    if(extOf(f.name) === 'pdf'){
+      const info = await extractPdfInfo(bytes);
+      processo = processo || info.processo;
+      codigoAcesso = info.codigoAcesso;
+    }
+    if(bytes.length <= MAX_EMBED_BYTES){
+      arquivo = {dataUrl:`data:${f.type||mimeFor(extOf(f.name))};base64,${bytesToBase64(bytes)}`, tamanho:bytes.length};
+    } else {
+      obs = (obs ? obs+' — ' : '') + `Arquivo de ${fmtBytes(bytes.length)}, grande demais para armazenar; apenas o registro foi salvo.`;
+    }
+  }
+  await addDoc(casoId, {nome, fase, tipo, data, obs, tamanho, arquivo, processo, codigoAcesso});
+  const c = casos.find(x => x.id === casoId);
+  if(c && processo && !c.numeroProcesso){ await saveCaso(casoId, {numeroProcesso: processo}); }
+  if(c && codigoAcesso && !c.codigoAcesso){ await saveCaso(casoId, {codigoAcesso}); }
+  nomeInput.value=''; document.getElementById(`docFase-${casoId}`).value=''; document.getElementById(`docObs-${casoId}`).value=''; fileInput.value='';
+  renderDrawer(); renderList();
+}
+
+async function handleZipImport(casoId, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById(`zipStatus-${casoId}`);
+  if(typeof JSZip === 'undefined'){
+    statusEl.textContent = 'Não foi possível carregar o leitor de ZIP. Tente novamente em alguns instantes.';
+    inputEl.value = '';
+    return;
+  }
+  statusEl.textContent = 'Lendo arquivo ZIP...';
+  try{
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+    const entries = Object.values(zip.files).filter(f => !f.dir);
+    if(entries.length === 0){ statusEl.textContent = 'O ZIP não contém arquivos.'; inputEl.value=''; return; }
+    let imported = 0, semArquivo = 0;
+    const processosDetectados = [];
+    const codigosDetectados = [];
+    for(const entry of entries){
+      statusEl.textContent = `Importando ${imported+1} de ${entries.length}...`;
+      const bytes = await entry.async('uint8array');
+      const parts = entry.name.split('/').filter(Boolean);
+      const filename = parts[parts.length-1];
+      const folder = parts.length > 1 ? parts[0] : null;
+      const guess = guessFromFilename(filename);
+      const fase = cleanFolderName(folder) || guess.fase || 'Sem fase identificada';
+      const tipo = guess.tipo;
+      const data = guessDateFromFilename(filename) || isoFromDate(entry.date || new Date());
+      let processo = guessProcessoFromFilename(entry.name);
+      let codigoAcesso = null;
+      if(extOf(filename) === 'pdf'){
+        statusEl.textContent = `Lendo texto do PDF ${imported+1} de ${entries.length}...`;
+        const info = await extractPdfInfo(bytes);
+        processo = processo || info.processo;
+        codigoAcesso = info.codigoAcesso;
+      }
+      if(processo) processosDetectados.push(processo);
+      if(codigoAcesso) codigosDetectados.push(codigoAcesso);
+      let arquivo = null, obs = '';
+      if(bytes.length > 0 && bytes.length <= MAX_EMBED_BYTES){
+        arquivo = {dataUrl:`data:${mimeFor(extOf(filename))};base64,${bytesToBase64(bytes)}`, tamanho:bytes.length};
+      } else if(bytes.length > MAX_EMBED_BYTES){
+        semArquivo++;
+        obs = `Arquivo de ${fmtBytes(bytes.length)} — grande demais para armazenar; apenas o registro foi importado.`;
+      }
+      await addDoc(casoId, {nome:filename, fase, tipo, data, obs, tamanho:bytes.length, arquivo, processo, codigoAcesso});
+      imported++;
+    }
+    let processoMsg = '';
+    const c = casos.find(x => x.id === casoId);
+    if(c && processosDetectados.length){
+      const freq = {};
+      processosDetectados.forEach(p => { freq[p] = (freq[p]||0)+1; });
+      const maisFrequente = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+      if(!c.numeroProcesso){
+        await saveCaso(casoId, {numeroProcesso: maisFrequente});
+        processoMsg = ` Número do processo identificado nos documentos e preenchido automaticamente: ${maisFrequente}.`;
+      } else {
+        const divergentes = processosDetectados.filter(p => p !== c.numeroProcesso).length;
+        if(divergentes > 0){
+          processoMsg = ` Atenção: ${divergentes} documento(s) têm número de processo diferente do cadastrado nesta perícia (${c.numeroProcesso}) — verifique se foram importados no caso certo.`;
+        }
+      }
+    }
+    let codigoMsg = '';
+    if(c && codigosDetectados.length && !c.codigoAcesso){
+      const freqC = {};
+      codigosDetectados.forEach(p => { freqC[p] = (freqC[p]||0)+1; });
+      const codigoMaisFrequente = Object.entries(freqC).sort((a,b)=>b[1]-a[1])[0][0];
+      await saveCaso(casoId, {codigoAcesso: codigoMaisFrequente});
+      codigoMsg = ` Código de acesso identificado nos documentos: ${codigoMaisFrequente}.`;
+    }
+    statusEl.textContent = `Importação concluída: ${imported} documento(s) adicionados${semArquivo ? ', '+semArquivo+' sem arquivo anexado (muito grandes)' : ''}.${processoMsg}${codigoMsg}`;
+  }catch(e){
+    statusEl.textContent = 'Não foi possível ler este ZIP. Verifique o arquivo e tente novamente.';
+  }
+  inputEl.value = '';
+  renderDrawer(); renderList();
+}
+
+async function downloadDoc(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && c.documentos.find(x => x.id === docId);
+  const statusEl = document.getElementById(`dlstatus-${docId}`);
+  if(!d || !d.arquivo) return;
+  let dl = null;
+  try{ dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; }catch(e){ dl = null; }
+  if(!dl){ if(statusEl) statusEl.textContent = 'Download indisponível nesta visualização.'; return; }
+  try{
+    const comma = d.arquivo.dataUrl.indexOf(',');
+    const bytes = base64ToBytes(d.arquivo.dataUrl.slice(comma+1));
+    if(statusEl) statusEl.textContent = '';
+    await dl.save({filename:d.nome, data:bytes});
+  }catch(e){
+    if(statusEl) statusEl.textContent = (e && e.code === 'declined') ? '' : 'Não foi possível baixar o arquivo.';
+  }
+}
+
+function editDoc(docId){ editingDocId = docId; renderDrawer(); }
+function cancelEditDoc(){ editingDocId = null; renderDrawer(); }
+async function saveDocEdit(casoId, docId){
+  const fase = document.getElementById(`editFase-${docId}`).value.trim() || 'Sem fase identificada';
+  const tipo = document.getElementById(`editTipo-${docId}`).value;
+  const data = document.getElementById(`editData-${docId}`).value;
+  await updateDoc(casoId, docId, {fase, tipo, data});
+  editingDocId = null;
+  renderDrawer(); renderList();
+}
+
+function groupByFase(docs){
+  const groups = {};
+  (docs||[]).forEach(d => {
+    const key = d.fase || 'Sem fase identificada';
+    (groups[key] = groups[key] || []).push(d);
+  });
+  const entries = Object.entries(groups).map(([fase, items]) => {
+    items.sort((a,b) => (a.data||'').localeCompare(b.data||''));
+    const minDate = items.reduce((min,i) => (i.data && (!min || i.data < min)) ? i.data : min, null);
+    return {fase, items, minDate};
+  });
+  entries.sort((a,b) => {
+    if(a.fase === 'Sem fase identificada') return 1;
+    if(b.fase === 'Sem fase identificada') return -1;
+    return (a.minDate || '9999-99-99').localeCompare(b.minDate || '9999-99-99');
+  });
+  return entries;
+}
+
+// ---------- drawer ----------
+function openDrawer(id){
+  drawerCasoId = id;
+  editingDocId = null;
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderDrawer();
+  subscribeDocumentos(id);
+}
+function closeDrawer(){
+  if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+  drawerCasoId = null;
+  editingDocId = null;
+  document.getElementById('drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('drawer').innerHTML = '';
+}
+function openViewer(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && c.documentos.find(x => x.id === docId);
+  if(!d || !d.arquivo) return;
+  const mime = mimeFromDataUrl(d.arquivo.dataUrl);
+  let bodyHtml;
+  if(mime === 'application/pdf'){
+    bodyHtml = `<iframe src="${d.arquivo.dataUrl}" title="${escapeHtml(d.nome)}"></iframe>`;
+  } else if(mime.startsWith('image/')){
+    bodyHtml = `<img src="${d.arquivo.dataUrl}" alt="${escapeHtml(d.nome)}">`;
+  } else {
+    bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc('${casoId}','${docId}')">Baixar arquivo</button></div>`;  }
+  document.getElementById('viewerTitle').textContent = d.nome;
+  document.getElementById('viewerBody').innerHTML = bodyHtml;
+  document.getElementById('viewerOverlay').classList.add('open');
+}
+function closeViewer(){
+  document.getElementById('viewerOverlay').classList.remove('open');
+  document.getElementById('viewerBody').innerHTML = '';
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(document.getElementById('viewerOverlay').classList.contains('open')){ closeViewer(); return; }
+  if(drawerCasoId) closeDrawer();
+});
+
+function renderDocItem(c, d){
+  const faseListId = `faseList-${c.id}`;
+  if(editingDocId === d.id){
+    return `
+      <div class="doc-item editing">
+        <input list="${faseListId}" id="editFase-${d.id}" value="${escapeHtml(d.fase||'')}" placeholder="Fase / despacho" style="width:100%; margin-bottom:6px; border:1px solid var(--line); border-radius:7px; padding:7px 9px; background:var(--surface); color:var(--ink); font-family:inherit; font-size:13px;">
+        <div class="add-row">
+          <select id="editTipo-${d.id}">${DOC_TYPES.map(t=>`<option value="${t}" ${d.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
+          <input type="date" id="editData-${d.id}" value="${d.data||''}">
+        </div>
+        <div class="add-row">
+          <button class="btn btn-primary btn-sm" onclick="saveDocEdit('${c.id}','${d.id}')">Salvar</button>
+          <button class="btn btn-ghost btn-sm" onclick="cancelEditDoc()">Cancelar</button>
+        </div>
+      </div>`;
+  }
+  const sizeTxt = fmtBytes(d.tamanho);
+  const processoDivergente = d.processo && c.numeroProcesso && d.processo !== c.numeroProcesso;
+  const openAttr = d.arquivo ? `onclick="openViewer('${c.id}','${d.id}')"` : '';
+  return `
+    <div class="doc-item ${d.arquivo ? 'has-file' : ''}" ${openAttr} ${d.arquivo ? `title="Clique para abrir ${escapeHtml(d.nome)}"` : ''}>
+      <div style="min-width:0;">
+        <div class="d-name">${escapeHtml(d.nome)}</div>
+        <div class="d-meta">
+          <span class="pill ${pillForTipo(d.tipo)}" style="margin-right:6px;">${escapeHtml(d.tipo||'Outro')}</span>
+          <span class="mono">${fmtDate(d.data)}</span>${sizeTxt ? ' · '+sizeTxt : ''}${d.obs ? ' · '+escapeHtml(d.obs) : ''}
+        </div>
+        ${d.processo ? `<div class="d-meta">${processoDivergente ? `<span class="pill pill-warning" title="Processo cadastrado na perícia: ${escapeHtml(c.numeroProcesso)}">Processo diverge: <span class="mono">${escapeHtml(d.processo)}</span></span>` : `Processo: <span class="mono">${escapeHtml(d.processo)}</span>`}</div>` : ''}
+        ${d.codigoAcesso ? `<div class="d-meta">Código de acesso: <span class="mono">${escapeHtml(d.codigoAcesso)}</span></div>` : ''}
+        <div id="dlstatus-${d.id}" class="d-meta" style="color:var(--warning);"></div>
+      </div>
+      <div class="d-actions">
+        ${d.arquivo ? `<button class="remove-x" title="Abrir arquivo" onclick="event.stopPropagation(); openViewer('${c.id}','${d.id}')">👁</button>` : ''}
+        ${d.arquivo ? `<button class="remove-x" title="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${c.id}','${d.id}')">⬇</button>` : ''}
+        <button class="remove-x" title="Editar" onclick="event.stopPropagation(); editDoc('${d.id}')">✎</button>
+        <button class="remove-x" title="Remover" onclick="event.stopPropagation(); removeDoc('${c.id}','${d.id}')">×</button>
+      </div>
+    </div>`;
+}
+
+function renderDocumentosSection(c){
+  const docs = c.documentos || [];
+  const faseListId = `faseList-${c.id}`;
+  const groups = groupByFase(docs);
+  const existingFases = [...new Set(docs.map(d => d.fase).filter(Boolean))];
+  const suggestions = [...new Set([...existingFases, ...SUGGESTED_FASES])];
+  const docTypeOptions = DOC_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  return `
+    <div class="section">
+      <h4>Documentos (${docs.length}) — por fase e data</h4>
+      ${docs.length===0 ? `<div class="hint" style="margin-bottom:10px;">Nenhum documento ainda. Importe um ZIP ou adicione manualmente abaixo.</div>` : ''}
+      ${groups.map(g => `
+        <div class="fase-group">
+          <div class="fase-title"><span>${escapeHtml(g.fase)}</span><span class="pill pill-muted">${g.items.length}</span></div>
+          ${g.items.map(d => renderDocItem(c,d)).join('')}
+        </div>`).join('')}
+
+      <datalist id="${faseListId}">${suggestions.map(s => `<option value="${escapeHtml(s)}">`).join('')}</datalist>
+
+      <div class="import-box">
+        <input type="file" id="zipInput-${c.id}" accept=".zip" style="display:none" onchange="handleZipImport('${c.id}', this)">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('zipInput-${c.id}').click()">Importar ZIP de documentos</button>
+        <div class="hint">Cada arquivo separa automaticamente por pasta (fase/despacho) e data no nome. Arquivos até ~150 KB ficam anexados; os maiores entram só como registro.</div>
+        <div id="zipStatus-${c.id}" class="hint" style="color:var(--accent-deep);"></div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="add-row" style="flex-wrap:wrap;">
+          <input id="docNome-${c.id}" placeholder="Nome do documento" style="flex:1 1 100%; border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit;">
+        </div>
+        <div class="add-row">
+          <input id="docFase-${c.id}" list="${faseListId}" placeholder="Fase / despacho">
+          <select id="docTipo-${c.id}">${docTypeOptions}</select>
+        </div>
+        <div class="add-row">
+          <input id="docData-${c.id}" type="date" value="${todayIso()}">
+          <input id="docObs-${c.id}" placeholder="Observação (opcional)">
+        </div>
+        <div class="add-row">
+          <input type="file" id="docArquivo-${c.id}" style="flex:1; border:none; padding:4px 0; background:transparent; font-size:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="addDocFromForm('${c.id}')">Adicionar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderObservacoesSection(c){
+  return `
+    <div class="section" style="margin-bottom:0;">
+      <h4>Comentários e observações (${c.observacoes.length})</h4>
+      <div class="add-row" style="flex-wrap:wrap; margin-top:0; margin-bottom:12px;">
+        <textarea id="obsTexto-${c.id}" placeholder="Escreva um comentário sobre o andamento da perícia..." style="flex:1 1 100%; border:1px solid var(--line); border-radius:7px; padding:9px 11px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit; min-height:64px;"></textarea>
+      </div>
+      <div class="add-row" style="margin-top:0; margin-bottom:16px;"><button class="btn btn-ghost btn-sm" onclick="addObs('${c.id}')">Adicionar comentário</button></div>
+      ${c.observacoes.length===0 ? `<div class="hint">Nenhum comentário ainda.</div>` : ''}
+      ${[...c.observacoes].reverse().map(o => `
+        <div class="obs-item"><div><div class="o-date mono">${fmtDate(o.data)}</div>${escapeHtml(o.texto)}</div></div>`).join('')}
+    </div>`;
+}
+
+function renderDrawer(){
+  const c = casos.find(x => x.id === drawerCasoId);
+  if(!c){ closeDrawer(); return; }
+  const saldo = (c.honorarios||0) - (c.valorRecebido||0);
+  const statusOptions = Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${c.statusCaso===k?'selected':''}>${v.label}</option>`).join('');
+  const contadorOptions = Object.entries(CONTADORES).map(([k,v]) => `<option value="${k}" ${c.contador===k?'selected':''}>${v.label}</option>`).join('');
+  const statusProcessoOptions = `<option value="">—</option>` + Object.entries(STATUS_PROCESSO).map(([k,v]) => `<option value="${k}" ${c.statusProcesso===k?'selected':''}>${v.label}</option>`).join('');
+
+  document.getElementById('drawer').innerHTML = `
+    <div class="drawer-head">
+      <button class="back-btn" onclick="closeDrawer()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+        Voltar
+      </button>
+      <input class="codigo-input mono" value="${escapeHtml(c.codigo)}" onchange="fieldUpdate('${c.id}','codigo',this.value)">
+      <input class="nome-input" value="${escapeHtml(c.nome)}" onchange="fieldUpdate('${c.id}','nome',this.value)">
+      <button class="btn btn-danger btn-sm" onclick="confirmDelete('${c.id}')">Excluir perícia</button>
+    </div>
+    <div id="drawerAlert-${c.id}"></div>
+
+    <div class="meta-grid">
+      <div class="meta-item"><label>Perito responsável</label>
+        <select onchange="changeContadorDoCaso('${c.id}', this.value)">${contadorOptions}</select>
+      </div>
+      <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate('${c.id}','numeroProcesso',this.value)"></div>
+      <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate('${c.id}','codigoAcesso',this.value)"></div>
+      <div class="meta-item"><label>Status do processo</label>
+        <select onchange="fieldUpdate('${c.id}','statusProcesso',this.value)">${statusProcessoOptions}</select>
+      </div>
+      <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate('${c.id}','vara',this.value)"></div>
+      <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate('${c.id}','comarca',this.value)"></div>
+      <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate('${c.id}','partes',this.value)"></div>
+      <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate('${c.id}','dataNomeacao',this.value)"></div>
+      <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate('${c.id}','prazoEntrega',this.value)"></div>
+      <div class="meta-item"><label>Status</label>
+        <select onchange="fieldUpdate('${c.id}','statusCaso',this.value)">${statusOptions}</select>
+      </div>
+      <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate('${c.id}','honorarios',this.value,true)"></div>
+      <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate('${c.id}','valorRecebido',this.value,true)"></div>
+      <div class="meta-item"><label>Saldo a receber</label><div class="readout mono" style="color:${saldo>0?'var(--danger)':'var(--success)'}">${fmtMoney(Math.max(0,saldo))}</div></div>
+    </div>
+
+    <div class="drawer-columns">
+      <div class="col-pane col-documentos">${renderDocumentosSection(c)}</div>
+      <div class="col-pane col-observacoes">${renderObservacoesSection(c)}</div>
+    </div>
+  `;
+}
+
+async function addObs(casoId){
+  const input = document.getElementById(`obsTexto-${casoId}`);
+  const texto = input.value.trim();
+  if(!texto) return;
+  const c = casos.find(x => x.id === casoId);
+  const observacoes = [...c.observacoes, {id:'o'+Date.now(), data:todayIso(), texto}];
+  await saveCaso(casoId, {observacoes});
+  renderDrawer();
+}
+function confirmDelete(casoId){
+  document.getElementById(`drawerAlert-${casoId}`).innerHTML = `
+    <div class="confirm-box" style="margin:0 28px 0; border-radius:0; border-left:none; border-right:none;">
+      Excluir esta perícia e todos os seus documentos e comentários? Esta ação não pode ser desfeita.
+      <div class="row">
+        <button class="btn btn-danger btn-sm" onclick="excluirCaso('${casoId}')">Sim, excluir</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderDrawer()">Cancelar</button>
+      </div>
+    </div>`;
+}
+
+renderAll();
+initDb();
+</script>
+
+</body>
+</html>
