@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
   --paper:#F2F4EF;
@@ -305,10 +306,13 @@ h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; margin:0; text-wrap:balan
       <h1>Gerenciador de Perícias</h1>
       <p>Casos, prazos, honorários e documentos de cada perícia em um só painel.</p>
     </div>
-    <button class="btn btn-primary" onclick="novaPericia()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-      Nova perícia
-    </button>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="btn btn-ghost btn-sm" id="driveBtn" onclick="driveConnect()">Conectar Google Drive</button>
+      <button class="btn btn-primary" onclick="novaPericia()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Nova perícia
+      </button>
+    </div>
   </div>
 
   <div class="profile-tabs" id="profileTabs"></div>
@@ -416,6 +420,139 @@ function persistCasosToLocalStorage(){
   if(!usingLocalStorage) return;
   try{ localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos)); }
   catch(e){ }
+  driveScheduleSync();
+}
+
+// ---------- Google Drive sync (opcional, entre dispositivos) ----------
+const DRIVE_CLIENT_ID = '1015193895153-05d46gvhvgrfkuedn3sff19akvbpd1u7.apps.googleusercontent.com';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILE_NAME = 'pericias-dados.json';
+let driveTokenClient = null;
+let driveAccessToken = null;
+let driveFileId = null;
+try{ driveFileId = localStorage.getItem('pericias.drive.fileId') || null; }catch(e){}
+let driveConnected = false;
+let driveSyncTimer = null;
+
+function driveSetBanner(html){
+  const el = document.getElementById('banner');
+  if(el) el.innerHTML = html;
+}
+
+function driveUpdateButton(){
+  const btn = document.getElementById('driveBtn');
+  if(!btn) return;
+  btn.textContent = driveConnected ? 'Google Drive conectado' : 'Conectar Google Drive';
+}
+
+function driveInit(){
+  if(driveTokenClient) return;
+  if(!window.google || !google.accounts || !google.accounts.oauth2) return;
+  if(DRIVE_CLIENT_ID === 'PENDING_CLIENT_ID') return;
+  driveTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: DRIVE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: async (resp) => {
+      if(!resp || resp.error){
+        driveSetBanner('<div class="banner">Não foi possível conectar ao Google Drive. Tente novamente.</div>');
+        return;
+      }
+      driveAccessToken = resp.access_token;
+      driveConnected = true;
+      try{ localStorage.setItem('pericias.drive.connected', '1'); }catch(e){}
+      driveUpdateButton();
+      await driveLoadOrCreate();
+    }
+  });
+}
+
+function driveConnect(){
+  driveInit();
+  if(!driveTokenClient){
+    driveSetBanner('<div class="banner">Sincronização com Google Drive ainda não está configurada neste app.</div>');
+    return;
+  }
+  driveTokenClient.requestAccessToken({prompt: 'consent'});
+}
+
+function driveApiFetch(url, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({}, opts.headers, {Authorization: 'Bearer ' + driveAccessToken});
+  return fetch(url, opts);
+}
+
+async function driveFindFile(){
+  const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
+  const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`);
+  if(!res.ok) throw new Error('drive find failed');
+  const data = await res.json();
+  return (data.files && data.files[0]) ? data.files[0].id : null;
+}
+
+async function driveCreateFile(contentObj){
+  const metadata = {name: DRIVE_FILE_NAME, mimeType: 'application/json'};
+  const boundary = 'pericias_boundary_' + Date.now();
+  const body =
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+    `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(contentObj)}\r\n` +
+    `--${boundary}--`;
+  const res = await driveApiFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+    method: 'POST',
+    headers: {'Content-Type': `multipart/related; boundary=${boundary}`},
+    body
+  });
+  if(!res.ok) throw new Error('drive create failed');
+  const data = await res.json();
+  return data.id;
+}
+
+async function driveReadFile(fileId){
+  const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+  if(!res.ok) throw new Error('drive read failed');
+  return await res.json();
+}
+
+async function driveWriteFile(fileId, contentObj){
+  const res = await driveApiFetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(contentObj)
+  });
+  if(!res.ok) throw new Error('drive write failed');
+}
+
+async function driveLoadOrCreate(){
+  try{
+    if(!driveFileId){
+      driveFileId = await driveFindFile();
+    }
+    if(driveFileId){
+      try{ localStorage.setItem('pericias.drive.fileId', driveFileId); }catch(e){}
+      const remote = await driveReadFile(driveFileId);
+      if(remote && Array.isArray(remote.casos)){
+        casos = remote.casos;
+        usingLocalStorage = true;
+        persistCasosToLocalStorage();
+        renderAll();
+      } else {
+        await driveWriteFile(driveFileId, {casos});
+      }
+    } else {
+      driveFileId = await driveCreateFile({casos});
+      try{ localStorage.setItem('pericias.drive.fileId', driveFileId); }catch(e){}
+    }
+    driveSetBanner('<div class="banner banner-info">Conectado ao Google Drive (periciamiranda@gmail.com). Os dados sao sincronizados entre os dispositivos em que voce conectar.</div>');
+  }catch(e){
+    driveSetBanner('<div class="banner">Falha ao sincronizar com o Google Drive agora. Os dados continuam salvos neste navegador.</div>');
+  }
+}
+
+function driveScheduleSync(){
+  if(!driveConnected || !driveFileId) return;
+  clearTimeout(driveSyncTimer);
+  driveSyncTimer = setTimeout(() => {
+    driveWriteFile(driveFileId, {casos}).catch(()=>{});
+  }, 1500);
 }
 let activeContador = (function(){
   try{ const saved = localStorage.getItem('pericias.activeContador'); if(saved && CONTADORES[saved]) return saved; }catch(e){}
@@ -688,7 +825,14 @@ async function initDb(){
     if(loaded) casos = loaded;
     usingLocalStorage = true;
     persistCasosToLocalStorage();
-        document.getElementById('banner').innerHTML = `<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Se limpar os dados do navegador ou acessar de outro dispositivo, os dados nao estarao la.</div>`;
+    let jaConectadoDrive = false;
+    try{ jaConectadoDrive = localStorage.getItem('pericias.drive.connected') === '1' && !!driveFileId; }catch(e){}
+    if(jaConectadoDrive){
+      document.getElementById('banner').innerHTML = `<div class="banner">Dados salvos neste navegador. Clique em "Conectar Google Drive" para carregar/sincronizar os dados mais recentes neste dispositivo.</div>`;
+    } else {
+      document.getElementById('banner').innerHTML = `<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Se limpar os dados do navegador ou acessar de outro dispositivo, os dados nao estarao la — use "Conectar Google Drive" para sincronizar entre dispositivos.</div>`;
+    }
+    driveInit();
     renderAll();
     return;
   }
