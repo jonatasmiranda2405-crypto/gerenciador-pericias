@@ -7,7 +7,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
 <style>
 :root{
   --paper:#F2F4EF;
@@ -307,7 +310,7 @@ h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; margin:0; text-wrap:balan
       <p>Casos, prazos, honorários e documentos de cada perícia em um só painel.</p>
     </div>
     <div style="display:flex; gap:10px; align-items:center;">
-      <button class="btn btn-ghost btn-sm" id="driveBtn" onclick="driveConnect()">Conectar Google Drive</button>
+      <button class="btn btn-ghost btn-sm" id="authBtn" onclick="signInGoogle()">Entrar com Google</button>
       <button class="btn btn-primary" onclick="novaPericia()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         Nova perícia
@@ -369,7 +372,7 @@ const CONTADORES = {
   rodrigo: {label:'Rodrigo Miranda', initials:'RM', color:'var(--violet)', soft:'var(--violet-soft)'},
 };
 const SUGGESTED_FASES = ['Despacho de Nomeação','Quesitos das Partes','Perícia em Campo / Diligência','Laudo Pericial','Manifestação das Partes','Impugnação','Decisão / Sentença'];
-const MAX_EMBED_BYTES = 5 * 1024 * 1024; // 5MB — limite prático de armazenamento local; arquivos maiores continuam sincronizados normalmente via Google Drive quando conectado
+const MAX_EMBED_BYTES = 5 * 1024 * 1024; // 5MB — limite prático quando não está conectado à nuvem (só armazenamento local do navegador)
 
 const KEYWORD_MAP = [
   {re:/despacho/, tipo:'Despacho', fase:'Despacho'},
@@ -423,144 +426,128 @@ function persistCasosToLocalStorage(){
   }catch(e){
     const el = document.getElementById('banner');
     if(el){
-      el.innerHTML = driveConnected
-        ? '<div class="banner">O armazenamento local deste navegador está cheio, mas seus dados continuam salvos no Google Drive normalmente.</div>'
-        : '<div class="banner">O armazenamento local deste navegador está cheio e a última alteração pode não ter sido salva. Conecte o Google Drive para liberar espaço e manter seus dados seguros, ou remova documentos grandes que não sejam mais necessários.</div>';
+      el.innerHTML = usingDb
+        ? '<div class="banner">O armazenamento local deste navegador está cheio, mas seus dados continuam salvos na nuvem normalmente.</div>'
+        : '<div class="banner">O armazenamento local deste navegador está cheio e a última alteração pode não ter sido salva. Entre com o Google para sincronizar seus dados com a nuvem, ou remova documentos grandes que não sejam mais necessários.</div>';
     }
   }
-  driveScheduleSync();
 }
 
-// ---------- Google Drive sync (opcional, entre dispositivos) ----------
-const DRIVE_CLIENT_ID = '1015193895153-05d46gvhvgrfkuedn3sff19akvbpd1u7.apps.googleusercontent.com';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const DRIVE_FILE_NAME = 'pericias-dados.json';
-let driveTokenClient = null;
-let driveAccessToken = null;
-let driveFileId = null;
-try{ driveFileId = localStorage.getItem('pericias.drive.fileId') || null; }catch(e){}
-let driveConnected = false;
-let driveSyncTimer = null;
+// ---------- Login com Google + sincronização na nuvem (Firebase) ----------
+const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyA0UQuXuFI85MFjdfNn2YAYv2VNbZEUKmk',
+  authDomain: 'gerenciador-pericias-app.firebaseapp.com',
+  projectId: 'gerenciador-pericias-app',
+  storageBucket: 'gerenciador-pericias-app.firebasestorage.app',
+  messagingSenderId: '501336744750',
+  appId: '1:501336744750:web:c0b631495bcef8071490bf'
+};
+const ALLOWED_EMAILS = ['jonatasmiranda2405@gmail.com','rodrigodosantosmiranda@gmail.com'];
+const MAX_STORAGE_BYTES = 50 * 1024 * 1024; // 50MB por arquivo enviado à nuvem (Firebase Storage)
+const MAX_FIRESTORE_EMBED_BYTES = 700 * 1024; // ~700KB crus — cabe com folga no limite de 1MB por documento do Firestore
+let auth = null, storage = null, currentUser = null, casosUnsub = null;
 
-function driveSetBanner(html){
+function cloudSetBanner(html){
   const el = document.getElementById('banner');
   if(el) el.innerHTML = html;
 }
 
-function driveUpdateButton(){
-  const btn = document.getElementById('driveBtn');
+function updateAuthButton(){
+  const btn = document.getElementById('authBtn');
   if(!btn) return;
-  btn.textContent = driveConnected ? 'Google Drive conectado' : 'Conectar Google Drive';
+  if(currentUser){
+    btn.textContent = 'Sair (' + currentUser.email + ')';
+    btn.onclick = signOutGoogle;
+  } else {
+    btn.textContent = 'Entrar com Google';
+    btn.onclick = signInGoogle;
+  }
 }
 
-function driveInit(){
-  if(driveTokenClient) return;
-  if(!window.google || !google.accounts || !google.accounts.oauth2) return;
-  if(DRIVE_CLIENT_ID === 'PENDING_CLIENT_ID') return;
-  driveTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: DRIVE_CLIENT_ID,
-    scope: DRIVE_SCOPE,
-    callback: async (resp) => {
-      if(!resp || resp.error){
-        driveSetBanner('<div class="banner">Não foi possível conectar ao Google Drive. Tente novamente.</div>');
-        return;
-      }
-      driveAccessToken = resp.access_token;
-      driveConnected = true;
-      try{ localStorage.setItem('pericias.drive.connected', '1'); }catch(e){}
-      driveUpdateButton();
-      await driveLoadOrCreate();
-    }
-  });
-}
-
-function driveConnect(){
-  driveInit();
-  if(!driveTokenClient){
-    driveSetBanner('<div class="banner">Sincronização com Google Drive ainda não está configurada neste app.</div>');
+async function signInGoogle(){
+  if(!auth){
+    cloudSetBanner('<div class="banner">Sincronização com a nuvem ainda não está configurada neste app.</div>');
     return;
   }
-  driveTokenClient.requestAccessToken({prompt: 'consent'});
-}
-
-function driveApiFetch(url, opts){
-  opts = opts || {};
-  opts.headers = Object.assign({}, opts.headers, {Authorization: 'Bearer ' + driveAccessToken});
-  return fetch(url, opts);
-}
-
-async function driveFindFile(){
-  const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
-  const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`);
-  if(!res.ok) throw new Error('drive find failed');
-  const data = await res.json();
-  return (data.files && data.files[0]) ? data.files[0].id : null;
-}
-
-async function driveCreateFile(contentObj){
-  const metadata = {name: DRIVE_FILE_NAME, mimeType: 'application/json'};
-  const boundary = 'pericias_boundary_' + Date.now();
-  const body =
-    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
-    `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(contentObj)}\r\n` +
-    `--${boundary}--`;
-  const res = await driveApiFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
-    method: 'POST',
-    headers: {'Content-Type': `multipart/related; boundary=${boundary}`},
-    body
-  });
-  if(!res.ok) throw new Error('drive create failed');
-  const data = await res.json();
-  return data.id;
-}
-
-async function driveReadFile(fileId){
-  const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
-  if(!res.ok) throw new Error('drive read failed');
-  return await res.json();
-}
-
-async function driveWriteFile(fileId, contentObj){
-  const res = await driveApiFetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-    method: 'PATCH',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(contentObj)
-  });
-  if(!res.ok) throw new Error('drive write failed');
-}
-
-async function driveLoadOrCreate(){
   try{
-    if(!driveFileId){
-      driveFileId = await driveFindFile();
-    }
-    if(driveFileId){
-      try{ localStorage.setItem('pericias.drive.fileId', driveFileId); }catch(e){}
-      const remote = await driveReadFile(driveFileId);
-      if(remote && Array.isArray(remote.casos)){
-        casos = remote.casos;
-        usingLocalStorage = true;
-        persistCasosToLocalStorage();
-        renderAll();
-      } else {
-        await driveWriteFile(driveFileId, {casos});
-      }
-    } else {
-      driveFileId = await driveCreateFile({casos});
-      try{ localStorage.setItem('pericias.drive.fileId', driveFileId); }catch(e){}
-    }
-    driveSetBanner('<div class="banner banner-info">Conectado ao Google Drive (periciamiranda@gmail.com). Os dados sao sincronizados entre os dispositivos em que voce conectar.</div>');
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
   }catch(e){
-    driveSetBanner('<div class="banner">Falha ao sincronizar com o Google Drive agora. Os dados continuam salvos neste navegador.</div>');
+    cloudSetBanner('<div class="banner">Não foi possível entrar com o Google. Tente novamente.</div>');
   }
 }
 
-function driveScheduleSync(){
-  if(!driveConnected || !driveFileId) return;
-  clearTimeout(driveSyncTimer);
-  driveSyncTimer = setTimeout(() => {
-    driveWriteFile(driveFileId, {casos}).catch(()=>{});
-  }, 1500);
+async function signOutGoogle(){
+  if(!auth) return;
+  try{ await auth.signOut(); }catch(e){}
+}
+
+function firebaseInit(){
+  if(typeof firebase === 'undefined') return;
+  if(FIREBASE_CONFIG.apiKey === 'PENDING_API_KEY') return;
+  if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(FIREBASE_CONFIG); }
+  auth = firebase.auth();
+  storage = firebase.storage();
+  auth.onAuthStateChanged(async (user) => {
+    if(user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase())){
+      currentUser = user;
+    } else {
+      if(user){
+        cloudSetBanner('<div class="banner">Este e-mail (' + escapeHtml(user.email||'') + ') não tem permissão de acesso a este aplicativo.</div>');
+        try{ await auth.signOut(); }catch(e){}
+      }
+      currentUser = null;
+    }
+    updateAuthButton();
+    await applyAuthState();
+  });
+}
+
+async function applyAuthState(){
+  if(currentUser){
+    db = firebase.firestore();
+    usingDb = true;
+    usingLocalStorage = false;
+    await startDbSync();
+    cloudSetBanner('<div class="banner banner-info">Conectado como ' + escapeHtml(currentUser.email) + '. Os dados são sincronizados automaticamente entre os dispositivos em que você entrar com esta conta.</div>');
+  } else {
+    usingDb = false;
+    db = null;
+    if(casosUnsub){ casosUnsub(); casosUnsub = null; }
+    if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+    const loaded = loadCasosFromLocalStorage();
+    if(loaded) casos = loaded;
+    usingLocalStorage = true;
+    persistCasosToLocalStorage();
+    cloudSetBanner('<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Entre com o Google (conta autorizada) para sincronizar entre dispositivos.</div>');
+    renderAll();
+  }
+}
+
+async function startDbSync(){
+  try{
+    const snap = await db.collection('casos').get();
+    if(snap.empty && casos.length){
+      for(const c of casos){
+        const {id, documentos, ...data} = c;
+        await db.collection('casos').doc(id).set(data);
+        for(const d of (documentos||[])){
+          const {id:docId, ...docData} = d;
+          await db.collection('casos').doc(id).collection('documentos').doc(docId).set(docData);
+        }
+      }
+    }
+  }catch(e){ /* segue para a inscrição mesmo assim */ }
+  if(casosUnsub) casosUnsub();
+  casosUnsub = db.collection('casos').onSnapshot(snap => {
+    const prevDocs = {};
+    casos.forEach(c => { prevDocs[c.id] = c.documentos; });
+    casos = snap.docs.map(d => ({id:d.id, documentos: prevDocs[d.id] || [], ...d.data()}));
+    renderAll();
+  }, err => {
+    cloudSetBanner('<div class="banner">Não foi possível sincronizar os dados agora (' + escapeHtml(err.code||'erro') + '). Exibindo a última versão conhecida.</div>');
+  });
+  if(drawerCasoId) subscribeDocumentos(drawerCasoId);
 }
 let activeContador = (function(){
   try{ const saved = localStorage.getItem('pericias.activeContador'); if(saved && CONTADORES[saved]) return saved; }catch(e){}
@@ -640,6 +627,8 @@ function mimeFromDataUrl(dataUrl){
   const m = dataUrl && dataUrl.match(/^data:([^;]+);/);
   return m ? m[1] : 'application/octet-stream';
 }
+function arquivoSrc(arquivo){ return arquivo.url || arquivo.dataUrl; }
+function arquivoMime(arquivo){ return arquivo.mime || mimeFromDataUrl(arquivo.dataUrl); }
 function guessCodigoAcessoFromText(text){
   const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,20})/i);
   return m ? m[1].toUpperCase() : null;
@@ -825,48 +814,13 @@ function renderAll(){
 
 // ---------- persistence: casos ----------
 async function initDb(){
-  try{
-    db = window.claude && window.claude.use ? await window.claude.use('db') : null;
-  }catch(e){ db = null; }
-  if(!db){
-    const loaded = loadCasosFromLocalStorage();
-    if(loaded) casos = loaded;
-    usingLocalStorage = true;
-    persistCasosToLocalStorage();
-    let jaConectadoDrive = false;
-    try{ jaConectadoDrive = localStorage.getItem('pericias.drive.connected') === '1' && !!driveFileId; }catch(e){}
-    if(jaConectadoDrive){
-      document.getElementById('banner').innerHTML = `<div class="banner">Dados salvos neste navegador. Clique em "Conectar Google Drive" para carregar/sincronizar os dados mais recentes neste dispositivo.</div>`;
-    } else {
-      document.getElementById('banner').innerHTML = `<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Se limpar os dados do navegador ou acessar de outro dispositivo, os dados nao estarao la — use "Conectar Google Drive" para sincronizar entre dispositivos.</div>`;
-    }
-    driveInit();
-    renderAll();
-    return;
-  }
-  usingDb = true;
-  try{
-    const snap = await db.collection('casos').get();
-    if(snap.empty){
-      for(const c of casos){
-        const {id, documentos, ...data} = c;
-        await db.collection('casos').doc(id).set(data);
-        for(const d of (documentos||[])){
-          const {id:docId, ...docData} = d;
-          await db.collection('casos').doc(id).collection('documentos').doc(docId).set(docData);
-        }
-      }
-    }
-  }catch(e){ /* proceed to subscribe regardless */ }
-  db.collection('casos').onSnapshot(snap => {
-    const prevDocs = {};
-    casos.forEach(c => { prevDocs[c.id] = c.documentos; });
-    casos = snap.docs.map(d => ({id:d.id, documentos: prevDocs[d.id] || [], ...d.data()}));
-    renderAll();
-  }, err => {
-    document.getElementById('banner').innerHTML = `<div class="banner">Não foi possível sincronizar os dados agora (${escapeHtml(err.code||'erro')}). Exibindo a última versão conhecida.</div>`;
-  });
-  if(drawerCasoId) subscribeDocumentos(drawerCasoId);
+  const loaded = loadCasosFromLocalStorage();
+  if(loaded) casos = loaded;
+  usingLocalStorage = true;
+  persistCasosToLocalStorage();
+  cloudSetBanner('<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Entre com o Google (conta autorizada) para sincronizar entre dispositivos.</div>');
+  renderAll();
+  firebaseInit();
 }
 
 async function saveCaso(id, patch){
@@ -949,15 +903,17 @@ function subscribeDocumentos(casoId){
   }, err => { /* mantém último estado conhecido */ });
 }
 
-async function addDoc(casoId, data){
+async function addDoc(casoId, data, docId){
+  docId = docId || ('d'+Date.now()+Math.random().toString(36).slice(2,6));
   if(usingDb){
-    try{ await db.collection('casos').doc(casoId).collection('documentos').add(data); return; }
+    try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).set(data); return docId; }
     catch(e){ /* cai para o modo local abaixo */ }
   }
   const c = casos.find(x => x.id === casoId);
-  if(!c) return;
-  c.documentos = [...(c.documentos||[]), {id:'d'+Date.now()+Math.random().toString(36).slice(2,6), ...data}];
+  if(!c) return docId;
+  c.documentos = [...(c.documentos||[]), {id:docId, ...data}];
   persistCasosToLocalStorage();
+  return docId;
 }
 async function updateDoc(casoId, docId, patch){
   if(usingDb){
@@ -970,14 +926,39 @@ async function updateDoc(casoId, docId, patch){
   persistCasosToLocalStorage();
 }
 async function removeDoc(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && c.documentos && c.documentos.find(x => x.id === docId);
   if(usingDb){
     try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).delete(); }
-    catch(e){}  } else {
-    const c = casos.find(x => x.id === casoId);
-    if(c) c.documentos = c.documentos.filter(d => d.id !== docId);
+    catch(e){}
+    if(d && d.arquivo && d.arquivo.storagePath && storage){
+      try{ await storage.ref().child(d.arquivo.storagePath).delete(); }catch(e){}
+    }
+  } else {
+    if(c) c.documentos = c.documentos.filter(x => x.id !== docId);
     persistCasosToLocalStorage();
   }
   renderDrawer(); renderList();
+}
+
+async function buildArquivo(casoId, docId, bytes, filename, mime){
+  if(!bytes || bytes.length === 0) return {arquivo:null, obs:''};
+  if(usingDb && storage && bytes.length <= MAX_STORAGE_BYTES){
+    try{
+      const path = `casos/${casoId}/documentos/${docId}/${filename}`;
+      const ref = storage.ref().child(path);
+      await ref.put(bytes, {contentType: mime});
+      const url = await ref.getDownloadURL();
+      return {arquivo:{url, storagePath:path, mime, tamanho:bytes.length}, obs:''};
+    }catch(e){
+      // Storage pode estar indisponível (ex.: projeto ainda no plano gratuito) — cai para embutir no Firestore abaixo
+    }
+  }
+  const embedLimit = usingDb ? MAX_FIRESTORE_EMBED_BYTES : MAX_EMBED_BYTES;
+  if(bytes.length <= embedLimit){
+    return {arquivo:{dataUrl:`data:${mime};base64,${bytesToBase64(bytes)}`, mime, tamanho:bytes.length}, obs:''};
+  }
+  return {arquivo:null, obs:`Arquivo de ${fmtBytes(bytes.length)}, grande demais para armazenar; apenas o registro foi salvo.`};
 }
 
 async function addDocFromForm(casoId){
@@ -992,6 +973,7 @@ async function addDocFromForm(casoId){
   let arquivo = null, tamanho = null;
   let processo = guessProcessoFromFilename(nome);
   let codigoAcesso = null;
+  const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
   if(fileInput.files[0]){
     const f = fileInput.files[0];
     processo = processo || guessProcessoFromFilename(f.name);
@@ -1002,13 +984,12 @@ async function addDocFromForm(casoId){
       processo = processo || info.processo;
       codigoAcesso = info.codigoAcesso;
     }
-    if(bytes.length <= MAX_EMBED_BYTES){
-      arquivo = {dataUrl:`data:${f.type||mimeFor(extOf(f.name))};base64,${bytesToBase64(bytes)}`, tamanho:bytes.length};
-    } else {
-      obs = (obs ? obs+' — ' : '') + `Arquivo de ${fmtBytes(bytes.length)}, grande demais para armazenar; apenas o registro foi salvo.`;
-    }
+    const mime = f.type || mimeFor(extOf(f.name));
+    const built = await buildArquivo(casoId, docId, bytes, f.name, mime);
+    arquivo = built.arquivo;
+    if(built.obs) obs = (obs ? obs+' — ' : '') + built.obs;
   }
-  await addDoc(casoId, {nome, fase, tipo, data, obs, tamanho, arquivo, processo, codigoAcesso});
+  await addDoc(casoId, {nome, fase, tipo, data, obs, tamanho, arquivo, processo, codigoAcesso}, docId);
   const c = casos.find(x => x.id === casoId);
   if(c && processo && !c.numeroProcesso){ await saveCaso(casoId, {numeroProcesso: processo}); }
   if(c && codigoAcesso && !c.codigoAcesso){ await saveCaso(casoId, {codigoAcesso}); }
@@ -1055,13 +1036,13 @@ async function handleZipImport(casoId, inputEl){
       if(processo) processosDetectados.push(processo);
       if(codigoAcesso) codigosDetectados.push(codigoAcesso);
       let arquivo = null, obs = '';
-      if(bytes.length > 0 && bytes.length <= MAX_EMBED_BYTES){
-        arquivo = {dataUrl:`data:${mimeFor(extOf(filename))};base64,${bytesToBase64(bytes)}`, tamanho:bytes.length};
-      } else if(bytes.length > MAX_EMBED_BYTES){
-        semArquivo++;
-        obs = `Arquivo de ${fmtBytes(bytes.length)} — grande demais para armazenar; apenas o registro foi importado.`;
+      const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+      if(bytes.length > 0){
+        const built = await buildArquivo(casoId, docId, bytes, filename, mimeFor(extOf(filename)));
+        arquivo = built.arquivo;
+        if(built.obs){ semArquivo++; obs = built.obs; }
       }
-      await addDoc(casoId, {nome:filename, fase, tipo, data, obs, tamanho:bytes.length, arquivo, processo, codigoAcesso});
+      await addDoc(casoId, {nome:filename, fase, tipo, data, obs, tamanho:bytes.length, arquivo, processo, codigoAcesso}, docId);
       imported++;
     }
     let processoMsg = '';
@@ -1101,16 +1082,21 @@ async function downloadDoc(casoId, docId){
   const d = c && c.documentos.find(x => x.id === docId);
   const statusEl = document.getElementById(`dlstatus-${docId}`);
   if(!d || !d.arquivo) return;
-  let dl = null;
-  try{ dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; }catch(e){ dl = null; }
-  if(!dl){ if(statusEl) statusEl.textContent = 'Download indisponível nesta visualização.'; return; }
+  const src = arquivoSrc(d.arquivo);
   try{
-    const comma = d.arquivo.dataUrl.indexOf(',');
-    const bytes = base64ToBytes(d.arquivo.dataUrl.slice(comma+1));
+    const res = await fetch(src);
+    if(!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = d.nome;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
     if(statusEl) statusEl.textContent = '';
-    await dl.save({filename:d.nome, data:bytes});
   }catch(e){
-    if(statusEl) statusEl.textContent = (e && e.code === 'declined') ? '' : 'Não foi possível baixar o arquivo.';
+    // fallback: abre o arquivo em outra aba para o usuário salvar por lá
+    window.open(src, '_blank');
+    if(statusEl) statusEl.textContent = '';
   }
 }
 
@@ -1165,12 +1151,13 @@ function openViewer(casoId, docId){
   const c = casos.find(x => x.id === casoId);
   const d = c && c.documentos.find(x => x.id === docId);
   if(!d || !d.arquivo) return;
-  const mime = mimeFromDataUrl(d.arquivo.dataUrl);
+  const src = arquivoSrc(d.arquivo);
+  const mime = arquivoMime(d.arquivo);
   let bodyHtml;
   if(mime === 'application/pdf'){
-    bodyHtml = `<iframe src="${d.arquivo.dataUrl}" title="${escapeHtml(d.nome)}"></iframe>`;
+    bodyHtml = `<iframe src="${src}" title="${escapeHtml(d.nome)}"></iframe>`;
   } else if(mime.startsWith('image/')){
-    bodyHtml = `<img src="${d.arquivo.dataUrl}" alt="${escapeHtml(d.nome)}">`;
+    bodyHtml = `<img src="${src}" alt="${escapeHtml(d.nome)}">`;
   } else {
     bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc('${casoId}','${docId}')">Baixar arquivo</button></div>`;  }
   document.getElementById('viewerTitle').textContent = d.nome;
