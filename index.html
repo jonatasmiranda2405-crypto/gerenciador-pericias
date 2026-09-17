@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerenciador de Perícias</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -13,327 +15,551 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
 <style>
 :root{
-  --paper:#F2F4EF;
+  color-scheme: light;
+  --ground:#F3F5F4;
   --surface:#FFFFFF;
-  --surface-2:#E9ECE4;
-  --ink:#1B242C;
-  --muted:#5C6670;
-  --line:#D7DAD1;
-  --accent:#2B4C7E;
-  --accent-deep:#1B3A61;
-  --accent-soft:#E4EAF2;
-  --success:#2F6E51;
-  --success-soft:#DFEDE6;
-  --warning:#8A5F10;
-  --warning-soft:#F2E7CE;
-  --danger:#9C3B2E;
-  --danger-soft:#F3E0DC;
-  --violet:#6E4F91;
-  --violet-deep:#4E3868;
-  --violet-soft:#EAE1F2;
-  --shadow: 0 1px 2px rgba(27,36,44,.06), 0 8px 24px -12px rgba(27,36,44,.18);
+  --surface-2:#E9EDEB;
+  --surface-3:#DFE5E3;
+  --ink:#16202A;
+  --ink-2:#31424A;
+  --muted:#5B6B6E;
+  --line:#DAE1DF;
+  --line-strong:#C3CDCA;
+  --accent:#14655C;
+  --accent-deep:#0E4A44;
+  --accent-soft:#E1EEEB;
+  --ok:#2E6B4F;
+  --ok-soft:#DFEDE5;
+  --warn:#8A5F10;
+  --warn-soft:#F4EAD2;
+  --danger:#A33D33;
+  --danger-soft:#F5E2DE;
+  --violet:#5B4A86;
+  --violet-soft:#EAE5F3;
+  /* series validadas para superficie clara */
+  --s1:#0b8f7f;
+  --s2:#eb6834;
+  --r1:#62c1b4; --r2:#38a99b; --r3:#0b8f7f; --r4:#0a7568; --r5:#085a50;
+  --shadow:0 1px 2px rgba(22,32,42,.05), 0 10px 24px -16px rgba(22,32,42,.22);
+  --radius:10px;
+  --sidebar-w:248px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#10161C;
-    --surface:#161D24;
-    --surface-2:#1C242C;
-    --ink:#E7ECEE;
-    --muted:#93A0AA;
-    --line:#2A333B;
-    --accent:#7EA0CE;
-    --accent-deep:#B0C7E7;
-    --accent-soft:#213248;
-    --success:#74C39A;
-    --success-soft:#1C3327;
-    --warning:#D9A857;
-    --warning-soft:#3A2E17;
+    color-scheme: dark;
+    --ground:#0E1417;
+    --surface:#151D20;
+    --surface-2:#1C262A;
+    --surface-3:#243036;
+    --ink:#E3EBE9;
+    --ink-2:#C2D0CD;
+    --muted:#93A5A2;
+    --line:#27353A;
+    --line-strong:#38484E;
+    --accent:#5FB8AE;
+    --accent-deep:#8FD3C9;
+    --accent-soft:#12302D;
+    --ok:#74C39A;
+    --ok-soft:#163024;
+    --warn:#D3A15A;
+    --warn-soft:#332916;
     --danger:#E08B7A;
-    --danger-soft:#3A211C;
-    --violet:#C6A8E8;
-    --violet-deep:#DCC4F2;
-    --violet-soft:#2E2440;
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px -12px rgba(0,0,0,.55);
+    --danger-soft:#33201C;
+    --violet:#B3A3DD;
+    --violet-soft:#241F33;
+    --s1:#2a9d8f;
+    --s2:#d95926;
+    --r1:#085a50; --r2:#0a7568; --r3:#0b8f7f; --r4:#38a99b; --r5:#62c1b4;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -18px rgba(0,0,0,.7);
   }
 }
 :root[data-theme="dark"]{
-  --paper:#10161C;
-  --surface:#161D24;
-  --surface-2:#1C242C;
-  --ink:#E7ECEE;
-  --muted:#93A0AA;
-  --line:#2A333B;
-  --accent:#7EA0CE;
-  --accent-deep:#B0C7E7;
-  --accent-soft:#213248;
-  --success:#74C39A;
-  --success-soft:#1C3327;
-  --warning:#D9A857;
-  --warning-soft:#3A2E17;
+  color-scheme: dark;
+  --ground:#0E1417;
+  --surface:#151D20;
+  --surface-2:#1C262A;
+  --surface-3:#243036;
+  --ink:#E3EBE9;
+  --ink-2:#C2D0CD;
+  --muted:#93A5A2;
+  --line:#27353A;
+  --line-strong:#38484E;
+  --accent:#5FB8AE;
+  --accent-deep:#8FD3C9;
+  --accent-soft:#12302D;
+  --ok:#74C39A;
+  --ok-soft:#163024;
+  --warn:#D3A15A;
+  --warn-soft:#332916;
   --danger:#E08B7A;
-  --danger-soft:#3A211C;
-  --violet:#C6A8E8;
-  --violet-deep:#DCC4F2;
-  --violet-soft:#2E2440;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px -12px rgba(0,0,0,.55);
+  --danger-soft:#33201C;
+  --violet:#B3A3DD;
+  --violet-soft:#241F33;
+  --s1:#2a9d8f;
+  --s2:#d95926;
+  --r1:#085a50; --r2:#0a7568; --r3:#0b8f7f; --r4:#38a99b; --r5:#62c1b4;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -18px rgba(0,0,0,.7);
 }
+
 *{box-sizing:border-box;}
+html,body{height:100%;}
 body{
   margin:0;
-  background:var(--paper);
+  background:var(--ground);
   color:var(--ink);
-  font-family:'IBM Plex Sans', system-ui, sans-serif;
+  font-family:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  font-size:14px;
+  line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
-.mono{font-family:'IBM Plex Mono', 'SFMono-Regular', monospace;}
-h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; margin:0; text-wrap:balance;}
-.wrap{max-width:1120px; margin:0 auto; padding:32px 24px 80px;}
+.mono{font-family:'IBM Plex Mono','SFMono-Regular',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+.num{font-family:'IBM Plex Mono','SFMono-Regular',ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+h1,h2,h3,h4{margin:0; font-weight:600; text-wrap:balance; letter-spacing:-.011em;}
+button{font-family:inherit;}
+a{color:var(--accent); text-underline-offset:2px;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
 
-.topbar{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:28px; flex-wrap:wrap;}
-.topbar .eyebrow{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:6px;}
-.topbar h1{font-size:30px; color:var(--ink); font-weight:700;}
-.topbar p{margin:6px 0 0; color:var(--muted); font-size:14px; max-width:46ch;}
+/* ---------- estrutura ---------- */
+.app{display:grid; grid-template-columns:var(--sidebar-w) 1fr; min-height:100%;}
 
-.profile-tabs{display:flex; gap:12px; margin-bottom:24px;}
-.profile-tab{
-  flex:1; display:flex; align-items:center; gap:12px; padding:13px 16px; text-align:left;
-  border:1.5px solid var(--line); border-radius:12px; background:var(--surface); cursor:pointer;
-  box-shadow:var(--shadow); font-family:inherit; transition:border-color .12s, background .12s;
+.sidebar{
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column; gap:20px;
+  padding:20px 14px;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
 }
-.profile-tab.active{border-color:var(--pcolor); background:var(--pcolor-soft);}
-.profile-avatar{
-  width:36px; height:36px; border-radius:50%; background:var(--pcolor); color:#fff;
-  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;
+.brand{display:flex; align-items:center; gap:10px; padding:0 6px;}
+.brand-mark{
+  width:34px; height:34px; border-radius:8px; flex-shrink:0;
+  background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:600; font-size:13px; letter-spacing:.02em;
+  font-family:'IBM Plex Mono',monospace;
 }
-.profile-tab .p-info{display:flex; flex-direction:column; gap:1px; min-width:0;}
-.profile-tab .p-name{font-weight:700; font-size:14.5px; color:var(--ink);}
-.profile-tab .p-count{font-size:12px; color:var(--muted);}
-@media (max-width:560px){ .profile-tabs{flex-direction:column;} }
+.brand-text{min-width:0;}
+.brand-name{font-size:13.5px; font-weight:600; line-height:1.2; letter-spacing:-.01em;}
+.brand-sub{font-size:10.5px; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-top:2px; white-space:nowrap;}
+
+.side-label{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--muted); font-weight:600; padding:0 8px; margin-bottom:8px;
+}
+.peritos{display:flex; flex-direction:column; gap:6px;}
+.perito-btn{
+  display:flex; align-items:center; gap:9px; width:100%; text-align:left;
+  padding:8px 9px; border-radius:8px; cursor:pointer;
+  border:1px solid transparent; background:transparent; color:inherit;
+  transition:background .12s, border-color .12s;
+}
+.perito-btn:hover{background:var(--surface-2);}
+.perito-btn.active{background:var(--pcolor-soft); border-color:var(--pcolor);}
+.perito-avatar{
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  background:var(--pcolor); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600; font-family:'IBM Plex Mono',monospace;
+}
+:root[data-theme="dark"] .perito-avatar, :root:not([data-theme="light"]) .perito-avatar{color:#0E1417;}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .perito-avatar{color:#fff;} }
+.perito-info{min-width:0; display:flex; flex-direction:column;}
+.perito-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.perito-count{font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums;}
+
+.nav{display:flex; flex-direction:column; gap:2px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:9px 10px; border-radius:8px; cursor:pointer;
+  border:none; background:transparent; color:var(--ink-2);
+  font-size:13.5px; font-weight:500; text-align:left;
+  transition:background .12s, color .12s;
+}
+.nav-item:hover{background:var(--surface-2); color:var(--ink);}
+.nav-item.active{background:var(--accent-soft); color:var(--accent-deep); font-weight:600;}
+.nav-item svg{width:17px; height:17px; flex-shrink:0; stroke-width:1.75;}
+.nav-badge{
+  margin-left:auto; font-size:11px; font-family:'IBM Plex Mono',monospace;
+  background:var(--surface-3); color:var(--muted);
+  padding:1px 6px; border-radius:99px; font-variant-numeric:tabular-nums;
+}
+.nav-item.active .nav-badge{background:var(--accent); color:var(--surface);}
+.nav-badge.alert{background:var(--danger-soft); color:var(--danger);}
+
+.side-foot{margin-top:auto; display:flex; flex-direction:column; gap:10px; padding-top:14px; border-top:1px solid var(--line);}
+.account{display:flex; align-items:center; gap:8px; padding:0 4px; min-width:0;}
+.account-dot{width:7px; height:7px; border-radius:50%; flex-shrink:0; background:var(--muted);}
+.account-dot.on{background:var(--ok);}
+.account-text{min-width:0; font-size:11.5px; line-height:1.35;}
+.account-state{color:var(--ink); font-weight:500;}
+.account-mail{color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.side-actions{display:flex; gap:6px;}
+
+/* ---------- area principal ---------- */
+.main{min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:16px 28px;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.menu-btn{display:none; background:transparent; border:1px solid var(--line); border-radius:8px; padding:7px; cursor:pointer; color:var(--ink);}
+.menu-btn svg{width:18px; height:18px; display:block;}
+.topbar-title{display:flex; flex-direction:column; min-width:0; margin-right:auto;}
+.topbar-title h1{font-size:19px;}
+.topbar-title p{margin:1px 0 0; font-size:12.5px; color:var(--muted);}
+.content{padding:24px 28px 72px; max-width:1180px; width:100%;}
+
+/* ---------- controles ---------- */
 .btn{
-  border:1px solid transparent; border-radius:8px; padding:10px 16px; font-size:14px; font-weight:600;
-  cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  border:1px solid transparent; border-radius:8px; padding:9px 14px;
+  font-size:13px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:7px; white-space:nowrap;
   transition:background .12s, border-color .12s, color .12s;
 }
-.btn-primary{background:var(--accent); color:#fff;}
+.btn svg{width:15px; height:15px; stroke-width:2;}
+.btn-primary{background:var(--accent); color:var(--surface);}
 .btn-primary:hover{background:var(--accent-deep);}
-.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line-strong);}
 .btn-ghost:hover{background:var(--surface-2);}
 .btn-danger{background:transparent; color:var(--danger); border-color:var(--danger);}
 .btn-danger:hover{background:var(--danger-soft);}
 .btn-sm{padding:6px 11px; font-size:12.5px;}
-.btn[disabled]{opacity:.55; cursor:default;}
+.btn[disabled]{opacity:.5; cursor:default;}
+.icon-btn{
+  background:transparent; border:none; cursor:pointer; color:var(--muted);
+  padding:4px; border-radius:6px; display:inline-flex; line-height:0;
+}
+.icon-btn svg{width:15px; height:15px; stroke-width:1.9;}
+.icon-btn:hover{background:var(--surface-2); color:var(--ink);}
+.icon-btn.danger:hover{background:var(--danger-soft); color:var(--danger);}
 
-.banner{
-  background:var(--warning-soft); color:var(--warning); border:1px solid var(--warning);
-  border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:20px; display:flex; gap:8px; align-items:center;
-}
-.banner-info{
-  background:var(--success-soft); color:var(--success); border:1px solid var(--success);
-}
-
-.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
-.stat{
-  background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px;
-  box-shadow:var(--shadow);
-}
-.stat .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600;}
-.stat .value{font-family:'Source Serif 4', serif; font-size:28px; font-weight:600; margin-top:6px; font-variant-numeric:tabular-nums;}
-.stat.tone-danger .value{color:var(--danger);}
-.stat.tone-accent .value{color:var(--accent);}
-.stat.tone-success .value{color:var(--success);}
-
-.toolbar{display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
-.search{
-  flex:1 1 260px; position:relative;
-}
+.search{position:relative; flex:1 1 280px; max-width:420px;}
 .search input{
-  width:100%; padding:11px 14px 11px 38px; border-radius:9px; border:1px solid var(--line);
-  background:var(--surface); color:var(--ink); font-size:14px; font-family:inherit;
+  width:100%; padding:9px 12px 9px 34px; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  font-size:13.5px; font-family:inherit;
 }
-.search input:focus{outline:2px solid var(--accent); outline-offset:1px;}
-.search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--muted);}
-.chips{display:flex; gap:8px; flex-wrap:wrap;}
+.search svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--muted); stroke-width:2;}
+
+.chips{display:flex; gap:7px; flex-wrap:wrap;}
 .chip{
-  border:1px solid var(--line); background:var(--surface); color:var(--muted); border-radius:999px;
-  padding:7px 13px; font-size:12.5px; font-weight:600; cursor:pointer;
+  border:1px solid var(--line); background:var(--surface); color:var(--muted);
+  border-radius:99px; padding:6px 13px; font-size:12.5px; font-weight:600; cursor:pointer;
 }
-.chip.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+.chip:hover{border-color:var(--line-strong); color:var(--ink);}
+.chip.active{background:var(--accent); border-color:var(--accent); color:var(--surface);}
 
-.summary{
-  background:var(--accent-soft); border:1px solid var(--accent); border-radius:12px; padding:16px 18px; margin-bottom:20px;
-}
-.summary h3{font-size:14px; color:var(--accent-deep); font-family:'IBM Plex Sans'; font-weight:700; margin-bottom:10px; text-transform:uppercase; letter-spacing:.03em;}
-.summary .row{display:flex; gap:22px; flex-wrap:wrap; margin-bottom:10px;}
-.summary .kv .k{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
-.summary .kv .v{font-size:18px; font-weight:600; font-variant-numeric:tabular-nums;}
-.summary .matches{display:flex; flex-direction:column; gap:6px; margin-top:8px;}
-.summary .match-item{
-  display:flex; justify-content:space-between; gap:10px; font-size:13px; background:var(--surface);
-  border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer;
-}
-.summary .match-item:hover{border-color:var(--accent);}
-.summary .empty{color:var(--muted); font-size:13.5px;}
-
-.list{display:flex; flex-direction:column; gap:10px;}
-.card{
-  background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px;
-  display:grid; grid-template-columns:auto 1fr auto auto; gap:16px; align-items:center; cursor:pointer;
-  box-shadow:var(--shadow);
-}
-.card:hover{border-color:var(--accent);}
-.card .codigo{font-size:12px; color:var(--accent); background:var(--accent-soft); padding:4px 8px; border-radius:6px; font-weight:600;}
-.card .title{min-width:0;}
-.card .title .nome{font-weight:600; font-size:15px; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.card .title .meta{font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.card .prazo{font-size:13px; text-align:right; white-space:nowrap;}
-.card .prazo .lbl{font-size:10.5px; text-transform:uppercase; color:var(--muted); letter-spacing:.05em;}
-.card .prazo .d{font-weight:600; font-variant-numeric:tabular-nums;}
-.card .prazo.atrasada .d{color:var(--danger);}
-.card .prazo.proxima .d{color:var(--warning);}
-.card .right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; white-space:nowrap;}
-.card .valor{font-weight:600; font-variant-numeric:tabular-nums; font-size:14px;}
-.pill{font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px; display:inline-block;}
+.pill{font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; display:inline-block; white-space:nowrap;}
 .pill-muted{background:var(--surface-2); color:var(--muted);}
 .pill-accent{background:var(--accent-soft); color:var(--accent-deep);}
-.pill-warning{background:var(--warning-soft); color:var(--warning);}
-.pill-success{background:var(--success-soft); color:var(--success);}
+.pill-warning{background:var(--warn-soft); color:var(--warn);}
+.pill-success{background:var(--ok-soft); color:var(--ok);}
 .pill-danger{background:var(--danger-soft); color:var(--danger);}
-.empty-state{text-align:center; padding:60px 20px; color:var(--muted);}
-.empty-state h3{color:var(--ink); margin-bottom:8px;}
 
+.banner{
+  border-radius:var(--radius); padding:11px 14px; font-size:12.5px;
+  margin-bottom:18px; display:flex; gap:9px; align-items:flex-start;
+  background:var(--warn-soft); color:var(--warn); border:1px solid var(--warn);
+}
+.banner-info{background:var(--accent-soft); color:var(--accent-deep); border-color:var(--accent);}
+.banner svg{width:15px; height:15px; flex-shrink:0; margin-top:2px; stroke-width:2;}
+
+/* ---------- blocos ---------- */
+.panel{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); padding:18px 20px;
+}
+.panel-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px;}
+.panel-head h3{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+.panel-head .note{font-size:11.5px; color:var(--muted);}
+.section-gap{display:flex; flex-direction:column; gap:18px;}
+
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+.kpi{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:15px 17px;}
+.kpi .k{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+.kpi .v{font-size:27px; font-weight:600; margin-top:5px; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; letter-spacing:-.02em;}
+.kpi .sub{font-size:11.5px; color:var(--muted); margin-top:2px;}
+.kpi.tone-danger{border-left:3px solid var(--danger);}
+.kpi.tone-danger .v{color:var(--danger);}
+.kpi.tone-accent{border-left:3px solid var(--accent);}
+.kpi.tone-ok{border-left:3px solid var(--ok);}
+.kpi.tone-ok .v{color:var(--ok);}
+
+.two-col{display:grid; grid-template-columns:1.25fr 1fr; gap:18px;}
+
+/* ---------- graficos ---------- */
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+.legend-item{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted);}
+.legend-swatch{width:10px; height:10px; border-radius:2px; flex-shrink:0;}
+.bar-row{display:grid; grid-template-columns:minmax(96px,auto) 1fr; gap:12px; align-items:center; margin-bottom:11px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-label{font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.bar-track{display:flex; align-items:center; gap:10px; min-width:0;}
+.bar{display:flex; height:16px; flex:1; min-width:0; background:var(--surface-2); border-radius:4px; overflow:hidden; gap:2px;}
+.bar-seg{height:100%; min-width:2px; transition:filter .12s;}
+.bar-seg:first-child{border-radius:4px 0 0 4px;}
+.bar-seg:last-child{border-radius:0 4px 4px 0;}
+.bar-seg:only-child{border-radius:4px;}
+.bar-seg:hover{filter:brightness(1.12);}
+.bar-value{font-size:12px; color:var(--ink-2); white-space:nowrap; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.chart-empty{font-size:12.5px; color:var(--muted); padding:8px 0;}
+
+#tooltip{
+  position:fixed; z-index:200; pointer-events:none; opacity:0;
+  background:var(--ink); color:var(--ground);
+  padding:6px 9px; border-radius:6px; font-size:12px; line-height:1.4;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.5); transition:opacity .1s;
+  max-width:240px;
+}
+#tooltip .tt-v{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+
+/* ---------- lista de pericias ---------- */
+.list{display:flex; flex-direction:column; gap:9px;}
+.case{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 17px; display:grid; gap:14px; align-items:center; cursor:pointer;
+  grid-template-columns:auto 1fr auto auto;
+  transition:border-color .12s;
+}
+.case:hover{border-color:var(--accent);}
+.case-code{font-size:11.5px; color:var(--accent-deep); background:var(--accent-soft); padding:4px 8px; border-radius:6px; font-weight:600; font-family:'IBM Plex Mono',monospace;}
+.case-title{min-width:0;}
+.case-name{font-weight:600; font-size:14.5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.case-meta{font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.case-prazo{text-align:right; white-space:nowrap;}
+.case-prazo .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.case-prazo .d{font-weight:600; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-size:13px;}
+.case-prazo.atrasada .d{color:var(--danger);}
+.case-prazo.proxima .d{color:var(--warn);}
+.case-right{display:flex; flex-direction:column; align-items:flex-end; gap:5px; white-space:nowrap;}
+.case-valor{font-size:12.5px; font-weight:600; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+
+.empty-state{text-align:center; padding:48px 20px; color:var(--muted);}
+.empty-state h3{color:var(--ink); margin-bottom:6px; font-size:15px;}
+.empty-state p{margin:0; font-size:13px;}
+
+/* ---------- tabelas / agenda / documentos ---------- */
+.group{margin-bottom:22px;}
+.group:last-child{margin-bottom:0;}
+.group-head{display:flex; align-items:center; gap:9px; margin-bottom:10px;}
+.group-head h4{font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+.group-rule{flex:1; height:1px; background:var(--line);}
+.rows{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+.row-item{
+  background:var(--surface); padding:11px 15px; display:grid; gap:12px; align-items:center;
+  grid-template-columns:1fr auto; cursor:pointer;
+}
+.row-item:hover{background:var(--surface-2);}
+.row-main{min-width:0;}
+.row-title{font-size:13.5px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.row-sub{font-size:12px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.row-side{display:flex; align-items:center; gap:10px; white-space:nowrap;}
+.row-date{font-size:12.5px; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; color:var(--ink-2);}
+.row-date.late{color:var(--danger); font-weight:600;}
+.row-date.soon{color:var(--warn); font-weight:600;}
+
+/* ---------- projudi ---------- */
+.svc{display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:start; padding:13px 0; border-bottom:1px solid var(--line);}
+.svc:last-child{border-bottom:none; padding-bottom:0;}
+.svc-code{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600;
+  background:var(--surface-2); color:var(--ink-2); padding:3px 8px; border-radius:6px; white-space:nowrap;
+}
+.svc-name{font-size:13.5px; font-weight:600;}
+.svc-desc{font-size:12.5px; color:var(--muted); margin-top:2px;}
+.svc-fields{font-size:11.5px; color:var(--muted); margin-top:5px; font-family:'IBM Plex Mono',monospace;}
+.consulta-form{display:flex; gap:9px; flex-wrap:wrap; align-items:center;}
+.consulta-form input{
+  flex:1 1 240px; padding:9px 12px; border-radius:8px; border:1px solid var(--line);
+  background:var(--ground); color:var(--ink); font-size:13.5px;
+  font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;
+}
+.kv-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:13px;}
+.kv{min-width:0;}
+.kv .k{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.kv .v{font-size:13.5px; margin-top:2px; overflow-wrap:break-word;}
+
+/* ---------- gaveta (detalhe da pericia) ---------- */
 .drawer{
-  position:fixed; inset:0; background:var(--surface); z-index:41;
+  position:fixed; inset:0; background:var(--ground); z-index:60;
   display:flex; flex-direction:column;
-  opacity:0; visibility:hidden; pointer-events:none; transform:scale(.99);  transition:opacity .16s ease, transform .16s ease;
+  opacity:0; visibility:hidden; pointer-events:none; transform:scale(.995);
+  transition:opacity .16s ease, transform .16s ease;
 }
 .drawer.open{opacity:1; visibility:visible; pointer-events:auto; transform:scale(1);}
-.drawer-head{padding:14px 28px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; flex-shrink:0;}
+.drawer-head{
+  padding:13px 24px; border-bottom:1px solid var(--line); background:var(--surface);
+  display:flex; align-items:center; gap:14px; flex-shrink:0; flex-wrap:wrap;
+}
 .back-btn{
-  background:none; border:none; color:var(--muted); cursor:pointer; font-size:13.5px; font-weight:600;
-  display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:7px; flex-shrink:0; font-family:inherit;
+  background:transparent; border:1px solid var(--line); color:var(--ink-2); cursor:pointer;
+  font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;
+  padding:7px 11px; border-radius:8px; flex-shrink:0;
 }
 .back-btn:hover{background:var(--surface-2); color:var(--ink);}
-.drawer-head .codigo-input{
-  font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--accent); background:var(--accent-soft);
-  border:none; border-radius:6px; padding:6px 9px; font-weight:600; width:140px; flex-shrink:0;
+.back-btn svg{width:14px; height:14px; stroke-width:2.2;}
+.codigo-input{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--accent-deep);
+  background:var(--accent-soft); border:1px solid transparent; border-radius:6px;
+  padding:6px 9px; font-weight:600; width:150px; flex-shrink:0;
 }
-.drawer-head .nome-input{
-  font-family:'Source Serif 4', serif; font-size:20px; font-weight:600; border:none; background:transparent;
-  color:var(--ink); flex:1; padding:0; min-width:0;
+.nome-input{
+  font-size:18px; font-weight:600; border:1px solid transparent; background:transparent;
+  color:var(--ink); flex:1; padding:4px 6px; min-width:160px; border-radius:6px;
+  font-family:inherit; letter-spacing:-.011em;
 }
-.drawer-head .nome-input:focus, .drawer-head .codigo-input:focus{outline:1px solid var(--accent); outline-offset:2px;}
+.nome-input:hover, .codigo-input:hover{border-color:var(--line);}
+.drawer-body{flex:1; overflow-y:auto;}
 .meta-grid{
-  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px;
-  padding:18px 28px; border-bottom:1px solid var(--line); flex-shrink:0;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:13px;
+  padding:18px 24px; border-bottom:1px solid var(--line); background:var(--surface);
 }
 .meta-item{display:flex; flex-direction:column; gap:4px; min-width:0;}
-.meta-item label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700;}
+.meta-item label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
 .meta-item input, .meta-item select{
-  border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:13px; background:var(--paper);
-  color:var(--ink); font-family:inherit; width:100%;
+  border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:13px;
+  background:var(--ground); color:var(--ink); font-family:inherit; width:100%;
 }
-.meta-item input:focus, .meta-item select:focus{outline:2px solid var(--accent); outline-offset:1px;}
-.meta-item .readout{padding:7px 0; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;}
-.drawer-columns{flex:1; display:grid; grid-template-columns:1.3fr 1fr; min-height:0;}
-.col-pane{overflow-y:auto; padding:22px 28px;}
-.col-documentos{border-right:1px solid var(--line);}
-@media (max-width:860px){
-  .drawer-columns{grid-template-columns:1fr; overflow-y:auto;}
-  .col-pane{overflow-y:visible; border-right:none; border-bottom:1px solid var(--line);}
-}
-.section{margin-bottom:24px;}
-.section h4{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; margin-bottom:10px;}
-.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-.field{display:flex; flex-direction:column; gap:4px; margin-bottom:10px;}
-.field label{font-size:11.5px; color:var(--muted);}
-.field input, .field select, .field textarea{
-  border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13.5px; background:var(--paper);
-  color:var(--ink); font-family:inherit;
-}
-.field textarea{resize:vertical; min-height:56px;}
-.field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
-.saldo-line{display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-top:1px solid var(--line); margin-top:4px;}
-.saldo-line.total{font-weight:700; font-size:14px;}
-
+.meta-item .readout{padding:7px 0; font-size:14px; font-weight:600; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.drawer-cols{display:grid; grid-template-columns:1.35fr 1fr; gap:0;}
+.col-pane{padding:20px 24px;}
+.col-docs{border-right:1px solid var(--line);}
+.sub{margin-bottom:22px;}
+.sub:last-child{margin-bottom:0;}
+.sub h4{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px;}
 .fase-group{border-left:2px solid var(--line); padding-left:14px; margin:0 0 16px 4px; position:relative;}
-.fase-group:before{content:''; position:absolute; left:-5px; top:2px; width:8px; height:8px; border-radius:50%; background:var(--accent);}
-.fase-title{display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:700; font-size:13px; margin-bottom:8px; color:var(--ink);}
-
+.fase-group:before{content:''; position:absolute; left:-5px; top:3px; width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.fase-title{display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:600; font-size:12.5px; margin-bottom:8px;}
 .doc-item, .obs-item{
-  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:13px;
-  display:flex; justify-content:space-between; gap:10px; background:var(--paper); align-items:flex-start;
+  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px;
+  font-size:13px; display:flex; justify-content:space-between; gap:10px;
+  background:var(--surface); align-items:flex-start;
 }
 .doc-item .d-name{font-weight:600;}
 .doc-item .d-meta, .obs-item .o-date{font-size:11.5px; color:var(--muted); margin-top:3px;}
-.doc-item .d-actions{display:flex; gap:4px; flex-shrink:0;}
+.doc-item .d-actions{display:flex; gap:2px; flex-shrink:0;}
 .doc-item.editing{display:block;}
 .doc-item.has-file{cursor:pointer;}
 .doc-item.has-file:hover{border-color:var(--accent);}
-.remove-x{background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px 4px; border-radius:5px;}
-.remove-x:hover{color:var(--danger); background:var(--danger-soft);}
+.add-row{display:flex; gap:8px; margin-top:7px;}
+.add-row input, .add-row select, .add-row textarea{
+  flex:1; border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px;
+  background:var(--ground); color:var(--ink); font-family:inherit; min-width:0;
+}
+.add-row .btn{flex:0 0 auto;}
+.hint{font-size:11.5px; color:var(--muted); margin-top:6px;}
+.import-box{border-top:1px solid var(--line); padding-top:13px; margin-top:8px;}
+.confirm-box{background:var(--danger-soft); border:1px solid var(--danger); border-radius:8px; padding:11px 13px; font-size:13px; color:var(--ink);}
+.confirm-box .row{display:flex; gap:8px; margin-top:9px;}
 
+/* ---------- visualizador ---------- */
 .viewer-overlay{
-  position:fixed; inset:0; background:rgba(10,14,18,.72); z-index:60; display:flex; align-items:center; justify-content:center;
-  padding:24px; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s;
+  position:fixed; inset:0; background:rgba(10,14,18,.72); z-index:80;
+  display:flex; align-items:center; justify-content:center; padding:22px;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s;
 }
 .viewer-overlay.open{opacity:1; visibility:visible; pointer-events:auto;}
-.viewer-box{background:var(--surface); border-radius:12px; width:min(880px,100%); height:min(88vh,100%); display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.5);}
-.viewer-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 18px; border-bottom:1px solid var(--line); flex-shrink:0;}
-.viewer-head .v-title{font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
-.viewer-close{background:none; border:none; color:var(--muted); cursor:pointer; font-size:20px; line-height:1; padding:4px; flex-shrink:0;}
-.viewer-close:hover{color:var(--danger);}
-.viewer-body{flex:1; overflow:auto; background:var(--paper); display:flex; align-items:center; justify-content:center;}
+.viewer-box{
+  background:var(--surface); border-radius:12px; width:min(900px,100%); height:min(88vh,100%);
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.6);
+}
+.viewer-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 17px; border-bottom:1px solid var(--line); flex-shrink:0;}
+.viewer-head .v-title{font-weight:600; font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.viewer-body{flex:1; overflow:auto; background:var(--ground); display:flex; align-items:center; justify-content:center;}
 .viewer-body iframe{width:100%; height:100%; border:none;}
 .viewer-body img{max-width:100%; max-height:100%; object-fit:contain;}
-.viewer-fallback{padding:40px; text-align:center; color:var(--muted); font-size:13.5px;}
-.add-row{display:flex; gap:8px; margin-top:6px;}
-.add-row input, .add-row select{flex:1; border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit; min-width:0;}
-.add-row .btn{flex:0 0 auto;}
-.confirm-box{background:var(--danger-soft); border:1px solid var(--danger); border-radius:8px; padding:10px 12px; font-size:13px; margin-top:8px;}
-.confirm-box .row{display:flex; gap:8px; margin-top:8px;}
-.hint{font-size:11.5px; color:var(--muted); margin-top:6px;}
-.import-box{border-top:1px solid var(--line); padding-top:12px; margin-top:6px;}
-@media (max-width:720px){
-  .stats{grid-template-columns:repeat(2,1fr);}
-  .card{grid-template-columns:1fr; text-align:left;}
-  .card .right, .card .prazo{align-items:flex-start; text-align:left;}
+.viewer-fallback{padding:40px; text-align:center; color:var(--muted); font-size:13px;}
+
+/* ---------- responsivo ---------- */
+.scrim{display:none;}
+@media (max-width:1040px){
+  .two-col{grid-template-columns:1fr;}
+  .kpis{grid-template-columns:repeat(2,1fr);}
+  .drawer-cols{grid-template-columns:1fr;}
+  .col-docs{border-right:none; border-bottom:1px solid var(--line);}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; width:270px; z-index:70;
+    transform:translateX(-100%); transition:transform .18s ease; height:100%;
+  }
+  body.nav-open .sidebar{transform:translateX(0);}
+  body.nav-open .scrim{display:block; position:fixed; inset:0; background:rgba(10,14,18,.45); z-index:65;}
+  .menu-btn{display:inline-flex;}
+  .topbar{padding:13px 16px;}
+  .content{padding:18px 16px 64px;}
+  .meta-grid, .col-pane, .drawer-head{padding-left:16px; padding-right:16px;}
+}
+@media (max-width:560px){
+  .kpis{grid-template-columns:1fr;}
+  .case{grid-template-columns:1fr; gap:9px;}
+  .case-prazo, .case-right{text-align:left; align-items:flex-start;}
+  .case-code{justify-self:start;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important;}
 }
 </style>
-
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
+
+<div class="scrim" onclick="toggleNav(false)"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">PC</div>
+      <div class="brand-text">
+        <div class="brand-name">Gerenciador de Perícias</div>
+        <div class="brand-sub">Perícia contábil</div>
+      </div>
+    </div>
+
     <div>
-      <div class="eyebrow">Perícia contábil judicial</div>
-      <h1>Gerenciador de Perícias</h1>
-      <p>Casos, prazos, honorários e documentos de cada perícia em um só painel.</p>
+      <div class="side-label">Perito responsável</div>
+      <div class="peritos" id="peritos"></div>
     </div>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <button class="btn btn-ghost btn-sm" id="authBtn" onclick="signInGoogle()">Entrar com Google</button>
-      <button class="btn btn-primary" onclick="novaPericia()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-        Nova perícia
+
+    <div>
+      <div class="side-label">Navegação</div>
+      <nav class="nav" id="nav"></nav>
+    </div>
+
+    <div class="side-foot">
+      <div class="account">
+        <span class="account-dot" id="accountDot"></span>
+        <div class="account-text">
+          <div class="account-state" id="accountState">Armazenamento local</div>
+          <div class="account-mail" id="accountMail">Não conectado</div>
+        </div>
+      </div>
+      <div class="side-actions">
+        <button class="btn btn-ghost btn-sm" id="authBtn" style="flex:1; justify-content:center;" onclick="signInGoogle()">Entrar com Google</button>
+        <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro e escuro"></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleNav(true)" aria-label="Abrir navegação">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
-    </div>
+      <div class="topbar-title">
+        <h1 id="sectionTitle">Visão geral</h1>
+        <p id="sectionSub">Indicadores das perícias sob sua responsabilidade</p>
+      </div>
+      <div id="topbarActions"></div>
+    </header>
+
+    <main class="content">
+      <div id="banner"></div>
+      <div id="view"></div>
+    </main>
   </div>
-
-  <div class="profile-tabs" id="profileTabs"></div>
-
-  <div id="banner"></div>
-
-  <div class="stats" id="stats"></div>
-
-  <div class="toolbar">
-    <div class="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="searchInput" type="text" placeholder="Buscar por código, nome, processo, comarca ou partes..." oninput="onSearch()">
-    </div>
-    <div class="chips" id="chips"></div>
-  </div>
-
-  <div id="summary"></div>
-  <div class="list" id="list"></div>
 </div>
 
 <div class="drawer" id="drawer"></div>
@@ -342,19 +568,26 @@ h1,h2,h3{font-family:'Source Serif 4', Georgia, serif; margin:0; text-wrap:balan
   <div class="viewer-box">
     <div class="viewer-head">
       <span class="v-title" id="viewerTitle"></span>
-      <button class="viewer-close" onclick="closeViewer()">×</button>
+      <button class="icon-btn" onclick="closeViewer()" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
     <div class="viewer-body" id="viewerBody"></div>
   </div>
 </div>
 
+<div id="tooltip" role="status"></div>
+
 <script>
+/* ==========================================================================
+   Constantes de domínio
+   ========================================================================== */
 const STATUS = {
-  aguardando_nomeacao: {label:'Aguardando nomeação', pill:'pill-muted', final:false},
-  em_andamento:        {label:'Em andamento',        pill:'pill-accent', final:false},
-  aguardando_quesitos: {label:'Aguardando quesitos',  pill:'pill-warning', final:false},
-  laudo_entregue:      {label:'Laudo entregue',       pill:'pill-success', final:true},
-  concluida:           {label:'Concluída',            pill:'pill-success', final:true},
+  aguardando_nomeacao: {label:'Aguardando nomeação', pill:'pill-muted',   final:false, ramp:'var(--r1)'},
+  aguardando_quesitos: {label:'Aguardando quesitos', pill:'pill-warning', final:false, ramp:'var(--r2)'},
+  em_andamento:        {label:'Em andamento',        pill:'pill-accent',  final:false, ramp:'var(--r3)'},
+  laudo_entregue:      {label:'Laudo entregue',      pill:'pill-success', final:true,  ramp:'var(--r4)'},
+  concluida:           {label:'Concluída',           pill:'pill-success', final:true,  ramp:'var(--r5)'},
 };
 const DOC_TYPES = ['Despacho','Laudo Pericial','Quesitos','Procuração','Comprovante de Pagamento','Ofício','Ata de Audiência','Manifestação','Decisão/Sentença','Outro'];
 const STATUS_PROCESSO = {
@@ -372,7 +605,7 @@ const CONTADORES = {
   rodrigo: {label:'Rodrigo Miranda', initials:'RM', color:'var(--violet)', soft:'var(--violet-soft)'},
 };
 const SUGGESTED_FASES = ['Despacho de Nomeação','Quesitos das Partes','Perícia em Campo / Diligência','Laudo Pericial','Manifestação das Partes','Impugnação','Decisão / Sentença'];
-const MAX_EMBED_BYTES = 5 * 1024 * 1024; // 5MB — limite prático quando não está conectado à nuvem (só armazenamento local do navegador)
+const MAX_EMBED_BYTES = 5 * 1024 * 1024;
 
 const KEYWORD_MAP = [
   {re:/despacho/, tipo:'Despacho', fase:'Despacho'},
@@ -385,6 +618,47 @@ const KEYWORD_MAP = [
   {re:/manifestacao|impugnacao/, tipo:'Manifestação', fase:'Manifestação das Partes'},
   {re:/sentenca|decisao/, tipo:'Decisão/Sentença', fase:'Decisão / Sentença'},
 ];
+
+/* Serviços públicos do Projudi (TJGO) que este app consome.
+   A consulta passa por uma função no Firebase porque o servidor do TJGO
+   não envia cabeçalhos CORS — o navegador não pode chamá-lo diretamente. */
+const PROJUDI_ENDPOINT = '';
+const PROJUDI_SERVICOS = [
+  {codigo:'74', nome:'Listar Dados de Processo', pagina:'PaginaAtual=2',
+   desc:'Ponto de entrada: recebe o número do processo e devolve a identificação interna que libera as demais consultas.',
+   campos:'classe · vara · comarca · partes · valor da causa · data de distribuição · fase · segredo de justiça',
+   uso:'em uso'},
+  {codigo:'75', nome:'Listar Movimentações de Processo', pagina:'PaginaAtual=3',
+   desc:'Andamento completo do processo, do mais antigo ao mais recente.',
+   campos:'descrição · complemento · data de realização · usuário responsável',
+   uso:'em uso'},
+  {codigo:'76', nome:'Listar Pendências de Processo', pagina:'PaginaAtual=4',
+   desc:'O que está em aberto: prazos correndo, conclusões e audiências designadas.',
+   campos:'tipo · responsável · data limite · audiências agendadas · status',
+   uso:'em uso'},
+  {codigo:'77', nome:'Listar Responsáveis de Processo', pagina:'PaginaAtual=6',
+   desc:'Magistrado responsável e advogados habilitados nos autos.',
+   campos:'cargo · nome · serventia · advogados com OAB',
+   uso:'disponível'},
+];
+
+const SECTIONS = [
+  {id:'visao',    titulo:'Visão geral',   sub:'Indicadores das perícias sob sua responsabilidade'},
+  {id:'pericias', titulo:'Perícias',      sub:'Todas as perícias, com busca e filtros'},
+  {id:'prazos',   titulo:'Agenda de prazos', sub:'Entregas ordenadas por urgência'},
+  {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
+  {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
+  {id:'config',   titulo:'Configurações', sub:'Conta, sincronização e limites de armazenamento'},
+];
+
+const ICONS = {
+  visao:'<path d="M3 13h5v8H3zM10 3h5v18h-5zM17 9h4v12h-4z"/>',
+  pericias:'<path d="M4 4h11l5 5v11a1 1 0 01-1 1H5a1 1 0 01-1-1z"/><path d="M14 4v6h6"/>',
+  prazos:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  docs:'<path d="M7 3h7l5 5v13H7z"/><path d="M13 3v6h6M10 13h7M10 17h5"/>',
+  projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
+  config:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
+};
 
 function seedData(){
   return [
@@ -406,159 +680,38 @@ function seedData(){
       observacoes:[{id:'o3',data:'2026-06-02',texto:'Partes intimadas para apresentação de quesitos suplementares.'}]},
     {id:'seed-4', contador:'rodrigo', codigo:'PER-2026-021', nome:'Prestação de Contas — Espólio', numeroProcesso:'0678812-45.2025.8.26.0577', codigoAcesso:'', statusProcesso:'em_tramitacao', vara:'1ª Vara de Sucessões', comarca:'São José dos Campos/SP', partes:'Espólio Martins x Herdeiros', dataNomeacao:'2026-08-01', prazoEntrega:'2026-11-30', honorarios:9800, valorRecebido:0, statusCaso:'aguardando_nomeacao',
       documentos:[],
-      observacoes:[{id:'o4',data:'2026-08-05',texto:'Nomeação publicada no DJE; aguardando decurso do prazo recursal das partes.'}]},  ];
+      observacoes:[{id:'o4',data:'2026-08-05',texto:'Nomeação publicada no DJE; aguardando decurso do prazo recursal das partes.'}]},
+  ];
 }
 
+/* ==========================================================================
+   Estado
+   ========================================================================== */
 let casos = seedData();
 let db = null, usingDb = false, usingLocalStorage = false;
 const LS_CASOS_KEY = 'pericias.casos.v1';
-function loadCasosFromLocalStorage(){
-  try{
-    const raw = localStorage.getItem(LS_CASOS_KEY);
-    if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) return parsed; }
-  }catch(e){ }
-  return null;
-}
-function persistCasosToLocalStorage(){
-  if(!usingLocalStorage) return;
-  try{
-    localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos));
-  }catch(e){
-    const el = document.getElementById('banner');
-    if(el){
-      el.innerHTML = usingDb
-        ? '<div class="banner">O armazenamento local deste navegador está cheio, mas seus dados continuam salvos na nuvem normalmente.</div>'
-        : '<div class="banner">O armazenamento local deste navegador está cheio e a última alteração pode não ter sido salva. Entre com o Google para sincronizar seus dados com a nuvem, ou remova documentos grandes que não sejam mais necessários.</div>';
-    }
-  }
-}
 
-// ---------- Login com Google + sincronização na nuvem (Firebase) ----------
-const FIREBASE_CONFIG = {
-  apiKey: 'AIzaSyA0UQuXuFI85MFjdfNn2YAYv2VNbZEUKmk',
-  authDomain: 'gerenciador-pericias-app.firebaseapp.com',
-  projectId: 'gerenciador-pericias-app',
-  storageBucket: 'gerenciador-pericias-app.firebasestorage.app',
-  messagingSenderId: '501336744750',
-  appId: '1:501336744750:web:c0b631495bcef8071490bf'
-};
-const ALLOWED_EMAILS = ['jonatasmiranda2405@gmail.com','rodrigodosantosmiranda@gmail.com','periciamiranda@gmail.com'];
-const MAX_STORAGE_BYTES = 50 * 1024 * 1024; // 50MB por arquivo enviado à nuvem (Firebase Storage)
-const MAX_FIRESTORE_EMBED_BYTES = 700 * 1024; // ~700KB crus — cabe com folga no limite de 1MB por documento do Firestore
-let auth = null, storage = null, currentUser = null, casosUnsub = null;
-
-function cloudSetBanner(html){
-  const el = document.getElementById('banner');
-  if(el) el.innerHTML = html;
-}
-
-function updateAuthButton(){
-  const btn = document.getElementById('authBtn');
-  if(!btn) return;
-  if(currentUser){
-    btn.textContent = 'Sair (' + currentUser.email + ')';
-    btn.onclick = signOutGoogle;
-  } else {
-    btn.textContent = 'Entrar com Google';
-    btn.onclick = signInGoogle;
-  }
-}
-
-async function signInGoogle(){
-  if(!auth){
-    cloudSetBanner('<div class="banner">Sincronização com a nuvem ainda não está configurada neste app.</div>');
-    return;
-  }
-  try{
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(provider);
-  }catch(e){
-    cloudSetBanner('<div class="banner">Não foi possível entrar com o Google. Tente novamente.</div>');
-  }
-}
-
-async function signOutGoogle(){
-  if(!auth) return;
-  try{ await auth.signOut(); }catch(e){}
-}
-
-function firebaseInit(){
-  if(typeof firebase === 'undefined') return;
-  if(FIREBASE_CONFIG.apiKey === 'PENDING_API_KEY') return;
-  if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(FIREBASE_CONFIG); }
-  auth = firebase.auth();
-  storage = firebase.storage();
-  auth.onAuthStateChanged(async (user) => {
-    if(user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase())){
-      currentUser = user;
-    } else {
-      if(user){
-        cloudSetBanner('<div class="banner">Este e-mail (' + escapeHtml(user.email||'') + ') não tem permissão de acesso a este aplicativo.</div>');
-        try{ await auth.signOut(); }catch(e){}
-      }
-      currentUser = null;
-    }
-    updateAuthButton();
-    await applyAuthState();
-  });
-}
-
-async function applyAuthState(){
-  if(currentUser){
-    db = firebase.firestore();
-    usingDb = true;
-    usingLocalStorage = false;
-    await startDbSync();
-    cloudSetBanner('<div class="banner banner-info">Conectado como ' + escapeHtml(currentUser.email) + '. Os dados são sincronizados automaticamente entre os dispositivos em que você entrar com esta conta.</div>');
-  } else {
-    usingDb = false;
-    db = null;
-    if(casosUnsub){ casosUnsub(); casosUnsub = null; }
-    if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
-    const loaded = loadCasosFromLocalStorage();
-    if(loaded) casos = loaded;
-    usingLocalStorage = true;
-    persistCasosToLocalStorage();
-    cloudSetBanner('<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Entre com o Google (conta autorizada) para sincronizar entre dispositivos.</div>');
-    renderAll();
-  }
-}
-
-async function startDbSync(){
-  try{
-    const snap = await db.collection('casos').get();
-    if(snap.empty && casos.length){
-      for(const c of casos){
-        const {id, documentos, ...data} = c;
-        await db.collection('casos').doc(id).set(data);
-        for(const d of (documentos||[])){
-          const {id:docId, ...docData} = d;
-          await db.collection('casos').doc(id).collection('documentos').doc(docId).set(docData);
-        }
-      }
-    }
-  }catch(e){ /* segue para a inscrição mesmo assim */ }
-  if(casosUnsub) casosUnsub();
-  casosUnsub = db.collection('casos').onSnapshot(snap => {
-    const prevDocs = {};
-    casos.forEach(c => { prevDocs[c.id] = c.documentos; });
-    casos = snap.docs.map(d => ({id:d.id, documentos: prevDocs[d.id] || [], ...d.data()}));
-    renderAll();
-  }, err => {
-    cloudSetBanner('<div class="banner">Não foi possível sincronizar os dados agora (' + escapeHtml(err.code||'erro') + '). Exibindo a última versão conhecida.</div>');
-  });
-  if(drawerCasoId) subscribeDocumentos(drawerCasoId);
-}
 let activeContador = (function(){
   try{ const saved = localStorage.getItem('pericias.activeContador'); if(saved && CONTADORES[saved]) return saved; }catch(e){}
   return 'jonatas';
 })();
+let activeSection = (function(){
+  try{ const s = localStorage.getItem('pericias.section'); if(s && SECTIONS.some(x=>x.id===s)) return s; }catch(e){}
+  return 'visao';
+})();
 let activeFilter = 'todas';
 let searchQuery = '';
+let docFiltroTipo = 'todos';
+let docQuery = '';
 let drawerCasoId = null;
 let editingDocId = null;
 let currentDocsUnsub = null;
+let projudiResultado = null;
+let projudiEstado = '';
 
+/* ==========================================================================
+   Utilitários
+   ========================================================================== */
 const fmtMoney = v => (v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-BR') : '—';
 const todayIso = () => new Date().toISOString().slice(0,10);
@@ -585,12 +738,6 @@ function bytesToBase64(bytes){
   let binary=''; const chunk=0x8000;
   for(let i=0;i<bytes.length;i+=chunk){ binary += String.fromCharCode.apply(null, bytes.subarray(i,i+chunk)); }
   return btoa(binary);
-}
-function base64ToBytes(base64){
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
-  return bytes;
 }
 function guessFromFilename(filename){
   const norm = normalizeText(filename);
@@ -633,6 +780,27 @@ function guessCodigoAcessoFromText(text){
   const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,20})/i);
   return m ? m[1].toUpperCase() : null;
 }
+function svg(path, extra){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" ${extra||''}>${path}</svg>`;
+}
+function diasAte(iso){
+  if(!iso) return null;
+  return Math.round((new Date(iso+'T00:00:00') - new Date(todayIso()+'T00:00:00')) / 86400000);
+}
+function prazoState(caso){
+  const meta = STATUS[caso.statusCaso];
+  if(meta && meta.final) return 'ok';
+  const diff = diasAte(caso.prazoEntrega);
+  if(diff === null) return 'ok';
+  if(diff < 0) return 'atrasada';
+  if(diff <= 7) return 'proxima';
+  return 'ok';
+}
+function pillForTipo(tipo){
+  const map = {'Despacho':'pill-accent','Laudo Pericial':'pill-success','Decisão/Sentença':'pill-success','Quesitos':'pill-warning','Manifestação':'pill-warning'};
+  return map[tipo] || 'pill-muted';
+}
+
 let pdfJsReady = false;
 function ensurePdfJs(){
   if(typeof pdfjsLib === 'undefined') return false;
@@ -659,23 +827,13 @@ async function extractPdfInfo(bytes){
     }
     result.processo = guessProcessoFromFilename(text);
     result.codigoAcesso = guessCodigoAcessoFromText(text);
-  }catch(e){ /* PDF sem camada de texto (escaneado), corrompido, ou leitor indisponível — segue sem esses dados */ }
+  }catch(e){ /* PDF sem camada de texto, corrompido ou leitor indisponível */ }
   return result;
 }
-function pillForTipo(tipo){
-  const map = {'Despacho':'pill-accent','Laudo Pericial':'pill-success','Decisão/Sentença':'pill-success','Quesitos':'pill-warning','Manifestação':'pill-warning'};
-  return map[tipo] || 'pill-muted';
-}
 
-function prazoState(caso){
-  const meta = STATUS[caso.statusCaso];
-  if(meta && meta.final) return 'ok';
-  const diff = (new Date(caso.prazoEntrega+'T00:00:00') - new Date(todayIso()+'T00:00:00')) / 86400000;
-  if(diff < 0) return 'atrasada';
-  if(diff <= 7) return 'proxima';
-  return 'ok';
-}
-
+/* ==========================================================================
+   Seleção e filtros
+   ========================================================================== */
 function matchesQuery(c, q){
   if(!q) return true;
   const hay = [c.codigo, c.nome, c.numeroProcesso, c.comarca, c.vara, c.partes].join(' ').toLowerCase();
@@ -695,160 +853,825 @@ function casosDoContador(contador){
 function visibleCasos(){
   return casosDoContador()
     .filter(c => matchesFilter(c, activeFilter) && matchesQuery(c, searchQuery))
-    .sort((a,b) => a.prazoEntrega.localeCompare(b.prazoEntrega));
+    .sort((a,b) => (a.prazoEntrega||'').localeCompare(b.prazoEntrega||''));
+}
+function todosDocumentos(){
+  const out = [];
+  casosDoContador().forEach(c => {
+    (c.documentos||[]).forEach(d => out.push({...d, caso:c}));
+  });
+  return out.sort((a,b) => (b.data||'').localeCompare(a.data||''));
 }
 
+/* ==========================================================================
+   Navegação, tema e chrome
+   ========================================================================== */
+function toggleNav(open){
+  document.body.classList.toggle('nav-open', open);
+}
+function setSection(id){
+  activeSection = id;
+  try{ localStorage.setItem('pericias.section', id); }catch(e){}
+  toggleNav(false);
+  renderAll();
+  window.scrollTo({top:0});
+}
 function setContador(key){
   if(!CONTADORES[key] || key === activeContador) return;
   activeContador = key;
   activeFilter = 'todas';
   searchQuery = '';
-  const input = document.getElementById('searchInput'); if(input) input.value = '';
   try{ localStorage.setItem('pericias.activeContador', key); }catch(e){}
   renderAll();
 }
-function renderProfileTabs(){
-  document.getElementById('profileTabs').innerHTML = Object.entries(CONTADORES).map(([key, meta]) => {
+function currentTheme(){
+  const stamped = document.documentElement.getAttribute('data-theme');
+  if(stamped) return stamped;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function toggleTheme(){
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem('pericias.theme', next); }catch(e){}
+  renderThemeButton();
+}
+function renderThemeButton(){
+  const btn = document.getElementById('themeBtn');
+  if(!btn) return;
+  const dark = currentTheme() === 'dark';
+  btn.innerHTML = dark
+    ? svg('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.4 5.6l-1.4 1.4M7 17l-1.4 1.4M18.4 18.4L17 17M7 7L5.6 5.6"/>')
+    : svg('<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>');
+  btn.setAttribute('title', dark ? 'Mudar para tema claro' : 'Mudar para tema escuro');
+}
+(function initTheme(){
+  try{
+    const saved = localStorage.getItem('pericias.theme');
+    if(saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+  }catch(e){}
+})();
+
+function renderPeritos(){
+  document.getElementById('peritos').innerHTML = Object.entries(CONTADORES).map(([key, meta]) => {
     const count = casosDoContador(key).length;
     return `
-      <button class="profile-tab ${activeContador===key?'active':''}" style="--pcolor:${meta.color}; --pcolor-soft:${meta.soft};" onclick="setContador('${key}')">
-        <span class="profile-avatar">${meta.initials}</span>
-        <span class="p-info">
-          <span class="p-name">${meta.label}</span>
-          <span class="p-count">${count} perícia${count===1?'':'s'}</span>
+      <button class="perito-btn ${activeContador===key?'active':''}" style="--pcolor:${meta.color}; --pcolor-soft:${meta.soft};" onclick="setContador('${key}')">
+        <span class="perito-avatar">${meta.initials}</span>
+        <span class="perito-info">
+          <span class="perito-name">${meta.label}</span>
+          <span class="perito-count">${count} perícia${count===1?'':'s'}</span>
         </span>
       </button>`;
   }).join('');
 }
 
-function renderStats(){
+function renderNav(){
+  const base = casosDoContador();
+  const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
+  const badges = {
+    pericias: base.length ? `<span class="nav-badge">${base.length}</span>` : '',
+    prazos: atrasadas ? `<span class="nav-badge alert">${atrasadas}</span>` : '',
+    docs: (() => { const n = todosDocumentos().length; return n ? `<span class="nav-badge">${n}</span>` : ''; })(),
+  };
+  document.getElementById('nav').innerHTML = SECTIONS.map(s => `
+    <button class="nav-item ${activeSection===s.id?'active':''}" onclick="setSection('${s.id}')">
+      ${svg(ICONS[s.id])}
+      <span>${s.titulo}</span>
+      ${badges[s.id] || ''}
+    </button>`).join('');
+}
+
+function renderTopbar(){
+  const sec = SECTIONS.find(s => s.id === activeSection) || SECTIONS[0];
+  document.getElementById('sectionTitle').textContent = sec.titulo;
+  document.getElementById('sectionSub').textContent = sec.sub;
+  const actions = document.getElementById('topbarActions');
+  if(activeSection === 'pericias' || activeSection === 'visao'){
+    actions.innerHTML = `<button class="btn btn-primary" onclick="novaPericia()">${svg('<path d="M12 5v14M5 12h14"/>')} Nova perícia</button>`;
+  } else {
+    actions.innerHTML = '';
+  }
+}
+
+function renderAccount(){
+  const dot = document.getElementById('accountDot');
+  const state = document.getElementById('accountState');
+  const mail = document.getElementById('accountMail');
+  const btn = document.getElementById('authBtn');
+  if(!dot) return;
+  if(currentUser){
+    dot.classList.add('on');
+    state.textContent = 'Sincronizado na nuvem';
+    mail.textContent = currentUser.email;
+    btn.textContent = 'Sair';
+    btn.onclick = signOutGoogle;
+  } else {
+    dot.classList.remove('on');
+    state.textContent = 'Armazenamento local';
+    mail.textContent = 'Não conectado';
+    btn.textContent = 'Entrar com Google';
+    btn.onclick = signInGoogle;
+  }
+}
+function updateAuthButton(){ renderAccount(); }
+
+/* ==========================================================================
+   Tooltip dos gráficos
+   ========================================================================== */
+const tooltipEl = () => document.getElementById('tooltip');
+function showTip(evt, html){
+  const t = tooltipEl();
+  t.innerHTML = html;
+  t.style.opacity = '1';
+  moveTip(evt);
+}
+function moveTip(evt){
+  const t = tooltipEl();
+  const pad = 14;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  const r = t.getBoundingClientRect();
+  if(x + r.width > window.innerWidth - 8) x = evt.clientX - r.width - pad;
+  if(y + r.height > window.innerHeight - 8) y = evt.clientY - r.height - pad;
+  t.style.left = x + 'px';
+  t.style.top = y + 'px';
+}
+function hideTip(){ tooltipEl().style.opacity = '0'; }
+
+/* ==========================================================================
+   Seção: visão geral
+   ========================================================================== */
+function chartHonorarios(base){
+  const linhas = Object.entries(CONTADORES).map(([key, meta]) => {
+    const list = casos.filter(c => c.contador === key);
+    const recebido = list.reduce((s,c) => s + (c.valorRecebido||0), 0);
+    const aReceber = list.reduce((s,c) => s + Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)), 0);
+    return {nome: meta.label, recebido, aReceber, total: recebido + aReceber};
+  }).filter(l => l.total > 0);
+
+  if(linhas.length === 0) return `<div class="chart-empty">Nenhum honorário lançado ainda.</div>`;
+  const max = Math.max(...linhas.map(l => l.total));
+
+  return `
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s1)"></span>Recebido</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s2)"></span>A receber</span>
+    </div>
+    ${linhas.map(l => {
+      const wR = max ? (l.recebido / max) * 100 : 0;
+      const wA = max ? (l.aReceber / max) * 100 : 0;
+      return `
+      <div class="bar-row">
+        <span class="bar-label">${escapeHtml(l.nome)}</span>
+        <span class="bar-track">
+          <span class="bar">
+            ${l.recebido > 0 ? `<span class="bar-seg" style="width:${wR}%; background:var(--s1)"
+              onmousemove="showTip(event, 'Recebido<br><span class=\\'tt-v\\'>${fmtMoney(l.recebido)}</span>')" onmouseleave="hideTip()"></span>` : ''}
+            ${l.aReceber > 0 ? `<span class="bar-seg" style="width:${wA}%; background:var(--s2)"
+              onmousemove="showTip(event, 'A receber<br><span class=\\'tt-v\\'>${fmtMoney(l.aReceber)}</span>')" onmouseleave="hideTip()"></span>` : ''}
+          </span>
+          <span class="bar-value">${fmtMoney(l.total)}</span>
+        </span>
+      </div>`;
+    }).join('')}`;
+}
+
+function chartStatus(base){
+  const counts = Object.entries(STATUS).map(([key, meta]) => ({
+    key, label: meta.label, ramp: meta.ramp,
+    n: base.filter(c => c.statusCaso === key).length
+  }));
+  const total = counts.reduce((s,c) => s + c.n, 0);
+  if(total === 0) return `<div class="chart-empty">Nenhuma perícia cadastrada para este perito.</div>`;
+  const max = Math.max(...counts.map(c => c.n));
+  return counts.map(c => `
+    <div class="bar-row">
+      <span class="bar-label">${c.label}</span>
+      <span class="bar-track">
+        <span class="bar">
+          ${c.n > 0 ? `<span class="bar-seg" style="width:${(c.n/max)*100}%; background:${c.ramp}"
+            onmousemove="showTip(event, '${c.label}<br><span class=\\'tt-v\\'>${c.n} de ${total}</span>')" onmouseleave="hideTip()"></span>` : ''}
+        </span>
+        <span class="bar-value">${c.n}</span>
+      </span>
+    </div>`).join('');
+}
+
+function renderVisao(){
   const base = casosDoContador();
   const ativas = base.filter(c => !STATUS[c.statusCaso].final).length;
   const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
   const aReceber = base.reduce((s,c) => s + Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)), 0);
+  const recebido = base.reduce((s,c) => s + (c.valorRecebido||0), 0);
   const concluidas = base.filter(c => STATUS[c.statusCaso].final).length;
-  document.getElementById('stats').innerHTML = `
-    <div class="stat tone-accent"><div class="label">Em andamento</div><div class="value">${ativas}</div></div>
-    <div class="stat tone-danger"><div class="label">Prazos atrasados</div><div class="value">${atrasadas}</div></div>
-    <div class="stat"><div class="label">Honorários a receber</div><div class="value">${fmtMoney(aReceber)}</div></div>
-    <div class="stat tone-success"><div class="label">Concluídas</div><div class="value">${concluidas}</div></div>
-  `;
+  const totalHon = aReceber + recebido;
+  const pctRecebido = totalHon ? Math.round((recebido/totalHon)*100) : 0;
+
+  const proximos = base
+    .filter(c => !STATUS[c.statusCaso].final && c.prazoEntrega)
+    .sort((a,b) => a.prazoEntrega.localeCompare(b.prazoEntrega))
+    .slice(0,5);
+
+  return `
+    <div class="section-gap">
+      <div class="kpis">
+        <div class="kpi tone-accent">
+          <div class="k">Em andamento</div>
+          <div class="v">${ativas}</div>
+          <div class="sub">de ${base.length} perícia${base.length===1?'':'s'}</div>
+        </div>
+        <div class="kpi ${atrasadas ? 'tone-danger' : ''}">
+          <div class="k">Prazos atrasados</div>
+          <div class="v">${atrasadas}</div>
+          <div class="sub">${atrasadas ? 'exigem atenção imediata' : 'nenhum prazo vencido'}</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Honorários a receber</div>
+          <div class="v">${fmtMoney(aReceber)}</div>
+          <div class="sub">${pctRecebido}% do total já recebido</div>
+        </div>
+        <div class="kpi tone-ok">
+          <div class="k">Concluídas</div>
+          <div class="v">${concluidas}</div>
+          <div class="sub">laudo entregue ou encerrada</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Honorários por perito</h3>
+            <span class="note">os dois peritos, acumulado</span>
+          </div>
+          ${chartHonorarios(base)}
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Distribuição por status</h3>
+            <span class="note">${base.length} perícia${base.length===1?'':'s'}</span>
+          </div>
+          ${chartStatus(base)}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Próximas entregas</h3>
+          <span class="note">perícias não concluídas</span>
+        </div>
+        ${proximos.length === 0
+          ? `<div class="chart-empty">Nenhuma entrega pendente.</div>`
+          : `<div class="rows">${proximos.map(c => rowPrazo(c)).join('')}</div>`}
+      </div>
+    </div>`;
 }
-function renderChips(){
+
+/* ==========================================================================
+   Seção: perícias
+   ========================================================================== */
+function renderPericias(){
+  const items = visibleCasos();
   const chips = [['todas','Todas'], ['ativas','Ativas'], ['atrasadas','Atrasadas'], ['concluidas','Concluídas']];
-  document.getElementById('chips').innerHTML = chips.map(([k,label]) =>
-    `<button class="chip ${activeFilter===k?'active':''}" onclick="setFilter('${k}')">${label}</button>`
-  ).join('');
+  const resumo = searchQuery ? resumoBusca() : '';
+  return `
+    <div class="section-gap">
+      <div class="topbar-tools" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <div class="search">
+          ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
+          <input id="searchInput" type="text" value="${escapeHtml(searchQuery)}" placeholder="Buscar por código, nome, processo, comarca ou partes" oninput="onSearch()">
+        </div>
+        <div class="chips">
+          ${chips.map(([k,label]) => `<button class="chip ${activeFilter===k?'active':''}" onclick="setFilter('${k}')">${label}</button>`).join('')}
+        </div>
+      </div>
+      ${resumo}
+      ${items.length === 0
+        ? `<div class="empty-state"><h3>Nenhuma perícia aqui</h3><p>Ajuste os filtros ou crie uma nova perícia.</p></div>`
+        : `<div class="list">${items.map(c => cardCaso(c)).join('')}</div>`}
+    </div>`;
 }
-function setFilter(f){ activeFilter = f; renderAll(); }
-function onSearch(){
-  searchQuery = document.getElementById('searchInput').value.trim();
-  renderAll();
-}function renderSummary(){
-  const el = document.getElementById('summary');
-  if(!searchQuery){ el.innerHTML=''; return; }
+
+function resumoBusca(){
   const matches = casosDoContador().filter(c => matchesQuery(c, searchQuery));
   if(matches.length === 0){
-    el.innerHTML = `<div class="summary"><h3>Resumo da busca</h3><div class="empty">Nenhuma perícia encontrada para "${escapeHtml(searchQuery)}".</div></div>`;
-    return;
+    return `<div class="panel"><div class="chart-empty">Nenhuma perícia encontrada para "${escapeHtml(searchQuery)}".</div></div>`;
   }
   const totalHonorarios = matches.reduce((s,c)=>s+(c.honorarios||0),0);
   const totalAReceber = matches.reduce((s,c)=>s+Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)),0);
   const atrasadasN = matches.filter(c=>prazoState(c)==='atrasada').length;
-  el.innerHTML = `
-    <div class="summary">
-      <h3>Resumo da busca — "${escapeHtml(searchQuery)}"</h3>
-      <div class="row">
-        <div class="kv"><div class="k">Encontradas</div><div class="v">${matches.length}</div></div>
-        <div class="kv"><div class="k">Honorários (total)</div><div class="v">${fmtMoney(totalHonorarios)}</div></div>
-        <div class="kv"><div class="k">A receber</div><div class="v">${fmtMoney(totalAReceber)}</div></div>
-        <div class="kv"><div class="k">Com prazo atrasado</div><div class="v">${atrasadasN}</div></div>
-      </div>
-      <div class="matches">
-        ${matches.map(c => `
-          <div class="match-item" onclick="openDrawer('${c.id}')">
-            <span><span class="mono">${escapeHtml(c.codigo)}</span> — ${escapeHtml(c.nome)}</span>
-            <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}</span>
-          </div>`).join('')}
+  return `
+    <div class="panel">
+      <div class="panel-head"><h3>Resumo da busca</h3><span class="note">"${escapeHtml(searchQuery)}"</span></div>
+      <div class="kv-grid">
+        <div class="kv"><div class="k">Encontradas</div><div class="v num">${matches.length}</div></div>
+        <div class="kv"><div class="k">Honorários (total)</div><div class="v num">${fmtMoney(totalHonorarios)}</div></div>
+        <div class="kv"><div class="k">A receber</div><div class="v num">${fmtMoney(totalAReceber)}</div></div>
+        <div class="kv"><div class="k">Com prazo atrasado</div><div class="v num">${atrasadasN}</div></div>
       </div>
     </div>`;
 }
 
-function renderList(){
-  const items = visibleCasos();
-  const el = document.getElementById('list');
-  if(items.length === 0){
-    el.innerHTML = `<div class="empty-state"><h3>Nenhuma perícia aqui</h3><p>Ajuste os filtros ou crie uma nova perícia.</p></div>`;
-    return;
-  }
-  el.innerHTML = items.map(c => {
-    const st = prazoState(c);
-    const saldo = Math.max(0,(c.honorarios||0)-(c.valorRecebido||0));
-    return `
-    <div class="card" onclick="openDrawer('${c.id}')">
-      <span class="codigo mono">${escapeHtml(c.codigo)}</span>
-      <div class="title">
-        <div class="nome">${escapeHtml(c.nome)}</div>
-        <div class="meta">${escapeHtml(c.partes)} · ${escapeHtml(c.comarca)}${c.statusProcesso && STATUS_PROCESSO[c.statusProcesso] ? ' · '+STATUS_PROCESSO[c.statusProcesso].label : ''}</div>
+function cardCaso(c){
+  const st = prazoState(c);
+  const saldo = Math.max(0,(c.honorarios||0)-(c.valorRecebido||0));
+  return `
+    <div class="case" onclick="openDrawer('${c.id}')">
+      <span class="case-code">${escapeHtml(c.codigo)}</span>
+      <div class="case-title">
+        <div class="case-name">${escapeHtml(c.nome)}</div>
+        <div class="case-meta">${escapeHtml(c.partes)} · ${escapeHtml(c.comarca)}${c.statusProcesso && STATUS_PROCESSO[c.statusProcesso] ? ' · '+STATUS_PROCESSO[c.statusProcesso].label : ''}</div>
       </div>
-      <div class="prazo ${st}">
+      <div class="case-prazo ${st}">
         <div class="lbl">Prazo</div>
-        <div class="d mono">${fmtDate(c.prazoEntrega)}</div>
+        <div class="d">${fmtDate(c.prazoEntrega)}</div>
       </div>
-      <div class="right">
+      <div class="case-right">
         <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}${st==='atrasada' ? ' · atrasada' : ''}</span>
-        <span class="valor">${saldo>0 ? fmtMoney(saldo)+' a receber' : 'pago'}</span>
+        <span class="case-valor">${saldo>0 ? fmtMoney(saldo)+' a receber' : 'pago'}</span>
       </div>
     </div>`;
-  }).join('');
 }
 
+function setFilter(f){ activeFilter = f; renderAll(); }
+function onSearch(){
+  const el = document.getElementById('searchInput');
+  searchQuery = el.value.trim();
+  const pos = el.selectionStart;
+  renderAll();
+  const novo = document.getElementById('searchInput');
+  if(novo){ novo.focus(); try{ novo.setSelectionRange(pos,pos); }catch(e){} }
+}
+
+/* ==========================================================================
+   Seção: agenda de prazos
+   ========================================================================== */
+function rowPrazo(c){
+  const dias = diasAte(c.prazoEntrega);
+  const st = prazoState(c);
+  const cls = st === 'atrasada' ? 'late' : (st === 'proxima' ? 'soon' : '');
+  let quando;
+  if(dias === null) quando = '';
+  else if(dias < 0) quando = `${Math.abs(dias)} dia${Math.abs(dias)===1?'':'s'} em atraso`;
+  else if(dias === 0) quando = 'vence hoje';
+  else quando = `em ${dias} dia${dias===1?'':'s'}`;
+  return `
+    <div class="row-item" onclick="openDrawer('${c.id}')">
+      <div class="row-main">
+        <div class="row-title">${escapeHtml(c.nome)}</div>
+        <div class="row-sub"><span class="mono">${escapeHtml(c.codigo)}</span> · ${escapeHtml(c.partes)} · ${escapeHtml(c.vara||'vara não informada')}</div>
+      </div>
+      <div class="row-side">
+        <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}</span>
+        <span class="row-date ${cls}" title="${quando}">${fmtDate(c.prazoEntrega)}</span>
+      </div>
+    </div>`;
+}
+
+function renderPrazos(){
+  const base = casosDoContador().filter(c => c.prazoEntrega);
+  const pend = base.filter(c => !STATUS[c.statusCaso].final).sort((a,b) => a.prazoEntrega.localeCompare(b.prazoEntrega));
+  const concl = base.filter(c => STATUS[c.statusCaso].final).sort((a,b) => b.prazoEntrega.localeCompare(a.prazoEntrega));
+
+  const grupos = [
+    {titulo:'Atrasados', teste: c => diasAte(c.prazoEntrega) < 0, vazio:'Nenhum prazo vencido.'},
+    {titulo:'Próximos sete dias', teste: c => { const d = diasAte(c.prazoEntrega); return d >= 0 && d <= 7; }, vazio:'Nada vencendo nesta semana.'},
+    {titulo:'Próximos trinta dias', teste: c => { const d = diasAte(c.prazoEntrega); return d > 7 && d <= 30; }, vazio:'Nada no mês.'},
+    {titulo:'Mais adiante', teste: c => diasAte(c.prazoEntrega) > 30, vazio:'Nada agendado.'},
+  ];
+
+  const blocos = grupos.map(g => {
+    const items = pend.filter(g.teste);
+    return `
+      <div class="group">
+        <div class="group-head">
+          <h4>${g.titulo}</h4>
+          <span class="pill pill-muted">${items.length}</span>
+          <span class="group-rule"></span>
+        </div>
+        ${items.length ? `<div class="rows">${items.map(rowPrazo).join('')}</div>` : `<div class="chart-empty">${g.vazio}</div>`}
+      </div>`;
+  }).join('');
+
+  const concluido = concl.length ? `
+    <div class="group">
+      <div class="group-head">
+        <h4>Encerradas</h4>
+        <span class="pill pill-muted">${concl.length}</span>
+        <span class="group-rule"></span>
+      </div>
+      <div class="rows">${concl.map(rowPrazo).join('')}</div>
+    </div>` : '';
+
+  return `<div class="panel">${blocos}${concluido}</div>`;
+}
+
+/* ==========================================================================
+   Seção: documentos
+   ========================================================================== */
+function renderDocs(){
+  let docs = todosDocumentos();
+  if(docFiltroTipo !== 'todos') docs = docs.filter(d => (d.tipo||'Outro') === docFiltroTipo);
+  if(docQuery){
+    const q = normalizeText(docQuery);
+    docs = docs.filter(d => normalizeText(`${d.nome} ${d.fase||''} ${d.caso.codigo} ${d.caso.nome}`).includes(q));
+  }
+  const tiposPresentes = [...new Set(todosDocumentos().map(d => d.tipo || 'Outro'))].sort();
+
+  const porFase = {};
+  docs.forEach(d => {
+    const k = d.fase || 'Sem fase identificada';
+    (porFase[k] = porFase[k] || []).push(d);
+  });
+
+  return `
+    <div class="section-gap">
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <div class="search">
+          ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
+          <input id="docSearch" type="text" value="${escapeHtml(docQuery)}" placeholder="Buscar documento, fase ou perícia" oninput="onDocSearch()">
+        </div>
+        <div class="chips">
+          <button class="chip ${docFiltroTipo==='todos'?'active':''}" onclick="setDocTipo('todos')">Todos</button>
+          ${tiposPresentes.map(t => `<button class="chip ${docFiltroTipo===t?'active':''}" onclick="setDocTipo('${escapeHtml(t).replace(/'/g,"\\'")}')">${escapeHtml(t)}</button>`).join('')}
+        </div>
+      </div>
+
+      ${docs.length === 0
+        ? `<div class="empty-state"><h3>Nenhum documento</h3><p>Importe um ZIP dentro de uma perícia ou adicione documentos manualmente.</p></div>`
+        : `<div class="panel">
+            ${Object.entries(porFase).map(([fase, items]) => `
+              <div class="group">
+                <div class="group-head">
+                  <h4>${escapeHtml(fase)}</h4>
+                  <span class="pill pill-muted">${items.length}</span>
+                  <span class="group-rule"></span>
+                </div>
+                <div class="rows">
+                  ${items.map(d => `
+                    <div class="row-item" onclick="abrirDocumento('${d.caso.id}','${d.id}')">
+                      <div class="row-main">
+                        <div class="row-title">${escapeHtml(d.nome)}</div>
+                        <div class="row-sub"><span class="mono">${escapeHtml(d.caso.codigo)}</span> · ${escapeHtml(d.caso.nome)}${d.tamanho ? ' · '+fmtBytes(d.tamanho) : ''}</div>
+                      </div>
+                      <div class="row-side">
+                        <span class="pill ${pillForTipo(d.tipo)}">${escapeHtml(d.tipo||'Outro')}</span>
+                        <span class="row-date">${fmtDate(d.data)}</span>
+                      </div>
+                    </div>`).join('')}
+                </div>
+              </div>`).join('')}
+          </div>`}
+    </div>`;
+}
+function setDocTipo(t){ docFiltroTipo = t; renderAll(); }
+function onDocSearch(){
+  const el = document.getElementById('docSearch');
+  docQuery = el.value;
+  const pos = el.selectionStart;
+  renderAll();
+  const novo = document.getElementById('docSearch');
+  if(novo){ novo.focus(); try{ novo.setSelectionRange(pos,pos); }catch(e){} }
+}
+function abrirDocumento(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && (c.documentos||[]).find(x => x.id === docId);
+  if(d && d.arquivo){ openViewer(casoId, docId); return; }
+  openDrawer(casoId);
+}
+
+/* ==========================================================================
+   Seção: Projudi
+   ========================================================================== */
+function renderProjudi(){
+  const configurado = !!PROJUDI_ENDPOINT;
+  return `
+    <div class="section-gap">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Consulta processual</h3>
+          <span class="note">Tribunal de Justiça de Goiás</span>
+        </div>
+        ${configurado ? '' : `
+          <div class="banner" style="margin-bottom:14px;">
+            ${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}
+            <span>A consulta ainda não foi publicada. Falta subir a função no Firebase e informar o endereço dela aqui — o restante do app já está preparado.</span>
+          </div>`}
+        <div class="consulta-form">
+          <input id="projudiNumero" type="text" placeholder="0000000-00.0000" value="" ${configurado ? '' : 'disabled'}>
+          <button class="btn btn-primary" onclick="consultarProjudi()" ${configurado ? '' : 'disabled'}>
+            ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')} Consultar
+          </button>
+        </div>
+        <div class="hint">Aceita o número completo do CNJ ou a forma reduzida até o ano. A consulta exige estar conectado com uma conta autorizada.</div>
+        <div id="projudiSaida" style="margin-top:16px;">${projudiEstado || ''}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Serviços acessados</h3>
+          <span class="note">webservice público do Projudi</span>
+        </div>
+        ${PROJUDI_SERVICOS.map(s => `
+          <div class="svc">
+            <span class="svc-code">op ${s.codigo}</span>
+            <div>
+              <div class="svc-name">${escapeHtml(s.nome)}</div>
+              <div class="svc-desc">${escapeHtml(s.desc)}</div>
+              <div class="svc-fields">${escapeHtml(s.campos)}</div>
+            </div>
+            <span class="pill ${s.uso==='em uso' ? 'pill-success' : 'pill-muted'}">${s.uso}</span>
+          </div>`).join('')}
+        <div class="hint" style="margin-top:14px;">
+          A primeira consulta devolve a identificação interna do processo, e é ela que libera as outras três.
+          As respostas chegam em XML no padrão ISO-8859-1 e são convertidas antes de aparecerem aqui.
+        </div>
+      </div>
+    </div>`;
+}
+
+async function consultarProjudi(){
+  const numero = (document.getElementById('projudiNumero').value || '').trim();
+  const saida = document.getElementById('projudiSaida');
+  if(!numero){ saida.innerHTML = `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>Informe o número do processo.</span></div>`; return; }
+  if(!currentUser){ saida.innerHTML = `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>Entre com o Google para consultar o Projudi.</span></div>`; return; }
+  saida.innerHTML = `<div class="chart-empty">Consultando o Projudi...</div>`;
+  try{
+    const token = await currentUser.getIdToken();
+    const res = await fetch(`${PROJUDI_ENDPOINT}?numero=${encodeURIComponent(numero)}`, {headers:{Authorization:'Bearer '+token}});
+    const dados = await res.json();
+    if(!res.ok){ throw new Error(dados.erro || 'Falha na consulta'); }
+    projudiResultado = dados;
+    saida.innerHTML = renderProjudiResultado(dados);
+  }catch(e){
+    saida.innerHTML = `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(e.message || 'Não foi possível consultar o Projudi agora.')}</span></div>`;
+  }
+}
+
+function renderProjudiResultado(d){
+  const campos = [
+    ['Número', d.numero], ['Classe', d.classe], ['Serventia', d.serventia],
+    ['Fase processual', d.faseProcessual], ['Status', d.status],
+    ['Valor da causa', d.valorCausa ? 'R$ '+d.valorCausa : ''],
+    ['Distribuição', d.dataDistribuicao], ['Segredo de justiça', d.segredoJustica],
+  ].filter(([,v]) => v);
+  const movs = (d.movimentacoes||[]).slice(0,8);
+  return `
+    <div class="kv-grid" style="margin-bottom:16px;">
+      ${campos.map(([k,v]) => `<div class="kv"><div class="k">${k}</div><div class="v">${escapeHtml(v)}</div></div>`).join('')}
+    </div>
+    ${(d.partes||[]).length ? `
+      <div class="group">
+        <div class="group-head"><h4>Partes</h4><span class="group-rule"></span></div>
+        <div class="rows">${d.partes.map(p => `
+          <div class="row-item" style="cursor:default;">
+            <div class="row-main"><div class="row-title">${escapeHtml(p.nome)}</div></div>
+            <div class="row-side"><span class="pill pill-muted">${escapeHtml(p.tipo)}</span></div>
+          </div>`).join('')}</div>
+      </div>` : ''}
+    ${movs.length ? `
+      <div class="group">
+        <div class="group-head"><h4>Movimentações recentes</h4><span class="pill pill-muted">${(d.movimentacoes||[]).length}</span><span class="group-rule"></span></div>
+        <div class="rows">${movs.map(m => `
+          <div class="row-item" style="cursor:default;">
+            <div class="row-main">
+              <div class="row-title">${escapeHtml(m.descricao)}</div>
+              ${m.usuario ? `<div class="row-sub">${escapeHtml(m.usuario)}</div>` : ''}
+            </div>
+            <div class="row-side"><span class="row-date">${escapeHtml((m.data||'').slice(0,10))}</span></div>
+          </div>`).join('')}</div>
+      </div>` : ''}`;
+}
+
+/* ==========================================================================
+   Seção: configurações
+   ========================================================================== */
+function renderConfig(){
+  const totalDocs = casos.reduce((s,c) => s + (c.documentos||[]).length, 0);
+  const comArquivo = casos.reduce((s,c) => s + (c.documentos||[]).filter(d => d.arquivo).length, 0);
+  const bytes = casos.reduce((s,c) => s + (c.documentos||[]).reduce((t,d) => t + (d.tamanho||0), 0), 0);
+  return `
+    <div class="section-gap">
+      <div class="panel">
+        <div class="panel-head"><h3>Conta e sincronização</h3></div>
+        <div class="kv-grid">
+          <div class="kv"><div class="k">Estado</div><div class="v">${currentUser ? 'Sincronizado na nuvem' : 'Somente neste navegador'}</div></div>
+          <div class="kv"><div class="k">Conta</div><div class="v">${currentUser ? escapeHtml(currentUser.email) : 'Não conectado'}</div></div>
+          <div class="kv"><div class="k">Banco de dados</div><div class="v">${usingDb ? 'Firestore' : 'Armazenamento local'}</div></div>
+          <div class="kv"><div class="k">Arquivos</div><div class="v">${storage && usingDb ? 'Firebase Storage' : 'Embutidos no registro'}</div></div>
+        </div>
+        <div class="hint" style="margin-top:12px;">
+          Sem login, os dados ficam apenas neste navegador e não acompanham você em outro dispositivo.
+          Ao entrar com uma conta autorizada, tudo passa a sincronizar automaticamente.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Contas autorizadas</h3><span class="note">definido no aplicativo e nas regras do servidor</span></div>
+        <div class="rows">
+          ${ALLOWED_EMAILS.map(e => `
+            <div class="row-item" style="cursor:default;">
+              <div class="row-main"><div class="row-title mono" style="font-size:13px;">${escapeHtml(e)}</div></div>
+              <div class="row-side">${currentUser && currentUser.email === e ? '<span class="pill pill-success">conectada agora</span>' : '<span class="pill pill-muted">autorizada</span>'}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Documentos armazenados</h3></div>
+        <div class="kv-grid">
+          <div class="kv"><div class="k">Registros</div><div class="v num">${totalDocs}</div></div>
+          <div class="kv"><div class="k">Com arquivo anexado</div><div class="v num">${comArquivo}</div></div>
+          <div class="kv"><div class="k">Volume aproximado</div><div class="v num">${fmtBytes(bytes) || '0 B'}</div></div>
+          <div class="kv"><div class="k">Limite por arquivo</div><div class="v num">${usingDb && storage ? '50 MB' : '5 MB'}</div></div>
+        </div>
+        <div class="hint" style="margin-top:12px;">
+          Conectado à nuvem, cada arquivo vai para o Storage e aceita até 50 MB. Sem conexão, o arquivo fica embutido no próprio registro do navegador.
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ==========================================================================
+   Render principal
+   ========================================================================== */
 function renderAll(){
-  renderProfileTabs();
-  renderStats();
-  renderChips();
-  renderSummary();
-  renderList();
+  renderPeritos();
+  renderNav();
+  renderTopbar();
+  renderAccount();
+  renderThemeButton();
+  const view = document.getElementById('view');
+  if(activeSection === 'visao') view.innerHTML = renderVisao();
+  else if(activeSection === 'pericias') view.innerHTML = renderPericias();
+  else if(activeSection === 'prazos') view.innerHTML = renderPrazos();
+  else if(activeSection === 'docs') view.innerHTML = renderDocs();
+  else if(activeSection === 'projudi') view.innerHTML = renderProjudi();
+  else if(activeSection === 'config') view.innerHTML = renderConfig();
   if(drawerCasoId) renderDrawer();
 }
 
-// ---------- persistence: casos ----------
+/* ==========================================================================
+   Firebase: login, Firestore e Storage
+   ========================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyA0UQuXuFI85MFjdfNn2YAYv2VNbZEUKmk',
+  authDomain: 'gerenciador-pericias-app.firebaseapp.com',
+  projectId: 'gerenciador-pericias-app',
+  storageBucket: 'gerenciador-pericias-app.firebasestorage.app',
+  messagingSenderId: '501336744750',
+  appId: '1:501336744750:web:c0b631495bcef8071490bf'
+};
+const ALLOWED_EMAILS = ['jonatasmiranda2405@gmail.com','rodrigodosantosmiranda@gmail.com','periciamiranda@gmail.com'];
+const MAX_STORAGE_BYTES = 50 * 1024 * 1024;
+const MAX_FIRESTORE_EMBED_BYTES = 700 * 1024;
+let auth = null, storage = null, currentUser = null, casosUnsub = null;
+
+function cloudSetBanner(html){
+  const el = document.getElementById('banner');
+  if(el) el.innerHTML = html;
+}
+function bannerInfo(texto){
+  return `<div class="banner banner-info">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}<span>${texto}</span></div>`;
+}
+function bannerAviso(texto){
+  return `<div class="banner">${svg('<path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17v.01"/>')}<span>${texto}</span></div>`;
+}
+
+async function signInGoogle(){
+  if(!auth){ cloudSetBanner(bannerAviso('Sincronização com a nuvem ainda não está configurada neste app.')); return; }
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  }catch(e){
+    cloudSetBanner(bannerAviso('Não foi possível entrar com o Google. Tente novamente.'));
+  }
+}
+async function signOutGoogle(){
+  if(!auth) return;
+  try{ await auth.signOut(); }catch(e){}
+}
+
+function firebaseInit(){
+  if(typeof firebase === 'undefined') return;
+  if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(FIREBASE_CONFIG); }
+  auth = firebase.auth();
+  storage = firebase.storage();
+  auth.onAuthStateChanged(async (user) => {
+    if(user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase())){
+      currentUser = user;
+    } else {
+      if(user){
+        cloudSetBanner(bannerAviso('Este e-mail (' + escapeHtml(user.email||'') + ') não tem permissão de acesso a este aplicativo.'));
+        try{ await auth.signOut(); }catch(e){}
+      }
+      currentUser = null;
+    }
+    updateAuthButton();
+    await applyAuthState();
+  });
+}
+
+async function applyAuthState(){
+  if(currentUser){
+    db = firebase.firestore();
+    usingDb = true;
+    usingLocalStorage = false;
+    await startDbSync();
+    cloudSetBanner(bannerInfo('Conectado como ' + escapeHtml(currentUser.email) + '. Os dados sincronizam automaticamente entre os dispositivos em que você entrar com esta conta.'));
+  } else {
+    usingDb = false;
+    db = null;
+    if(casosUnsub){ casosUnsub(); casosUnsub = null; }
+    if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+    const loaded = loadCasosFromLocalStorage();
+    if(loaded) casos = loaded;
+    usingLocalStorage = true;
+    persistCasosToLocalStorage();
+    cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com o Google (conta autorizada) para sincronizar entre dispositivos.'));
+    renderAll();
+  }
+}
+
+async function startDbSync(){
+  try{
+    const snap = await db.collection('casos').get();
+    if(snap.empty && casos.length){
+      for(const c of casos){
+        const {id, documentos, ...data} = c;
+        await db.collection('casos').doc(id).set(data);
+        for(const d of (documentos||[])){
+          const {id:docId, ...docData} = d;
+          await db.collection('casos').doc(id).collection('documentos').doc(docId).set(docData);
+        }
+      }
+    }
+  }catch(e){ /* segue para a inscrição mesmo assim */ }
+  if(casosUnsub) casosUnsub();
+  casosUnsub = db.collection('casos').onSnapshot(snap => {
+    const prevDocs = {};
+    casos.forEach(c => { prevDocs[c.id] = c.documentos; });
+    casos = snap.docs.map(d => ({id:d.id, documentos: prevDocs[d.id] || [], ...d.data()}));
+    renderAll();
+  }, err => {
+    cloudSetBanner(bannerAviso('Não foi possível sincronizar os dados agora (' + escapeHtml(err.code||'erro') + '). Exibindo a última versão conhecida.'));
+  });
+  if(drawerCasoId) subscribeDocumentos(drawerCasoId);
+}
+
+function loadCasosFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(LS_CASOS_KEY);
+    if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) return parsed; }
+  }catch(e){ }
+  return null;
+}
+function persistCasosToLocalStorage(){
+  if(!usingLocalStorage) return;
+  try{
+    localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos));
+  }catch(e){
+    cloudSetBanner(usingDb
+      ? bannerAviso('O armazenamento local deste navegador está cheio, mas seus dados continuam salvos na nuvem normalmente.')
+      : bannerAviso('O armazenamento local deste navegador está cheio e a última alteração pode não ter sido salva. Entre com o Google para sincronizar com a nuvem, ou remova documentos grandes que não sejam mais necessários.'));
+  }
+}
+
 async function initDb(){
   const loaded = loadCasosFromLocalStorage();
   if(loaded) casos = loaded;
   usingLocalStorage = true;
   persistCasosToLocalStorage();
-  cloudSetBanner('<div class="banner banner-info">Dados salvos automaticamente neste navegador (armazenamento local). Entre com o Google (conta autorizada) para sincronizar entre dispositivos.</div>');
+  cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com o Google (conta autorizada) para sincronizar entre dispositivos.'));
   renderAll();
   firebaseInit();
 }
 
+/* ==========================================================================
+   Persistência: perícias
+   ========================================================================== */
 async function saveCaso(id, patch){
   const idx = casos.findIndex(c => c.id === id);
   if(idx === -1) return;
   casos[idx] = {...casos[idx], ...patch};
   if(usingDb){
     try{ await db.collection('casos').doc(id).update(patch); }
-    catch(e){ /* keep optimistic local state */ }
+    catch(e){ /* mantém o estado local */ }
   } else {
-        persistCasosToLocalStorage();
+    persistCasosToLocalStorage();
     renderAll();
   }
 }
-
 async function criarCaso(data){
   const id = 'c' + Date.now();
   const novo = {id, documentos:[], ...data};
   casos.push(novo);
   if(usingDb){
     try{ await db.collection('casos').doc(id).set(data); }catch(e){}
-    } else {
+  } else {
     persistCasosToLocalStorage();
   }
   renderAll();
   return id;
 }
-
 async function excluirCaso(id){
   casos = casos.filter(c => c.id !== id);
   if(usingDb){
@@ -863,13 +1686,11 @@ async function excluirCaso(id){
   closeDrawer();
   renderAll();
 }
-
 function nextCodigo(){
   const year = new Date().getFullYear();
   const n = casos.length + 1;
   return `PER-${year}-${String(n).padStart(3,'0')}`;
 }
-
 async function novaPericia(){
   const data = {
     contador: activeContador, codigo: nextCodigo(), nome:'Nova perícia', numeroProcesso:'', vara:'', comarca:'', partes:'',
@@ -879,17 +1700,17 @@ async function novaPericia(){
   const id = await criarCaso(data);
   openDrawer(id);
 }
-
 async function changeContadorDoCaso(id, val){
   await saveCaso(id, {contador: val});
   renderAll();
 }
-
 function fieldUpdate(id, key, val, isNumber){
   saveCaso(id, {[key]: isNumber ? (parseFloat(val)||0) : val});
 }
 
-// ---------- persistence: documentos (subcoleção por perícia) ----------
+/* ==========================================================================
+   Persistência: documentos
+   ========================================================================== */
 function subscribeDocumentos(casoId){
   if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
   if(!usingDb) return;
@@ -902,12 +1723,11 @@ function subscribeDocumentos(casoId){
     if(drawerCasoId === casoId) renderDrawer();
   }, err => { /* mantém último estado conhecido */ });
 }
-
 async function addDoc(casoId, data, docId){
   docId = docId || ('d'+Date.now()+Math.random().toString(36).slice(2,6));
   if(usingDb){
     try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).set(data); return docId; }
-    catch(e){ /* cai para o modo local abaixo */ }
+    catch(e){ /* cai para o modo local */ }
   }
   const c = casos.find(x => x.id === casoId);
   if(!c) return docId;
@@ -938,7 +1758,7 @@ async function removeDoc(casoId, docId){
     if(c) c.documentos = c.documentos.filter(x => x.id !== docId);
     persistCasosToLocalStorage();
   }
-  renderDrawer(); renderList();
+  renderDrawer(); renderAll();
 }
 
 async function buildArquivo(casoId, docId, bytes, filename, mime){
@@ -951,7 +1771,7 @@ async function buildArquivo(casoId, docId, bytes, filename, mime){
       const url = await ref.getDownloadURL();
       return {arquivo:{url, storagePath:path, mime, tamanho:bytes.length}, obs:''};
     }catch(e){
-      // Storage pode estar indisponível (ex.: projeto ainda no plano gratuito) — cai para embutir no Firestore abaixo
+      /* Storage indisponível — cai para embutir no Firestore */
     }
   }
   const embedLimit = usingDb ? MAX_FIRESTORE_EMBED_BYTES : MAX_EMBED_BYTES;
@@ -994,7 +1814,7 @@ async function addDocFromForm(casoId){
   if(c && processo && !c.numeroProcesso){ await saveCaso(casoId, {numeroProcesso: processo}); }
   if(c && codigoAcesso && !c.codigoAcesso){ await saveCaso(casoId, {codigoAcesso}); }
   nomeInput.value=''; document.getElementById(`docFase-${casoId}`).value=''; document.getElementById(`docObs-${casoId}`).value=''; fileInput.value='';
-  renderDrawer(); renderList();
+  renderDrawer(); renderAll();
 }
 
 async function handleZipImport(casoId, inputEl){
@@ -1074,13 +1894,12 @@ async function handleZipImport(casoId, inputEl){
     statusEl.textContent = 'Não foi possível ler este ZIP. Verifique o arquivo e tente novamente.';
   }
   inputEl.value = '';
-  renderDrawer(); renderList();
+  renderDrawer(); renderAll();
 }
 
 async function downloadDoc(casoId, docId){
   const c = casos.find(x => x.id === casoId);
   const d = c && c.documentos.find(x => x.id === docId);
-  const statusEl = document.getElementById(`dlstatus-${docId}`);
   if(!d || !d.arquivo) return;
   const src = arquivoSrc(d.arquivo);
   try{
@@ -1092,11 +1911,8 @@ async function downloadDoc(casoId, docId){
     a.href = url; a.download = d.nome;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 10000);
-    if(statusEl) statusEl.textContent = '';
   }catch(e){
-    // fallback: abre o arquivo em outra aba para o usuário salvar por lá
     window.open(src, '_blank');
-    if(statusEl) statusEl.textContent = '';
   }
 }
 
@@ -1108,7 +1924,7 @@ async function saveDocEdit(casoId, docId){
   const data = document.getElementById(`editData-${docId}`).value;
   await updateDoc(casoId, docId, {fase, tipo, data});
   editingDocId = null;
-  renderDrawer(); renderList();
+  renderDrawer(); renderAll();
 }
 
 function groupByFase(docs){
@@ -1130,7 +1946,9 @@ function groupByFase(docs){
   return entries;
 }
 
-// ---------- drawer ----------
+/* ==========================================================================
+   Gaveta de detalhe e visualizador
+   ========================================================================== */
 function openDrawer(id){
   drawerCasoId = id;
   editingDocId = null;
@@ -1146,10 +1964,11 @@ function closeDrawer(){
   document.getElementById('drawer').classList.remove('open');
   document.body.style.overflow = '';
   document.getElementById('drawer').innerHTML = '';
+  renderAll();
 }
 function openViewer(casoId, docId){
   const c = casos.find(x => x.id === casoId);
-  const d = c && c.documentos.find(x => x.id === docId);
+  const d = c && (c.documentos||[]).find(x => x.id === docId);
   if(!d || !d.arquivo) return;
   const src = arquivoSrc(d.arquivo);
   const mime = arquivoMime(d.arquivo);
@@ -1159,7 +1978,8 @@ function openViewer(casoId, docId){
   } else if(mime.startsWith('image/')){
     bodyHtml = `<img src="${src}" alt="${escapeHtml(d.nome)}">`;
   } else {
-    bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc('${casoId}','${docId}')">Baixar arquivo</button></div>`;  }
+    bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc('${casoId}','${docId}')">Baixar arquivo</button></div>`;
+  }
   document.getElementById('viewerTitle').textContent = d.nome;
   document.getElementById('viewerBody').innerHTML = bodyHtml;
   document.getElementById('viewerOverlay').classList.add('open');
@@ -1173,6 +1993,7 @@ document.addEventListener('keydown', e => {
   if(e.key !== 'Escape') return;
   if(document.getElementById('viewerOverlay').classList.contains('open')){ closeViewer(); return; }
   if(drawerCasoId) closeDrawer();
+  else if(document.body.classList.contains('nav-open')) toggleNav(false);
 });
 
 function renderDocItem(c, d){
@@ -1180,7 +2001,7 @@ function renderDocItem(c, d){
   if(editingDocId === d.id){
     return `
       <div class="doc-item editing">
-        <input list="${faseListId}" id="editFase-${d.id}" value="${escapeHtml(d.fase||'')}" placeholder="Fase / despacho" style="width:100%; margin-bottom:6px; border:1px solid var(--line); border-radius:7px; padding:7px 9px; background:var(--surface); color:var(--ink); font-family:inherit; font-size:13px;">
+        <input list="${faseListId}" id="editFase-${d.id}" value="${escapeHtml(d.fase||'')}" placeholder="Fase / despacho" style="width:100%; margin-bottom:6px; border:1px solid var(--line); border-radius:7px; padding:7px 9px; background:var(--ground); color:var(--ink); font-family:inherit; font-size:13px;">
         <div class="add-row">
           <select id="editTipo-${d.id}">${DOC_TYPES.map(t=>`<option value="${t}" ${d.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
           <input type="date" id="editData-${d.id}" value="${d.data||''}">
@@ -1204,13 +2025,12 @@ function renderDocItem(c, d){
         </div>
         ${d.processo ? `<div class="d-meta">${processoDivergente ? `<span class="pill pill-warning" title="Processo cadastrado na perícia: ${escapeHtml(c.numeroProcesso)}">Processo diverge: <span class="mono">${escapeHtml(d.processo)}</span></span>` : `Processo: <span class="mono">${escapeHtml(d.processo)}</span>`}</div>` : ''}
         ${d.codigoAcesso ? `<div class="d-meta">Código de acesso: <span class="mono">${escapeHtml(d.codigoAcesso)}</span></div>` : ''}
-        <div id="dlstatus-${d.id}" class="d-meta" style="color:var(--warning);"></div>
       </div>
       <div class="d-actions">
-        ${d.arquivo ? `<button class="remove-x" title="Abrir arquivo" onclick="event.stopPropagation(); openViewer('${c.id}','${d.id}')">👁</button>` : ''}
-        ${d.arquivo ? `<button class="remove-x" title="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${c.id}','${d.id}')">⬇</button>` : ''}
-        <button class="remove-x" title="Editar" onclick="event.stopPropagation(); editDoc('${d.id}')">✎</button>
-        <button class="remove-x" title="Remover" onclick="event.stopPropagation(); removeDoc('${c.id}','${d.id}')">×</button>
+        ${d.arquivo ? `<button class="icon-btn" title="Abrir arquivo" onclick="event.stopPropagation(); openViewer('${c.id}','${d.id}')">${svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>')}</button>` : ''}
+        ${d.arquivo ? `<button class="icon-btn" title="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${c.id}','${d.id}')">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')}</button>` : ''}
+        <button class="icon-btn" title="Editar" onclick="event.stopPropagation(); editDoc('${d.id}')">${svg('<path d="M4 20h4L19 9a2.1 2.1 0 00-3-3L5 17z"/>')}</button>
+        <button class="icon-btn danger" title="Remover" onclick="event.stopPropagation(); removeDoc('${c.id}','${d.id}')">${svg('<path d="M18 6L6 18M6 6l12 12"/>')}</button>
       </div>
     </div>`;
 }
@@ -1222,8 +2042,9 @@ function renderDocumentosSection(c){
   const existingFases = [...new Set(docs.map(d => d.fase).filter(Boolean))];
   const suggestions = [...new Set([...existingFases, ...SUGGESTED_FASES])];
   const docTypeOptions = DOC_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  const limite = usingDb && storage ? '50 MB' : '5 MB';
   return `
-    <div class="section">
+    <div class="sub">
       <h4>Documentos (${docs.length}) — por fase e data</h4>
       ${docs.length===0 ? `<div class="hint" style="margin-bottom:10px;">Nenhum documento ainda. Importe um ZIP ou adicione manualmente abaixo.</div>` : ''}
       ${groups.map(g => `
@@ -1237,13 +2058,13 @@ function renderDocumentosSection(c){
       <div class="import-box">
         <input type="file" id="zipInput-${c.id}" accept=".zip" style="display:none" onchange="handleZipImport('${c.id}', this)">
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('zipInput-${c.id}').click()">Importar ZIP de documentos</button>
-        <div class="hint">Cada arquivo separa automaticamente por pasta (fase/despacho) e data no nome. Arquivos até ~150 KB ficam anexados; os maiores entram só como registro.</div>
+        <div class="hint">Cada arquivo é separado por pasta (fase ou despacho) e pela data no nome. Arquivos até ${limite} ficam anexados; os maiores entram apenas como registro.</div>
         <div id="zipStatus-${c.id}" class="hint" style="color:var(--accent-deep);"></div>
       </div>
 
       <div style="margin-top:14px;">
         <div class="add-row" style="flex-wrap:wrap;">
-          <input id="docNome-${c.id}" placeholder="Nome do documento" style="flex:1 1 100%; border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit;">
+          <input id="docNome-${c.id}" placeholder="Nome do documento" style="flex:1 1 100%;">
         </div>
         <div class="add-row">
           <input id="docFase-${c.id}" list="${faseListId}" placeholder="Fase / despacho">
@@ -1262,15 +2083,16 @@ function renderDocumentosSection(c){
 }
 
 function renderObservacoesSection(c){
+  const obs = c.observacoes || [];
   return `
-    <div class="section" style="margin-bottom:0;">
-      <h4>Comentários e observações (${c.observacoes.length})</h4>
-      <div class="add-row" style="flex-wrap:wrap; margin-top:0; margin-bottom:12px;">
-        <textarea id="obsTexto-${c.id}" placeholder="Escreva um comentário sobre o andamento da perícia..." style="flex:1 1 100%; border:1px solid var(--line); border-radius:7px; padding:9px 11px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit; min-height:64px;"></textarea>
+    <div class="sub">
+      <h4>Comentários e observações (${obs.length})</h4>
+      <div class="add-row" style="flex-wrap:wrap; margin-top:0; margin-bottom:10px;">
+        <textarea id="obsTexto-${c.id}" placeholder="Escreva um comentário sobre o andamento da perícia" style="flex:1 1 100%; min-height:64px; resize:vertical;"></textarea>
       </div>
       <div class="add-row" style="margin-top:0; margin-bottom:16px;"><button class="btn btn-ghost btn-sm" onclick="addObs('${c.id}')">Adicionar comentário</button></div>
-      ${c.observacoes.length===0 ? `<div class="hint">Nenhum comentário ainda.</div>` : ''}
-      ${[...c.observacoes].reverse().map(o => `
+      ${obs.length===0 ? `<div class="hint">Nenhum comentário ainda.</div>` : ''}
+      ${[...obs].reverse().map(o => `
         <div class="obs-item"><div><div class="o-date mono">${fmtDate(o.data)}</div>${escapeHtml(o.texto)}</div></div>`).join('')}
     </div>`;
 }
@@ -1286,42 +2108,43 @@ function renderDrawer(){
   document.getElementById('drawer').innerHTML = `
     <div class="drawer-head">
       <button class="back-btn" onclick="closeDrawer()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+        ${svg('<path d="M19 12H5M11 18l-6-6 6-6"/>')}
         Voltar
       </button>
-      <input class="codigo-input mono" value="${escapeHtml(c.codigo)}" onchange="fieldUpdate('${c.id}','codigo',this.value)">
-      <input class="nome-input" value="${escapeHtml(c.nome)}" onchange="fieldUpdate('${c.id}','nome',this.value)">
+      <input class="codigo-input" value="${escapeHtml(c.codigo)}" onchange="fieldUpdate('${c.id}','codigo',this.value)" aria-label="Código da perícia">
+      <input class="nome-input" value="${escapeHtml(c.nome)}" onchange="fieldUpdate('${c.id}','nome',this.value)" aria-label="Nome da perícia">
       <button class="btn btn-danger btn-sm" onclick="confirmDelete('${c.id}')">Excluir perícia</button>
     </div>
-    <div id="drawerAlert-${c.id}"></div>
+    <div class="drawer-body">
+      <div id="drawerAlert-${c.id}" style="padding:0 24px;"></div>
 
-    <div class="meta-grid">
-      <div class="meta-item"><label>Perito responsável</label>
-        <select onchange="changeContadorDoCaso('${c.id}', this.value)">${contadorOptions}</select>
+      <div class="meta-grid">
+        <div class="meta-item"><label>Perito responsável</label>
+          <select onchange="changeContadorDoCaso('${c.id}', this.value)">${contadorOptions}</select>
+        </div>
+        <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate('${c.id}','numeroProcesso',this.value)"></div>
+        <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate('${c.id}','codigoAcesso',this.value)"></div>
+        <div class="meta-item"><label>Status do processo</label>
+          <select onchange="fieldUpdate('${c.id}','statusProcesso',this.value)">${statusProcessoOptions}</select>
+        </div>
+        <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate('${c.id}','vara',this.value)"></div>
+        <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate('${c.id}','comarca',this.value)"></div>
+        <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate('${c.id}','partes',this.value)"></div>
+        <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate('${c.id}','dataNomeacao',this.value)"></div>
+        <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate('${c.id}','prazoEntrega',this.value)"></div>
+        <div class="meta-item"><label>Status</label>
+          <select onchange="fieldUpdate('${c.id}','statusCaso',this.value)">${statusOptions}</select>
+        </div>
+        <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate('${c.id}','honorarios',this.value,true)"></div>
+        <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate('${c.id}','valorRecebido',this.value,true)"></div>
+        <div class="meta-item"><label>Saldo a receber</label><div class="readout" style="color:${saldo>0?'var(--danger)':'var(--ok)'}">${fmtMoney(Math.max(0,saldo))}</div></div>
       </div>
-      <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate('${c.id}','numeroProcesso',this.value)"></div>
-      <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate('${c.id}','codigoAcesso',this.value)"></div>
-      <div class="meta-item"><label>Status do processo</label>
-        <select onchange="fieldUpdate('${c.id}','statusProcesso',this.value)">${statusProcessoOptions}</select>
-      </div>
-      <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate('${c.id}','vara',this.value)"></div>
-      <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate('${c.id}','comarca',this.value)"></div>
-      <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate('${c.id}','partes',this.value)"></div>
-      <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate('${c.id}','dataNomeacao',this.value)"></div>
-      <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate('${c.id}','prazoEntrega',this.value)"></div>
-      <div class="meta-item"><label>Status</label>
-        <select onchange="fieldUpdate('${c.id}','statusCaso',this.value)">${statusOptions}</select>
-      </div>
-      <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate('${c.id}','honorarios',this.value,true)"></div>
-      <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate('${c.id}','valorRecebido',this.value,true)"></div>
-      <div class="meta-item"><label>Saldo a receber</label><div class="readout mono" style="color:${saldo>0?'var(--danger)':'var(--success)'}">${fmtMoney(Math.max(0,saldo))}</div></div>
-    </div>
 
-    <div class="drawer-columns">
-      <div class="col-pane col-documentos">${renderDocumentosSection(c)}</div>
-      <div class="col-pane col-observacoes">${renderObservacoesSection(c)}</div>
-    </div>
-  `;
+      <div class="drawer-cols">
+        <div class="col-pane col-docs">${renderDocumentosSection(c)}</div>
+        <div class="col-pane">${renderObservacoesSection(c)}</div>
+      </div>
+    </div>`;
 }
 
 async function addObs(casoId){
@@ -1329,13 +2152,13 @@ async function addObs(casoId){
   const texto = input.value.trim();
   if(!texto) return;
   const c = casos.find(x => x.id === casoId);
-  const observacoes = [...c.observacoes, {id:'o'+Date.now(), data:todayIso(), texto}];
+  const observacoes = [...(c.observacoes||[]), {id:'o'+Date.now(), data:todayIso(), texto}];
   await saveCaso(casoId, {observacoes});
   renderDrawer();
 }
 function confirmDelete(casoId){
   document.getElementById(`drawerAlert-${casoId}`).innerHTML = `
-    <div class="confirm-box" style="margin:0 28px 0; border-radius:0; border-left:none; border-right:none;">
+    <div class="confirm-box" style="margin:16px 0 0;">
       Excluir esta perícia e todos os seus documentos e comentários? Esta ação não pode ser desfeita.
       <div class="row">
         <button class="btn btn-danger btn-sm" onclick="excluirCaso('${casoId}')">Sim, excluir</button>
@@ -1344,6 +2167,7 @@ function confirmDelete(casoId){
     </div>`;
 }
 
+/* ========================================================================== */
 renderAll();
 initDb();
 </script>
