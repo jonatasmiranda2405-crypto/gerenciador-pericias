@@ -120,15 +120,50 @@ a{color:var(--accent); text-underline-offset:2px;}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
 
 /* ---------- estrutura ---------- */
-.app{display:grid; grid-template-columns:var(--sidebar-w) 1fr; min-height:100%;}
+.app{display:grid; grid-template-columns:auto 1fr; min-height:100%;}
 
 .sidebar{
   background:var(--surface);
   border-right:1px solid var(--line);
   display:flex; flex-direction:column; gap:20px;
   padding:20px 14px;
-  position:sticky; top:0; height:100vh; overflow-y:auto;
+  position:sticky; top:0; height:100vh; overflow-y:auto; overflow-x:hidden;
+  width:var(--sidebar-w);
+  transition:width .22s ease, padding .22s ease;
 }
+
+/* punho para recolher a barra lateral */
+.rail-toggle{
+  position:fixed; top:50%; left:var(--sidebar-w);
+  transform:translate(-50%,-50%);
+  width:18px; height:70px; padding:0; border:none; background:transparent;
+  cursor:pointer; z-index:40;
+  display:flex; align-items:center; justify-content:center;
+  transition:left .22s ease;
+}
+.rail-toggle::before{
+  content:''; width:4px; height:42px; border-radius:99px;
+  background:var(--line-strong);
+  transition:background .15s ease, height .15s ease;
+}
+.rail-toggle:hover::before{background:var(--accent); height:58px;}
+.rail-toggle:focus-visible::before{background:var(--accent); height:58px;}
+
+body.rail{--sidebar-w:66px;}
+body.rail .sidebar{padding-left:11px; padding-right:11px;}
+body.rail .brand-text,
+body.rail .perito-info,
+body.rail .side-label,
+body.rail .nav-item > span,
+body.rail .nav-badge,
+body.rail .account-text,
+body.rail #authBtn{display:none;}
+body.rail .brand,
+body.rail .account{justify-content:center; padding:0;}
+body.rail .perito-btn{justify-content:center; padding:8px 0;}
+body.rail .nav-item{justify-content:center; padding:10px 0;}
+body.rail .side-actions{justify-content:center;}
+body.rail #themeBtn{flex:1; justify-content:center;}
 .brand{display:flex; align-items:center; gap:10px; padding:0 6px;}
 .brand-mark{
   width:34px; height:34px; border-radius:8px; flex-shrink:0;
@@ -269,11 +304,24 @@ a{color:var(--accent); text-underline-offset:2px;}
 /* ---------- blocos ---------- */
 .panel{
   background:var(--surface); border:1px solid var(--line);
-  border-radius:var(--radius); padding:18px 20px;
+  border-radius:var(--radius); overflow:hidden;
 }
-.panel-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px;}
+.panel-head{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:15px 20px; background:transparent; border:none; cursor:pointer;
+  text-align:left; color:inherit;
+  transition:background .12s ease;
+}
+.panel-head:hover{background:var(--surface-2);}
 .panel-head h3{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
-.panel-head .note{font-size:11.5px; color:var(--muted);}
+.panel-head .note{margin-left:auto; font-size:11.5px; color:var(--muted); white-space:nowrap;}
+.panel-caret{display:flex; color:var(--muted); flex-shrink:0; transition:transform .22s ease;}
+.panel-caret svg{width:15px; height:15px; stroke-width:2.2;}
+.panel.collapsed .panel-caret{transform:rotate(-90deg);}
+.panel-body{display:grid; grid-template-rows:1fr; transition:grid-template-rows .22s ease;}
+.panel.collapsed .panel-body{grid-template-rows:0fr;}
+.panel-body > .panel-inner{overflow:hidden; min-height:0;}
+.panel-inner > .panel-pad{padding:0 20px 18px;}
 .section-gap{display:flex; flex-direction:column; gap:18px;}
 
 .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
@@ -287,7 +335,7 @@ a{color:var(--accent); text-underline-offset:2px;}
 .kpi.tone-ok{border-left:3px solid var(--ok);}
 .kpi.tone-ok .v{color:var(--ok);}
 
-.two-col{display:grid; grid-template-columns:1.25fr 1fr; gap:18px;}
+.two-col{display:grid; grid-template-columns:1.25fr 1fr; gap:18px; align-items:start;}
 
 /* ---------- graficos ---------- */
 .legend{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
@@ -482,6 +530,17 @@ a{color:var(--accent); text-underline-offset:2px;}
 }
 @media (max-width:860px){
   .app{grid-template-columns:1fr;}
+  .rail-toggle{display:none;}
+  body.rail{--sidebar-w:270px;}
+  body.rail .brand-text, body.rail .side-label, body.rail .account-text{display:block;}
+  body.rail .perito-info{display:flex;}
+  body.rail .nav-item > span{display:inline;}
+  body.rail .nav-badge{display:inline-block;}
+  body.rail #authBtn{display:inline-flex;}
+  body.rail .brand, body.rail .account, body.rail .perito-btn, body.rail .nav-item{justify-content:flex-start;}
+  body.rail .nav-item{padding:9px 10px;}
+  body.rail .perito-btn{padding:8px 9px;}
+  body.rail .sidebar{padding:20px 14px;}
   .sidebar{
     position:fixed; left:0; top:0; bottom:0; width:270px; z-index:70;
     transform:translateX(-100%); transition:transform .18s ease; height:100%;
@@ -542,6 +601,8 @@ a{color:var(--accent); text-underline-offset:2px;}
       </div>
     </div>
   </aside>
+
+  <button class="rail-toggle" id="railToggle" onclick="toggleRail()" title="Recolher a barra lateral" aria-label="Recolher a barra lateral"></button>
 
   <div class="main">
     <header class="topbar">
@@ -869,6 +930,58 @@ function todosDocumentos(){
 function toggleNav(open){
   document.body.classList.toggle('nav-open', open);
 }
+
+/* barra lateral recolhida em faixa de ícones */
+let railAtivo = (function(){
+  try{ return localStorage.getItem('pericias.rail') === '1'; }catch(e){ return false; }
+})();
+function aplicarRail(){
+  document.body.classList.toggle('rail', railAtivo);
+  const b = document.getElementById('railToggle');
+  if(b){
+    const texto = railAtivo ? 'Expandir a barra lateral' : 'Recolher a barra lateral';
+    b.setAttribute('aria-label', texto);
+    b.setAttribute('title', texto);
+  }
+}
+function toggleRail(){
+  railAtivo = !railAtivo;
+  try{ localStorage.setItem('pericias.rail', railAtivo ? '1' : '0'); }catch(e){}
+  aplicarRail();
+}
+
+/* painéis que abrem e fecham, com a escolha lembrada */
+let panelsFechados = (function(){
+  try{
+    const raw = localStorage.getItem('pericias.panels');
+    if(raw){ const arr = JSON.parse(raw); if(Array.isArray(arr)) return new Set(arr); }
+  }catch(e){}
+  return new Set();
+})();
+function togglePanel(id){
+  if(panelsFechados.has(id)) panelsFechados.delete(id);
+  else panelsFechados.add(id);
+  try{ localStorage.setItem('pericias.panels', JSON.stringify([...panelsFechados])); }catch(e){}
+  const el = document.querySelector('[data-panel="'+id+'"]');
+  if(el){
+    const fechado = panelsFechados.has(id);
+    el.classList.toggle('collapsed', fechado);
+    const btn = el.querySelector('.panel-head');
+    if(btn) btn.setAttribute('aria-expanded', String(!fechado));
+  }
+}
+function panel(id, titulo, nota, corpo){
+  const fechado = panelsFechados.has(id);
+  return `
+    <section class="panel ${fechado ? 'collapsed' : ''}" data-panel="${id}">
+      <button class="panel-head" onclick="togglePanel('${id}')" aria-expanded="${!fechado}" aria-controls="pb-${id}">
+        <span class="panel-caret">${svg('<path d="M6 9l6 6 6-6"/>')}</span>
+        <h3>${titulo}</h3>
+        ${nota ? `<span class="note">${nota}</span>` : ''}
+      </button>
+      <div class="panel-body" id="pb-${id}"><div class="panel-inner"><div class="panel-pad">${corpo}</div></div></div>
+    </section>`;
+}
 function setSection(id){
   activeSection = id;
   try{ localStorage.setItem('pericias.section', id); }catch(e){}
@@ -915,7 +1028,7 @@ function renderPeritos(){
   document.getElementById('peritos').innerHTML = Object.entries(CONTADORES).map(([key, meta]) => {
     const count = casosDoContador(key).length;
     return `
-      <button class="perito-btn ${activeContador===key?'active':''}" style="--pcolor:${meta.color}; --pcolor-soft:${meta.soft};" onclick="setContador('${key}')">
+      <button class="perito-btn ${activeContador===key?'active':''}" style="--pcolor:${meta.color}; --pcolor-soft:${meta.soft};" onclick="setContador('${key}')" title="${meta.label} — ${count} perícia${count===1?'':'s'}">
         <span class="perito-avatar">${meta.initials}</span>
         <span class="perito-info">
           <span class="perito-name">${meta.label}</span>
@@ -934,7 +1047,7 @@ function renderNav(){
     docs: (() => { const n = todosDocumentos().length; return n ? `<span class="nav-badge">${n}</span>` : ''; })(),
   };
   document.getElementById('nav').innerHTML = SECTIONS.map(s => `
-    <button class="nav-item ${activeSection===s.id?'active':''}" onclick="setSection('${s.id}')">
+    <button class="nav-item ${activeSection===s.id?'active':''}" onclick="setSection('${s.id}')" title="${s.titulo}">
       ${svg(ICONS[s.id])}
       <span>${s.titulo}</span>
       ${badges[s.id] || ''}
@@ -1097,31 +1210,14 @@ function renderVisao(){
       </div>
 
       <div class="two-col">
-        <div class="panel">
-          <div class="panel-head">
-            <h3>Honorários por perito</h3>
-            <span class="note">os dois peritos, acumulado</span>
-          </div>
-          ${chartHonorarios(base)}
-        </div>
-        <div class="panel">
-          <div class="panel-head">
-            <h3>Distribuição por status</h3>
-            <span class="note">${base.length} perícia${base.length===1?'':'s'}</span>
-          </div>
-          ${chartStatus(base)}
-        </div>
+        ${panel('honorarios', 'Honorários por perito', 'os dois peritos, acumulado', chartHonorarios(base))}
+        ${panel('status', 'Distribuição por status', `${base.length} perícia${base.length===1?'':'s'}`, chartStatus(base))}
       </div>
 
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Próximas entregas</h3>
-          <span class="note">perícias não concluídas</span>
-        </div>
-        ${proximos.length === 0
+      ${panel('entregas', 'Próximas entregas', 'perícias não concluídas',
+        proximos.length === 0
           ? `<div class="chart-empty">Nenhuma entrega pendente.</div>`
-          : `<div class="rows">${proximos.map(c => rowPrazo(c)).join('')}</div>`}
-      </div>
+          : `<div class="rows">${proximos.map(c => rowPrazo(c)).join('')}</div>`)}
     </div>`;
 }
 
@@ -1153,21 +1249,19 @@ function renderPericias(){
 function resumoBusca(){
   const matches = casosDoContador().filter(c => matchesQuery(c, searchQuery));
   if(matches.length === 0){
-    return `<div class="panel"><div class="chart-empty">Nenhuma perícia encontrada para "${escapeHtml(searchQuery)}".</div></div>`;
+    return panel('resumo', 'Resumo da busca', `"${escapeHtml(searchQuery)}"`,
+      `<div class="chart-empty">Nenhuma perícia encontrada para "${escapeHtml(searchQuery)}".</div>`);
   }
   const totalHonorarios = matches.reduce((s,c)=>s+(c.honorarios||0),0);
   const totalAReceber = matches.reduce((s,c)=>s+Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)),0);
   const atrasadasN = matches.filter(c=>prazoState(c)==='atrasada').length;
-  return `
-    <div class="panel">
-      <div class="panel-head"><h3>Resumo da busca</h3><span class="note">"${escapeHtml(searchQuery)}"</span></div>
+  return panel('resumo', 'Resumo da busca', `"${escapeHtml(searchQuery)}"`, `
       <div class="kv-grid">
         <div class="kv"><div class="k">Encontradas</div><div class="v num">${matches.length}</div></div>
         <div class="kv"><div class="k">Honorários (total)</div><div class="v num">${fmtMoney(totalHonorarios)}</div></div>
         <div class="kv"><div class="k">A receber</div><div class="v num">${fmtMoney(totalAReceber)}</div></div>
         <div class="kv"><div class="k">Com prazo atrasado</div><div class="v num">${atrasadasN}</div></div>
-      </div>
-    </div>`;
+      </div>`);
 }
 
 function cardCaso(c){
@@ -1238,30 +1332,20 @@ function renderPrazos(){
     {titulo:'Mais adiante', teste: c => diasAte(c.prazoEntrega) > 30, vazio:'Nada agendado.'},
   ];
 
-  const blocos = grupos.map(g => {
+  const blocos = grupos.map((g, i) => {
     const items = pend.filter(g.teste);
-    return `
-      <div class="group">
-        <div class="group-head">
-          <h4>${g.titulo}</h4>
-          <span class="pill pill-muted">${items.length}</span>
-          <span class="group-rule"></span>
-        </div>
-        ${items.length ? `<div class="rows">${items.map(rowPrazo).join('')}</div>` : `<div class="chart-empty">${g.vazio}</div>`}
-      </div>`;
+    return panel('prazo'+i, g.titulo, `${items.length} perícia${items.length===1?'':'s'}`,
+      items.length
+        ? `<div class="rows">${items.map(rowPrazo).join('')}</div>`
+        : `<div class="chart-empty">${g.vazio}</div>`);
   }).join('');
 
-  const concluido = concl.length ? `
-    <div class="group">
-      <div class="group-head">
-        <h4>Encerradas</h4>
-        <span class="pill pill-muted">${concl.length}</span>
-        <span class="group-rule"></span>
-      </div>
-      <div class="rows">${concl.map(rowPrazo).join('')}</div>
-    </div>` : '';
+  const concluido = concl.length
+    ? panel('prazoFim', 'Encerradas', `${concl.length} perícia${concl.length===1?'':'s'}`,
+        `<div class="rows">${concl.map(rowPrazo).join('')}</div>`)
+    : '';
 
-  return `<div class="panel">${blocos}${concluido}</div>`;
+  return `<div class="section-gap">${blocos}${concluido}</div>`;
 }
 
 /* ==========================================================================
@@ -1297,14 +1381,8 @@ function renderDocs(){
 
       ${docs.length === 0
         ? `<div class="empty-state"><h3>Nenhum documento</h3><p>Importe um ZIP dentro de uma perícia ou adicione documentos manualmente.</p></div>`
-        : `<div class="panel">
-            ${Object.entries(porFase).map(([fase, items]) => `
-              <div class="group">
-                <div class="group-head">
-                  <h4>${escapeHtml(fase)}</h4>
-                  <span class="pill pill-muted">${items.length}</span>
-                  <span class="group-rule"></span>
-                </div>
+        : Object.entries(porFase).map(([fase, items], i) =>
+            panel('doc'+i, escapeHtml(fase), `${items.length} documento${items.length===1?'':'s'}`, `
                 <div class="rows">
                   ${items.map(d => `
                     <div class="row-item" onclick="abrirDocumento('${d.caso.id}','${d.id}')">
@@ -1317,9 +1395,7 @@ function renderDocs(){
                         <span class="row-date">${fmtDate(d.data)}</span>
                       </div>
                     </div>`).join('')}
-                </div>
-              </div>`).join('')}
-          </div>`}
+                </div>`)).join('')}
     </div>`;
 }
 function setDocTipo(t){ docFiltroTipo = t; renderAll(); }
@@ -1343,13 +1419,7 @@ function abrirDocumento(casoId, docId){
    ========================================================================== */
 function renderProjudi(){
   const configurado = !!PROJUDI_ENDPOINT;
-  return `
-    <div class="section-gap">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Consulta processual</h3>
-          <span class="note">Tribunal de Justiça de Goiás</span>
-        </div>
+  const corpoConsulta = `
         ${configurado ? '' : `
           <div class="banner" style="margin-bottom:14px;">
             ${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}
@@ -1362,14 +1432,9 @@ function renderProjudi(){
           </button>
         </div>
         <div class="hint">Aceita o número completo do CNJ ou a forma reduzida até o ano. A consulta exige estar conectado com uma conta autorizada.</div>
-        <div id="projudiSaida" style="margin-top:16px;">${projudiEstado || ''}</div>
-      </div>
+        <div id="projudiSaida" style="margin-top:16px;">${projudiEstado || ''}</div>`;
 
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Serviços acessados</h3>
-          <span class="note">webservice público do Projudi</span>
-        </div>
+  const corpoServicos = `
         ${PROJUDI_SERVICOS.map(s => `
           <div class="svc">
             <span class="svc-code">op ${s.codigo}</span>
@@ -1383,8 +1448,12 @@ function renderProjudi(){
         <div class="hint" style="margin-top:14px;">
           A primeira consulta devolve a identificação interna do processo, e é ela que libera as outras três.
           As respostas chegam em XML no padrão ISO-8859-1 e são convertidas antes de aparecerem aqui.
-        </div>
-      </div>
+        </div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('consulta', 'Consulta processual', 'Tribunal de Justiça de Goiás', corpoConsulta)}
+      ${panel('servicos', 'Serviços acessados', 'webservice público do Projudi', corpoServicos)}
     </div>`;
 }
 
@@ -1448,10 +1517,7 @@ function renderConfig(){
   const totalDocs = casos.reduce((s,c) => s + (c.documentos||[]).length, 0);
   const comArquivo = casos.reduce((s,c) => s + (c.documentos||[]).filter(d => d.arquivo).length, 0);
   const bytes = casos.reduce((s,c) => s + (c.documentos||[]).reduce((t,d) => t + (d.tamanho||0), 0), 0);
-  return `
-    <div class="section-gap">
-      <div class="panel">
-        <div class="panel-head"><h3>Conta e sincronização</h3></div>
+  const corpoConta = `
         <div class="kv-grid">
           <div class="kv"><div class="k">Estado</div><div class="v">${currentUser ? 'Sincronizado na nuvem' : 'Somente neste navegador'}</div></div>
           <div class="kv"><div class="k">Conta</div><div class="v">${currentUser ? escapeHtml(currentUser.email) : 'Não conectado'}</div></div>
@@ -1461,22 +1527,18 @@ function renderConfig(){
         <div class="hint" style="margin-top:12px;">
           Sem login, os dados ficam apenas neste navegador e não acompanham você em outro dispositivo.
           Ao entrar com uma conta autorizada, tudo passa a sincronizar automaticamente.
-        </div>
-      </div>
+        </div>`;
 
-      <div class="panel">
-        <div class="panel-head"><h3>Contas autorizadas</h3><span class="note">definido no aplicativo e nas regras do servidor</span></div>
+  const corpoContas = `
         <div class="rows">
           ${ALLOWED_EMAILS.map(e => `
             <div class="row-item" style="cursor:default;">
               <div class="row-main"><div class="row-title mono" style="font-size:13px;">${escapeHtml(e)}</div></div>
               <div class="row-side">${currentUser && currentUser.email === e ? '<span class="pill pill-success">conectada agora</span>' : '<span class="pill pill-muted">autorizada</span>'}</div>
             </div>`).join('')}
-        </div>
-      </div>
+        </div>`;
 
-      <div class="panel">
-        <div class="panel-head"><h3>Documentos armazenados</h3></div>
+  const corpoArmazenamento = `
         <div class="kv-grid">
           <div class="kv"><div class="k">Registros</div><div class="v num">${totalDocs}</div></div>
           <div class="kv"><div class="k">Com arquivo anexado</div><div class="v num">${comArquivo}</div></div>
@@ -1485,8 +1547,13 @@ function renderConfig(){
         </div>
         <div class="hint" style="margin-top:12px;">
           Conectado à nuvem, cada arquivo vai para o Storage e aceita até 50 MB. Sem conexão, o arquivo fica embutido no próprio registro do navegador.
-        </div>
-      </div>
+        </div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('conta', 'Conta e sincronização', '', corpoConta)}
+      ${panel('contas', 'Contas autorizadas', 'definido no app e nas regras do servidor', corpoContas)}
+      ${panel('armazenamento', 'Documentos armazenados', '', corpoArmazenamento)}
     </div>`;
 }
 
@@ -2168,6 +2235,7 @@ function confirmDelete(casoId){
 }
 
 /* ========================================================================== */
+aplicarRail();
 renderAll();
 initDb();
 </script>
