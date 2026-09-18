@@ -2440,7 +2440,7 @@ const TAREFAS = [
 function analisarPericia(c){
   const texto = normalizeText([c.nome, c.vara, c.partes].join(' '));
   const perfis = [
-    {re:/icms|tribut|difal|fiscal|indebito|repeticao|iss|pis|cofins/, area:'Perícia contábil tributária',
+    {re:/\b(icms|iss|pis|cofins|difal|irpj|csll|iptu|ipva|itbi)\b|tribut|fiscal|indebito|auto de infracao/, area:'Perícia contábil tributária',
      obj:'apurar os valores recolhidos, conferir bases de cálculo e alíquotas e quantificar eventual direito à restituição',
      horas:[4,4,45,4,10,5]},
     {re:/haveres|societari|dissolu/, area:'Apuração de haveres em dissolução societária',
