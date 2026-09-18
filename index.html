@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerenciador de Perícias</title>
+<title>PeríciaFlow — Perícia contábil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Montserrat:wght@600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -166,10 +166,10 @@ body.rail .side-actions{justify-content:center;}
 body.rail #themeBtn{flex:1; justify-content:center;}
 .brand{display:flex; align-items:center; gap:10px; padding:0 6px;}
 .brand-mark{
-  width:34px; height:34px; border-radius:8px; flex-shrink:0;
-  background:var(--accent); color:#fff;
+  width:34px; height:34px; border-radius:9px; flex-shrink:0;
+  background:#FFFFFF url(data:image/webp;base64,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) center/62% auto no-repeat;
+  border:1px solid var(--line);
   display:flex; align-items:center; justify-content:center;
-  font-weight:600; font-size:13px; letter-spacing:.02em;
   font-family:'IBM Plex Mono',monospace;
 }
 .brand-text{min-width:0;}
@@ -627,6 +627,163 @@ table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong);
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important; animation:none !important;}
 }
+:root[data-palette="flow"][data-theme="light"]{
+  --accent:#4B718C; --accent-deep:#335972; --accent-soft:#E6F2FB;
+  --s1:#1089C7; --s2:#E3634C;
+  --r1:#85B8DC; --r2:#5698C5; --r3:#1E79AD; --r4:#015A86; --r5:#013C5C;
+}
+:root[data-palette="flow"][data-theme="dark"]{
+  --accent:#8BACC5; --accent-deep:#93B1C6; --accent-soft:#132531;
+  --s1:#3EA8E9; --s2:#E86F58;
+  --r1:#005E8C; --r2:#1B7CB3; --r3:#519ACB; --r4:#7DB9E3; --r5:#A7D8FB;
+}
+:root[data-palette="jade"][data-theme="light"]{
+  --accent:#0E7B62; --accent-deep:#07614D; --accent-soft:#DBF8EE;
+  --s1:#109678; --s2:#E46155;
+  --r1:#7EC1AC; --r2:#4AA48A; --r3:#03856A; --r4:#00634E; --r5:#004334;
+}
+:root[data-palette="jade"][data-theme="dark"]{
+  --accent:#60B89E; --accent-deep:#73BDA6; --accent-soft:#002B20;
+  --s1:#06B995; --s2:#E86D60;
+  --r1:#006852; --r2:#10886D; --r3:#41A78B; --r4:#74C3AB; --r5:#A1E1CC;
+}
+:root[data-palette="indigo"][data-theme="light"]{
+  --accent:#526AAE; --accent-deep:#3C5193; --accent-soft:#EAF0FF;
+  --s1:#5B7AD6; --s2:#CE7912;
+  --r1:#9DB0E2; --r2:#788ECB; --r3:#556DB5; --r4:#344C9E; --r5:#182986;
+}
+:root[data-palette="indigo"][data-theme="dark"]{
+  --accent:#90A7E5; --accent-deep:#96ACE2; --accent-soft:#162140;
+  --s1:#7A9AF2; --s2:#DA7E07;
+  --r1:#3851A2; --r2:#5670BA; --r3:#7790D2; --r4:#99B0E9; --r5:#BED0FF;
+}
+:root[data-palette="grafite"][data-theme="light"]{
+  --accent:#656E77; --accent-deep:#4D555E; --accent-soft:#E9F1FA;
+  --s1:#2D84D3; --s2:#E46061;
+  --r1:#8DB5E0; --r2:#6295C9; --r3:#3675B2; --r4:#035695; --r5:#013966;
+}
+:root[data-palette="grafite"][data-theme="dark"]{
+  --accent:#A1A9B2; --accent-deep:#A7AEB5; --accent-soft:#192430;
+  --s1:#57A3EF; --s2:#E86C6C;
+  --r1:#015A9D; --r2:#3678B7; --r3:#5F97CF; --r4:#86B6E7; --r5:#AED5FF;
+}
+:root[data-palette="bordo"][data-theme="light"]{
+  --accent:#A7535A; --accent-deep:#8B3A43; --accent-soft:#FFEBEB;
+  --s1:#C75662; --s2:#169FC6;
+  --r1:#DD9EA1; --r2:#C4787D; --r3:#AA525A; --r4:#8F2A3A; --r5:#6E001E;
+}
+:root[data-palette="bordo"][data-theme="dark"]{
+  --accent:#E19398; --accent-deep:#DE999D; --accent-soft:#3B1519;
+  --s1:#E67982; --s2:#0AA8D2;
+  --r1:#942F3E; --r2:#AF545C; --r3:#C9777D; --r4:#E39B9E; --r5:#FCBFC1;
+}
+:root[data-palette="oliva"][data-theme="light"]{
+  --accent:#52772F; --accent-deep:#3B5E13; --accent-soft:#E8F5DF;
+  --s1:#5E9128; --s2:#A175E5;
+  --r1:#A0BC8A; --r2:#7B9D5F; --r3:#587F33; --r4:#386100; --r5:#244100;
+}
+:root[data-palette="oliva"][data-theme="dark"]{
+  --accent:#90B274; --accent-deep:#99B881; --accent-soft:#172906;
+  --s1:#7EB052; --s2:#A87FE9;
+  --r1:#3C6506; --r2:#5A8333; --r3:#7A9F5C; --r4:#9DBD83; --r5:#C0DBAB;
+}
+/* ---------- marca ---------- */
+.wordmark{
+  font-family:'Montserrat','IBM Plex Sans',system-ui,sans-serif;
+  font-size:15px; line-height:1.15; letter-spacing:-.015em; white-space:nowrap;
+}
+.wordmark b{font-weight:700; color:var(--ink);}
+.wordmark i{font-style:normal; font-weight:600; color:var(--accent);}
+.wordmark.grande{font-size:29px; letter-spacing:-.025em;}
+
+/* ---------- selo de privacidade ---------- */
+.selo{
+  display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+  padding:8px 13px 8px 10px; border-radius:99px; font-family:inherit; text-align:left;
+  background:var(--accent-soft); border:1px solid var(--accent); color:var(--accent-deep);
+  transition:background .15s ease;
+}
+.selo:hover{background:var(--surface-2);}
+.selo svg{width:19px; height:19px; stroke-width:1.7; flex-shrink:0;}
+.selo span{display:flex; flex-direction:column; font-size:12.5px; font-weight:600; line-height:1.25;}
+.selo b{font-weight:500; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; opacity:.8;}
+.selo-sm{padding:6px 11px 6px 9px;}
+.selo-sm svg{width:16px; height:16px;}
+.selo-sm span{font-size:11.5px;}
+.selo-sm b{font-size:9.5px;}
+
+/* ---------- paletas ---------- */
+.paletas{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:9px;}
+.paleta-op{
+  display:flex; align-items:center; gap:9px; padding:9px 11px; cursor:pointer;
+  border:1px solid var(--line); border-radius:9px; background:var(--surface);
+  color:var(--ink); font-family:inherit; font-size:12.5px; text-align:left;
+  transition:border-color .15s ease, background .15s ease;
+}
+.paleta-op:hover{background:var(--surface-2);}
+.paleta-op.active{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-deep); font-weight:600;}
+.paleta-amostra{
+  width:22px; height:22px; border-radius:6px; flex-shrink:0;
+  border:1px solid rgba(0,0,0,.12);
+  background:linear-gradient(135deg, var(--pa) 0 50%, var(--pb) 50% 100%);
+}
+.paleta-amostra[data-palette="flow"]   {--pa:#4B718C; --pb:#E3634C;}
+.paleta-amostra[data-palette="jade"]   {--pa:#0E7B62; --pb:#E46155;}
+.paleta-amostra[data-palette="indigo"] {--pa:#526AAE; --pb:#B07A18;}
+.paleta-amostra[data-palette="grafite"]{--pa:#656E77; --pb:#DB6247;}
+.paleta-amostra[data-palette="bordo"]  {--pa:#A7535A; --pb:#2E82B8;}
+.paleta-amostra[data-palette="oliva"]  {--pa:#52772F; --pb:#B269D4;}
+
+/* ---------- porta de entrada ---------- */
+body.travado{overflow:hidden;}
+.login, .aceite{
+  position:fixed; inset:0; z-index:90; background:var(--ground);
+  display:none; align-items:center; justify-content:center; padding:24px;
+  overflow-y:auto;
+}
+.login.aberto, .aceite.aberto{display:flex;}
+.login-caixa{
+  width:100%; max-width:392px; background:var(--surface); border:1px solid var(--line);
+  border-radius:16px; padding:30px 28px 24px; box-shadow:var(--shadow);
+}
+.brand-mark.grande{width:50px; height:50px; border-radius:13px; background-size:64% auto;}
+.login-marca{display:flex; align-items:center; gap:13px; margin-bottom:6px;}
+.login-sub{font-size:12.5px; color:var(--muted); margin:0 0 22px;}
+.btn-google{
+  width:100%; justify-content:center; gap:10px; padding:11px 16px; font-size:13.5px;
+  background:var(--surface); color:var(--ink); border-color:var(--line-strong);
+}
+.btn-google:hover{background:var(--surface-2);}
+.btn-google svg{width:17px; height:17px;}
+.login-ou{position:relative; text-align:center; margin:20px 0 16px;}
+.login-ou::before{content:''; position:absolute; left:0; right:0; top:50%; height:1px; background:var(--line);}
+.login-ou span{position:relative; background:var(--surface); padding:0 11px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+.login-entrar{width:100%; justify-content:center; margin-top:16px; padding:11px 16px;}
+.link-sutil{
+  display:block; width:100%; margin-top:12px; padding:4px; background:none; border:0;
+  color:var(--accent-deep); font-family:inherit; font-size:12.5px; cursor:pointer; text-decoration:underline;
+}
+.link-sutil:hover{color:var(--accent);}
+.login-aviso{margin-top:12px; font-size:12.5px; line-height:1.5; color:var(--muted); min-height:1px;}
+.login-aviso.erro{color:var(--danger);}
+.login-aviso.ok{color:var(--ok);}
+.login-rodape{margin-top:22px; padding-top:18px; border-top:1px solid var(--line);}
+.login-rodape p{font-size:11.5px; line-height:1.55; color:var(--muted); margin:11px 0 0;}
+
+/* ---------- aceite de privacidade ---------- */
+.aceite{background:rgba(10,16,20,.72); backdrop-filter:blur(3px);}
+.aceite-caixa{
+  width:100%; max-width:520px; background:var(--surface); border:1px solid var(--line);
+  border-radius:16px; padding:28px; box-shadow:var(--shadow);
+}
+.aceite-caixa h2{font-size:18px; margin:18px 0 12px;}
+.aceite-caixa p{font-size:13px; line-height:1.62; color:var(--ink-2); margin:0 0 12px;}
+.aceite-caixa .aceite-nota{font-size:11.5px; color:var(--muted); margin-bottom:20px;}
+
+@media (max-width:560px){
+  .login-caixa, .aceite-caixa{padding:24px 20px;}
+  .wordmark.grande{font-size:24px;}
+}
 </style>
 </head>
 <body>
@@ -636,9 +793,9 @@ table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong);
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-mark">PC</div>
+      <div class="brand-mark"></div>
       <div class="brand-text">
-        <div class="brand-name">Gerenciador de Perícias</div>
+        <div class="brand-name wordmark"><b>Perícia</b><i>Flow</i></div>
         <div class="brand-sub">Perícia contábil</div>
       </div>
     </div>
@@ -661,6 +818,7 @@ table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong);
           <div class="account-mail" id="accountMail">Não conectado</div>
         </div>
       </div>
+      <div id="seloRodape"></div>
       <div class="side-actions">
         <button class="btn btn-ghost btn-sm" id="authBtn" style="flex:1; justify-content:center;" onclick="signInGoogle()">Entrar com Google</button>
         <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro e escuro"></button>
@@ -690,6 +848,9 @@ table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong);
 </div>
 
 <div class="drawer" id="drawer"></div>
+
+<div class="login" id="login"></div>
+<div class="aceite" id="aceite"></div>
 
 <div class="viewer-overlay" id="viewerOverlay" onclick="if(event.target===this) closeViewer();">
   <div class="viewer-box">
@@ -1099,7 +1260,8 @@ const SECTIONS = [
   {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
-  {id:'config',   titulo:'Configurações', sub:'Conta, sincronização e limites de armazenamento'},
+  {id:'privacidade', titulo:'Privacidade', sub:'Como os dados são guardados, quem vê e quais são os seus direitos'},
+  {id:'config',   titulo:'Configurações', sub:'Seu cadastro, aparência e armazenamento'},
 ];
 
 const ICONS = {
@@ -1111,6 +1273,7 @@ const ICONS = {
   docs:'<path d="M7 3h7l5 5v13H7z"/><path d="M13 3v6h6M10 13h7M10 17h5"/>',
   equipe:'<path d="M16 19v-1.4a3.6 3.6 0 00-3.6-3.6H7.6A3.6 3.6 0 004 17.6V19"/><circle cx="10" cy="7.5" r="3.1"/><path d="M20.5 19v-1.4a3.6 3.6 0 00-2.7-3.5M15.8 4.6a3.1 3.1 0 010 5.9"/>',
   projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
+  privacidade:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>',
   config:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
 };
 
@@ -1383,17 +1546,8 @@ function setSection(id){
   renderAll();
   window.scrollTo({top:0});
 }
-function currentTheme(){
-  const stamped = document.documentElement.getAttribute('data-theme');
-  if(stamped) return stamped;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-function toggleTheme(){
-  const next = currentTheme() === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  try{ localStorage.setItem('pericias.theme', next); }catch(e){}
-  renderThemeButton();
-}
+function currentTheme(){ return temaResolvido(); }
+function toggleTheme(){ definirTema(temaResolvido() === 'dark' ? 'light' : 'dark'); }
 function renderThemeButton(){
   const btn = document.getElementById('themeBtn');
   if(!btn) return;
@@ -1403,11 +1557,18 @@ function renderThemeButton(){
     : svg('<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>');
   btn.setAttribute('title', dark ? 'Mudar para tema claro' : 'Mudar para tema escuro');
 }
-(function initTheme(){
+(function estampaInicial(){
+  /* a estampa precisa acontecer antes da página pintar; o módulo de aparência
+     só é inicializado bem depois, então aqui vai uma versão mínima */
+  let tema = 'auto', paleta = 'flow';
   try{
-    const saved = localStorage.getItem('pericias.theme');
-    if(saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+    const r = JSON.parse(localStorage.getItem('pericias.aparencia') || '{}');
+    if(r.tema) tema = r.tema;
+    if(r.paleta) paleta = r.paleta;
   }catch(e){}
+  const escuro = tema === 'dark' || (tema !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', escuro ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-palette', paleta);
 })();
 
 
@@ -3654,6 +3815,342 @@ function renderEquipe(){
 }
 
 /* ==========================================================================
+   Aparência
+   Tema e paleta ficam na ficha da pessoa, então acompanham a conta em
+   qualquer dispositivo. Sem conta, valem só neste navegador.
+   As paletas foram geradas em OKLCH e conferidas: em todas elas o texto sobre
+   o botão passa de 4,5:1, as duas séries dos gráficos se distinguem e a escala
+   ordinal mantém contraste contra o fundo claro e o escuro.
+   ========================================================================== */
+const PALETAS = [
+  {id:'flow',    nome:'PeríciaFlow', amostra:'#4B718C'},
+  {id:'jade',    nome:'Jade',        amostra:'#0E7B62'},
+  {id:'indigo',  nome:'Índigo',      amostra:'#526AAE'},
+  {id:'grafite', nome:'Grafite',     amostra:'#656E77'},
+  {id:'bordo',   nome:'Bordô',       amostra:'#A7535A'},
+  {id:'oliva',   nome:'Oliva',       amostra:'#52772F'},
+];
+const TEMAS = [
+  {id:'auto',  nome:'Automático', dica:'segue o sistema'},
+  {id:'light', nome:'Claro',      dica:''},
+  {id:'dark',  nome:'Escuro',     dica:''},
+];
+const LS_APARENCIA = 'pericias.aparencia';
+let prefTema = 'auto', prefPaleta = 'flow';
+(function(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LS_APARENCIA) || '{}');
+    if(TEMAS.some(t => t.id === raw.tema)) prefTema = raw.tema;
+    if(PALETAS.some(p => p.id === raw.paleta)) prefPaleta = raw.paleta;
+  }catch(e){}
+})();
+function temaResolvido(){
+  if(prefTema === 'light' || prefTema === 'dark') return prefTema;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function aplicarAparencia(){
+  const raiz = document.documentElement;
+  raiz.setAttribute('data-theme', temaResolvido());
+  raiz.setAttribute('data-palette', prefPaleta);
+  try{ localStorage.setItem(LS_APARENCIA, JSON.stringify({tema:prefTema, paleta:prefPaleta})); }catch(e){}
+  if(typeof renderThemeButton === 'function') renderThemeButton();
+}
+async function definirTema(id){
+  if(!TEMAS.some(t => t.id === id)) return;
+  prefTema = id;
+  aplicarAparencia();
+  if(meuEmail()) await salvarFicha(meuEmail(), 'tema', id);
+  renderAll();
+}
+async function definirPaleta(id){
+  if(!PALETAS.some(p => p.id === id)) return;
+  prefPaleta = id;
+  aplicarAparencia();
+  if(meuEmail()) await salvarFicha(meuEmail(), 'paleta', id);
+  renderAll();
+}
+/* depois que as fichas chegam da nuvem, a preferência da conta prevalece */
+function aparenciaDoPerfil(){
+  const e = meuEmail();
+  if(!e) return;
+  const f = fichaDe(e);
+  let mudou = false;
+  if(f.tema && TEMAS.some(t => t.id === f.tema) && f.tema !== prefTema){ prefTema = f.tema; mudou = true; }
+  if(f.paleta && PALETAS.some(p => p.id === f.paleta) && f.paleta !== prefPaleta){ prefPaleta = f.paleta; mudou = true; }
+  if(mudou) aplicarAparencia();
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if(prefTema === 'auto') aplicarAparencia();
+});
+
+function renderAparencia(){
+  return `
+      <div class="field" style="margin-bottom:16px;">
+        <label>Tema</label>
+        <div class="chips">
+          ${TEMAS.map(t => `<button class="chip ${prefTema===t.id?'active':''}" onclick="definirTema('${t.id}')">${t.nome}</button>`).join('')}
+        </div>
+        <span class="dica">No automático o app acompanha o claro ou escuro do seu sistema.</span>
+      </div>
+      <div class="field">
+        <label>Paleta</label>
+        <div class="paletas">
+          ${PALETAS.map(p => `
+            <button class="paleta-op ${prefPaleta===p.id?'active':''}" onclick="definirPaleta('${p.id}')" title="${p.nome}">
+              <span class="paleta-amostra" data-palette="${p.id}"></span>
+              <span class="paleta-nome">${p.nome}</span>
+            </button>`).join('')}
+        </div>
+        <span class="dica">Todas foram conferidas para manter o contraste de texto e gráficos nos dois temas.</span>
+      </div>`;
+}
+
+/* ==========================================================================
+   Privacidade
+   A página descreve o que o sistema realmente faz com os dados — inclusive o
+   que ele não protege. O aceite fica registrado por conta, em config/aceites.
+   ========================================================================== */
+const VERSAO_PRIVACIDADE = '1.0';
+const DATA_PRIVACIDADE = '18/09/2026';
+let aceites = [];
+let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
+
+async function sincronizarAceites(){
+  if(!usingDb || !db) return;
+  try{
+    const doc = await db.collection('config').doc('aceites').get();
+    aceites = doc.exists && Array.isArray(doc.data().lista) ? doc.data().lista : [];
+  }catch(e){ aceites = []; }
+  renderAll();
+}
+function meuAceite(){
+  const e = meuEmail();
+  if(!e) return null;
+  return aceites.find(a => a.email === e && a.versao === VERSAO_PRIVACIDADE) || null;
+}
+function precisaAceitar(){
+  return !!(currentUser && usingDb && !meuAceite());
+}
+function lerAntesDeAceitar(){
+  aceiteAdiado = true;
+  setSection('privacidade');
+}
+async function registrarAceite(){
+  const e = meuEmail();
+  if(!e) return;
+  aceiteAdiado = false;
+  aceites = [...aceites.filter(a => a.email !== e), {email:e, versao:VERSAO_PRIVACIDADE, quando:new Date().toISOString()}];
+  try{ await db.collection('config').doc('aceites').set({lista: aceites}); }
+  catch(err){ cloudSetBanner(bannerAviso('Não foi possível registrar o aceite agora. Tente novamente.')); return; }
+  renderAll();
+}
+
+function selo(pequeno){
+  return `
+    <button class="selo ${pequeno ? 'selo-sm' : ''}" onclick="setSection('privacidade')" title="Ver como os dados são tratados">
+      ${svg('<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>')}
+      <span>Dados protegidos<b>LGPD · v${VERSAO_PRIVACIDADE}</b></span>
+    </button>`;
+}
+
+const TOPICOS_PRIVACIDADE = [
+  ['Quem é o responsável',
+   'O controlador dos dados é o perito ou o escritório que mantém esta conta. Os dados de contato para exercer os direitos abaixo são os que constam em Configurações, no cadastro do perito responsável pela perícia.'],
+  ['Que dados o sistema guarda',
+   'Dados do processo (número, vara, comarca, partes, prazos e valores de honorários), os documentos que você anexa, os comentários que escreve, e o cadastro profissional de cada perito: nome, registro no CRC, CPF, telefone e endereço. Da conta de acesso, o sistema guarda o e-mail e, quando a entrada é pelo Google, o nome e a foto do perfil.'],
+  ['Onde os dados ficam',
+   'Em serviços do Google Cloud contratados por meio do Firebase: o cadastro das perícias no Cloud Firestore e os arquivos no Cloud Storage. O tráfego entre o seu navegador e esses serviços é cifrado por HTTPS. Não há servidor próprio nem cópia em outro provedor.'],
+  ['Quem consegue ver',
+   'Somente as contas cadastradas em Equipe conseguem entrar. Dentro do sistema, cada perícia é visível apenas para quem a criou e para quem recebeu acesso dela — e isso é verificado no servidor, documento a documento, não só na tela. Um titular pode incluir e remover pessoas da equipe a qualquer momento.'],
+  ['O que o sistema não protege',
+   'O link de download de um arquivo anexado é gerado pelo Firebase Storage e funciona para quem tiver o endereço completo, mesmo sem login. Esse link só aparece para quem já tem acesso à perícia, mas se ele for repassado por fora, quem o receber consegue abrir o arquivo. Trate esses endereços como o próprio documento.'],
+  ['Compartilhamento com terceiros',
+   'Os dados não são vendidos, cedidos nem usados para publicidade. O sistema não tem rastreadores, pixels de anúncio nem ferramentas de análise de comportamento. Os únicos serviços externos acionados são o Firebase, para autenticação e armazenamento, o Google Fonts, para as fontes da interface, e a API pública do Banco Central, usada apenas para buscar índices de correção quando você roda um cálculo — nessa consulta não vai nenhum dado do processo.'],
+  ['Armazenamento no navegador',
+   'O app guarda no seu navegador as preferências de tema e paleta, a última seção aberta, o modelo de proposta importado e uma cópia local das perícias para funcionar quando você está sem conexão. Nada disso é enviado a terceiros. Limpar os dados do site apaga essa cópia local.'],
+  ['Por quanto tempo',
+   'Os dados de uma perícia permanecem enquanto ela existir no sistema. Excluir a perícia remove o registro, os comentários e os documentos, inclusive os arquivos no Storage. A remoção é definitiva e não há backup automático acessível pelo app.'],
+  ['Seus direitos',
+   'A Lei Geral de Proteção de Dados assegura confirmação de tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamento e eliminação dos dados. Dentro do sistema, o acesso e a correção são diretos: cada perito edita o próprio cadastro em Configurações, e o dono de cada perícia edita ou exclui os dados dela. Para os demais pedidos, procure o controlador indicado no primeiro item.'],
+  ['Dados de terceiros nos autos',
+   'Ao anexar documentos, você trata dados de partes, testemunhas e terceiros. O tratamento se justifica pelo exercício regular de direitos em processo judicial e pelo cumprimento da nomeação. Anexe apenas o que a perícia exigir e evite subir documentos alheios ao objeto da prova.'],
+];
+
+function renderPrivacidade(){
+  const aceite = meuAceite();
+  const pendente = precisaAceitar() ? `
+      <div class="banner" style="margin-bottom:14px;">
+        ${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')}
+        <span>Falta o seu aceite desta versão.
+          <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="registrarAceite()">Li e concordo</button></span>
+      </div>` : '';
+  const corpoResumo = `
+      ${pendente}
+      ${selo()}
+      <div class="calc-nota" style="margin-top:14px;">
+        Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}. Este texto descreve o funcionamento real deste sistema;
+        ele não é um certificado emitido por terceiros.
+      </div>
+      <div class="kv-grid" style="margin-top:14px;">
+        <div class="kv"><div class="k">Seu aceite</div><div class="v">${aceite ? 'registrado em ' + fmtDate(String(aceite.quando).slice(0,10)) : (currentUser ? 'pendente' : 'entre para registrar')}</div></div>
+        <div class="kv"><div class="k">Contas com aceite</div><div class="v num">${aceites.filter(a => a.versao === VERSAO_PRIVACIDADE).length}</div></div>
+        <div class="kv"><div class="k">Transporte</div><div class="v">HTTPS ponta a ponta</div></div>
+        <div class="kv"><div class="k">Acesso</div><div class="v">verificado no servidor</div></div>
+      </div>`;
+
+  const corpoTexto = TOPICOS_PRIVACIDADE.map(([titulo, texto]) => `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13.5px; font-weight:600; margin-bottom:4px;">${escapeHtml(titulo)}</div>
+        <p style="font-size:13px; line-height:1.62; color:var(--ink-2); margin:0;">${escapeHtml(texto)}</p>
+      </div>`).join('');
+
+  const corpoRegistro = aceites.length === 0
+    ? `<div class="chart-empty">Nenhum aceite registrado ainda.</div>`
+    : `<div class="rows">${aceites.slice().sort((a,b)=>String(b.quando).localeCompare(String(a.quando))).map(a => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(membroDe(a.email).nome)}</div>
+            <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(a.email)}</div>
+          </div>
+          <div class="row-side"><span class="row-date">${fmtDate(String(a.quando).slice(0,10))} · v${escapeHtml(a.versao)}</span></div>
+        </div>`).join('')}</div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('privResumo', 'Selo e resumo', 'versão ' + VERSAO_PRIVACIDADE, corpoResumo)}
+      ${panel('privTexto', 'Como os dados são tratados', TOPICOS_PRIVACIDADE.length + ' itens', corpoTexto)}
+      ${panel('privAceites', 'Registro de aceites', aceites.length + '', corpoRegistro)}
+    </div>`;
+}
+
+function renderPortaAceite(){
+  const alvo = document.getElementById('aceite');
+  if(!alvo) return;
+  if(!precisaAceitar() || aceiteAdiado){ alvo.classList.remove('aberto'); alvo.innerHTML = ''; return; }
+  alvo.classList.add('aberto');
+  alvo.innerHTML = `
+    <div class="aceite-caixa">
+      ${selo()}
+      <h2>Antes de continuar</h2>
+      <p>Este sistema guarda dados de processos, documentos dos autos e o seu cadastro profissional em serviços do Google Cloud, por meio do Firebase. O tráfego é cifrado e cada perícia só aparece para quem tem acesso a ela, com a verificação feita no servidor.</p>
+      <p>Um ponto que merece atenção: o link de download de um arquivo anexado funciona para quem tiver o endereço completo, mesmo sem login. Ele só aparece para quem já vê a perícia, mas trate esses endereços como o próprio documento.</p>
+      <p class="aceite-nota">Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}. O texto completo fica na aba Privacidade e pode ser lido antes de aceitar.</p>
+      <div class="acoes">
+        <button class="btn btn-primary" onclick="registrarAceite()">Li e concordo</button>
+        <button class="btn btn-ghost" onclick="lerAntesDeAceitar()">Ler o texto completo</button>
+        <button class="btn btn-ghost" onclick="signOutGoogle()">Sair</button>
+      </div>
+    </div>`;
+}
+
+/* ==========================================================================
+   Porta de entrada
+   Entrada pela conta Google ou por e-mail e senha. A senha é definida pela
+   própria pessoa, pelo link que o Firebase envia — o app nunca recebe nem
+   guarda senha. Quem não estiver na Equipe não passa daqui.
+   ========================================================================== */
+let loginAberto = false;
+
+function mensagemAuth(codigo){
+  const mapa = {
+    'auth/invalid-email': 'Esse e-mail não parece válido.',
+    'auth/user-disabled': 'Esta conta está desativada.',
+    'auth/user-not-found': 'E-mail ou senha não conferem.',
+    'auth/wrong-password': 'E-mail ou senha não conferem.',
+    'auth/invalid-credential': 'E-mail ou senha não conferem.',
+    'auth/invalid-login-credentials': 'E-mail ou senha não conferem.',
+    'auth/too-many-requests': 'Muitas tentativas seguidas. Aguarde alguns minutos.',
+    'auth/network-request-failed': 'Sem conexão com o servidor. Verifique a internet.',
+    'auth/operation-not-allowed': 'A entrada por senha ainda não está habilitada neste projeto.',
+    'auth/popup-closed-by-user': 'A janela do Google foi fechada antes de concluir.',
+    'auth/popup-blocked': 'O navegador bloqueou a janela do Google. Libere os pop-ups deste site.',
+    'auth/missing-password': 'Digite a senha.',
+  };
+  return mapa[codigo] || 'Não foi possível entrar agora. Tente novamente.';
+}
+function avisoLogin(texto, tipo){
+  const el = document.getElementById('loginAviso');
+  if(!el) return;
+  el.textContent = texto || '';
+  el.className = 'login-aviso ' + (tipo || '');
+}
+
+async function entrarComSenha(){
+  if(!auth) return;
+  const email = (document.getElementById('loginEmail').value || '').trim();
+  const senha = document.getElementById('loginSenha').value || '';
+  if(!email || !senha){ avisoLogin('Preencha o e-mail e a senha.', 'erro'); return; }
+  avisoLogin('Entrando...');
+  try{
+    await auth.signInWithEmailAndPassword(email, senha);
+  }catch(e){
+    avisoLogin(mensagemAuth(e.code), 'erro');
+  }
+}
+async function recuperarSenha(){
+  if(!auth) return;
+  const email = (document.getElementById('loginEmail').value || '').trim();
+  if(!email){ avisoLogin('Digite o e-mail cadastrado para receber o link.', 'erro'); return; }
+  avisoLogin('Enviando...');
+  try{
+    await auth.sendPasswordResetEmail(email);
+  }catch(e){
+    /* user-not-found não é revelado de propósito: dizer quais e-mails existem
+       entregaria a lista de quem tem acesso ao sistema */
+    if(e.code !== 'auth/user-not-found' && e.code !== 'auth/invalid-email'){
+      avisoLogin(mensagemAuth(e.code), 'erro');
+      return;
+    }
+    if(e.code === 'auth/invalid-email'){ avisoLogin('Esse e-mail não parece válido.', 'erro'); return; }
+  }
+  avisoLogin('Se esse e-mail tiver acesso, o link para criar ou trocar a senha já está a caminho. Verifique também o spam.', 'ok');
+}
+
+function renderLogin(){
+  const alvo = document.getElementById('login');
+  if(!alvo) return;
+  if(!loginAberto){ alvo.classList.remove('aberto'); alvo.innerHTML = ''; return; }
+  alvo.classList.add('aberto');
+  alvo.innerHTML = `
+    <div class="login-caixa">
+      <div class="login-marca">
+        <span class="brand-mark grande"></span>
+        <span class="wordmark grande"><b>Perícia</b><i>Flow</i></span>
+      </div>
+      <p class="login-sub">Gestão de perícias contábeis judiciais</p>
+
+      <button class="btn btn-google" onclick="signInGoogle()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 01-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.5l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.2H3.1v2.6A10 10 0 0012 22z"/><path fill="#FBBC05" d="M6.4 13.8a6 6 0 010-3.8V7.4H3.1a10 10 0 000 9l3.3-2.6z"/><path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 003.1 7.4L6.4 10c.8-2.4 3-4.1 5.6-4.1z"/></svg>
+        Entrar com a conta Google
+      </button>
+
+      <div class="login-ou"><span>ou entre com senha</span></div>
+
+      <div class="field"><label for="loginEmail">E-mail</label>
+        <input id="loginEmail" type="email" autocomplete="username" placeholder="seu@email.com"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginSenha').focus()}"></div>
+      <div class="field" style="margin-top:10px;"><label for="loginSenha">Senha</label>
+        <input id="loginSenha" type="password" autocomplete="current-password" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();entrarComSenha()}"></div>
+
+      <button class="btn btn-primary login-entrar" onclick="entrarComSenha()">Entrar</button>
+      <button class="link-sutil" onclick="recuperarSenha()">Criar ou recuperar senha por e-mail</button>
+
+      <div id="loginAviso" class="login-aviso"></div>
+
+      <div class="login-rodape">
+        ${selo(true)}
+        <p>O acesso é restrito às contas cadastradas pela equipe. O app não guarda a sua senha: quem a define e a valida é o Firebase, do Google.</p>
+      </div>
+    </div>`;
+}
+function abrirLogin(v){
+  loginAberto = !!v;
+  renderLogin();
+  document.body.classList.toggle('travado', loginAberto);
+}
+
+/* ==========================================================================
    Seção: configurações
    ========================================================================== */
 function renderConfig(){
@@ -3664,6 +4161,7 @@ function renderConfig(){
         <div class="kv-grid">
           <div class="kv"><div class="k">Estado</div><div class="v">${currentUser ? 'Sincronizado na nuvem' : 'Somente neste navegador'}</div></div>
           <div class="kv"><div class="k">Conta</div><div class="v">${currentUser ? escapeHtml(currentUser.email) : 'Não conectado'}</div></div>
+          <div class="kv"><div class="k">Entrada</div><div class="v">${currentUser ? (((currentUser.providerData||[])[0]||{}).providerId === 'password' ? 'E-mail e senha' : 'Conta Google') : '—'}</div></div>
           <div class="kv"><div class="k">Banco de dados</div><div class="v">${usingDb ? 'Firestore' : 'Armazenamento local'}</div></div>
           <div class="kv"><div class="k">Arquivos</div><div class="v">${storage && usingDb ? 'Firebase Storage' : 'Embutidos no registro'}</div></div>
         </div>
@@ -3703,33 +4201,39 @@ function renderConfig(){
                  oninput="salvarFicha('${key}', '${campo}', this.value)">
           ${dica ? `<span class="dica">${dica}</span>` : ''}
         </div>`;
-  const corpoFichas = equipe.membros.filter(m => m.papel !== 'convidado').map(meta => {
-    const key = meta.email;
-    const f = fichaDe(key);
-    return `
-      <div style="margin-bottom:22px;">
-        <div style="display:flex; align-items:center; gap:9px; margin-bottom:11px;">
-          ${avatarMembro(meta, 26)}
-          <b style="font-size:13.5px;">${escapeHtml(meta.nome)}</b>
-          <span class="mono" style="font-size:11px; color:var(--muted);">${escapeHtml(meta.email)}</span>
+  const meuCad = meuEmail();
+  const f = fichaDe(meuCad);
+  const eu = membroDe(meuCad);
+  const corpoMeuCadastro = meuCad ? `
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        ${avatarMembro(eu, 30, currentUser && currentUser.photoURL)}
+        <div style="min-width:0;">
+          <b style="font-size:13.5px;">${escapeHtml(eu.nome)}</b>
+          <div class="mono" style="font-size:11.5px; color:var(--muted);">${escapeHtml(meuCad)}</div>
         </div>
-        <div class="form-grid" style="margin-bottom:0;">
-          ${campoFicha(key, 'nomeCompleto', 'Nome completo', f.nomeCompleto, 'Como assina o laudo', true)}
-          ${campoFicha(key, 'crcEstado', 'CRC — estado', f.crcEstado, 'Ex.: Goiás')}
-          ${campoFicha(key, 'crcRegistro', 'CRC — registro', f.crcRegistro, 'Ex.: GO-030689/O-8')}
-          ${campoFicha(key, 'cpf', 'CPF', f.cpf, '')}
-          ${campoFicha(key, 'telefone', 'Telefone', f.telefone, 'Vai para o rodapé')}
-          ${campoFicha(key, 'cidadeUf', 'Cidade e UF', f.cidadeUf, 'Usada na linha da data')}
-          ${campoFicha(key, 'horaTecnica', 'Hora técnica (R$)', brl(f.horaTecnica), 'Valor sugerido em cada proposta')}
-          ${campoFicha(key, 'endereco', 'Endereço profissional', f.endereco, 'Linha completa do rodapé', true)}
-          ${campoFicha(key, 'referenciaHora', 'Referência da hora técnica', f.referenciaHora, 'Entidade citada na proposta', true)}
-        </div>
-      </div>`;
-  }).join('') + `<div class="hint">Estes dados entram na qualificação do perito, no rodapé e na assinatura da proposta de honorários.</div>`;
+      </div>
+      <div class="form-grid" style="margin-bottom:0;">
+        ${campoFicha(meuCad, 'nomeCompleto', 'Nome completo', f.nomeCompleto, 'Como assina o laudo', true)}
+        ${campoFicha(meuCad, 'crcEstado', 'CRC — estado', f.crcEstado, 'Ex.: Goiás')}
+        ${campoFicha(meuCad, 'crcRegistro', 'CRC — registro', f.crcRegistro, 'Ex.: GO-030689/O-8')}
+        ${campoFicha(meuCad, 'cpf', 'CPF', f.cpf, '')}
+        ${campoFicha(meuCad, 'telefone', 'Telefone', f.telefone, 'Vai para o rodapé da proposta')}
+        ${campoFicha(meuCad, 'cidadeUf', 'Cidade e UF', f.cidadeUf, 'Usada na linha da data')}
+        ${campoFicha(meuCad, 'horaTecnica', 'Hora técnica (R$)', brl(f.horaTecnica), 'Valor sugerido em cada proposta')}
+        ${campoFicha(meuCad, 'endereco', 'Endereço profissional', f.endereco, 'Linha completa do rodapé', true)}
+        ${campoFicha(meuCad, 'referenciaHora', 'Referência da hora técnica', f.referenciaHora, 'Entidade citada na proposta', true)}
+      </div>
+      <div class="hint" style="margin-top:12px;">
+        Este cadastro é seu: só você edita. Ele entra na qualificação do perito, no rodapé e na assinatura das propostas que você gerar.
+        O cadastro dos outros peritos é de cada um — se faltar algum dado no documento de um colega, peça para ele completar aqui.
+      </div>`
+    : `<div class="chart-empty">Entre com a sua conta para preencher o cadastro profissional.</div>`;
+
 
   return `
     <div class="section-gap">
-      ${panel('fichas', 'Ficha dos peritos', 'usada na proposta de honorários', corpoFichas)}
+      ${panel('meuCadastro', 'Meu cadastro', 'usado na proposta de honorários', corpoMeuCadastro)}
+      ${panel('aparencia', 'Aparência', (PALETAS.find(p => p.id === prefPaleta)||{}).nome + ' · ' + (TEMAS.find(t => t.id === prefTema)||{}).nome, renderAparencia())}
       ${panel('conta', 'Conta e sincronização', '', corpoConta)}
       ${panel('contas', 'Contas autorizadas', 'a mesma lista que o servidor consulta', corpoContas)}
       ${panel('armazenamento', 'Documentos armazenados', '', corpoArmazenamento)}
@@ -3741,6 +4245,7 @@ function renderConfig(){
    ========================================================================== */
 function renderAll(){
   renderPerfil();
+  renderSeloRodape();
   renderNav();
   renderTopbar();
   renderAccount();
@@ -3763,11 +4268,17 @@ function renderAll(){
     if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderEquipe();
   }
   else if(activeSection === 'projudi') view.innerHTML = renderProjudi();
+  else if(activeSection === 'privacidade') view.innerHTML = renderPrivacidade();
   else if(activeSection === 'config'){
     const foco = document.activeElement;
     if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderConfig();
   }
   if(drawerCasoId) renderDrawer();
+  renderPortaAceite();
+}
+function renderSeloRodape(){
+  const el = document.getElementById('seloRodape');
+  if(el) el.innerHTML = selo(true);
 }
 
 /* ==========================================================================
@@ -3836,6 +4347,7 @@ function firebaseInit(){
 }
 
 async function applyAuthState(){
+  if(auth) abrirLogin(!currentUser);
   if(currentUser){
     db = firebase.firestore();
     usingDb = true;
@@ -3851,7 +4363,7 @@ async function applyAuthState(){
     if(loaded) casos = loaded;
     usingLocalStorage = true;
     persistCasosToLocalStorage();
-    cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com o Google (conta autorizada) para sincronizar entre dispositivos.'));
+    cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com uma conta da equipe para sincronizar entre dispositivos.'));
     renderAll();
   }
 }
@@ -3872,7 +4384,9 @@ async function startDbSync(){
   }catch(e){ /* segue para a inscrição mesmo assim */ }
   assinarCasos(false);
   await sincronizarEquipe();
-  sincronizarFichas();
+  await sincronizarFichas();
+  aparenciaDoPerfil();
+  sincronizarAceites();
   migrarAcessos();
   if(drawerCasoId) subscribeDocumentos(drawerCasoId);
 }
@@ -3921,7 +4435,7 @@ async function initDb(){
   if(loaded) casos = loaded;
   usingLocalStorage = true;
   persistCasosToLocalStorage();
-  cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com o Google (conta autorizada) para sincronizar entre dispositivos.'));
+  cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com uma conta da equipe para sincronizar entre dispositivos.'));
   renderAll();
   firebaseInit();
 }
@@ -4474,6 +4988,7 @@ function confirmDelete(casoId){
 
 /* ========================================================================== */
 aplicarRail();
+aplicarAparencia();
 renderAll();
 initDb();
 </script>
