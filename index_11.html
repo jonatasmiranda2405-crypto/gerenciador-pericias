@@ -1,0 +1,3395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciador de Perícias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+<style>
+:root{
+  color-scheme: light;
+  --ground:#F3F5F4;
+  --surface:#FFFFFF;
+  --surface-2:#E9EDEB;
+  --surface-3:#DFE5E3;
+  --ink:#16202A;
+  --ink-2:#31424A;
+  --muted:#5B6B6E;
+  --line:#DAE1DF;
+  --line-strong:#C3CDCA;
+  --accent:#14655C;
+  --accent-deep:#0E4A44;
+  --accent-soft:#E1EEEB;
+  --ok:#2E6B4F;
+  --ok-soft:#DFEDE5;
+  --warn:#8A5F10;
+  --warn-soft:#F4EAD2;
+  --danger:#A33D33;
+  --danger-soft:#F5E2DE;
+  --violet:#5B4A86;
+  --violet-soft:#EAE5F3;
+  /* series validadas para superficie clara */
+  --s1:#0b8f7f;
+  --s2:#eb6834;
+  --r1:#62c1b4; --r2:#38a99b; --r3:#0b8f7f; --r4:#0a7568; --r5:#085a50;
+  --shadow:0 1px 2px rgba(22,32,42,.05), 0 10px 24px -16px rgba(22,32,42,.22);
+  --radius:10px;
+  --sidebar-w:248px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0E1417;
+    --surface:#151D20;
+    --surface-2:#1C262A;
+    --surface-3:#243036;
+    --ink:#E3EBE9;
+    --ink-2:#C2D0CD;
+    --muted:#93A5A2;
+    --line:#27353A;
+    --line-strong:#38484E;
+    --accent:#5FB8AE;
+    --accent-deep:#8FD3C9;
+    --accent-soft:#12302D;
+    --ok:#74C39A;
+    --ok-soft:#163024;
+    --warn:#D3A15A;
+    --warn-soft:#332916;
+    --danger:#E08B7A;
+    --danger-soft:#33201C;
+    --violet:#B3A3DD;
+    --violet-soft:#241F33;
+    --s1:#2a9d8f;
+    --s2:#d95926;
+    --r1:#085a50; --r2:#0a7568; --r3:#0b8f7f; --r4:#38a99b; --r5:#62c1b4;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0E1417;
+  --surface:#151D20;
+  --surface-2:#1C262A;
+  --surface-3:#243036;
+  --ink:#E3EBE9;
+  --ink-2:#C2D0CD;
+  --muted:#93A5A2;
+  --line:#27353A;
+  --line-strong:#38484E;
+  --accent:#5FB8AE;
+  --accent-deep:#8FD3C9;
+  --accent-soft:#12302D;
+  --ok:#74C39A;
+  --ok-soft:#163024;
+  --warn:#D3A15A;
+  --warn-soft:#332916;
+  --danger:#E08B7A;
+  --danger-soft:#33201C;
+  --violet:#B3A3DD;
+  --violet-soft:#241F33;
+  --s1:#2a9d8f;
+  --s2:#d95926;
+  --r1:#085a50; --r2:#0a7568; --r3:#0b8f7f; --r4:#38a99b; --r5:#62c1b4;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -18px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'IBM Plex Mono','SFMono-Regular',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+.num{font-family:'IBM Plex Mono','SFMono-Regular',ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+h1,h2,h3,h4{margin:0; font-weight:600; text-wrap:balance; letter-spacing:-.011em;}
+button{font-family:inherit;}
+a{color:var(--accent); text-underline-offset:2px;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+/* ---------- estrutura ---------- */
+.app{display:grid; grid-template-columns:auto 1fr; min-height:100%;}
+
+.sidebar{
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column; gap:20px;
+  padding:20px 14px;
+  position:sticky; top:0; height:100vh; overflow-y:auto; overflow-x:hidden;
+  width:var(--sidebar-w);
+  transition:width .22s ease, padding .22s ease;
+}
+
+/* punho para recolher a barra lateral */
+.rail-toggle{
+  position:fixed; top:50%; left:var(--sidebar-w);
+  transform:translate(-50%,-50%);
+  width:18px; height:70px; padding:0; border:none; background:transparent;
+  cursor:pointer; z-index:40;
+  display:flex; align-items:center; justify-content:center;
+  transition:left .22s ease;
+}
+.rail-toggle::before{
+  content:''; width:4px; height:42px; border-radius:99px;
+  background:var(--line-strong);
+  transition:background .15s ease, height .15s ease;
+}
+.rail-toggle:hover::before{background:var(--accent); height:58px;}
+.rail-toggle:focus-visible::before{background:var(--accent); height:58px;}
+
+body.rail{--sidebar-w:66px;}
+body.rail .sidebar{padding-left:11px; padding-right:11px;}
+body.rail .brand-text,
+body.rail .perito-info,
+body.rail .side-label,
+body.rail .nav-item > span,
+body.rail .nav-badge,
+body.rail .account-text,
+body.rail #authBtn{display:none;}
+body.rail .brand,
+body.rail .account{justify-content:center; padding:0;}
+body.rail .perito-btn{justify-content:center; padding:8px 0;}
+body.rail .nav-item{justify-content:center; padding:10px 0;}
+body.rail .side-actions{justify-content:center;}
+body.rail #themeBtn{flex:1; justify-content:center;}
+.brand{display:flex; align-items:center; gap:10px; padding:0 6px;}
+.brand-mark{
+  width:34px; height:34px; border-radius:8px; flex-shrink:0;
+  background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:600; font-size:13px; letter-spacing:.02em;
+  font-family:'IBM Plex Mono',monospace;
+}
+.brand-text{min-width:0;}
+.brand-name{font-size:13.5px; font-weight:600; line-height:1.2; letter-spacing:-.01em;}
+.brand-sub{font-size:10.5px; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-top:2px; white-space:nowrap;}
+
+.side-label{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--muted); font-weight:600; padding:0 8px; margin-bottom:8px;
+}
+.peritos{display:flex; flex-direction:column; gap:6px;}
+.perito-btn{
+  display:flex; align-items:center; gap:9px; width:100%; text-align:left;
+  padding:8px 9px; border-radius:8px; cursor:pointer;
+  border:1px solid transparent; background:transparent; color:inherit;
+  transition:background .12s, border-color .12s;
+}
+.perito-btn:hover{background:var(--surface-2);}
+.perito-btn.active{background:var(--pcolor-soft); border-color:var(--pcolor);}
+.perito-avatar{
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  background:var(--pcolor); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600; font-family:'IBM Plex Mono',monospace;
+}
+:root[data-theme="dark"] .perito-avatar, :root:not([data-theme="light"]) .perito-avatar{color:#0E1417;}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .perito-avatar{color:#fff;} }
+.perito-info{min-width:0; display:flex; flex-direction:column;}
+.perito-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.perito-count{font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums;}
+
+.nav{display:flex; flex-direction:column; gap:2px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:9px 10px; border-radius:8px; cursor:pointer;
+  border:none; background:transparent; color:var(--ink-2);
+  font-size:13.5px; font-weight:500; text-align:left;
+  transition:background .12s, color .12s;
+}
+.nav-item:hover{background:var(--surface-2); color:var(--ink);}
+.nav-item.active{background:var(--accent-soft); color:var(--accent-deep); font-weight:600;}
+.nav-item svg{width:17px; height:17px; flex-shrink:0; stroke-width:1.75;}
+.nav-badge{
+  margin-left:auto; font-size:11px; font-family:'IBM Plex Mono',monospace;
+  background:var(--surface-3); color:var(--muted);
+  padding:1px 6px; border-radius:99px; font-variant-numeric:tabular-nums;
+}
+.nav-item.active .nav-badge{background:var(--accent); color:var(--surface);}
+.nav-badge.alert{background:var(--danger-soft); color:var(--danger);}
+
+.side-foot{margin-top:auto; display:flex; flex-direction:column; gap:10px; padding-top:14px; border-top:1px solid var(--line);}
+.account{display:flex; align-items:center; gap:8px; padding:0 4px; min-width:0;}
+.account-dot{width:7px; height:7px; border-radius:50%; flex-shrink:0; background:var(--muted);}
+.account-dot.on{background:var(--ok);}
+.account-text{min-width:0; font-size:11.5px; line-height:1.35;}
+.account-state{color:var(--ink); font-weight:500;}
+.account-mail{color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.side-actions{display:flex; gap:6px;}
+
+/* ---------- area principal ---------- */
+.main{min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:16px 28px;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.menu-btn{display:none; background:transparent; border:1px solid var(--line); border-radius:8px; padding:7px; cursor:pointer; color:var(--ink);}
+.menu-btn svg{width:18px; height:18px; display:block;}
+.topbar-title{display:flex; flex-direction:column; min-width:0; margin-right:auto;}
+.topbar-title h1{font-size:19px;}
+.topbar-title p{margin:1px 0 0; font-size:12.5px; color:var(--muted);}
+.content{padding:24px 28px 72px; max-width:1180px; width:100%;}
+
+/* ---------- controles ---------- */
+.btn{
+  border:1px solid transparent; border-radius:8px; padding:9px 14px;
+  font-size:13px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:7px; white-space:nowrap;
+  transition:background .12s, border-color .12s, color .12s;
+}
+.btn svg{width:15px; height:15px; stroke-width:2;}
+.btn-primary{background:var(--accent); color:var(--surface);}
+.btn-primary:hover{background:var(--accent-deep);}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line-strong);}
+.btn-ghost:hover{background:var(--surface-2);}
+.btn-danger{background:transparent; color:var(--danger); border-color:var(--danger);}
+.btn-danger:hover{background:var(--danger-soft);}
+.btn-sm{padding:6px 11px; font-size:12.5px;}
+.btn[disabled]{opacity:.5; cursor:default;}
+.icon-btn{
+  background:transparent; border:none; cursor:pointer; color:var(--muted);
+  padding:4px; border-radius:6px; display:inline-flex; line-height:0;
+}
+.icon-btn svg{width:15px; height:15px; stroke-width:1.9;}
+.icon-btn:hover{background:var(--surface-2); color:var(--ink);}
+.icon-btn.danger:hover{background:var(--danger-soft); color:var(--danger);}
+
+.search{position:relative; flex:1 1 280px; max-width:420px;}
+.search input{
+  width:100%; padding:9px 12px 9px 34px; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  font-size:13.5px; font-family:inherit;
+}
+.search svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--muted); stroke-width:2;}
+
+.chips{display:flex; gap:7px; flex-wrap:wrap;}
+.chip{
+  border:1px solid var(--line); background:var(--surface); color:var(--muted);
+  border-radius:99px; padding:6px 13px; font-size:12.5px; font-weight:600; cursor:pointer;
+}
+.chip:hover{border-color:var(--line-strong); color:var(--ink);}
+.chip.active{background:var(--accent); border-color:var(--accent); color:var(--surface);}
+
+.pill{font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; display:inline-block; white-space:nowrap;}
+.pill-muted{background:var(--surface-2); color:var(--muted);}
+.pill-accent{background:var(--accent-soft); color:var(--accent-deep);}
+.pill-warning{background:var(--warn-soft); color:var(--warn);}
+.pill-success{background:var(--ok-soft); color:var(--ok);}
+.pill-danger{background:var(--danger-soft); color:var(--danger);}
+
+.banner{
+  border-radius:var(--radius); padding:11px 14px; font-size:12.5px;
+  margin-bottom:18px; display:flex; gap:9px; align-items:flex-start;
+  background:var(--warn-soft); color:var(--warn); border:1px solid var(--warn);
+}
+.banner-info{background:var(--accent-soft); color:var(--accent-deep); border-color:var(--accent);}
+.banner svg{width:15px; height:15px; flex-shrink:0; margin-top:2px; stroke-width:2;}
+
+/* ---------- blocos ---------- */
+.panel{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); overflow:hidden;
+}
+.panel-head{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:15px 20px; background:transparent; border:none; cursor:pointer;
+  text-align:left; color:inherit;
+  transition:background .12s ease;
+}
+.panel-head:hover{background:var(--surface-2);}
+.panel-head h3{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+.panel-head .note{margin-left:auto; font-size:11.5px; color:var(--muted); white-space:nowrap;}
+.panel-caret{display:flex; color:var(--muted); flex-shrink:0; transition:transform .22s ease;}
+.panel-caret svg{width:15px; height:15px; stroke-width:2.2;}
+.panel.collapsed .panel-caret{transform:rotate(-90deg);}
+.panel-body{display:grid; grid-template-rows:1fr; transition:grid-template-rows .22s ease;}
+.panel.collapsed .panel-body{grid-template-rows:0fr;}
+.panel-body > .panel-inner{overflow:hidden; min-height:0;}
+.panel-inner > .panel-pad{padding:0 20px 18px;}
+.section-gap{display:flex; flex-direction:column; gap:18px;}
+
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+.kpi{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:15px 17px;}
+.kpi .k{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+.kpi .v{font-size:27px; font-weight:600; margin-top:5px; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; letter-spacing:-.02em;}
+.kpi .sub{font-size:11.5px; color:var(--muted); margin-top:2px;}
+.kpi.tone-danger{border-left:3px solid var(--danger);}
+.kpi.tone-danger .v{color:var(--danger);}
+.kpi.tone-accent{border-left:3px solid var(--accent);}
+.kpi.tone-ok{border-left:3px solid var(--ok);}
+.kpi.tone-ok .v{color:var(--ok);}
+
+.two-col{display:grid; grid-template-columns:1.25fr 1fr; gap:18px; align-items:start;}
+
+/* ---------- graficos ---------- */
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+.legend-item{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted);}
+.legend-swatch{width:10px; height:10px; border-radius:2px; flex-shrink:0;}
+.bar-row{display:grid; grid-template-columns:minmax(96px,auto) 1fr; gap:12px; align-items:center; margin-bottom:11px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-label{font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.bar-track{display:flex; align-items:center; gap:10px; min-width:0;}
+.bar{display:flex; height:16px; flex:1; min-width:0; background:var(--surface-2); border-radius:4px; overflow:hidden; gap:2px;}
+.bar-seg{height:100%; min-width:2px; transition:filter .12s;}
+.bar-seg:first-child{border-radius:4px 0 0 4px;}
+.bar-seg:last-child{border-radius:0 4px 4px 0;}
+.bar-seg:only-child{border-radius:4px;}
+.bar-seg:hover{filter:brightness(1.12);}
+.bar-value{font-size:12px; color:var(--ink-2); white-space:nowrap; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.chart-empty{font-size:12.5px; color:var(--muted); padding:8px 0;}
+
+#tooltip{
+  position:fixed; z-index:200; pointer-events:none; opacity:0;
+  background:var(--ink); color:var(--ground);
+  padding:6px 9px; border-radius:6px; font-size:12px; line-height:1.4;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.5); transition:opacity .1s;
+  max-width:240px;
+}
+#tooltip .tt-v{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+
+/* ---------- lista de pericias ---------- */
+.list{display:flex; flex-direction:column; gap:9px;}
+.case{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 17px; display:grid; gap:14px; align-items:center; cursor:pointer;
+  grid-template-columns:auto 1fr auto auto;
+  transition:border-color .12s;
+}
+.case:hover{border-color:var(--accent);}
+.case-code{font-size:11.5px; color:var(--accent-deep); background:var(--accent-soft); padding:4px 8px; border-radius:6px; font-weight:600; font-family:'IBM Plex Mono',monospace;}
+.case-title{min-width:0;}
+.case-name{font-weight:600; font-size:14.5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.case-meta{font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.case-prazo{text-align:right; white-space:nowrap;}
+.case-prazo .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.case-prazo .d{font-weight:600; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-size:13px;}
+.case-prazo.atrasada .d{color:var(--danger);}
+.case-prazo.proxima .d{color:var(--warn);}
+.case-right{display:flex; flex-direction:column; align-items:flex-end; gap:5px; white-space:nowrap;}
+.case-valor{font-size:12.5px; font-weight:600; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+
+.empty-state{text-align:center; padding:48px 20px; color:var(--muted);}
+.empty-state h3{color:var(--ink); margin-bottom:6px; font-size:15px;}
+.empty-state p{margin:0; font-size:13px;}
+
+/* ---------- tabelas / agenda / documentos ---------- */
+.group{margin-bottom:22px;}
+.group:last-child{margin-bottom:0;}
+.group-head{display:flex; align-items:center; gap:9px; margin-bottom:10px;}
+.group-head h4{font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+.group-rule{flex:1; height:1px; background:var(--line);}
+.rows{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+.row-item{
+  background:var(--surface); padding:11px 15px; display:grid; gap:12px; align-items:center;
+  grid-template-columns:1fr auto; cursor:pointer;
+}
+.row-item:hover{background:var(--surface-2);}
+.row-main{min-width:0;}
+.row-title{font-size:13.5px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.row-sub{font-size:12px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.row-side{display:flex; align-items:center; gap:10px; white-space:nowrap;}
+.row-date{font-size:12.5px; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; color:var(--ink-2);}
+.row-date.late{color:var(--danger); font-weight:600;}
+.row-date.soon{color:var(--warn); font-weight:600;}
+
+/* ---------- projudi ---------- */
+.svc{display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:start; padding:13px 0; border-bottom:1px solid var(--line);}
+.svc:last-child{border-bottom:none; padding-bottom:0;}
+.svc-code{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600;
+  background:var(--surface-2); color:var(--ink-2); padding:3px 8px; border-radius:6px; white-space:nowrap;
+}
+.svc-name{font-size:13.5px; font-weight:600;}
+.svc-desc{font-size:12.5px; color:var(--muted); margin-top:2px;}
+.svc-fields{font-size:11.5px; color:var(--muted); margin-top:5px; font-family:'IBM Plex Mono',monospace;}
+.consulta-form{display:flex; gap:9px; flex-wrap:wrap; align-items:center;}
+.consulta-form input{
+  flex:1 1 240px; padding:9px 12px; border-radius:8px; border:1px solid var(--line);
+  background:var(--ground); color:var(--ink); font-size:13.5px;
+  font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;
+}
+/* ---------- calculadoras ---------- */
+.form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:13px; margin-bottom:14px;}
+.field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.field label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.field input, .field select{
+  border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px;
+  background:var(--ground); color:var(--ink); font-family:inherit; width:100%;
+}
+.field input[inputmode="decimal"]{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.field .dica{font-size:10.5px; color:var(--muted);}
+.acoes{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.resumo-calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(152px,1fr)); gap:12px; margin:4px 0 14px;}
+.resumo-item{background:var(--ground); border:1px solid var(--line); border-radius:8px; padding:11px 13px;}
+.resumo-item.destaque{border-color:var(--accent); background:var(--accent-soft);}
+.resumo-item .k{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.resumo-item .v{font-size:17px; font-weight:600; margin-top:3px; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.tabela-wrap{overflow-x:auto; overflow-y:auto; max-height:420px; border:1px solid var(--line); border-radius:8px; margin-top:14px;}
+table.memoria{border-collapse:collapse; width:100%; font-size:12.5px;}
+table.memoria th{
+  position:sticky; top:0; z-index:1; background:var(--surface-2); text-align:right;
+  padding:8px 11px; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--muted); white-space:nowrap; font-weight:600;
+}
+table.memoria th:first-child, table.memoria td:first-child{text-align:left;}
+table.memoria td{
+  padding:7px 11px; text-align:right; border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+table.memoria tbody tr:hover{background:var(--surface-2);}
+table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong); background:var(--surface-2);}
+.calc-nota{font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.55;}
+.kv-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:13px;}
+.kv{min-width:0;}
+.kv .k{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.kv .v{font-size:13.5px; margin-top:2px; overflow-wrap:break-word;}
+
+/* ---------- gaveta (detalhe da pericia) ---------- */
+.drawer{
+  position:fixed; inset:0; background:var(--ground); z-index:60;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none; transform:scale(.995);
+  transition:opacity .16s ease, transform .16s ease;
+}
+.drawer.open{opacity:1; visibility:visible; pointer-events:auto; transform:scale(1);}
+.drawer-head{
+  padding:13px 24px; border-bottom:1px solid var(--line); background:var(--surface);
+  display:flex; align-items:center; gap:14px; flex-shrink:0; flex-wrap:wrap;
+}
+.back-btn{
+  background:transparent; border:1px solid var(--line); color:var(--ink-2); cursor:pointer;
+  font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;
+  padding:7px 11px; border-radius:8px; flex-shrink:0;
+}
+.back-btn:hover{background:var(--surface-2); color:var(--ink);}
+.back-btn svg{width:14px; height:14px; stroke-width:2.2;}
+.codigo-input{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--accent-deep);
+  background:var(--accent-soft); border:1px solid transparent; border-radius:6px;
+  padding:6px 9px; font-weight:600; width:150px; flex-shrink:0;
+}
+.nome-input{
+  font-size:18px; font-weight:600; border:1px solid transparent; background:transparent;
+  color:var(--ink); flex:1; padding:4px 6px; min-width:160px; border-radius:6px;
+  font-family:inherit; letter-spacing:-.011em;
+}
+.nome-input:hover, .codigo-input:hover{border-color:var(--line);}
+.drawer-body{flex:1; overflow-y:auto;}
+.meta-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:13px;
+  padding:18px 24px; border-bottom:1px solid var(--line); background:var(--surface);
+}
+.meta-item{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.meta-item label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.meta-item input, .meta-item select{
+  border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:13px;
+  background:var(--ground); color:var(--ink); font-family:inherit; width:100%;
+}
+.meta-item .readout{padding:7px 0; font-size:14px; font-weight:600; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.drawer-cols{display:grid; grid-template-columns:1.35fr 1fr; gap:0;}
+.col-pane{padding:20px 24px;}
+.col-docs{border-right:1px solid var(--line);}
+.sub{margin-bottom:22px;}
+.sub:last-child{margin-bottom:0;}
+.sub h4{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px;}
+.fase-group{border-left:2px solid var(--line); padding-left:14px; margin:0 0 16px 4px; position:relative;}
+.fase-group:before{content:''; position:absolute; left:-5px; top:3px; width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.fase-title{display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:600; font-size:12.5px; margin-bottom:8px;}
+.doc-item, .obs-item{
+  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px;
+  font-size:13px; display:flex; justify-content:space-between; gap:10px;
+  background:var(--surface); align-items:flex-start;
+}
+.doc-item .d-name{font-weight:600;}
+.doc-item .d-meta, .obs-item .o-date{font-size:11.5px; color:var(--muted); margin-top:3px;}
+.doc-item .d-actions{display:flex; gap:2px; flex-shrink:0;}
+.doc-item.editing{display:block;}
+.doc-item.has-file{cursor:pointer;}
+.doc-item.has-file:hover{border-color:var(--accent);}
+.add-row{display:flex; gap:8px; margin-top:7px;}
+.add-row input, .add-row select, .add-row textarea{
+  flex:1; border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px;
+  background:var(--ground); color:var(--ink); font-family:inherit; min-width:0;
+}
+.add-row .btn{flex:0 0 auto;}
+.hint{font-size:11.5px; color:var(--muted); margin-top:6px;}
+.import-box{border-top:1px solid var(--line); padding-top:13px; margin-top:8px;}
+.confirm-box{background:var(--danger-soft); border:1px solid var(--danger); border-radius:8px; padding:11px 13px; font-size:13px; color:var(--ink);}
+.confirm-box .row{display:flex; gap:8px; margin-top:9px;}
+
+/* ---------- visualizador ---------- */
+.viewer-overlay{
+  position:fixed; inset:0; background:rgba(10,14,18,.72); z-index:80;
+  display:flex; align-items:center; justify-content:center; padding:22px;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s;
+}
+.viewer-overlay.open{opacity:1; visibility:visible; pointer-events:auto;}
+.viewer-box{
+  background:var(--surface); border-radius:12px; width:min(900px,100%); height:min(88vh,100%);
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.6);
+}
+.viewer-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 17px; border-bottom:1px solid var(--line); flex-shrink:0;}
+.viewer-head .v-title{font-weight:600; font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.viewer-body{flex:1; overflow:auto; background:var(--ground); display:flex; align-items:center; justify-content:center;}
+.viewer-body iframe{width:100%; height:100%; border:none;}
+.viewer-body img{max-width:100%; max-height:100%; object-fit:contain;}
+.viewer-fallback{padding:40px; text-align:center; color:var(--muted); font-size:13px;}
+
+/* ---------- responsivo ---------- */
+.scrim{display:none;}
+@media (max-width:1040px){
+  .two-col{grid-template-columns:1fr;}
+  .kpis{grid-template-columns:repeat(2,1fr);}
+  .drawer-cols{grid-template-columns:1fr;}
+  .col-docs{border-right:none; border-bottom:1px solid var(--line);}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;}
+  .rail-toggle{display:none;}
+  body.rail{--sidebar-w:270px;}
+  body.rail .brand-text, body.rail .side-label, body.rail .account-text{display:block;}
+  body.rail .perito-info{display:flex;}
+  body.rail .nav-item > span{display:inline;}
+  body.rail .nav-badge{display:inline-block;}
+  body.rail #authBtn{display:inline-flex;}
+  body.rail .brand, body.rail .account, body.rail .perito-btn, body.rail .nav-item{justify-content:flex-start;}
+  body.rail .nav-item{padding:9px 10px;}
+  body.rail .perito-btn{padding:8px 9px;}
+  body.rail .sidebar{padding:20px 14px;}
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; width:270px; z-index:70;
+    transform:translateX(-100%); transition:transform .18s ease; height:100%;
+  }
+  body.nav-open .sidebar{transform:translateX(0);}
+  body.nav-open .scrim{display:block; position:fixed; inset:0; background:rgba(10,14,18,.45); z-index:65;}
+  .menu-btn{display:inline-flex;}
+  .topbar{padding:13px 16px;}
+  .content{padding:18px 16px 64px;}
+  .meta-grid, .col-pane, .drawer-head{padding-left:16px; padding-right:16px;}
+}
+@media (max-width:560px){
+  .kpis{grid-template-columns:1fr;}
+  .case{grid-template-columns:1fr; gap:9px;}
+  .case-prazo, .case-right{text-align:left; align-items:flex-start;}
+  .case-code{justify-self:start;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="scrim" onclick="toggleNav(false)"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">PC</div>
+      <div class="brand-text">
+        <div class="brand-name">Gerenciador de Perícias</div>
+        <div class="brand-sub">Perícia contábil</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="side-label">Perito responsável</div>
+      <div class="peritos" id="peritos"></div>
+    </div>
+
+    <div>
+      <div class="side-label">Navegação</div>
+      <nav class="nav" id="nav"></nav>
+    </div>
+
+    <div class="side-foot">
+      <div class="account">
+        <span class="account-dot" id="accountDot"></span>
+        <div class="account-text">
+          <div class="account-state" id="accountState">Armazenamento local</div>
+          <div class="account-mail" id="accountMail">Não conectado</div>
+        </div>
+      </div>
+      <div class="side-actions">
+        <button class="btn btn-ghost btn-sm" id="authBtn" style="flex:1; justify-content:center;" onclick="signInGoogle()">Entrar com Google</button>
+        <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro e escuro"></button>
+      </div>
+    </div>
+  </aside>
+
+  <button class="rail-toggle" id="railToggle" onclick="toggleRail()" title="Recolher a barra lateral" aria-label="Recolher a barra lateral"></button>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleNav(true)" aria-label="Abrir navegação">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h1 id="sectionTitle">Visão geral</h1>
+        <p id="sectionSub">Indicadores das perícias sob sua responsabilidade</p>
+      </div>
+      <div id="topbarActions"></div>
+    </header>
+
+    <main class="content">
+      <div id="banner"></div>
+      <div id="view"></div>
+    </main>
+  </div>
+</div>
+
+<div class="drawer" id="drawer"></div>
+
+<div class="viewer-overlay" id="viewerOverlay" onclick="if(event.target===this) closeViewer();">
+  <div class="viewer-box">
+    <div class="viewer-head">
+      <span class="v-title" id="viewerTitle"></span>
+      <button class="icon-btn" onclick="closeViewer()" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="viewer-body" id="viewerBody"></div>
+  </div>
+</div>
+
+<div id="tooltip" role="status"></div>
+
+<script>
+/* ==========================================================================
+   Constantes de domínio
+   ========================================================================== */
+const STATUS = {
+  aguardando_nomeacao: {label:'Aguardando nomeação', pill:'pill-muted',   final:false, ramp:'var(--r1)'},
+  aguardando_quesitos: {label:'Aguardando quesitos', pill:'pill-warning', final:false, ramp:'var(--r2)'},
+  em_andamento:        {label:'Em andamento',        pill:'pill-accent',  final:false, ramp:'var(--r3)'},
+  laudo_entregue:      {label:'Laudo entregue',      pill:'pill-success', final:true,  ramp:'var(--r4)'},
+  concluida:           {label:'Concluída',           pill:'pill-success', final:true,  ramp:'var(--r5)'},
+};
+const DOC_TYPES = ['Despacho','Laudo Pericial','Quesitos','Procuração','Comprovante de Pagamento','Ofício','Ata de Audiência','Manifestação','Decisão/Sentença','Memória de Cálculo','Outro'];
+
+/* Séries do Banco Central usadas na correção monetária (api.bcb.gov.br, consulta pública) */
+const INDICES = {
+  ipca:  {cod:433,  nome:'IPCA (IBGE)',            nota:'variação mensal'},
+  ipcaE: {cod:7478, nome:'IPCA-E (IPCA-15)',       nota:'variação mensal'},
+  inpc:  {cod:188,  nome:'INPC (IBGE)',            nota:'variação mensal'},
+  igpm:  {cod:189,  nome:'IGP-M (FGV)',            nota:'variação mensal'},
+  tr:    {cod:226,  nome:'TR (Banco Central)',     nota:'acumulada por período'},
+  selic: {cod:4390, nome:'Selic acumulada no mês', nota:'já engloba juros de mora'},
+};
+const STATUS_PROCESSO = {
+  em_tramitacao:  {label:'Em tramitação'},
+  suspenso:       {label:'Suspenso'},
+  sobrestado:     {label:'Sobrestado'},
+  aguardando_julgamento: {label:'Aguardando julgamento'},
+  baixado:        {label:'Baixado para cumprimento'},
+  arquivado:      {label:'Arquivado'},
+  transitado:     {label:'Transitado em julgado'},
+  extinto:        {label:'Extinto'},
+};
+const CONTADORES = {
+  jonatas: {label:'Jonatas Miranda', initials:'JM', color:'var(--accent)', soft:'var(--accent-soft)'},
+  rodrigo: {label:'Rodrigo Miranda', initials:'RM', color:'var(--violet)', soft:'var(--violet-soft)'},
+};
+const SUGGESTED_FASES = ['Despacho de Nomeação','Quesitos das Partes','Perícia em Campo / Diligência','Laudo Pericial','Manifestação das Partes','Impugnação','Decisão / Sentença'];
+const MAX_EMBED_BYTES = 5 * 1024 * 1024;
+
+const KEYWORD_MAP = [
+  {re:/despacho/, tipo:'Despacho', fase:'Despacho'},
+  {re:/laudo/, tipo:'Laudo Pericial', fase:'Laudo Pericial'},
+  {re:/quesito/, tipo:'Quesitos', fase:'Quesitos das Partes'},
+  {re:/procuracao/, tipo:'Procuração', fase:null},
+  {re:/comprovante/, tipo:'Comprovante de Pagamento', fase:null},
+  {re:/oficio/, tipo:'Ofício', fase:null},
+  {re:/\bata\b/, tipo:'Ata de Audiência', fase:'Ata de Audiência'},
+  {re:/manifestacao|impugnacao/, tipo:'Manifestação', fase:'Manifestação das Partes'},
+  {re:/sentenca|decisao/, tipo:'Decisão/Sentença', fase:'Decisão / Sentença'},
+];
+
+/* Serviços públicos do Projudi (TJGO) que este app consome.
+   A consulta passa por uma função no Firebase porque o servidor do TJGO
+   não envia cabeçalhos CORS — o navegador não pode chamá-lo diretamente. */
+const PROJUDI_ENDPOINT = '';
+const PROJUDI_SERVICOS = [
+  {codigo:'74', nome:'Listar Dados de Processo', pagina:'PaginaAtual=2',
+   desc:'Ponto de entrada: recebe o número do processo e devolve a identificação interna que libera as demais consultas.',
+   campos:'classe · vara · comarca · partes · valor da causa · data de distribuição · fase · segredo de justiça',
+   uso:'em uso'},
+  {codigo:'75', nome:'Listar Movimentações de Processo', pagina:'PaginaAtual=3',
+   desc:'Andamento completo do processo, do mais antigo ao mais recente.',
+   campos:'descrição · complemento · data de realização · usuário responsável',
+   uso:'em uso'},
+  {codigo:'76', nome:'Listar Pendências de Processo', pagina:'PaginaAtual=4',
+   desc:'O que está em aberto: prazos correndo, conclusões e audiências designadas.',
+   campos:'tipo · responsável · data limite · audiências agendadas · status',
+   uso:'em uso'},
+  {codigo:'77', nome:'Listar Responsáveis de Processo', pagina:'PaginaAtual=6',
+   desc:'Magistrado responsável e advogados habilitados nos autos.',
+   campos:'cargo · nome · serventia · advogados com OAB',
+   uso:'disponível'},
+];
+
+const SECTIONS = [
+  {id:'visao',    titulo:'Visão geral',   sub:'Indicadores das perícias sob sua responsabilidade'},
+  {id:'pericias', titulo:'Perícias',      sub:'Todas as perícias, com busca e filtros'},
+  {id:'prazos',   titulo:'Agenda de prazos', sub:'Entregas ordenadas por urgência'},
+  {id:'calculos', titulo:'Cálculos',      sub:'Ferramentas periciais com memória de cálculo auditável'},
+  {id:'proposta', titulo:'Proposta de honorários', sub:'Preenche o seu modelo com os dados da perícia escolhida'},
+  {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
+  {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
+  {id:'config',   titulo:'Configurações', sub:'Conta, sincronização e limites de armazenamento'},
+];
+
+const ICONS = {
+  visao:'<path d="M3 13h5v8H3zM10 3h5v18h-5zM17 9h4v12h-4z"/>',
+  pericias:'<path d="M4 4h11l5 5v11a1 1 0 01-1 1H5a1 1 0 01-1-1z"/><path d="M14 4v6h6"/>',
+  prazos:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  calculos:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M8 16h2M14 12h2M14 16h2"/>',
+  proposta:'<path d="M15 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  docs:'<path d="M7 3h7l5 5v13H7z"/><path d="M13 3v6h6M10 13h7M10 17h5"/>',
+  projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
+  config:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
+};
+
+function seedData(){
+  return [
+    {id:'seed-1', contador:'jonatas', codigo:'PER-2026-014', nome:'Divórcio Litigioso — Partilha de Bens', numeroProcesso:'0812345-67.2025.8.26.0100', codigoAcesso:'JF7K92QX', statusProcesso:'em_tramitacao', vara:'3ª Vara de Família', comarca:'São Paulo/SP', partes:'Rocha x Almeida', dataNomeacao:'2026-06-02', prazoEntrega:'2026-09-25', honorarios:8500, valorRecebido:4250, statusCaso:'em_andamento',
+      documentos:[
+        {id:'d1', nome:'Procuração', tipo:'Procuração', fase:'Habilitação das Partes', data:'2026-06-10', obs:''},
+        {id:'d2', nome:'Quesitos do juízo', tipo:'Quesitos', fase:'Quesitos das Partes', data:'2026-07-01', obs:'Recebidos via DJE'}
+      ],
+      observacoes:[{id:'o1',data:'2026-07-15',texto:'Aguardando resposta do banco sobre extratos societários solicitados por ofício.'}]},
+    {id:'seed-2', contador:'rodrigo', codigo:'PER-2026-009', nome:'Apuração de Haveres — Dissolução Societária', numeroProcesso:'1002233-11.2024.8.26.0224', codigoAcesso:'RN4T18BZ', statusProcesso:'transitado', vara:'2ª Vara Empresarial', comarca:'Guarulhos/SP', partes:'Ferraz x Nogueira', dataNomeacao:'2026-03-14', prazoEntrega:'2026-08-20', honorarios:14000, valorRecebido:14000, statusCaso:'concluida',
+      documentos:[
+        {id:'d3', nome:'Laudo Pericial Contábil', tipo:'Laudo Pericial', fase:'Laudo Pericial', data:'2026-08-18', obs:'Protocolado nos autos'}
+      ],
+      observacoes:[{id:'o2',data:'2026-08-19',texto:'Levantamento concluído; honorários integralmente recebidos.'}]},
+    {id:'seed-3', contador:'jonatas', codigo:'PER-2026-002', nome:'Revisão de Cálculos Trabalhistas — Execução', numeroProcesso:'0045566-90.2023.5.02.0031', codigoAcesso:'', statusProcesso:'suspenso', vara:'31ª Vara do Trabalho', comarca:'São Paulo/SP', partes:'Souza x Transportes Vale Ltda', dataNomeacao:'2025-11-20', prazoEntrega:'2026-08-30', honorarios:6200, valorRecebido:0, statusCaso:'aguardando_quesitos',
+      documentos:[
+        {id:'d5', nome:'Despacho — quesitos suplementares', tipo:'Despacho', fase:'Despacho de Quesitos Suplementares', data:'2026-06-01', obs:''}
+      ],
+      observacoes:[{id:'o3',data:'2026-06-02',texto:'Partes intimadas para apresentação de quesitos suplementares.'}]},
+    {id:'seed-4', contador:'rodrigo', codigo:'PER-2026-021', nome:'Prestação de Contas — Espólio', numeroProcesso:'0678812-45.2025.8.26.0577', codigoAcesso:'', statusProcesso:'em_tramitacao', vara:'1ª Vara de Sucessões', comarca:'São José dos Campos/SP', partes:'Espólio Martins x Herdeiros', dataNomeacao:'2026-08-01', prazoEntrega:'2026-11-30', honorarios:9800, valorRecebido:0, statusCaso:'aguardando_nomeacao',
+      documentos:[],
+      observacoes:[{id:'o4',data:'2026-08-05',texto:'Nomeação publicada no DJE; aguardando decurso do prazo recursal das partes.'}]},
+  ];
+}
+
+/* ==========================================================================
+   Estado
+   ========================================================================== */
+let casos = seedData();
+let db = null, usingDb = false, usingLocalStorage = false;
+const LS_CASOS_KEY = 'pericias.casos.v1';
+
+let activeContador = (function(){
+  try{ const saved = localStorage.getItem('pericias.activeContador'); if(saved && CONTADORES[saved]) return saved; }catch(e){}
+  return 'jonatas';
+})();
+let activeSection = (function(){
+  try{ const s = localStorage.getItem('pericias.section'); if(s && SECTIONS.some(x=>x.id===s)) return s; }catch(e){}
+  return 'visao';
+})();
+let activeFilter = 'todas';
+let searchQuery = '';
+let docFiltroTipo = 'todos';
+let docQuery = '';
+let drawerCasoId = null;
+let editingDocId = null;
+let currentDocsUnsub = null;
+let projudiResultado = null;
+let projudiEstado = '';
+
+/* ==========================================================================
+   Utilitários
+   ========================================================================== */
+const fmtMoney = v => (v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-BR') : '—';
+const todayIso = () => new Date().toISOString().slice(0,10);
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function normalizeText(s){ return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+function extOf(filename){ const m = filename.match(/\.([a-zA-Z0-9]+)$/); return m ? m[1].toLowerCase() : ''; }
+function mimeFor(ext){
+  const map = {pdf:'application/pdf', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp',
+    doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls:'application/vnd.ms-excel', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    txt:'text/plain', csv:'text/csv', zip:'application/zip'};
+  return map[ext] || 'application/octet-stream';
+}
+function fmtBytes(n){
+  if(!n) return '';
+  if(n < 1024) return n+' B';
+  if(n < 1024*1024) return (n/1024).toFixed(1)+' KB';
+  return (n/1024/1024).toFixed(1)+' MB';
+}
+function bytesToBase64(bytes){
+  let binary=''; const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){ binary += String.fromCharCode.apply(null, bytes.subarray(i,i+chunk)); }
+  return btoa(binary);
+}
+function base64ToBytes(base64){
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+function guessFromFilename(filename){
+  const norm = normalizeText(filename);
+  for(const k of KEYWORD_MAP){ if(k.re.test(norm)) return {tipo:k.tipo, fase:k.fase}; }
+  return {tipo:'Outro', fase:null};
+}
+function cleanFolderName(folder){
+  if(!folder) return null;
+  const cleaned = folder.replace(/^[\d]+[\s\-_.]+/,'').replace(/[_]+/g,' ').trim();
+  return cleaned || folder;
+}
+function guessDateFromFilename(filename){
+  let m;
+  if((m = filename.match(/(\d{4})[-_.](\d{2})[-_.](\d{2})/))) return `${m[1]}-${m[2]}-${m[3]}`;
+  if((m = filename.match(/(\d{2})[-_.](\d{2})[-_.](\d{4})/))) return `${m[3]}-${m[2]}-${m[1]}`;
+  if((m = filename.match(/(?:^|[^\d])(\d{8})(?:[^\d]|$)/))){
+    const s = m[1], y = s.slice(0,4);
+    if(y >= '1990' && y <= '2100') return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+  }
+  return null;
+}
+function guessProcessoFromFilename(filename){
+  let m = filename.match(/(\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4})/);
+  if(m) return m[1];
+  m = filename.match(/(?:^|[^\d])(\d{20})(?:[^\d]|$)/);
+  if(m){
+    const s = m[1];
+    return `${s.slice(0,7)}-${s.slice(7,9)}.${s.slice(9,13)}.${s.slice(13,14)}.${s.slice(14,16)}.${s.slice(16,20)}`;
+  }
+  return null;
+}
+function isoFromDate(d){ try{ return d.toISOString().slice(0,10); }catch(e){ return todayIso(); } }
+function mimeFromDataUrl(dataUrl){
+  const m = dataUrl && dataUrl.match(/^data:([^;]+);/);
+  return m ? m[1] : 'application/octet-stream';
+}
+function arquivoSrc(arquivo){ return arquivo.url || arquivo.dataUrl; }
+function arquivoMime(arquivo){ return arquivo.mime || mimeFromDataUrl(arquivo.dataUrl); }
+function guessCodigoAcessoFromText(text){
+  const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,20})/i);
+  return m ? m[1].toUpperCase() : null;
+}
+function svg(path, extra){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" ${extra||''}>${path}</svg>`;
+}
+function diasAte(iso){
+  if(!iso) return null;
+  return Math.round((new Date(iso+'T00:00:00') - new Date(todayIso()+'T00:00:00')) / 86400000);
+}
+function prazoState(caso){
+  const meta = STATUS[caso.statusCaso];
+  if(meta && meta.final) return 'ok';
+  const diff = diasAte(caso.prazoEntrega);
+  if(diff === null) return 'ok';
+  if(diff < 0) return 'atrasada';
+  if(diff <= 7) return 'proxima';
+  return 'ok';
+}
+function pillForTipo(tipo){
+  const map = {'Despacho':'pill-accent','Laudo Pericial':'pill-success','Decisão/Sentença':'pill-success','Quesitos':'pill-warning','Manifestação':'pill-warning'};
+  return map[tipo] || 'pill-muted';
+}
+
+let pdfJsReady = false;
+function ensurePdfJs(){
+  if(typeof pdfjsLib === 'undefined') return false;
+  if(!pdfJsReady){
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      pdfJsReady = true;
+    }catch(e){ return false; }
+  }
+  return true;
+}
+async function extractPdfInfo(bytes){
+  const result = {processo:null, codigoAcesso:null};
+  if(!ensurePdfJs()) return result;
+  try{
+    const doc = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+    let text = '';
+    const maxPages = Math.min(doc.numPages, 3);
+    for(let i=1; i<=maxPages; i++){
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text += ' ' + content.items.map(it => it.str).join(' ');
+      if(text.length > 20000) break;
+    }
+    result.processo = guessProcessoFromFilename(text);
+    result.codigoAcesso = guessCodigoAcessoFromText(text);
+  }catch(e){ /* PDF sem camada de texto, corrompido ou leitor indisponível */ }
+  return result;
+}
+
+/* ==========================================================================
+   Seleção e filtros
+   ========================================================================== */
+function matchesQuery(c, q){
+  if(!q) return true;
+  const hay = [c.codigo, c.nome, c.numeroProcesso, c.comarca, c.vara, c.partes].join(' ').toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+function matchesFilter(c, f){
+  if(f === 'todas') return true;
+  if(f === 'ativas') return !STATUS[c.statusCaso].final;
+  if(f === 'atrasadas') return prazoState(c) === 'atrasada';
+  if(f === 'concluidas') return STATUS[c.statusCaso].final;
+  return true;
+}
+function casosDoContador(contador){
+  contador = contador || activeContador;
+  return casos.filter(c => c.contador === contador);
+}
+function visibleCasos(){
+  return casosDoContador()
+    .filter(c => matchesFilter(c, activeFilter) && matchesQuery(c, searchQuery))
+    .sort((a,b) => (a.prazoEntrega||'').localeCompare(b.prazoEntrega||''));
+}
+function todosDocumentos(){
+  const out = [];
+  casosDoContador().forEach(c => {
+    (c.documentos||[]).forEach(d => out.push({...d, caso:c}));
+  });
+  return out.sort((a,b) => (b.data||'').localeCompare(a.data||''));
+}
+
+/* ==========================================================================
+   Navegação, tema e chrome
+   ========================================================================== */
+function toggleNav(open){
+  document.body.classList.toggle('nav-open', open);
+}
+
+/* barra lateral recolhida em faixa de ícones */
+let railAtivo = (function(){
+  try{ return localStorage.getItem('pericias.rail') === '1'; }catch(e){ return false; }
+})();
+function aplicarRail(){
+  document.body.classList.toggle('rail', railAtivo);
+  const b = document.getElementById('railToggle');
+  if(b){
+    const texto = railAtivo ? 'Expandir a barra lateral' : 'Recolher a barra lateral';
+    b.setAttribute('aria-label', texto);
+    b.setAttribute('title', texto);
+  }
+}
+function toggleRail(){
+  railAtivo = !railAtivo;
+  try{ localStorage.setItem('pericias.rail', railAtivo ? '1' : '0'); }catch(e){}
+  aplicarRail();
+}
+
+/* painéis que abrem e fecham, com a escolha lembrada */
+let panelsFechados = (function(){
+  try{
+    const raw = localStorage.getItem('pericias.panels');
+    if(raw){ const arr = JSON.parse(raw); if(Array.isArray(arr)) return new Set(arr); }
+  }catch(e){}
+  return new Set();
+})();
+function togglePanel(id){
+  if(panelsFechados.has(id)) panelsFechados.delete(id);
+  else panelsFechados.add(id);
+  try{ localStorage.setItem('pericias.panels', JSON.stringify([...panelsFechados])); }catch(e){}
+  const el = document.querySelector('[data-panel="'+id+'"]');
+  if(el){
+    const fechado = panelsFechados.has(id);
+    el.classList.toggle('collapsed', fechado);
+    const btn = el.querySelector('.panel-head');
+    if(btn) btn.setAttribute('aria-expanded', String(!fechado));
+  }
+}
+function panel(id, titulo, nota, corpo){
+  const fechado = panelsFechados.has(id);
+  return `
+    <section class="panel ${fechado ? 'collapsed' : ''}" data-panel="${id}">
+      <button class="panel-head" onclick="togglePanel('${id}')" aria-expanded="${!fechado}" aria-controls="pb-${id}">
+        <span class="panel-caret">${svg('<path d="M6 9l6 6 6-6"/>')}</span>
+        <h3>${titulo}</h3>
+        ${nota ? `<span class="note">${nota}</span>` : ''}
+      </button>
+      <div class="panel-body" id="pb-${id}"><div class="panel-inner"><div class="panel-pad">${corpo}</div></div></div>
+    </section>`;
+}
+function setSection(id){
+  activeSection = id;
+  try{ localStorage.setItem('pericias.section', id); }catch(e){}
+  toggleNav(false);
+  renderAll();
+  window.scrollTo({top:0});
+}
+function setContador(key){
+  if(!CONTADORES[key] || key === activeContador) return;
+  activeContador = key;
+  activeFilter = 'todas';
+  searchQuery = '';
+  try{ localStorage.setItem('pericias.activeContador', key); }catch(e){}
+  renderAll();
+}
+function currentTheme(){
+  const stamped = document.documentElement.getAttribute('data-theme');
+  if(stamped) return stamped;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function toggleTheme(){
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem('pericias.theme', next); }catch(e){}
+  renderThemeButton();
+}
+function renderThemeButton(){
+  const btn = document.getElementById('themeBtn');
+  if(!btn) return;
+  const dark = currentTheme() === 'dark';
+  btn.innerHTML = dark
+    ? svg('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.4 5.6l-1.4 1.4M7 17l-1.4 1.4M18.4 18.4L17 17M7 7L5.6 5.6"/>')
+    : svg('<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>');
+  btn.setAttribute('title', dark ? 'Mudar para tema claro' : 'Mudar para tema escuro');
+}
+(function initTheme(){
+  try{
+    const saved = localStorage.getItem('pericias.theme');
+    if(saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+  }catch(e){}
+})();
+
+function renderPeritos(){
+  document.getElementById('peritos').innerHTML = Object.entries(CONTADORES).map(([key, meta]) => {
+    const count = casosDoContador(key).length;
+    return `
+      <button class="perito-btn ${activeContador===key?'active':''}" style="--pcolor:${meta.color}; --pcolor-soft:${meta.soft};" onclick="setContador('${key}')" title="${meta.label} — ${count} perícia${count===1?'':'s'}">
+        <span class="perito-avatar">${meta.initials}</span>
+        <span class="perito-info">
+          <span class="perito-name">${meta.label}</span>
+          <span class="perito-count">${count} perícia${count===1?'':'s'}</span>
+        </span>
+      </button>`;
+  }).join('');
+}
+
+function renderNav(){
+  const base = casosDoContador();
+  const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
+  const badges = {
+    pericias: base.length ? `<span class="nav-badge">${base.length}</span>` : '',
+    prazos: atrasadas ? `<span class="nav-badge alert">${atrasadas}</span>` : '',
+    docs: (() => { const n = todosDocumentos().length; return n ? `<span class="nav-badge">${n}</span>` : ''; })(),
+  };
+  document.getElementById('nav').innerHTML = SECTIONS.map(s => `
+    <button class="nav-item ${activeSection===s.id?'active':''}" onclick="setSection('${s.id}')" title="${s.titulo}">
+      ${svg(ICONS[s.id])}
+      <span>${s.titulo}</span>
+      ${badges[s.id] || ''}
+    </button>`).join('');
+}
+
+function renderTopbar(){
+  const sec = SECTIONS.find(s => s.id === activeSection) || SECTIONS[0];
+  document.getElementById('sectionTitle').textContent = sec.titulo;
+  document.getElementById('sectionSub').textContent = sec.sub;
+  const actions = document.getElementById('topbarActions');
+  if(activeSection === 'pericias' || activeSection === 'visao'){
+    actions.innerHTML = `<button class="btn btn-primary" onclick="novaPericia()">${svg('<path d="M12 5v14M5 12h14"/>')} Nova perícia</button>`;
+  } else {
+    actions.innerHTML = '';
+  }
+}
+
+function renderAccount(){
+  const dot = document.getElementById('accountDot');
+  const state = document.getElementById('accountState');
+  const mail = document.getElementById('accountMail');
+  const btn = document.getElementById('authBtn');
+  if(!dot) return;
+  if(currentUser){
+    dot.classList.add('on');
+    state.textContent = 'Sincronizado na nuvem';
+    mail.textContent = currentUser.email;
+    btn.textContent = 'Sair';
+    btn.onclick = signOutGoogle;
+  } else {
+    dot.classList.remove('on');
+    state.textContent = 'Armazenamento local';
+    mail.textContent = 'Não conectado';
+    btn.textContent = 'Entrar com Google';
+    btn.onclick = signInGoogle;
+  }
+}
+function updateAuthButton(){ renderAccount(); }
+
+/* ==========================================================================
+   Tooltip dos gráficos
+   ========================================================================== */
+const tooltipEl = () => document.getElementById('tooltip');
+function showTip(evt, html){
+  const t = tooltipEl();
+  t.innerHTML = html;
+  t.style.opacity = '1';
+  moveTip(evt);
+}
+function moveTip(evt){
+  const t = tooltipEl();
+  const pad = 14;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  const r = t.getBoundingClientRect();
+  if(x + r.width > window.innerWidth - 8) x = evt.clientX - r.width - pad;
+  if(y + r.height > window.innerHeight - 8) y = evt.clientY - r.height - pad;
+  t.style.left = x + 'px';
+  t.style.top = y + 'px';
+}
+function hideTip(){ tooltipEl().style.opacity = '0'; }
+
+/* ==========================================================================
+   Seção: visão geral
+   ========================================================================== */
+function chartHonorarios(base){
+  const linhas = Object.entries(CONTADORES).map(([key, meta]) => {
+    const list = casos.filter(c => c.contador === key);
+    const recebido = list.reduce((s,c) => s + (c.valorRecebido||0), 0);
+    const aReceber = list.reduce((s,c) => s + Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)), 0);
+    return {nome: meta.label, recebido, aReceber, total: recebido + aReceber};
+  }).filter(l => l.total > 0);
+
+  if(linhas.length === 0) return `<div class="chart-empty">Nenhum honorário lançado ainda.</div>`;
+  const max = Math.max(...linhas.map(l => l.total));
+
+  return `
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s1)"></span>Recebido</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s2)"></span>A receber</span>
+    </div>
+    ${linhas.map(l => {
+      const wR = max ? (l.recebido / max) * 100 : 0;
+      const wA = max ? (l.aReceber / max) * 100 : 0;
+      return `
+      <div class="bar-row">
+        <span class="bar-label">${escapeHtml(l.nome)}</span>
+        <span class="bar-track">
+          <span class="bar">
+            ${l.recebido > 0 ? `<span class="bar-seg" style="width:${wR}%; background:var(--s1)"
+              onmousemove="showTip(event, 'Recebido<br><span class=\\'tt-v\\'>${fmtMoney(l.recebido)}</span>')" onmouseleave="hideTip()"></span>` : ''}
+            ${l.aReceber > 0 ? `<span class="bar-seg" style="width:${wA}%; background:var(--s2)"
+              onmousemove="showTip(event, 'A receber<br><span class=\\'tt-v\\'>${fmtMoney(l.aReceber)}</span>')" onmouseleave="hideTip()"></span>` : ''}
+          </span>
+          <span class="bar-value">${fmtMoney(l.total)}</span>
+        </span>
+      </div>`;
+    }).join('')}`;
+}
+
+function chartStatus(base){
+  const counts = Object.entries(STATUS).map(([key, meta]) => ({
+    key, label: meta.label, ramp: meta.ramp,
+    n: base.filter(c => c.statusCaso === key).length
+  }));
+  const total = counts.reduce((s,c) => s + c.n, 0);
+  if(total === 0) return `<div class="chart-empty">Nenhuma perícia cadastrada para este perito.</div>`;
+  const max = Math.max(...counts.map(c => c.n));
+  return counts.map(c => `
+    <div class="bar-row">
+      <span class="bar-label">${c.label}</span>
+      <span class="bar-track">
+        <span class="bar">
+          ${c.n > 0 ? `<span class="bar-seg" style="width:${(c.n/max)*100}%; background:${c.ramp}"
+            onmousemove="showTip(event, '${c.label}<br><span class=\\'tt-v\\'>${c.n} de ${total}</span>')" onmouseleave="hideTip()"></span>` : ''}
+        </span>
+        <span class="bar-value">${c.n}</span>
+      </span>
+    </div>`).join('');
+}
+
+function renderVisao(){
+  const base = casosDoContador();
+  const ativas = base.filter(c => !STATUS[c.statusCaso].final).length;
+  const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
+  const aReceber = base.reduce((s,c) => s + Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)), 0);
+  const recebido = base.reduce((s,c) => s + (c.valorRecebido||0), 0);
+  const concluidas = base.filter(c => STATUS[c.statusCaso].final).length;
+  const totalHon = aReceber + recebido;
+  const pctRecebido = totalHon ? Math.round((recebido/totalHon)*100) : 0;
+
+  const proximos = base
+    .filter(c => !STATUS[c.statusCaso].final && c.prazoEntrega)
+    .sort((a,b) => a.prazoEntrega.localeCompare(b.prazoEntrega))
+    .slice(0,5);
+
+  return `
+    <div class="section-gap">
+      <div class="kpis">
+        <div class="kpi tone-accent">
+          <div class="k">Em andamento</div>
+          <div class="v">${ativas}</div>
+          <div class="sub">de ${base.length} perícia${base.length===1?'':'s'}</div>
+        </div>
+        <div class="kpi ${atrasadas ? 'tone-danger' : ''}">
+          <div class="k">Prazos atrasados</div>
+          <div class="v">${atrasadas}</div>
+          <div class="sub">${atrasadas ? 'exigem atenção imediata' : 'nenhum prazo vencido'}</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Honorários a receber</div>
+          <div class="v">${fmtMoney(aReceber)}</div>
+          <div class="sub">${pctRecebido}% do total já recebido</div>
+        </div>
+        <div class="kpi tone-ok">
+          <div class="k">Concluídas</div>
+          <div class="v">${concluidas}</div>
+          <div class="sub">laudo entregue ou encerrada</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        ${panel('honorarios', 'Honorários por perito', 'os dois peritos, acumulado', chartHonorarios(base))}
+        ${panel('status', 'Distribuição por status', `${base.length} perícia${base.length===1?'':'s'}`, chartStatus(base))}
+      </div>
+
+      ${panel('entregas', 'Próximas entregas', 'perícias não concluídas',
+        proximos.length === 0
+          ? `<div class="chart-empty">Nenhuma entrega pendente.</div>`
+          : `<div class="rows">${proximos.map(c => rowPrazo(c)).join('')}</div>`)}
+    </div>`;
+}
+
+/* ==========================================================================
+   Seção: perícias
+   ========================================================================== */
+function renderPericias(){
+  const items = visibleCasos();
+  const chips = [['todas','Todas'], ['ativas','Ativas'], ['atrasadas','Atrasadas'], ['concluidas','Concluídas']];
+  const resumo = searchQuery ? resumoBusca() : '';
+  return `
+    <div class="section-gap">
+      <div class="topbar-tools" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <div class="search">
+          ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
+          <input id="searchInput" type="text" value="${escapeHtml(searchQuery)}" placeholder="Buscar por código, nome, processo, comarca ou partes" oninput="onSearch()">
+        </div>
+        <div class="chips">
+          ${chips.map(([k,label]) => `<button class="chip ${activeFilter===k?'active':''}" onclick="setFilter('${k}')">${label}</button>`).join('')}
+        </div>
+      </div>
+      ${resumo}
+      ${items.length === 0
+        ? `<div class="empty-state"><h3>Nenhuma perícia aqui</h3><p>Ajuste os filtros ou crie uma nova perícia.</p></div>`
+        : `<div class="list">${items.map(c => cardCaso(c)).join('')}</div>`}
+    </div>`;
+}
+
+function resumoBusca(){
+  const matches = casosDoContador().filter(c => matchesQuery(c, searchQuery));
+  if(matches.length === 0){
+    return panel('resumo', 'Resumo da busca', `"${escapeHtml(searchQuery)}"`,
+      `<div class="chart-empty">Nenhuma perícia encontrada para "${escapeHtml(searchQuery)}".</div>`);
+  }
+  const totalHonorarios = matches.reduce((s,c)=>s+(c.honorarios||0),0);
+  const totalAReceber = matches.reduce((s,c)=>s+Math.max(0,(c.honorarios||0)-(c.valorRecebido||0)),0);
+  const atrasadasN = matches.filter(c=>prazoState(c)==='atrasada').length;
+  return panel('resumo', 'Resumo da busca', `"${escapeHtml(searchQuery)}"`, `
+      <div class="kv-grid">
+        <div class="kv"><div class="k">Encontradas</div><div class="v num">${matches.length}</div></div>
+        <div class="kv"><div class="k">Honorários (total)</div><div class="v num">${fmtMoney(totalHonorarios)}</div></div>
+        <div class="kv"><div class="k">A receber</div><div class="v num">${fmtMoney(totalAReceber)}</div></div>
+        <div class="kv"><div class="k">Com prazo atrasado</div><div class="v num">${atrasadasN}</div></div>
+      </div>`);
+}
+
+function cardCaso(c){
+  const st = prazoState(c);
+  const saldo = Math.max(0,(c.honorarios||0)-(c.valorRecebido||0));
+  return `
+    <div class="case" onclick="openDrawer('${c.id}')">
+      <span class="case-code">${escapeHtml(c.codigo)}</span>
+      <div class="case-title">
+        <div class="case-name">${escapeHtml(c.nome)}</div>
+        <div class="case-meta">${escapeHtml(c.partes)} · ${escapeHtml(c.comarca)}${c.statusProcesso && STATUS_PROCESSO[c.statusProcesso] ? ' · '+STATUS_PROCESSO[c.statusProcesso].label : ''}</div>
+      </div>
+      <div class="case-prazo ${st}">
+        <div class="lbl">Prazo</div>
+        <div class="d">${fmtDate(c.prazoEntrega)}</div>
+      </div>
+      <div class="case-right">
+        <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}${st==='atrasada' ? ' · atrasada' : ''}</span>
+        <span class="case-valor">${saldo>0 ? fmtMoney(saldo)+' a receber' : 'pago'}</span>
+      </div>
+    </div>`;
+}
+
+function setFilter(f){ activeFilter = f; renderAll(); }
+function onSearch(){
+  const el = document.getElementById('searchInput');
+  searchQuery = el.value.trim();
+  const pos = el.selectionStart;
+  renderAll();
+  const novo = document.getElementById('searchInput');
+  if(novo){ novo.focus(); try{ novo.setSelectionRange(pos,pos); }catch(e){} }
+}
+
+/* ==========================================================================
+   Seção: agenda de prazos
+   ========================================================================== */
+function rowPrazo(c){
+  const dias = diasAte(c.prazoEntrega);
+  const st = prazoState(c);
+  const cls = st === 'atrasada' ? 'late' : (st === 'proxima' ? 'soon' : '');
+  let quando;
+  if(dias === null) quando = '';
+  else if(dias < 0) quando = `${Math.abs(dias)} dia${Math.abs(dias)===1?'':'s'} em atraso`;
+  else if(dias === 0) quando = 'vence hoje';
+  else quando = `em ${dias} dia${dias===1?'':'s'}`;
+  return `
+    <div class="row-item" onclick="openDrawer('${c.id}')">
+      <div class="row-main">
+        <div class="row-title">${escapeHtml(c.nome)}</div>
+        <div class="row-sub"><span class="mono">${escapeHtml(c.codigo)}</span> · ${escapeHtml(c.partes)} · ${escapeHtml(c.vara||'vara não informada')}</div>
+      </div>
+      <div class="row-side">
+        <span class="pill ${STATUS[c.statusCaso].pill}">${STATUS[c.statusCaso].label}</span>
+        <span class="row-date ${cls}" title="${quando}">${fmtDate(c.prazoEntrega)}</span>
+      </div>
+    </div>`;
+}
+
+function renderPrazos(){
+  const base = casosDoContador().filter(c => c.prazoEntrega);
+  const pend = base.filter(c => !STATUS[c.statusCaso].final).sort((a,b) => a.prazoEntrega.localeCompare(b.prazoEntrega));
+  const concl = base.filter(c => STATUS[c.statusCaso].final).sort((a,b) => b.prazoEntrega.localeCompare(a.prazoEntrega));
+
+  const grupos = [
+    {titulo:'Atrasados', teste: c => diasAte(c.prazoEntrega) < 0, vazio:'Nenhum prazo vencido.'},
+    {titulo:'Próximos sete dias', teste: c => { const d = diasAte(c.prazoEntrega); return d >= 0 && d <= 7; }, vazio:'Nada vencendo nesta semana.'},
+    {titulo:'Próximos trinta dias', teste: c => { const d = diasAte(c.prazoEntrega); return d > 7 && d <= 30; }, vazio:'Nada no mês.'},
+    {titulo:'Mais adiante', teste: c => diasAte(c.prazoEntrega) > 30, vazio:'Nada agendado.'},
+  ];
+
+  const blocos = grupos.map((g, i) => {
+    const items = pend.filter(g.teste);
+    return panel('prazo'+i, g.titulo, `${items.length} perícia${items.length===1?'':'s'}`,
+      items.length
+        ? `<div class="rows">${items.map(rowPrazo).join('')}</div>`
+        : `<div class="chart-empty">${g.vazio}</div>`);
+  }).join('');
+
+  const concluido = concl.length
+    ? panel('prazoFim', 'Encerradas', `${concl.length} perícia${concl.length===1?'':'s'}`,
+        `<div class="rows">${concl.map(rowPrazo).join('')}</div>`)
+    : '';
+
+  return `<div class="section-gap">${blocos}${concluido}</div>`;
+}
+
+/* ==========================================================================
+   Seção: documentos
+   ========================================================================== */
+function renderDocs(){
+  let docs = todosDocumentos();
+  if(docFiltroTipo !== 'todos') docs = docs.filter(d => (d.tipo||'Outro') === docFiltroTipo);
+  if(docQuery){
+    const q = normalizeText(docQuery);
+    docs = docs.filter(d => normalizeText(`${d.nome} ${d.fase||''} ${d.caso.codigo} ${d.caso.nome}`).includes(q));
+  }
+  const tiposPresentes = [...new Set(todosDocumentos().map(d => d.tipo || 'Outro'))].sort();
+
+  const porFase = {};
+  docs.forEach(d => {
+    const k = d.fase || 'Sem fase identificada';
+    (porFase[k] = porFase[k] || []).push(d);
+  });
+
+  return `
+    <div class="section-gap">
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <div class="search">
+          ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
+          <input id="docSearch" type="text" value="${escapeHtml(docQuery)}" placeholder="Buscar documento, fase ou perícia" oninput="onDocSearch()">
+        </div>
+        <div class="chips">
+          <button class="chip ${docFiltroTipo==='todos'?'active':''}" onclick="setDocTipo('todos')">Todos</button>
+          ${tiposPresentes.map(t => `<button class="chip ${docFiltroTipo===t?'active':''}" onclick="setDocTipo('${escapeHtml(t).replace(/'/g,"\\'")}')">${escapeHtml(t)}</button>`).join('')}
+        </div>
+      </div>
+
+      ${docs.length === 0
+        ? `<div class="empty-state"><h3>Nenhum documento</h3><p>Importe um ZIP dentro de uma perícia ou adicione documentos manualmente.</p></div>`
+        : Object.entries(porFase).map(([fase, items], i) =>
+            panel('doc'+i, escapeHtml(fase), `${items.length} documento${items.length===1?'':'s'}`, `
+                <div class="rows">
+                  ${items.map(d => `
+                    <div class="row-item" onclick="abrirDocumento('${d.caso.id}','${d.id}')">
+                      <div class="row-main">
+                        <div class="row-title">${escapeHtml(d.nome)}</div>
+                        <div class="row-sub"><span class="mono">${escapeHtml(d.caso.codigo)}</span> · ${escapeHtml(d.caso.nome)}${d.tamanho ? ' · '+fmtBytes(d.tamanho) : ''}</div>
+                      </div>
+                      <div class="row-side">
+                        <span class="pill ${pillForTipo(d.tipo)}">${escapeHtml(d.tipo||'Outro')}</span>
+                        <span class="row-date">${fmtDate(d.data)}</span>
+                      </div>
+                    </div>`).join('')}
+                </div>`)).join('')}
+    </div>`;
+}
+function setDocTipo(t){ docFiltroTipo = t; renderAll(); }
+function onDocSearch(){
+  const el = document.getElementById('docSearch');
+  docQuery = el.value;
+  const pos = el.selectionStart;
+  renderAll();
+  const novo = document.getElementById('docSearch');
+  if(novo){ novo.focus(); try{ novo.setSelectionRange(pos,pos); }catch(e){} }
+}
+function abrirDocumento(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && (c.documentos||[]).find(x => x.id === docId);
+  if(d && d.arquivo){ openViewer(casoId, docId); return; }
+  openDrawer(casoId);
+}
+
+/* ==========================================================================
+   Seção: Projudi
+   ========================================================================== */
+function renderProjudi(){
+  const configurado = !!PROJUDI_ENDPOINT;
+  const corpoConsulta = `
+        ${configurado ? '' : `
+          <div class="banner" style="margin-bottom:14px;">
+            ${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}
+            <span>A consulta ainda não foi publicada. Falta subir a função no Firebase e informar o endereço dela aqui — o restante do app já está preparado.</span>
+          </div>`}
+        <div class="consulta-form">
+          <input id="projudiNumero" type="text" placeholder="0000000-00.0000" value="" ${configurado ? '' : 'disabled'}>
+          <button class="btn btn-primary" onclick="consultarProjudi()" ${configurado ? '' : 'disabled'}>
+            ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')} Consultar
+          </button>
+        </div>
+        <div class="hint">Aceita o número completo do CNJ ou a forma reduzida até o ano. A consulta exige estar conectado com uma conta autorizada.</div>
+        <div id="projudiSaida" style="margin-top:16px;">${projudiEstado || ''}</div>`;
+
+  const corpoServicos = `
+        ${PROJUDI_SERVICOS.map(s => `
+          <div class="svc">
+            <span class="svc-code">op ${s.codigo}</span>
+            <div>
+              <div class="svc-name">${escapeHtml(s.nome)}</div>
+              <div class="svc-desc">${escapeHtml(s.desc)}</div>
+              <div class="svc-fields">${escapeHtml(s.campos)}</div>
+            </div>
+            <span class="pill ${s.uso==='em uso' ? 'pill-success' : 'pill-muted'}">${s.uso}</span>
+          </div>`).join('')}
+        <div class="hint" style="margin-top:14px;">
+          A primeira consulta devolve a identificação interna do processo, e é ela que libera as outras três.
+          As respostas chegam em XML no padrão ISO-8859-1 e são convertidas antes de aparecerem aqui.
+        </div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('consulta', 'Consulta processual', 'Tribunal de Justiça de Goiás', corpoConsulta)}
+      ${panel('servicos', 'Serviços acessados', 'webservice público do Projudi', corpoServicos)}
+    </div>`;
+}
+
+async function consultarProjudi(){
+  const numero = (document.getElementById('projudiNumero').value || '').trim();
+  const saida = document.getElementById('projudiSaida');
+  if(!numero){ saida.innerHTML = `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>Informe o número do processo.</span></div>`; return; }
+  if(!currentUser){ saida.innerHTML = `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>Entre com o Google para consultar o Projudi.</span></div>`; return; }
+  saida.innerHTML = `<div class="chart-empty">Consultando o Projudi...</div>`;
+  try{
+    const token = await currentUser.getIdToken();
+    const res = await fetch(`${PROJUDI_ENDPOINT}?numero=${encodeURIComponent(numero)}`, {headers:{Authorization:'Bearer '+token}});
+    const dados = await res.json();
+    if(!res.ok){ throw new Error(dados.erro || 'Falha na consulta'); }
+    projudiResultado = dados;
+    saida.innerHTML = renderProjudiResultado(dados);
+  }catch(e){
+    saida.innerHTML = `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(e.message || 'Não foi possível consultar o Projudi agora.')}</span></div>`;
+  }
+}
+
+function renderProjudiResultado(d){
+  const campos = [
+    ['Número', d.numero], ['Classe', d.classe], ['Serventia', d.serventia],
+    ['Fase processual', d.faseProcessual], ['Status', d.status],
+    ['Valor da causa', d.valorCausa ? 'R$ '+d.valorCausa : ''],
+    ['Distribuição', d.dataDistribuicao], ['Segredo de justiça', d.segredoJustica],
+  ].filter(([,v]) => v);
+  const movs = (d.movimentacoes||[]).slice(0,8);
+  return `
+    <div class="kv-grid" style="margin-bottom:16px;">
+      ${campos.map(([k,v]) => `<div class="kv"><div class="k">${k}</div><div class="v">${escapeHtml(v)}</div></div>`).join('')}
+    </div>
+    ${(d.partes||[]).length ? `
+      <div class="group">
+        <div class="group-head"><h4>Partes</h4><span class="group-rule"></span></div>
+        <div class="rows">${d.partes.map(p => `
+          <div class="row-item" style="cursor:default;">
+            <div class="row-main"><div class="row-title">${escapeHtml(p.nome)}</div></div>
+            <div class="row-side"><span class="pill pill-muted">${escapeHtml(p.tipo)}</span></div>
+          </div>`).join('')}</div>
+      </div>` : ''}
+    ${movs.length ? `
+      <div class="group">
+        <div class="group-head"><h4>Movimentações recentes</h4><span class="pill pill-muted">${(d.movimentacoes||[]).length}</span><span class="group-rule"></span></div>
+        <div class="rows">${movs.map(m => `
+          <div class="row-item" style="cursor:default;">
+            <div class="row-main">
+              <div class="row-title">${escapeHtml(m.descricao)}</div>
+              ${m.usuario ? `<div class="row-sub">${escapeHtml(m.usuario)}</div>` : ''}
+            </div>
+            <div class="row-side"><span class="row-date">${escapeHtml((m.data||'').slice(0,10))}</span></div>
+          </div>`).join('')}</div>
+      </div>` : ''}`;
+}
+
+/* ==========================================================================
+   Seção: cálculos periciais
+   ========================================================================== */
+let calcAba = 'financiamento';
+let calcSaida = {};   // html do último resultado por aba
+let calcDados = {};   // dados estruturados do último resultado (CSV, anexo, cópia)
+
+/* aceita 1.234,56 · 1234,56 · 1234.56 */
+function num(v){
+  if(typeof v === 'number') return v;
+  let s = String(v ?? '').trim().replace(/\s|R\$/g, '');
+  if(!s) return 0;
+  if(s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+const brl = n => (isFinite(n) ? n : 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = (n, casas) => (isFinite(n) ? n*100 : 0).toLocaleString('pt-BR', {minimumFractionDigits:casas??4, maximumFractionDigits:casas??4}) + '%';
+
+/* ---------- sistemas de amortização ---------- */
+function tabelaPrice(pv, i, n){
+  const linhas = [];
+  const pmt = i === 0 ? pv/n : pv * i / (1 - Math.pow(1+i, -n));
+  let saldo = pv;
+  for(let k=1; k<=n; k++){
+    const juros = saldo * i;
+    let amort = pmt - juros, parcela = pmt;
+    if(k === n){ amort = saldo; parcela = amort + juros; }   // fecha o saldo no último mês
+    saldo -= amort;
+    if(Math.abs(saldo) < 0.005) saldo = 0;
+    linhas.push({k, parcela, juros, amort, saldo});
+  }
+  return linhas;
+}
+function tabelaSac(pv, i, n){
+  const linhas = [], amortFixa = pv/n;
+  let saldo = pv;
+  for(let k=1; k<=n; k++){
+    const juros = saldo * i;
+    let amort = (k === n) ? saldo : amortFixa;
+    const parcela = amort + juros;
+    saldo -= amort;
+    if(Math.abs(saldo) < 0.005) saldo = 0;
+    linhas.push({k, parcela, juros, amort, saldo});
+  }
+  return linhas;
+}
+function tabelaSam(pv, i, n){
+  const p = tabelaPrice(pv, i, n), s = tabelaSac(pv, i, n);
+  const linhas = [];
+  let saldo = pv;
+  for(let k=1; k<=n; k++){
+    const juros = saldo * i;
+    let parcela = (p[k-1].parcela + s[k-1].parcela) / 2;
+    let amort = parcela - juros;
+    if(k === n){ amort = saldo; parcela = amort + juros; }
+    saldo -= amort;
+    if(Math.abs(saldo) < 0.005) saldo = 0;
+    linhas.push({k, parcela, juros, amort, saldo});
+  }
+  return linhas;
+}
+const SISTEMAS = {price:{nome:'Price', fn:tabelaPrice}, sac:{nome:'SAC', fn:tabelaSac}, sam:{nome:'Misto (SAM)', fn:tabelaSam}};
+
+/* ---------- valor presente, VPL e TIR ---------- */
+function vpl(taxa, fluxo){ return fluxo.reduce((s,v,k) => s + v/Math.pow(1+taxa, k), 0); }
+function tir(fluxo){
+  let lo = -0.9999, hi = 10, flo = vpl(lo, fluxo);
+  if(!isFinite(flo) || flo * vpl(hi, fluxo) > 0) return null;
+  for(let it=0; it<300; it++){
+    const mid = (lo+hi)/2, f = vpl(mid, fluxo);
+    if(flo * f <= 0){ hi = mid; } else { lo = mid; flo = f; }
+  }
+  return (lo+hi)/2;
+}
+
+/* ---------- datas ---------- */
+function dataBr(iso){ return iso ? iso.split('-').reverse().join('/') : ''; }
+function mesesEntre(ini, fim){
+  const a = new Date(ini+'T00:00:00'), b = new Date(fim+'T00:00:00');
+  let m = (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth());
+  if(b.getDate() < a.getDate()) m--;
+  return Math.max(0, m);
+}
+function diasEntre(ini, fim){
+  return Math.round((new Date(fim+'T00:00:00') - new Date(ini+'T00:00:00')) / 86400000);
+}
+
+/* ---------- consulta de índice no Banco Central ---------- */
+async function buscarIndice(cod, dataIni, dataFim){
+  const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${cod}/dados?formato=json`
+            + `&dataInicial=${dataBr(dataIni)}&dataFinal=${dataBr(dataFim)}`;
+  const r = await fetch(url, {cache:'no-store'});
+  if(!r.ok) throw new Error('O Banco Central respondeu com status ' + r.status);
+  const j = await r.json();
+  if(!Array.isArray(j) || j.length === 0) throw new Error('A série não retornou valores para esse período.');
+  return j.map(x => ({data:x.data, valor: parseFloat(String(x.valor).replace(',', '.'))}));
+}
+
+/* ==========================================================================
+   Cálculos: entrega dos resultados (planilha, cópia, anexo na perícia)
+   ========================================================================== */
+function csvDe(aba){
+  const d = calcDados[aba];
+  if(!d) return '';
+  const linhas = [d.titulo, ''];
+  (d.parametros||[]).forEach(([k,v]) => linhas.push(`${k};${v}`));
+  linhas.push('');
+  linhas.push(d.colunas.join(';'));
+  d.linhas.forEach(l => linhas.push(l.join(';')));
+  if(d.totais){ linhas.push(d.totais.join(';')); }
+  linhas.push('');
+  linhas.push('Gerado pelo Gerenciador de Pericias em ' + new Date().toLocaleString('pt-BR'));
+  if(d.fonte) linhas.push(d.fonte);
+  return linhas.join('\n');
+}
+function nomeArquivoCalc(aba){
+  const d = calcDados[aba];
+  const base = (d && d.titulo ? d.titulo : 'calculo').normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'').toLowerCase();
+  return base.slice(0,60) + '_' + todayIso() + '.csv';
+}
+function exportarCSV(aba){
+  const csv = csvDe(aba);
+  if(!csv) return;
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nomeArquivoCalc(aba);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  avisoCalc('Planilha baixada.');
+}
+async function copiarLaudo(aba){
+  const d = calcDados[aba];
+  if(!d) return;
+  const cab = `<tr>${d.colunas.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}</tr>`;
+  const corpo = d.linhas.map(l => `<tr>${l.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`).join('');
+  const rodape = d.totais ? `<tr>${d.totais.map(c=>`<td><b>${escapeHtml(String(c))}</b></td>`).join('')}</tr>` : '';
+  const html = `<p><b>${escapeHtml(d.titulo)}</b></p><table border="1" cellspacing="0" cellpadding="4">${cab}${corpo}${rodape}</table>`;
+  const texto = [d.titulo, d.colunas.join('\t'), ...d.linhas.map(l=>l.join('\t')), d.totais ? d.totais.join('\t') : ''].filter(Boolean).join('\n');
+  try{
+    if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], {type:'text/html'}),
+        'text/plain': new Blob([texto], {type:'text/plain'}),
+      })]);
+    } else {
+      await navigator.clipboard.writeText(texto);
+    }
+    avisoCalc('Tabela copiada. É só colar no laudo.');
+  }catch(e){
+    avisoCalc('Não foi possível copiar. Use a exportação em planilha.');
+  }
+}
+async function anexarCalculo(aba){
+  const d = calcDados[aba];
+  if(!d) return;
+  const sel = document.getElementById('calcCaso');
+  const casoId = sel ? sel.value : '';
+  if(!casoId){ avisoCalc('Escolha a perícia que vai receber o cálculo.'); return; }
+  avisoCalc('Anexando...');
+  const csv = '﻿' + csvDe(aba);
+  const bytes = new TextEncoder().encode(csv);
+  const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+  const nome = nomeArquivoCalc(aba);
+  const built = await buildArquivo(casoId, docId, bytes, nome, 'text/csv');
+  await addDoc(casoId, {
+    nome, fase:'Memória de Cálculo', tipo:'Memória de Cálculo', data: todayIso(),
+    obs: d.resumo || d.titulo, tamanho: bytes.length, arquivo: built.arquivo,
+    processo: null, codigoAcesso: null
+  }, docId);
+  const c = casos.find(x => x.id === casoId);
+  avisoCalc('Anexado em ' + (c ? c.codigo : 'perícia') + ' como documento.');
+  renderNav();
+}
+function avisoCalc(texto){
+  const el = document.getElementById('calcAviso');
+  if(el){
+    el.textContent = texto;
+    clearTimeout(window.__calcTimer);
+    window.__calcTimer = setTimeout(() => { if(el) el.textContent = ''; }, 6000);
+  }
+}
+function blocoAcoes(aba){
+  const lista = casosDoContador();
+  return `
+    <div class="acoes" style="margin-top:16px;">
+      <button class="btn btn-ghost btn-sm" onclick="exportarCSV('${aba}')">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')} Exportar planilha</button>
+      <button class="btn btn-ghost btn-sm" onclick="copiarLaudo('${aba}')">${svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>')} Copiar para o laudo</button>
+      ${lista.length ? `
+        <select id="calcCaso" style="border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:12.5px; background:var(--ground); color:var(--ink); font-family:inherit; max-width:230px;">
+          ${lista.map(c => `<option value="${c.id}">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="anexarCalculo('${aba}')">Anexar à perícia</button>
+      ` : `<span class="dica" style="font-size:11.5px; color:var(--muted);">Cadastre uma perícia para poder anexar o cálculo.</span>`}
+      <span id="calcAviso" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
+    </div>`;
+}
+function tabelaHtml(colunas, linhas, totais){
+  return `
+    <div class="tabela-wrap">
+      <table class="memoria">
+        <thead><tr>${colunas.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+        <tbody>${linhas.map(l=>`<tr>${l.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`).join('')}</tbody>
+        ${totais ? `<tfoot><tr>${totais.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')}</tr></tfoot>` : ''}
+      </table>
+    </div>`;
+}
+
+/* ==========================================================================
+   Cálculo 1 — financiamento (Price, SAC e Misto)
+   ========================================================================== */
+function rodarFinanciamento(){
+  const pv = num(document.getElementById('fPv').value);
+  const prazo = Math.round(num(document.getElementById('fPrazo').value));
+  const taxaInf = num(document.getElementById('fTaxa').value) / 100;
+  const periodo = document.getElementById('fPeriodo').value;
+  const sistema = document.getElementById('fSistema').value;
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(pv <= 0 || prazo <= 0){
+    saida.innerHTML = bannerAviso('Informe o valor financiado e o prazo em meses.');
+    return;
+  }
+  if(prazo > 600){
+    saida.innerHTML = bannerAviso('O prazo máximo aceito é de 600 meses.');
+    return;
+  }
+  // taxa anual vira mensal equivalente (capitalização composta)
+  const i = periodo === 'ano' ? Math.pow(1 + taxaInf, 1/12) - 1 : taxaInf;
+
+  const linhas = SISTEMAS[sistema].fn(pv, i, prazo);
+  const totalJuros = linhas.reduce((s,l)=>s+l.juros, 0);
+  const totalPago = linhas.reduce((s,l)=>s+l.parcela, 0);
+
+  const comparativo = Object.entries(SISTEMAS).map(([k, s]) => {
+    const t = s.fn(pv, i, prazo);
+    return {chave:k, nome:s.nome, juros:t.reduce((a,l)=>a+l.juros,0), total:t.reduce((a,l)=>a+l.parcela,0), primeira:t[0].parcela, ultima:t[t.length-1].parcela};
+  });
+  const maxTotal = Math.max(...comparativo.map(c=>c.total));
+
+  const colunas = ['Parcela','Prestação (R$)','Juros (R$)','Amortização (R$)','Saldo devedor (R$)'];
+  const linhasCsv = linhas.map(l => [l.k, brl(l.parcela), brl(l.juros), brl(l.amort), brl(l.saldo)]);
+  const totais = ['Total', brl(totalPago), brl(totalJuros), brl(pv), '0,00'];
+
+  calcDados.financiamento = {
+    titulo: `Financiamento pelo sistema ${SISTEMAS[sistema].nome}`,
+    parametros: [
+      ['Valor financiado (R$)', brl(pv)],
+      ['Prazo (meses)', prazo],
+      ['Taxa informada', num(document.getElementById('fTaxa').value).toLocaleString('pt-BR') + '% ao ' + (periodo === 'ano' ? 'ano' : 'mês')],
+      ['Taxa mensal equivalente', pct(i)],
+      ['Sistema', SISTEMAS[sistema].nome],
+    ],
+    colunas, linhas: linhasCsv, totais,
+    resumo: `${SISTEMAS[sistema].nome} — ${prazo}x, juros totais de R$ ${brl(totalJuros)} sobre R$ ${brl(pv)} financiados.`,
+  };
+
+  saida.innerHTML = `
+    <div class="resumo-calc">
+      <div class="resumo-item destaque"><div class="k">1ª prestação</div><div class="v">R$ ${brl(linhas[0].parcela)}</div></div>
+      <div class="resumo-item"><div class="k">Última prestação</div><div class="v">R$ ${brl(linhas[linhas.length-1].parcela)}</div></div>
+      <div class="resumo-item"><div class="k">Total de juros</div><div class="v">R$ ${brl(totalJuros)}</div></div>
+      <div class="resumo-item"><div class="k">Total pago</div><div class="v">R$ ${brl(totalPago)}</div></div>
+      <div class="resumo-item"><div class="k">Taxa mensal</div><div class="v">${pct(i)}</div></div>
+    </div>
+
+    <h4 style="font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:18px 0 10px;">Composição do total pago em cada sistema</h4>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s1)"></span>Amortização (principal)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s2)"></span>Juros</span>
+    </div>
+    ${comparativo.map(c => `
+      <div class="bar-row">
+        <span class="bar-label" ${c.chave===sistema?'style="color:var(--accent-deep); font-weight:600;" title="sistema selecionado"':''}>${c.nome}</span>
+        <span class="bar-track">
+          <span class="bar">
+            <span class="bar-seg" style="width:${(pv/maxTotal)*100}%; background:var(--s1)"
+              onmousemove="showTip(event, 'Principal<br><span class=\\'tt-v\\'>R$ ${brl(pv)}</span>')" onmouseleave="hideTip()"></span>
+            <span class="bar-seg" style="width:${(c.juros/maxTotal)*100}%; background:var(--s2)"
+              onmousemove="showTip(event, 'Juros<br><span class=\\'tt-v\\'>R$ ${brl(c.juros)}</span>')" onmouseleave="hideTip()"></span>
+          </span>
+          <span class="bar-value">R$ ${brl(c.total)}</span>
+        </span>
+      </div>`).join('')}
+    <div class="calc-nota">
+      Os três sistemas usam a mesma taxa mensal. O SAC começa com prestação maior e paga menos juros no total;
+      o Price mantém a prestação fixa; o Misto fica na média aritmética entre os dois.
+    </div>
+
+    ${tabelaHtml(colunas, linhasCsv, totais)}
+    <div class="calc-nota">A última prestação absorve o arredondamento, de modo que o saldo devedor encerre exatamente em zero.</div>
+    ${blocoAcoes('financiamento')}`;
+  calcSaida.financiamento = saida.innerHTML;
+}
+
+/* ==========================================================================
+   Cálculo 2 — atualização de débito (correção + juros + multa)
+   ========================================================================== */
+async function rodarAtualizacao(){
+  const principal = num(document.getElementById('aValor').value);
+  const di = document.getElementById('aInicio').value;
+  const df = document.getElementById('aFim').value;
+  const chave = document.getElementById('aIndice').value;
+  const jurosMes = num(document.getElementById('aJuros').value) / 100;
+  const tipoJuros = document.getElementById('aTipoJuros').value;
+  const multa = num(document.getElementById('aMulta').value) / 100;
+  const baseMulta = document.getElementById('aBaseMulta').value;
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(principal <= 0 || !di || !df){ saida.innerHTML = bannerAviso('Informe o valor, a data inicial e a data final.'); return; }
+  if(di >= df){ saida.innerHTML = bannerAviso('A data final precisa ser posterior à inicial.'); return; }
+
+  saida.innerHTML = `<div class="chart-empty">Consultando a série do Banco Central...</div>`;
+  let serie;
+  try{
+    serie = await buscarIndice(INDICES[chave].cod, di, df);
+  }catch(e){
+    saida.innerHTML = bannerAviso('Não foi possível obter o índice agora: ' + escapeHtml(e.message));
+    return;
+  }
+
+  let fator = 1;
+  const linhasTab = [];
+  serie.forEach(p => {
+    fator *= (1 + p.valor/100);
+    linhasTab.push([p.data, p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:4}), fator.toFixed(8).replace('.', ','), brl(principal * fator)]);
+  });
+
+  const corrigido = principal * fator;
+  const meses = mesesEntre(di, df);
+  const ehSelic = chave === 'selic';
+  const jurosAplicados = ehSelic ? 0 : (tipoJuros === 'composto'
+    ? corrigido * (Math.pow(1 + jurosMes, meses) - 1)
+    : corrigido * jurosMes * meses);
+  const subtotal = corrigido + jurosAplicados;
+  const valorMulta = multa * (baseMulta === 'corrigido' ? corrigido : subtotal);
+  const total = subtotal + valorMulta;
+
+  const colunas = ['Competência','Índice (%)','Fator acumulado','Valor corrigido (R$)'];
+  const totais = ['Total', '', fator.toFixed(8).replace('.', ','), brl(corrigido)];
+
+  calcDados.atualizacao = {
+    titulo: `Atualização de débito por ${INDICES[chave].nome}`,
+    parametros: [
+      ['Valor original (R$)', brl(principal)],
+      ['Período', `${dataBr(di)} a ${dataBr(df)}`],
+      ['Índice', INDICES[chave].nome],
+      ['Fator de correção', fator.toFixed(8).replace('.', ',')],
+      ['Valor corrigido (R$)', brl(corrigido)],
+      ['Juros de mora', ehSelic ? 'não aplicados (Selic já engloba juros)' : `${(jurosMes*100).toLocaleString('pt-BR')}% ao mês, ${tipoJuros}, por ${meses} meses`],
+      ['Juros (R$)', brl(jurosAplicados)],
+      ['Multa (R$)', brl(valorMulta)],
+      ['Total apurado (R$)', brl(total)],
+    ],
+    colunas, linhas: linhasTab, totais,
+    fonte: `Fonte: Banco Central do Brasil, serie SGS ${INDICES[chave].cod}, consultada em ${new Date().toLocaleDateString('pt-BR')}.`,
+    resumo: `R$ ${brl(principal)} atualizado por ${INDICES[chave].nome} de ${dataBr(di)} a ${dataBr(df)} resulta em R$ ${brl(total)}.`,
+  };
+
+  saida.innerHTML = `
+    ${ehSelic ? bannerInfo('A Selic acumulada já embute juros de mora, então os juros informados não foram aplicados — evita a contagem em duplicidade.') : ''}
+    <div class="resumo-calc">
+      <div class="resumo-item"><div class="k">Valor original</div><div class="v">R$ ${brl(principal)}</div></div>
+      <div class="resumo-item"><div class="k">Correção</div><div class="v">R$ ${brl(corrigido - principal)}</div></div>
+      <div class="resumo-item"><div class="k">Juros de mora</div><div class="v">R$ ${brl(jurosAplicados)}</div></div>
+      <div class="resumo-item"><div class="k">Multa</div><div class="v">R$ ${brl(valorMulta)}</div></div>
+      <div class="resumo-item destaque"><div class="k">Total apurado</div><div class="v">R$ ${brl(total)}</div></div>
+    </div>
+    <div class="calc-nota">
+      Fator de correção acumulado no período: <b>${fator.toFixed(8).replace('.', ',')}</b> em ${serie.length} competências.
+      Fonte: Banco Central do Brasil, série SGS ${INDICES[chave].cod}, consultada agora.
+    </div>
+    ${tabelaHtml(colunas, linhasTab, totais)}
+    ${blocoAcoes('atualizacao')}`;
+  calcSaida.atualizacao = saida.innerHTML;
+}
+
+/* ==========================================================================
+   Cálculo 3 — verbas rescisórias
+   ========================================================================== */
+function rodarRescisao(){
+  const salario = num(document.getElementById('rSalario').value);
+  const adm = document.getElementById('rAdmissao').value;
+  const dem = document.getElementById('rDemissao').value;
+  const motivo = document.getElementById('rMotivo').value;
+  const aviso = document.getElementById('rAviso').value;
+  const feriasVencidas = Math.round(num(document.getElementById('rFeriasVenc').value));
+  const saldoFgts = num(document.getElementById('rFgts').value);
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(salario <= 0 || !adm || !dem){ saida.innerHTML = bannerAviso('Informe o salário, a data de admissão e a de demissão.'); return; }
+  if(adm >= dem){ saida.innerHTML = bannerAviso('A data de demissão precisa ser posterior à admissão.'); return; }
+
+  const dDem = new Date(dem+'T00:00:00');
+  const anosCompletos = Math.floor(mesesEntre(adm, dem) / 12);
+
+  // direitos conforme o motivo da rescisão
+  const temAviso = (motivo === 'sem_justa_causa') && aviso === 'indenizado';
+  const temDecimo = motivo !== 'justa_causa';
+  const temFeriasProp = motivo !== 'justa_causa';
+  const temMulta = (motivo === 'sem_justa_causa');
+  const descontaAviso = (motivo === 'pedido' && aviso === 'nao_cumprido');
+
+  // saldo de salário: dias trabalhados no mês da rescisão
+  const diasSaldo = dDem.getDate();
+  const saldoSalario = salario / 30 * diasSaldo;
+
+  // aviso prévio: 30 dias + 3 por ano completo, limitado a 90 (Lei 12.506/2011)
+  const diasAviso = Math.min(90, 30 + 3 * anosCompletos);
+  const valorAviso = temAviso ? salario / 30 * diasAviso : 0;
+  const descontoAviso = descontaAviso ? salario : 0;
+
+  // a projeção do aviso indenizado integra o tempo de serviço
+  const fimProjetado = new Date(dDem);
+  if(temAviso) fimProjetado.setDate(fimProjetado.getDate() + diasAviso);
+  const isoProjetado = fimProjetado.toISOString().slice(0,10);
+
+  // 13º proporcional: avos no ano, contando mês com 15 dias ou mais
+  const inicioAno = isoProjetado.slice(0,4) + '-01-01';
+  const baseDecimo = adm > inicioAno ? adm : inicioAno;
+  let avosDecimo = 0;
+  if(temDecimo){
+    avosDecimo = mesesEntre(baseDecimo, isoProjetado);
+    const resto = diasEntre(baseDecimo, isoProjetado) - avosDecimo*30;
+    if(resto >= 15) avosDecimo++;
+    avosDecimo = Math.min(12, Math.max(0, avosDecimo));
+  }
+  const decimo = salario / 12 * avosDecimo;
+
+  // férias proporcionais: avos desde o último período aquisitivo completo
+  let avosFerias = 0;
+  if(temFeriasProp){
+    const mesesTotais = mesesEntre(adm, isoProjetado);
+    avosFerias = mesesTotais % 12;
+    const aniversario = new Date(adm+'T00:00:00');
+    aniversario.setMonth(aniversario.getMonth() + (mesesTotais - avosFerias));
+    const resto = diasEntre(aniversario.toISOString().slice(0,10), isoProjetado) - avosFerias*30;
+    if(resto >= 15) avosFerias++;
+    avosFerias = Math.min(12, Math.max(0, avosFerias));
+  }
+  const feriasProp = salario / 12 * avosFerias;
+  const tercoProp = feriasProp / 3;
+  const feriasVenc = salario * feriasVencidas;
+  const tercoVenc = feriasVenc / 3;
+
+  // FGTS do mês e multa rescisória
+  const fgtsSobreVerbas = 0.08 * (saldoSalario + valorAviso + decimo);
+  const baseMulta = saldoFgts + fgtsSobreVerbas;
+  const multaFgts = temMulta ? 0.40 * baseMulta : 0;
+
+  const itens = [
+    ['Saldo de salário', `${diasSaldo} dia(s)`, saldoSalario],
+    ['Aviso prévio indenizado', temAviso ? `${diasAviso} dia(s)` : 'não devido', valorAviso],
+    ['13º salário proporcional', `${avosDecimo}/12`, decimo],
+    ['Férias proporcionais', `${avosFerias}/12`, feriasProp],
+    ['Um terço sobre férias proporcionais', '', tercoProp],
+    ['Férias vencidas', feriasVencidas ? `${feriasVencidas} período(s)` : 'nenhuma', feriasVenc],
+    ['Um terço sobre férias vencidas', '', tercoVenc],
+    ['FGTS incidente sobre as verbas', '8%', fgtsSobreVerbas],
+    ['Multa rescisória do FGTS', temMulta ? '40% sobre R$ '+brl(baseMulta) : 'não devida', multaFgts],
+  ];
+  if(descontoAviso > 0) itens.push(['Desconto de aviso prévio não cumprido', '', -descontoAviso]);
+
+  const total = itens.reduce((s, it) => s + it[2], 0);
+  const colunas = ['Verba','Base','Valor (R$)'];
+  const linhasCsv = itens.map(it => [it[0], it[1], brl(it[2])]);
+  const totais = ['Total bruto', '', brl(total)];
+
+  const MOTIVOS = {sem_justa_causa:'Dispensa sem justa causa', pedido:'Pedido de demissão', justa_causa:'Dispensa por justa causa', termino:'Término de contrato por prazo determinado'};
+
+  calcDados.rescisao = {
+    titulo: 'Verbas rescisórias',
+    parametros: [
+      ['Salário (R$)', brl(salario)],
+      ['Admissão', dataBr(adm)],
+      ['Demissão', dataBr(dem)],
+      ['Motivo', MOTIVOS[motivo]],
+      ['Tempo de serviço', `${anosCompletos} ano(s), ${mesesEntre(adm,dem)} meses`],
+      ['Projeção do aviso até', temAviso ? dataBr(isoProjetado) : 'não aplicável'],
+    ],
+    colunas, linhas: linhasCsv, totais,
+    resumo: `${MOTIVOS[motivo]} — total bruto de R$ ${brl(total)}.`,
+  };
+
+  saida.innerHTML = `
+    <div class="resumo-calc">
+      <div class="resumo-item"><div class="k">Tempo de serviço</div><div class="v">${anosCompletos}a ${mesesEntre(adm,dem)%12}m</div></div>
+      <div class="resumo-item"><div class="k">Verbas salariais</div><div class="v">R$ ${brl(saldoSalario + valorAviso + decimo)}</div></div>
+      <div class="resumo-item"><div class="k">Férias e terço</div><div class="v">R$ ${brl(feriasProp+tercoProp+feriasVenc+tercoVenc)}</div></div>
+      <div class="resumo-item"><div class="k">FGTS e multa</div><div class="v">R$ ${brl(fgtsSobreVerbas+multaFgts)}</div></div>
+      <div class="resumo-item destaque"><div class="k">Total bruto</div><div class="v">R$ ${brl(total)}</div></div>
+    </div>
+    ${tabelaHtml(colunas, linhasCsv, totais)}
+    <div class="calc-nota">
+      Valores <b>brutos</b>: não estão deduzidos INSS, imposto de renda nem descontos contratuais, que dependem das tabelas
+      vigentes na competência. O aviso prévio segue a Lei 12.506/2011 — trinta dias, mais três por ano completo, limitado a noventa.
+      Quando indenizado, a projeção integra o tempo de serviço e repercute no 13º e nas férias.
+    </div>
+    ${blocoAcoes('rescisao')}`;
+  calcSaida.rescisao = saida.innerHTML;
+}
+
+/* ==========================================================================
+   Cálculo 4 — taxas, anatocismo e viabilidade
+   ========================================================================== */
+function rodarTaxas(){
+  const modo = document.getElementById('tModo').value;
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(modo === 'equivalencia'){
+    const taxa = num(document.getElementById('tTaxa').value)/100;
+    const de = document.getElementById('tDe').value;
+    const para = document.getElementById('tPara').value;
+    const PER = {dia:1, mes:30, trimestre:90, semestre:180, ano:360};
+    const expo = PER[para]/PER[de];
+    const equivalente = Math.pow(1+taxa, expo) - 1;
+    const proporcional = taxa * expo;
+    const colunas = ['Critério','Taxa resultante','Diferença sobre R$ 100.000'];
+    const linhas = [
+      ['Equivalência composta (juros sobre juros)', pct(equivalente), 'R$ '+brl(100000*equivalente)],
+      ['Proporcionalidade simples (linear)', pct(proporcional), 'R$ '+brl(100000*proporcional)],
+      ['Diferença', pct(equivalente-proporcional), 'R$ '+brl(100000*(equivalente-proporcional))],
+    ];
+    calcDados.taxas = {
+      titulo:'Equivalência de taxas',
+      parametros:[['Taxa informada', pct(taxa)],['Período de origem', de],['Período de destino', para]],
+      colunas, linhas, totais:null,
+      resumo:`${pct(taxa)} ao ${de} equivale a ${pct(equivalente)} ao ${para}.`,
+    };
+    saida.innerHTML = `
+      <div class="resumo-calc">
+        <div class="resumo-item destaque"><div class="k">Taxa equivalente</div><div class="v">${pct(equivalente)}</div></div>
+        <div class="resumo-item"><div class="k">Taxa proporcional</div><div class="v">${pct(proporcional)}</div></div>
+        <div class="resumo-item"><div class="k">Diferença</div><div class="v">${pct(equivalente-proporcional)}</div></div>
+      </div>
+      ${tabelaHtml(colunas, linhas)}
+      <div class="calc-nota">
+        A conversão proporcional divide a taxa linearmente e é o critério dos juros simples; a equivalente preserva o
+        montante sob capitalização composta. A distância entre as duas é justamente o ponto discutido nas ações revisionais.
+      </div>
+      ${blocoAcoes('taxas')}`;
+
+  } else if(modo === 'anatocismo'){
+    const capital = num(document.getElementById('tCapital').value);
+    const taxa = num(document.getElementById('tTaxaMes').value)/100;
+    const n = Math.round(num(document.getElementById('tMeses').value));
+    if(capital <= 0 || n <= 0){ saida.innerHTML = bannerAviso('Informe o capital e o número de meses.'); return; }
+    if(n > 600){ saida.innerHTML = bannerAviso('O prazo máximo aceito é de 600 meses.'); return; }
+    const linhas = [];
+    for(let k=1; k<=n; k++){
+      const simples = capital * (1 + taxa*k);
+      const composto = capital * Math.pow(1+taxa, k);
+      linhas.push([k, brl(simples), brl(composto), brl(composto-simples)]);
+    }
+    const mSimples = capital*(1+taxa*n), mComposto = capital*Math.pow(1+taxa,n);
+    const colunas = ['Mês','Montante simples (R$)','Montante composto (R$)','Diferença (R$)'];
+    calcDados.taxas = {
+      titulo:'Juros simples comparados a juros compostos',
+      parametros:[['Capital (R$)', brl(capital)],['Taxa mensal', pct(taxa)],['Prazo (meses)', n]],
+      colunas, linhas, totais:['Final', brl(mSimples), brl(mComposto), brl(mComposto-mSimples)],
+      resumo:`Em ${n} meses a ${pct(taxa)} ao mês, a capitalização composta supera a simples em R$ ${brl(mComposto-mSimples)}.`,
+    };
+    saida.innerHTML = `
+      <div class="resumo-calc">
+        <div class="resumo-item"><div class="k">Montante simples</div><div class="v">R$ ${brl(mSimples)}</div></div>
+        <div class="resumo-item"><div class="k">Montante composto</div><div class="v">R$ ${brl(mComposto)}</div></div>
+        <div class="resumo-item destaque"><div class="k">Diferença</div><div class="v">R$ ${brl(mComposto-mSimples)}</div></div>
+        <div class="resumo-item"><div class="k">Excesso relativo</div><div class="v">${pct((mComposto-mSimples)/mSimples, 2)}</div></div>
+      </div>
+      ${tabelaHtml(colunas, linhas, calcDados.taxas.totais)}
+      <div class="calc-nota">A diferença mês a mês é exatamente o efeito da capitalização de juros sobre juros no período.</div>
+      ${blocoAcoes('taxas')}`;
+
+  } else {
+    const fluxoTxt = document.getElementById('tFluxo').value;
+    const taxaDesc = num(document.getElementById('tDesconto').value)/100;
+    const fluxo = fluxoTxt.split(/[;,\n\s]+/).map(s=>s.trim()).filter(Boolean).map(num);
+    if(fluxo.length < 2){ saida.innerHTML = bannerAviso('Informe ao menos dois valores no fluxo, começando pelo investimento como negativo.'); return; }
+    const valorPresente = vpl(taxaDesc, fluxo);
+    const taxaInterna = tir(fluxo);
+    const colunas = ['Período','Fluxo (R$)','Fator de desconto','Valor presente (R$)'];
+    const linhas = fluxo.map((v,k) => {
+      const fator = 1/Math.pow(1+taxaDesc, k);
+      return [k, brl(v), fator.toFixed(8).replace('.', ','), brl(v*fator)];
+    });
+    calcDados.taxas = {
+      titulo:'Valor presente líquido e taxa interna de retorno',
+      parametros:[['Taxa de desconto', pct(taxaDesc)],['Períodos', fluxo.length-1]],
+      colunas, linhas, totais:['VPL','','', brl(valorPresente)],
+      resumo:`VPL de R$ ${brl(valorPresente)} à taxa de ${pct(taxaDesc)}${taxaInterna!==null?`, com TIR de ${pct(taxaInterna)}`:''}.`,
+    };
+    saida.innerHTML = `
+      <div class="resumo-calc">
+        <div class="resumo-item destaque"><div class="k">VPL</div><div class="v">R$ ${brl(valorPresente)}</div></div>
+        <div class="resumo-item"><div class="k">TIR por período</div><div class="v">${taxaInterna!==null?pct(taxaInterna):'não converge'}</div></div>
+        <div class="resumo-item"><div class="k">Taxa de desconto</div><div class="v">${pct(taxaDesc)}</div></div>
+      </div>
+      ${tabelaHtml(colunas, linhas, calcDados.taxas.totais)}
+      <div class="calc-nota">
+        Serve tanto para apuração de haveres e avaliação de fluxo quanto para o Custo Efetivo Total de um financiamento:
+        nesse caso, informe o valor liberado como positivo no período zero e as prestações como negativas.
+        ${taxaInterna!==null ? `A TIR encontrada, de ${pct(taxaInterna)} por período, equivale a ${pct(Math.pow(1+taxaInterna,12)-1, 2)} ao ano se o período for mensal.` : 'O fluxo informado não muda de sinal, então não existe TIR.'}
+      </div>
+      ${blocoAcoes('taxas')}`;
+  }
+  calcSaida.taxas = saida.innerHTML;
+}
+
+/* ---------- formulários e navegação entre as calculadoras ---------- */
+function setCalcAba(a){ calcAba = a; renderAll(); }
+function setTaxaModo(){ calcSaida.taxas = ''; renderAll(); }
+
+function formFinanciamento(){
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="fPv">Valor financiado (R$)</label><input id="fPv" inputmode="decimal" value="100.000,00"></div>
+      <div class="field"><label for="fPrazo">Prazo (meses)</label><input id="fPrazo" inputmode="decimal" value="60"></div>
+      <div class="field"><label for="fTaxa">Taxa de juros (%)</label><input id="fTaxa" inputmode="decimal" value="1,50"></div>
+      <div class="field"><label for="fPeriodo">Período da taxa</label>
+        <select id="fPeriodo"><option value="mes">ao mês</option><option value="ano">ao ano</option></select></div>
+      <div class="field"><label for="fSistema">Sistema</label>
+        <select id="fSistema">${Object.entries(SISTEMAS).map(([k,s])=>`<option value="${k}">${s.nome}</option>`).join('')}</select></div>
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarFinanciamento()">Calcular</button></div>`;
+}
+function formAtualizacao(){
+  const hoje = todayIso();
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="aValor">Valor original (R$)</label><input id="aValor" inputmode="decimal" value="10.000,00"></div>
+      <div class="field"><label for="aInicio">Data inicial</label><input id="aInicio" type="date" value="${hoje.slice(0,4)-2}-01-01"></div>
+      <div class="field"><label for="aFim">Data final</label><input id="aFim" type="date" value="${hoje}"></div>
+      <div class="field"><label for="aIndice">Índice de correção</label>
+        <select id="aIndice">${Object.entries(INDICES).map(([k,v])=>`<option value="${k}">${v.nome}</option>`).join('')}</select>
+        <span class="dica">Consultado no Banco Central na hora do cálculo</span></div>
+      <div class="field"><label for="aJuros">Juros de mora (% ao mês)</label><input id="aJuros" inputmode="decimal" value="1,00"></div>
+      <div class="field"><label for="aTipoJuros">Capitalização dos juros</label>
+        <select id="aTipoJuros"><option value="simples">simples</option><option value="composto">composta</option></select></div>
+      <div class="field"><label for="aMulta">Multa (%)</label><input id="aMulta" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="aBaseMulta">Multa incide sobre</label>
+        <select id="aBaseMulta"><option value="corrigido">valor corrigido</option><option value="comJuros">corrigido mais juros</option></select></div>
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarAtualizacao()">Calcular</button></div>`;
+}
+function formRescisao(){
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="rSalario">Último salário (R$)</label><input id="rSalario" inputmode="decimal" value="3.000,00"></div>
+      <div class="field"><label for="rAdmissao">Admissão</label><input id="rAdmissao" type="date" value="2022-03-01"></div>
+      <div class="field"><label for="rDemissao">Demissão</label><input id="rDemissao" type="date" value="${todayIso()}"></div>
+      <div class="field"><label for="rMotivo">Motivo</label>
+        <select id="rMotivo">
+          <option value="sem_justa_causa">Dispensa sem justa causa</option>
+          <option value="pedido">Pedido de demissão</option>
+          <option value="justa_causa">Dispensa por justa causa</option>
+          <option value="termino">Término de contrato por prazo determinado</option>
+        </select></div>
+      <div class="field"><label for="rAviso">Aviso prévio</label>
+        <select id="rAviso">
+          <option value="indenizado">Indenizado</option>
+          <option value="trabalhado">Trabalhado</option>
+          <option value="nao_cumprido">Não cumprido pelo empregado</option>
+        </select></div>
+      <div class="field"><label for="rFeriasVenc">Períodos de férias vencidas</label><input id="rFeriasVenc" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="rFgts">Saldo de FGTS depositado (R$)</label><input id="rFgts" inputmode="decimal" value="0">
+        <span class="dica">Base da multa de 40%</span></div>
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarRescisao()">Calcular</button></div>`;
+}
+function formTaxas(){
+  const modo = (document.getElementById('tModo') || {}).value || 'equivalencia';
+  const campos = {
+    equivalencia: `
+      <div class="field"><label for="tTaxa">Taxa (%)</label><input id="tTaxa" inputmode="decimal" value="1,50"></div>
+      <div class="field"><label for="tDe">Do período</label>
+        <select id="tDe"><option value="mes">mês</option><option value="dia">dia</option><option value="trimestre">trimestre</option><option value="semestre">semestre</option><option value="ano">ano</option></select></div>
+      <div class="field"><label for="tPara">Para o período</label>
+        <select id="tPara"><option value="ano">ano</option><option value="dia">dia</option><option value="mes">mês</option><option value="trimestre">trimestre</option><option value="semestre">semestre</option></select></div>`,
+    anatocismo: `
+      <div class="field"><label for="tCapital">Capital (R$)</label><input id="tCapital" inputmode="decimal" value="10.000,00"></div>
+      <div class="field"><label for="tTaxaMes">Taxa (% ao mês)</label><input id="tTaxaMes" inputmode="decimal" value="2,00"></div>
+      <div class="field"><label for="tMeses">Prazo (meses)</label><input id="tMeses" inputmode="decimal" value="24"></div>`,
+    vpl: `
+      <div class="field" style="grid-column:1/-1;"><label for="tFluxo">Fluxo de caixa</label>
+        <input id="tFluxo" value="-100000; 22000; 22000; 22000; 22000; 22000; 22000">
+        <span class="dica">Separe por ponto e vírgula. O período zero é o investimento inicial, normalmente negativo.</span></div>
+      <div class="field"><label for="tDesconto">Taxa de desconto (% por período)</label><input id="tDesconto" inputmode="decimal" value="1,00"></div>`,
+  };
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="tModo">Cálculo</label>
+        <select id="tModo" onchange="setTaxaModo()">
+          <option value="equivalencia" ${modo==='equivalencia'?'selected':''}>Equivalência de taxas</option>
+          <option value="anatocismo" ${modo==='anatocismo'?'selected':''}>Juros simples ou compostos</option>
+          <option value="vpl" ${modo==='vpl'?'selected':''}>VPL, TIR e Custo Efetivo Total</option>
+        </select></div>
+      ${campos[modo]}
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarTaxas()">Calcular</button></div>`;
+}
+
+const CALC_ABAS = [
+  {id:'financiamento', nome:'Financiamento',   sub:'Price, SAC e Misto com tabela de amortização completa', form:formFinanciamento},
+  {id:'atualizacao',   nome:'Atualização',     sub:'Correção por índice oficial, juros de mora e multa',    form:formAtualizacao},
+  {id:'rescisao',      nome:'Rescisão',        sub:'Verbas rescisórias trabalhistas discriminadas',         form:formRescisao},
+  {id:'taxas',         nome:'Taxas',           sub:'Equivalência, anatocismo, VPL, TIR e Custo Efetivo',    form:formTaxas},
+];
+
+function renderCalculos(){
+  const aba = CALC_ABAS.find(a => a.id === calcAba) || CALC_ABAS[0];
+  return `
+    <div class="section-gap">
+      <div class="chips">
+        ${CALC_ABAS.map(a => `<button class="chip ${calcAba===a.id?'active':''}" onclick="setCalcAba('${a.id}')">${a.nome}</button>`).join('')}
+      </div>
+      ${panel('calcForm', aba.nome, aba.sub, aba.form())}
+      <div id="calcSaidaBox">${calcSaida[calcAba] || ''}</div>
+    </div>`;
+}
+
+/* ==========================================================================
+   Seção: proposta de honorários
+   Importa o modelo do perito (.docx, .html ou .txt), preenche os marcadores
+   com os dados da perícia e devolve o documento pronto, preservando margens,
+   cabeçalho e rodapé do arquivo original.
+   ========================================================================== */
+const LS_MODELO = 'pericias.modeloProposta';
+let modeloProposta = (function(){
+  try{ const raw = localStorage.getItem(LS_MODELO); if(raw) return JSON.parse(raw); }catch(e){}
+  return null;
+})();
+let propostaCasoId = null;
+
+/* ---------- número por extenso, em reais ---------- */
+const EXT_UNI = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+const EXT_DEZ = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+const EXT_CEM = ['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+function trecho(n){
+  if(n === 0) return '';
+  if(n === 100) return 'cem';
+  let t = [];
+  const c = Math.floor(n/100), d = n % 100;
+  if(c) t.push(EXT_CEM[c]);
+  if(d){
+    if(d < 20) t.push(EXT_UNI[d]);
+    else {
+      const dz = Math.floor(d/10), un = d % 10;
+      t.push(EXT_DEZ[dz] + (un ? ' e ' + EXT_UNI[un] : ''));
+    }
+  }
+  return t.join(' e ');
+}
+function inteiroExtenso(n){
+  if(n === 0) return 'zero';
+  const grupos = [];
+  let resto = n;
+  while(resto > 0){ grupos.push(resto % 1000); resto = Math.floor(resto/1000); }
+  const nomes = [['',''],['mil','mil'],['milhão','milhões'],['bilhão','bilhões']];
+  const partes = [];
+  for(let g = grupos.length-1; g >= 0; g--){
+    const v = grupos[g];
+    if(v === 0) continue;
+    let txt = (g === 1 && v === 1) ? 'mil' : trecho(v);
+    if(g > 1) txt += ' ' + (v === 1 ? nomes[g][0] : nomes[g][1]);
+    else if(g === 1 && v !== 1) txt += ' mil';
+    partes.push({txt, valor:v});
+  }
+  /* O conectivo "e" entra antes do último grupo quando ele é menor que cem
+     ou uma centena exata; nos demais casos a norma pede vírgula.
+     Ex.: mil e quinhentos · doze mil, trezentos e quarenta e cinco */
+  let saida = '';
+  partes.forEach((p, idx) => {
+    if(idx === 0){ saida = p.txt; return; }
+    const usaE = p.valor < 100 || p.valor % 100 === 0;
+    saida += (usaE ? ' e ' : ', ') + p.txt;
+  });
+  return saida;
+}
+function porExtenso(valor){
+  const inteiro = Math.floor(Math.abs(valor));
+  const centavos = Math.round((Math.abs(valor) - inteiro) * 100);
+  const partes = [];
+  if(inteiro > 0){
+    const txt = inteiroExtenso(inteiro);
+    /* milhão e bilhão redondos pedem a preposição: "um milhão de reais" */
+    const usaDe = /(milhão|milhões|bilhão|bilhões)$/.test(txt);
+    partes.push(txt + (usaDe ? ' de reais' : (inteiro === 1 ? ' real' : ' reais')));
+  }
+  if(centavos > 0) partes.push(inteiroExtenso(centavos) + (centavos === 1 ? ' centavo' : ' centavos'));
+  if(partes.length === 0) return 'zero real';
+  return partes.join(' e ');
+}
+
+/* ---------- leitura do processo e sugestão de honorários ---------- */
+function analisarPericia(c){
+  const texto = normalizeText([c.nome, c.vara, c.partes].join(' '));
+  const perfis = [
+    {re:/haveres|societari|dissolu/, area:'Apuração de haveres em dissolução societária', base:8000, obj:'apurar os haveres do sócio retirante, com levantamento do patrimônio líquido e do valor da participação societária'},
+    {re:/trabalhista|rescis|verbas/,  area:'Perícia contábil trabalhista', base:3500, obj:'revisar os cálculos de liquidação, conferindo verbas rescisórias, reflexos e critérios de atualização'},
+    {re:/presta[çc][ãa]o de contas|esp[óo]lio|inventari/, area:'Prestação de contas', base:5000, obj:'examinar a prestação de contas apresentada, confrontando lançamentos e documentos de suporte'},
+    {re:/fam[íi]lia|div[óo]rcio|partilha/, area:'Perícia contábil em partilha de bens', base:5000, obj:'levantar e avaliar o acervo patrimonial do casal para fins de partilha'},
+    {re:/revisional|financiamento|juros|contrat/, area:'Perícia contábil revisional', base:4500, obj:'recalcular o contrato, verificando a taxa efetivamente praticada, o sistema de amortização e a existência de capitalização'},
+    {re:/execu[çc][ãa]o|c[áa]lculo/, area:'Revisão de cálculos em execução', base:3500, obj:'conferir a memória de cálculo apresentada e apurar o valor devido na data-base'},
+  ];
+  const perfil = perfis.find(p => p.re.test(texto)) || {area:'Perícia contábil judicial', base:4000, obj:'responder aos quesitos formulados pelo juízo e pelas partes, com base no exame da documentação contábil'};
+  const valorCausa = num(c.valorCausa || 0);
+  const adicional = Math.min(perfil.base * 2, valorCausa * 0.005);
+  const sugerido = Math.round((perfil.base + adicional) / 100) * 100;
+  return {...perfil, sugerido, adicional, valorCausa};
+}
+
+/* ---------- marcadores disponíveis ---------- */
+function mapaDaPericia(c, honorarios, analise){
+  const hoje = new Date();
+  const contador = CONTADORES[c.contador] || {label:''};
+  const cidade = (c.comarca || '').split('/')[0].trim();
+  const mesExtenso = hoje.toLocaleDateString('pt-BR', {month:'long'});
+  return {
+    codigo: c.codigo || '',
+    nome: c.nome || '',
+    processo: c.numeroProcesso || '',
+    codigo_acesso: c.codigoAcesso || '',
+    vara: c.vara || '',
+    comarca: c.comarca || '',
+    cidade: cidade,
+    partes: c.partes || '',
+    autor: (c.partes || '').split(/\s+x\s+/i)[0] || '',
+    reu: (c.partes || '').split(/\s+x\s+/i)[1] || '',
+    perito: contador.label,
+    area: analise.area,
+    objeto: analise.obj,
+    data_nomeacao: fmtDate(c.dataNomeacao),
+    prazo: fmtDate(c.prazoEntrega),
+    status: (STATUS[c.statusCaso] || {}).label || '',
+    honorarios: brl(honorarios),
+    honorarios_extenso: porExtenso(honorarios),
+    valor_causa: c.valorCausa ? brl(num(c.valorCausa)) : '',
+    data: hoje.toLocaleDateString('pt-BR'),
+    data_extenso: `${cidade || 'Goiânia'}, ${hoje.getDate()} de ${mesExtenso} de ${hoje.getFullYear()}`,
+  };
+}
+const MARCADORES_DESC = [
+  ['processo','Número do processo'], ['vara','Vara'], ['comarca','Comarca'], ['cidade','Cidade da comarca'],
+  ['partes','Partes'], ['autor','Polo ativo'], ['reu','Polo passivo'], ['perito','Perito responsável'],
+  ['area','Área da perícia identificada'], ['objeto','Objeto proposto para o trabalho'],
+  ['honorarios','Honorários em números'], ['honorarios_extenso','Honorários por extenso'],
+  ['valor_causa','Valor da causa'], ['prazo','Prazo de entrega'], ['data_nomeacao','Data da nomeação'],
+  ['codigo','Código interno da perícia'], ['codigo_acesso','Código de acesso'], ['nome','Nome da perícia'],
+  ['status','Situação da perícia'], ['data','Data de hoje'], ['data_extenso','Local e data por extenso'],
+];
+
+/* ---------- preenchimento do modelo ---------- */
+function escaparXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function aplicarMapa(texto, mapa){
+  return texto.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g, (achado, chave) =>
+    Object.prototype.hasOwnProperty.call(mapa, chave) ? mapa[chave] : achado);
+}
+/* No .docx um marcador costuma vir quebrado entre vários <w:t>; por isso a troca
+   é feita no parágrafo inteiro e o resultado volta para o primeiro trecho. */
+function substituirNoXml(xml, mapa){
+  return xml.replace(/<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g, par => {
+    const trechos = [...par.matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g)];
+    if(trechos.length === 0) return par;
+    const juntado = trechos.map(m => m[1]).join('');
+    const trocado = aplicarMapa(juntado, mapa);
+    if(trocado === juntado) return par;
+    let i = 0;
+    return par.replace(/(<w:t)((?:\s[^>]*)?)(>)([\s\S]*?)(<\/w:t>)/g, (m, ini, attrs, fecha, conteudo, fim) => {
+      const novo = i === 0 ? escaparXml(trocado) : '';
+      i++;
+      const comEspaco = attrs.includes('xml:space') ? attrs : attrs + ' xml:space="preserve"';
+      return ini + comEspaco + fecha + novo + fim;
+    });
+  });
+}
+async function preencherDocx(bytes, mapa){
+  const zip = await JSZip.loadAsync(bytes);
+  const alvos = Object.keys(zip.files).filter(n => /^word\/(document|header\d*|footer\d*)\.xml$/.test(n));
+  for(const nome of alvos){
+    const xml = await zip.file(nome).async('string');
+    zip.file(nome, substituirNoXml(xml, mapa));
+  }
+  return await zip.generateAsync({type:'uint8array'});
+}
+
+/* ---------- modelo padrão, para quem ainda não importou o seu ---------- */
+function propostaPadrao(mapa){
+  const linha = (k,v) => v ? `<tr><td style="padding:3px 10px 3px 0; color:#555;">${k}</td><td style="padding:3px 0;"><b>${escapeHtml(v)}</b></td></tr>` : '';
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">
+<style>@page{margin:2.5cm 2cm;} body{font-family:'Times New Roman',serif; font-size:12pt; line-height:1.5; color:#000;}
+h1{font-size:13pt; text-align:center; text-transform:uppercase; letter-spacing:.06em; margin-bottom:26px;}
+p{text-align:justify; margin:0 0 12px;} .ass{margin-top:60px; text-align:center;}</style></head><body>
+<h1>Proposta de Honorários Periciais</h1>
+<table style="margin-bottom:22px; font-size:11pt;">
+${linha('Processo nº', mapa.processo)}${linha('Vara', mapa.vara)}${linha('Comarca', mapa.comarca)}
+${linha('Partes', mapa.partes)}${linha('Perito', mapa.perito)}${linha('Natureza', mapa.area)}
+</table>
+<p>Meritíssimo Juiz,</p>
+<p>${escapeHtml(mapa.perito)}, perito-contador nomeado nos autos em epígrafe, vem respeitosamente
+apresentar sua proposta de honorários periciais, nos termos do artigo 465, parágrafo 2º, do Código de Processo Civil.</p>
+<p><b>Objeto do trabalho.</b> A perícia tem por finalidade ${escapeHtml(mapa.objeto)}, abrangendo o exame da documentação
+juntada aos autos, a elaboração da memória de cálculo correspondente e a resposta aos quesitos das partes e do juízo.</p>
+<p><b>Honorários propostos.</b> Para a realização do trabalho, estimam-se honorários de
+<b>R$ ${escapeHtml(mapa.honorarios)}</b> (${escapeHtml(mapa.honorarios_extenso)}), considerando a complexidade da matéria,
+o volume de documentos a examinar e as horas técnicas estimadas.</p>
+<p><b>Prazo.</b> O laudo será entregue até ${escapeHtml(mapa.prazo || 'a data a ser fixada por este juízo')},
+contado da intimação do depósito dos honorários e da disponibilização integral dos documentos necessários.</p>
+<p>Nestes termos, pede deferimento.</p>
+<p class="ass">${escapeHtml(mapa.data_extenso)}<br><br>_______________________________________<br>${escapeHtml(mapa.perito)}<br>Perito-Contador</p>
+</body></html>`;
+}
+
+/* ---------- importação e geração ---------- */
+async function importarModelo(input){
+  const f = input.files[0];
+  if(!f) return;
+  const status = document.getElementById('modeloStatus');
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  if(bytes.length > 3 * 1024 * 1024){
+    status.textContent = 'O modelo passa de 3 MB. Use um arquivo menor.';
+    input.value = ''; return;
+  }
+  modeloProposta = {nome:f.name, tipo:f.type || mimeFor(extOf(f.name)), ext:extOf(f.name), base64:bytesToBase64(bytes), quando:todayIso()};
+  try{
+    localStorage.setItem(LS_MODELO, JSON.stringify(modeloProposta));
+  }catch(e){
+    status.textContent = 'O modelo foi carregado, mas não coube no armazenamento do navegador — ele vale só para esta sessão.';
+  }
+  input.value = '';
+  renderAll();
+}
+function removerModelo(){
+  modeloProposta = null;
+  try{ localStorage.removeItem(LS_MODELO); }catch(e){}
+  renderAll();
+}
+function dadosProposta(){
+  const casoId = (document.getElementById('propCaso') || {}).value;
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return null;
+  const analise = analisarPericia(c);
+  const campo = document.getElementById('propHonorarios');
+  const honorarios = campo ? num(campo.value) : analise.sugerido;
+  return {c, analise, honorarios, mapa: mapaDaPericia(c, honorarios, analise)};
+}
+async function gerarProposta(anexar){
+  const d = dadosProposta();
+  const status = document.getElementById('propStatus');
+  if(!d){ status.textContent = 'Escolha a perícia.'; return; }
+  if(d.honorarios <= 0){ status.textContent = 'Informe o valor dos honorários.'; return; }
+  status.textContent = 'Gerando...';
+  let bytes, nomeArq, mime;
+  try{
+    if(modeloProposta && modeloProposta.ext === 'docx'){
+      bytes = await preencherDocx(base64ToBytes(modeloProposta.base64), d.mapa);
+      nomeArq = `proposta_honorarios_${d.c.codigo}.docx`;
+      mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else if(modeloProposta){
+      const texto = aplicarMapa(new TextDecoder().decode(base64ToBytes(modeloProposta.base64)), d.mapa);
+      bytes = new TextEncoder().encode(texto);
+      nomeArq = `proposta_honorarios_${d.c.codigo}.${modeloProposta.ext || 'txt'}`;
+      mime = modeloProposta.tipo || 'text/plain';
+    } else {
+      bytes = new TextEncoder().encode(propostaPadrao(d.mapa));
+      nomeArq = `proposta_honorarios_${d.c.codigo}.doc`;
+      mime = 'application/msword';
+    }
+  }catch(e){
+    status.textContent = 'Não foi possível preencher o modelo. Verifique se o arquivo é um .docx válido.';
+    return;
+  }
+
+  if(anexar){
+    const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+    const built = await buildArquivo(d.c.id, docId, bytes, nomeArq, mime);
+    await addDoc(d.c.id, {
+      nome: nomeArq, fase:'Proposta de Honorários', tipo:'Outro', data: todayIso(),
+      obs: `Proposta de R$ ${brl(d.honorarios)} — ${d.analise.area}.`,
+      tamanho: bytes.length, arquivo: built.arquivo, processo: d.c.numeroProcesso || null, codigoAcesso: null
+    }, docId);
+    status.textContent = `Anexado em ${d.c.codigo}.`;
+    renderNav();
+  } else {
+    const blob = new Blob([bytes], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nomeArq;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    status.textContent = 'Documento gerado.';
+  }
+}
+function atualizarPrevia(){
+  const alvo = document.getElementById('propPrevia');
+  if(!alvo) return;
+  const d = dadosProposta();
+  if(!d){ alvo.innerHTML = ''; return; }
+  const linhas = MARCADORES_DESC
+    .map(([chave, desc]) => [chave, desc, d.mapa[chave]])
+    .filter(l => String(l[2]).trim() !== '');
+  alvo.innerHTML = `
+    <div class="calc-nota" style="margin:0 0 10px;">
+      Perícia lida como <b>${escapeHtml(d.analise.area)}</b>.
+      Sugestão de honorários: base de R$ ${brl(d.analise.base)}${d.analise.adicional > 0 ? ` mais R$ ${brl(d.analise.adicional)}, equivalentes a 0,5% do valor da causa` : ''}.
+      O valor é uma referência — ajuste conforme o seu critério.
+    </div>
+    <div class="rows">
+      ${linhas.map(([chave, desc, valor]) => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title mono" style="font-size:12.5px;">{{${chave}}}</div>
+            <div class="row-sub">${desc}</div>
+          </div>
+          <div class="row-side"><span class="row-date" style="max-width:340px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(String(valor))}</span></div>
+        </div>`).join('')}
+    </div>`;
+}
+function trocarPericiaProposta(){
+  const d = dadosProposta();
+  const campo = document.getElementById('propHonorarios');
+  if(d && campo) campo.value = brl(d.analise.sugerido);
+  atualizarPrevia();
+}
+
+function renderProposta(){
+  const lista = casosDoContador();
+  if(lista.length === 0){
+    return `<div class="empty-state"><h3>Nenhuma perícia cadastrada</h3><p>Crie uma perícia para gerar a proposta de honorários dela.</p></div>`;
+  }
+  const primeiro = lista[0];
+  const analise = analisarPericia(primeiro);
+
+  const corpoModelo = modeloProposta ? `
+      <div class="rows" style="margin-bottom:12px;">
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(modeloProposta.nome)}</div>
+            <div class="row-sub">Importado em ${fmtDate(modeloProposta.quando)} · ${fmtBytes(Math.round(modeloProposta.base64.length*3/4))}</div>
+          </div>
+          <div class="row-side"><button class="btn btn-ghost btn-sm" onclick="removerModelo()">Remover</button></div>
+        </div>
+      </div>
+      <div class="calc-nota" style="margin-top:0;">O documento gerado mantém as margens, o cabeçalho, o rodapé e a logomarca do seu arquivo.</div>`
+    : `
+      <div class="banner banner-info" style="margin-bottom:12px;">
+        ${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}
+        <span>Nenhum modelo importado. Enquanto isso, o app gera uma proposta em formato padrão, que abre no Word.</span>
+      </div>`;
+
+  const corpoImport = `
+      <input type="file" id="modeloInput" accept=".docx,.html,.htm,.txt" style="display:none" onchange="importarModelo(this)">
+      <div class="acoes">
+        <button class="btn btn-primary" onclick="document.getElementById('modeloInput').click()">
+          ${svg('<path d="M12 21V9M7 13l5-5 5 5M4 4h16"/>')} Importar modelo
+        </button>
+        <span class="dica" style="font-size:11.5px; color:var(--muted);">Aceita .docx, .html ou .txt</span>
+      </div>
+      <div id="modeloStatus" class="hint"></div>`;
+
+  const corpoGerar = `
+      <div class="form-grid">
+        <div class="field" style="grid-column:1/-1;"><label for="propCaso">Perícia</label>
+          <select id="propCaso" onchange="trocarPericiaProposta()">
+            ${lista.map(c => `<option value="${c.id}">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</option>`).join('')}
+          </select></div>
+        <div class="field"><label for="propHonorarios">Honorários propostos (R$)</label>
+          <input id="propHonorarios" inputmode="decimal" value="${brl(analise.sugerido)}" oninput="atualizarPrevia()">
+          <span class="dica">Sugestão a partir da natureza da perícia e do valor da causa</span></div>
+      </div>
+      <div class="acoes">
+        <button class="btn btn-primary" onclick="gerarProposta(false)">Gerar documento</button>
+        <button class="btn btn-ghost" onclick="gerarProposta(true)">Gerar e anexar à perícia</button>
+        <span id="propStatus" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
+      </div>
+      <div id="propPrevia" style="margin-top:16px;"></div>`;
+
+  const corpoMarcadores = `
+      <div class="calc-nota" style="margin-top:0;">
+        Escreva estes marcadores no seu modelo, entre chaves duplas, exatamente como aparecem abaixo.
+        Cada um é trocado pelo dado da perícia no momento da geração; o que não existir no modelo é simplesmente ignorado.
+      </div>
+      <div class="kv-grid" style="margin-top:12px;">
+        ${MARCADORES_DESC.map(([chave, desc]) => `
+          <div class="kv"><div class="k mono" style="text-transform:none; letter-spacing:0; color:var(--accent-deep);">{{${chave}}}</div><div class="v" style="font-size:12.5px; color:var(--muted);">${desc}</div></div>`).join('')}
+      </div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('propModelo', 'Modelo do escritório', modeloProposta ? 'importado' : 'nenhum importado', corpoModelo + corpoImport)}
+      ${panel('propGerar', 'Gerar proposta', 'preenche com os dados da perícia', corpoGerar)}
+      ${panel('propMarcadores', 'Marcadores aceitos no modelo', `${MARCADORES_DESC.length} campos`, corpoMarcadores)}
+    </div>`;
+}
+
+/* ==========================================================================
+   Seção: configurações
+   ========================================================================== */
+function renderConfig(){
+  const totalDocs = casos.reduce((s,c) => s + (c.documentos||[]).length, 0);
+  const comArquivo = casos.reduce((s,c) => s + (c.documentos||[]).filter(d => d.arquivo).length, 0);
+  const bytes = casos.reduce((s,c) => s + (c.documentos||[]).reduce((t,d) => t + (d.tamanho||0), 0), 0);
+  const corpoConta = `
+        <div class="kv-grid">
+          <div class="kv"><div class="k">Estado</div><div class="v">${currentUser ? 'Sincronizado na nuvem' : 'Somente neste navegador'}</div></div>
+          <div class="kv"><div class="k">Conta</div><div class="v">${currentUser ? escapeHtml(currentUser.email) : 'Não conectado'}</div></div>
+          <div class="kv"><div class="k">Banco de dados</div><div class="v">${usingDb ? 'Firestore' : 'Armazenamento local'}</div></div>
+          <div class="kv"><div class="k">Arquivos</div><div class="v">${storage && usingDb ? 'Firebase Storage' : 'Embutidos no registro'}</div></div>
+        </div>
+        <div class="hint" style="margin-top:12px;">
+          Sem login, os dados ficam apenas neste navegador e não acompanham você em outro dispositivo.
+          Ao entrar com uma conta autorizada, tudo passa a sincronizar automaticamente.
+        </div>`;
+
+  const corpoContas = `
+        <div class="rows">
+          ${ALLOWED_EMAILS.map(e => `
+            <div class="row-item" style="cursor:default;">
+              <div class="row-main"><div class="row-title mono" style="font-size:13px;">${escapeHtml(e)}</div></div>
+              <div class="row-side">${currentUser && currentUser.email === e ? '<span class="pill pill-success">conectada agora</span>' : '<span class="pill pill-muted">autorizada</span>'}</div>
+            </div>`).join('')}
+        </div>`;
+
+  const corpoArmazenamento = `
+        <div class="kv-grid">
+          <div class="kv"><div class="k">Registros</div><div class="v num">${totalDocs}</div></div>
+          <div class="kv"><div class="k">Com arquivo anexado</div><div class="v num">${comArquivo}</div></div>
+          <div class="kv"><div class="k">Volume aproximado</div><div class="v num">${fmtBytes(bytes) || '0 B'}</div></div>
+          <div class="kv"><div class="k">Limite por arquivo</div><div class="v num">${usingDb && storage ? '50 MB' : '5 MB'}</div></div>
+        </div>
+        <div class="hint" style="margin-top:12px;">
+          Conectado à nuvem, cada arquivo vai para o Storage e aceita até 50 MB. Sem conexão, o arquivo fica embutido no próprio registro do navegador.
+        </div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('conta', 'Conta e sincronização', '', corpoConta)}
+      ${panel('contas', 'Contas autorizadas', 'definido no app e nas regras do servidor', corpoContas)}
+      ${panel('armazenamento', 'Documentos armazenados', '', corpoArmazenamento)}
+    </div>`;
+}
+
+/* ==========================================================================
+   Render principal
+   ========================================================================== */
+function renderAll(){
+  renderPeritos();
+  renderNav();
+  renderTopbar();
+  renderAccount();
+  renderThemeButton();
+  const view = document.getElementById('view');
+  if(activeSection === 'visao') view.innerHTML = renderVisao();
+  else if(activeSection === 'pericias') view.innerHTML = renderPericias();
+  else if(activeSection === 'prazos') view.innerHTML = renderPrazos();
+  else if(activeSection === 'calculos') view.innerHTML = renderCalculos();
+  else if(activeSection === 'proposta'){ view.innerHTML = renderProposta(); atualizarPrevia(); }
+  else if(activeSection === 'docs') view.innerHTML = renderDocs();
+  else if(activeSection === 'projudi') view.innerHTML = renderProjudi();
+  else if(activeSection === 'config') view.innerHTML = renderConfig();
+  if(drawerCasoId) renderDrawer();
+}
+
+/* ==========================================================================
+   Firebase: login, Firestore e Storage
+   ========================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyA0UQuXuFI85MFjdfNn2YAYv2VNbZEUKmk',
+  authDomain: 'gerenciador-pericias-app.firebaseapp.com',
+  projectId: 'gerenciador-pericias-app',
+  storageBucket: 'gerenciador-pericias-app.firebasestorage.app',
+  messagingSenderId: '501336744750',
+  appId: '1:501336744750:web:c0b631495bcef8071490bf'
+};
+const ALLOWED_EMAILS = ['jonatasmiranda2405@gmail.com','rodrigodosantosmiranda@gmail.com','periciamiranda@gmail.com'];
+const MAX_STORAGE_BYTES = 50 * 1024 * 1024;
+const MAX_FIRESTORE_EMBED_BYTES = 700 * 1024;
+let auth = null, storage = null, currentUser = null, casosUnsub = null;
+
+function cloudSetBanner(html){
+  const el = document.getElementById('banner');
+  if(el) el.innerHTML = html;
+}
+function bannerInfo(texto){
+  return `<div class="banner banner-info">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}<span>${texto}</span></div>`;
+}
+function bannerAviso(texto){
+  return `<div class="banner">${svg('<path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17v.01"/>')}<span>${texto}</span></div>`;
+}
+
+async function signInGoogle(){
+  if(!auth){ cloudSetBanner(bannerAviso('Sincronização com a nuvem ainda não está configurada neste app.')); return; }
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  }catch(e){
+    cloudSetBanner(bannerAviso('Não foi possível entrar com o Google. Tente novamente.'));
+  }
+}
+async function signOutGoogle(){
+  if(!auth) return;
+  try{ await auth.signOut(); }catch(e){}
+}
+
+function firebaseInit(){
+  if(typeof firebase === 'undefined') return;
+  if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(FIREBASE_CONFIG); }
+  auth = firebase.auth();
+  storage = firebase.storage();
+  auth.onAuthStateChanged(async (user) => {
+    if(user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase())){
+      currentUser = user;
+    } else {
+      if(user){
+        cloudSetBanner(bannerAviso('Este e-mail (' + escapeHtml(user.email||'') + ') não tem permissão de acesso a este aplicativo.'));
+        try{ await auth.signOut(); }catch(e){}
+      }
+      currentUser = null;
+    }
+    updateAuthButton();
+    await applyAuthState();
+  });
+}
+
+async function applyAuthState(){
+  if(currentUser){
+    db = firebase.firestore();
+    usingDb = true;
+    usingLocalStorage = false;
+    await startDbSync();
+    cloudSetBanner(bannerInfo('Conectado como ' + escapeHtml(currentUser.email) + '. Os dados sincronizam automaticamente entre os dispositivos em que você entrar com esta conta.'));
+  } else {
+    usingDb = false;
+    db = null;
+    if(casosUnsub){ casosUnsub(); casosUnsub = null; }
+    if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+    const loaded = loadCasosFromLocalStorage();
+    if(loaded) casos = loaded;
+    usingLocalStorage = true;
+    persistCasosToLocalStorage();
+    cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com o Google (conta autorizada) para sincronizar entre dispositivos.'));
+    renderAll();
+  }
+}
+
+async function startDbSync(){
+  try{
+    const snap = await db.collection('casos').get();
+    if(snap.empty && casos.length){
+      for(const c of casos){
+        const {id, documentos, ...data} = c;
+        await db.collection('casos').doc(id).set(data);
+        for(const d of (documentos||[])){
+          const {id:docId, ...docData} = d;
+          await db.collection('casos').doc(id).collection('documentos').doc(docId).set(docData);
+        }
+      }
+    }
+  }catch(e){ /* segue para a inscrição mesmo assim */ }
+  if(casosUnsub) casosUnsub();
+  casosUnsub = db.collection('casos').onSnapshot(snap => {
+    const prevDocs = {};
+    casos.forEach(c => { prevDocs[c.id] = c.documentos; });
+    casos = snap.docs.map(d => ({id:d.id, documentos: prevDocs[d.id] || [], ...d.data()}));
+    renderAll();
+  }, err => {
+    cloudSetBanner(bannerAviso('Não foi possível sincronizar os dados agora (' + escapeHtml(err.code||'erro') + '). Exibindo a última versão conhecida.'));
+  });
+  if(drawerCasoId) subscribeDocumentos(drawerCasoId);
+}
+
+function loadCasosFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(LS_CASOS_KEY);
+    if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) return parsed; }
+  }catch(e){ }
+  return null;
+}
+function persistCasosToLocalStorage(){
+  if(!usingLocalStorage) return;
+  try{
+    localStorage.setItem(LS_CASOS_KEY, JSON.stringify(casos));
+  }catch(e){
+    cloudSetBanner(usingDb
+      ? bannerAviso('O armazenamento local deste navegador está cheio, mas seus dados continuam salvos na nuvem normalmente.')
+      : bannerAviso('O armazenamento local deste navegador está cheio e a última alteração pode não ter sido salva. Entre com o Google para sincronizar com a nuvem, ou remova documentos grandes que não sejam mais necessários.'));
+  }
+}
+
+async function initDb(){
+  const loaded = loadCasosFromLocalStorage();
+  if(loaded) casos = loaded;
+  usingLocalStorage = true;
+  persistCasosToLocalStorage();
+  cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com o Google (conta autorizada) para sincronizar entre dispositivos.'));
+  renderAll();
+  firebaseInit();
+}
+
+/* ==========================================================================
+   Persistência: perícias
+   ========================================================================== */
+async function saveCaso(id, patch){
+  const idx = casos.findIndex(c => c.id === id);
+  if(idx === -1) return;
+  casos[idx] = {...casos[idx], ...patch};
+  if(usingDb){
+    try{ await db.collection('casos').doc(id).update(patch); }
+    catch(e){ /* mantém o estado local */ }
+  } else {
+    persistCasosToLocalStorage();
+    renderAll();
+  }
+}
+async function criarCaso(data){
+  const id = 'c' + Date.now();
+  const novo = {id, documentos:[], ...data};
+  casos.push(novo);
+  if(usingDb){
+    try{ await db.collection('casos').doc(id).set(data); }catch(e){}
+  } else {
+    persistCasosToLocalStorage();
+  }
+  renderAll();
+  return id;
+}
+async function excluirCaso(id){
+  casos = casos.filter(c => c.id !== id);
+  if(usingDb){
+    try{
+      const snap = await db.collection('casos').doc(id).collection('documentos').get();
+      for(const d of snap.docs){ await db.collection('casos').doc(id).collection('documentos').doc(d.id).delete(); }
+    }catch(e){}
+    try{ await db.collection('casos').doc(id).delete(); }catch(e){}
+  } else {
+    persistCasosToLocalStorage();
+  }
+  closeDrawer();
+  renderAll();
+}
+function nextCodigo(){
+  const year = new Date().getFullYear();
+  const n = casos.length + 1;
+  return `PER-${year}-${String(n).padStart(3,'0')}`;
+}
+async function novaPericia(){
+  const data = {
+    contador: activeContador, codigo: nextCodigo(), nome:'Nova perícia', numeroProcesso:'', vara:'', comarca:'', partes:'',
+    dataNomeacao: todayIso(), prazoEntrega: todayIso(), honorarios:0, valorRecebido:0,
+    statusCaso:'aguardando_nomeacao', observacoes:[]
+  };
+  const id = await criarCaso(data);
+  openDrawer(id);
+}
+async function changeContadorDoCaso(id, val){
+  await saveCaso(id, {contador: val});
+  renderAll();
+}
+function fieldUpdate(id, key, val, isNumber){
+  saveCaso(id, {[key]: isNumber ? (parseFloat(val)||0) : val});
+}
+
+/* ==========================================================================
+   Persistência: documentos
+   ========================================================================== */
+function subscribeDocumentos(casoId){
+  if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+  if(!usingDb) return;
+  const c = casos.find(x => x.id === casoId);
+  if(c && !Array.isArray(c.documentos)) c.documentos = [];
+  currentDocsUnsub = db.collection('casos').doc(casoId).collection('documentos').onSnapshot(snap => {
+    const cc = casos.find(x => x.id === casoId);
+    if(!cc) return;
+    cc.documentos = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    if(drawerCasoId === casoId) renderDrawer();
+  }, err => { /* mantém último estado conhecido */ });
+}
+async function addDoc(casoId, data, docId){
+  docId = docId || ('d'+Date.now()+Math.random().toString(36).slice(2,6));
+  if(usingDb){
+    try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).set(data); return docId; }
+    catch(e){ /* cai para o modo local */ }
+  }
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return docId;
+  c.documentos = [...(c.documentos||[]), {id:docId, ...data}];
+  persistCasosToLocalStorage();
+  return docId;
+}
+async function updateDoc(casoId, docId, patch){
+  if(usingDb){
+    try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).update(patch); return; }
+    catch(e){}
+  }
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return;
+  c.documentos = c.documentos.map(d => d.id === docId ? {...d, ...patch} : d);
+  persistCasosToLocalStorage();
+}
+async function removeDoc(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && c.documentos && c.documentos.find(x => x.id === docId);
+  if(usingDb){
+    try{ await db.collection('casos').doc(casoId).collection('documentos').doc(docId).delete(); }
+    catch(e){}
+    if(d && d.arquivo && d.arquivo.storagePath && storage){
+      try{ await storage.ref().child(d.arquivo.storagePath).delete(); }catch(e){}
+    }
+  } else {
+    if(c) c.documentos = c.documentos.filter(x => x.id !== docId);
+    persistCasosToLocalStorage();
+  }
+  renderDrawer(); renderAll();
+}
+
+async function buildArquivo(casoId, docId, bytes, filename, mime){
+  if(!bytes || bytes.length === 0) return {arquivo:null, obs:''};
+  if(usingDb && storage && bytes.length <= MAX_STORAGE_BYTES){
+    try{
+      const path = `casos/${casoId}/documentos/${docId}/${filename}`;
+      const ref = storage.ref().child(path);
+      await ref.put(bytes, {contentType: mime});
+      const url = await ref.getDownloadURL();
+      return {arquivo:{url, storagePath:path, mime, tamanho:bytes.length}, obs:''};
+    }catch(e){
+      /* Storage indisponível — cai para embutir no Firestore */
+    }
+  }
+  const embedLimit = usingDb ? MAX_FIRESTORE_EMBED_BYTES : MAX_EMBED_BYTES;
+  if(bytes.length <= embedLimit){
+    return {arquivo:{dataUrl:`data:${mime};base64,${bytesToBase64(bytes)}`, mime, tamanho:bytes.length}, obs:''};
+  }
+  return {arquivo:null, obs:`Arquivo de ${fmtBytes(bytes.length)}, grande demais para armazenar; apenas o registro foi salvo.`};
+}
+
+async function addDocFromForm(casoId){
+  const nomeInput = document.getElementById(`docNome-${casoId}`);
+  const nome = nomeInput.value.trim();
+  if(!nome) return;
+  const fase = document.getElementById(`docFase-${casoId}`).value.trim() || 'Sem fase identificada';
+  const tipo = document.getElementById(`docTipo-${casoId}`).value;
+  const data = document.getElementById(`docData-${casoId}`).value || todayIso();
+  let obs = document.getElementById(`docObs-${casoId}`).value.trim();
+  const fileInput = document.getElementById(`docArquivo-${casoId}`);
+  let arquivo = null, tamanho = null;
+  let processo = guessProcessoFromFilename(nome);
+  let codigoAcesso = null;
+  const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+  if(fileInput.files[0]){
+    const f = fileInput.files[0];
+    processo = processo || guessProcessoFromFilename(f.name);
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    tamanho = bytes.length;
+    if(extOf(f.name) === 'pdf'){
+      const info = await extractPdfInfo(bytes);
+      processo = processo || info.processo;
+      codigoAcesso = info.codigoAcesso;
+    }
+    const mime = f.type || mimeFor(extOf(f.name));
+    const built = await buildArquivo(casoId, docId, bytes, f.name, mime);
+    arquivo = built.arquivo;
+    if(built.obs) obs = (obs ? obs+' — ' : '') + built.obs;
+  }
+  await addDoc(casoId, {nome, fase, tipo, data, obs, tamanho, arquivo, processo, codigoAcesso}, docId);
+  const c = casos.find(x => x.id === casoId);
+  if(c && processo && !c.numeroProcesso){ await saveCaso(casoId, {numeroProcesso: processo}); }
+  if(c && codigoAcesso && !c.codigoAcesso){ await saveCaso(casoId, {codigoAcesso}); }
+  nomeInput.value=''; document.getElementById(`docFase-${casoId}`).value=''; document.getElementById(`docObs-${casoId}`).value=''; fileInput.value='';
+  renderDrawer(); renderAll();
+}
+
+async function handleZipImport(casoId, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById(`zipStatus-${casoId}`);
+  if(typeof JSZip === 'undefined'){
+    statusEl.textContent = 'Não foi possível carregar o leitor de ZIP. Tente novamente em alguns instantes.';
+    inputEl.value = '';
+    return;
+  }
+  statusEl.textContent = 'Lendo arquivo ZIP...';
+  try{
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+    const entries = Object.values(zip.files).filter(f => !f.dir);
+    if(entries.length === 0){ statusEl.textContent = 'O ZIP não contém arquivos.'; inputEl.value=''; return; }
+    let imported = 0, semArquivo = 0;
+    const processosDetectados = [];
+    const codigosDetectados = [];
+    for(const entry of entries){
+      statusEl.textContent = `Importando ${imported+1} de ${entries.length}...`;
+      const bytes = await entry.async('uint8array');
+      const parts = entry.name.split('/').filter(Boolean);
+      const filename = parts[parts.length-1];
+      const folder = parts.length > 1 ? parts[0] : null;
+      const guess = guessFromFilename(filename);
+      const fase = cleanFolderName(folder) || guess.fase || 'Sem fase identificada';
+      const tipo = guess.tipo;
+      const data = guessDateFromFilename(filename) || isoFromDate(entry.date || new Date());
+      let processo = guessProcessoFromFilename(entry.name);
+      let codigoAcesso = null;
+      if(extOf(filename) === 'pdf'){
+        statusEl.textContent = `Lendo texto do PDF ${imported+1} de ${entries.length}...`;
+        const info = await extractPdfInfo(bytes);
+        processo = processo || info.processo;
+        codigoAcesso = info.codigoAcesso;
+      }
+      if(processo) processosDetectados.push(processo);
+      if(codigoAcesso) codigosDetectados.push(codigoAcesso);
+      let arquivo = null, obs = '';
+      const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+      if(bytes.length > 0){
+        const built = await buildArquivo(casoId, docId, bytes, filename, mimeFor(extOf(filename)));
+        arquivo = built.arquivo;
+        if(built.obs){ semArquivo++; obs = built.obs; }
+      }
+      await addDoc(casoId, {nome:filename, fase, tipo, data, obs, tamanho:bytes.length, arquivo, processo, codigoAcesso}, docId);
+      imported++;
+    }
+    let processoMsg = '';
+    const c = casos.find(x => x.id === casoId);
+    if(c && processosDetectados.length){
+      const freq = {};
+      processosDetectados.forEach(p => { freq[p] = (freq[p]||0)+1; });
+      const maisFrequente = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+      if(!c.numeroProcesso){
+        await saveCaso(casoId, {numeroProcesso: maisFrequente});
+        processoMsg = ` Número do processo identificado nos documentos e preenchido automaticamente: ${maisFrequente}.`;
+      } else {
+        const divergentes = processosDetectados.filter(p => p !== c.numeroProcesso).length;
+        if(divergentes > 0){
+          processoMsg = ` Atenção: ${divergentes} documento(s) têm número de processo diferente do cadastrado nesta perícia (${c.numeroProcesso}) — verifique se foram importados no caso certo.`;
+        }
+      }
+    }
+    let codigoMsg = '';
+    if(c && codigosDetectados.length && !c.codigoAcesso){
+      const freqC = {};
+      codigosDetectados.forEach(p => { freqC[p] = (freqC[p]||0)+1; });
+      const codigoMaisFrequente = Object.entries(freqC).sort((a,b)=>b[1]-a[1])[0][0];
+      await saveCaso(casoId, {codigoAcesso: codigoMaisFrequente});
+      codigoMsg = ` Código de acesso identificado nos documentos: ${codigoMaisFrequente}.`;
+    }
+    statusEl.textContent = `Importação concluída: ${imported} documento(s) adicionados${semArquivo ? ', '+semArquivo+' sem arquivo anexado (muito grandes)' : ''}.${processoMsg}${codigoMsg}`;
+  }catch(e){
+    statusEl.textContent = 'Não foi possível ler este ZIP. Verifique o arquivo e tente novamente.';
+  }
+  inputEl.value = '';
+  renderDrawer(); renderAll();
+}
+
+async function downloadDoc(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && c.documentos.find(x => x.id === docId);
+  if(!d || !d.arquivo) return;
+  const src = arquivoSrc(d.arquivo);
+  try{
+    const res = await fetch(src);
+    if(!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = d.nome;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }catch(e){
+    window.open(src, '_blank');
+  }
+}
+
+function editDoc(docId){ editingDocId = docId; renderDrawer(); }
+function cancelEditDoc(){ editingDocId = null; renderDrawer(); }
+async function saveDocEdit(casoId, docId){
+  const fase = document.getElementById(`editFase-${docId}`).value.trim() || 'Sem fase identificada';
+  const tipo = document.getElementById(`editTipo-${docId}`).value;
+  const data = document.getElementById(`editData-${docId}`).value;
+  await updateDoc(casoId, docId, {fase, tipo, data});
+  editingDocId = null;
+  renderDrawer(); renderAll();
+}
+
+function groupByFase(docs){
+  const groups = {};
+  (docs||[]).forEach(d => {
+    const key = d.fase || 'Sem fase identificada';
+    (groups[key] = groups[key] || []).push(d);
+  });
+  const entries = Object.entries(groups).map(([fase, items]) => {
+    items.sort((a,b) => (a.data||'').localeCompare(b.data||''));
+    const minDate = items.reduce((min,i) => (i.data && (!min || i.data < min)) ? i.data : min, null);
+    return {fase, items, minDate};
+  });
+  entries.sort((a,b) => {
+    if(a.fase === 'Sem fase identificada') return 1;
+    if(b.fase === 'Sem fase identificada') return -1;
+    return (a.minDate || '9999-99-99').localeCompare(b.minDate || '9999-99-99');
+  });
+  return entries;
+}
+
+/* ==========================================================================
+   Gaveta de detalhe e visualizador
+   ========================================================================== */
+function openDrawer(id){
+  drawerCasoId = id;
+  editingDocId = null;
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderDrawer();
+  subscribeDocumentos(id);
+}
+function closeDrawer(){
+  if(currentDocsUnsub){ currentDocsUnsub(); currentDocsUnsub = null; }
+  drawerCasoId = null;
+  editingDocId = null;
+  document.getElementById('drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('drawer').innerHTML = '';
+  renderAll();
+}
+function openViewer(casoId, docId){
+  const c = casos.find(x => x.id === casoId);
+  const d = c && (c.documentos||[]).find(x => x.id === docId);
+  if(!d || !d.arquivo) return;
+  const src = arquivoSrc(d.arquivo);
+  const mime = arquivoMime(d.arquivo);
+  let bodyHtml;
+  if(mime === 'application/pdf'){
+    bodyHtml = `<iframe src="${src}" title="${escapeHtml(d.nome)}"></iframe>`;
+  } else if(mime.startsWith('image/')){
+    bodyHtml = `<img src="${src}" alt="${escapeHtml(d.nome)}">`;
+  } else {
+    bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc('${casoId}','${docId}')">Baixar arquivo</button></div>`;
+  }
+  document.getElementById('viewerTitle').textContent = d.nome;
+  document.getElementById('viewerBody').innerHTML = bodyHtml;
+  document.getElementById('viewerOverlay').classList.add('open');
+}
+function closeViewer(){
+  document.getElementById('viewerOverlay').classList.remove('open');
+  document.getElementById('viewerBody').innerHTML = '';
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(document.getElementById('viewerOverlay').classList.contains('open')){ closeViewer(); return; }
+  if(drawerCasoId) closeDrawer();
+  else if(document.body.classList.contains('nav-open')) toggleNav(false);
+});
+
+function renderDocItem(c, d){
+  const faseListId = `faseList-${c.id}`;
+  if(editingDocId === d.id){
+    return `
+      <div class="doc-item editing">
+        <input list="${faseListId}" id="editFase-${d.id}" value="${escapeHtml(d.fase||'')}" placeholder="Fase / despacho" style="width:100%; margin-bottom:6px; border:1px solid var(--line); border-radius:7px; padding:7px 9px; background:var(--ground); color:var(--ink); font-family:inherit; font-size:13px;">
+        <div class="add-row">
+          <select id="editTipo-${d.id}">${DOC_TYPES.map(t=>`<option value="${t}" ${d.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
+          <input type="date" id="editData-${d.id}" value="${d.data||''}">
+        </div>
+        <div class="add-row">
+          <button class="btn btn-primary btn-sm" onclick="saveDocEdit('${c.id}','${d.id}')">Salvar</button>
+          <button class="btn btn-ghost btn-sm" onclick="cancelEditDoc()">Cancelar</button>
+        </div>
+      </div>`;
+  }
+  const sizeTxt = fmtBytes(d.tamanho);
+  const processoDivergente = d.processo && c.numeroProcesso && d.processo !== c.numeroProcesso;
+  const openAttr = d.arquivo ? `onclick="openViewer('${c.id}','${d.id}')"` : '';
+  return `
+    <div class="doc-item ${d.arquivo ? 'has-file' : ''}" ${openAttr} ${d.arquivo ? `title="Clique para abrir ${escapeHtml(d.nome)}"` : ''}>
+      <div style="min-width:0;">
+        <div class="d-name">${escapeHtml(d.nome)}</div>
+        <div class="d-meta">
+          <span class="pill ${pillForTipo(d.tipo)}" style="margin-right:6px;">${escapeHtml(d.tipo||'Outro')}</span>
+          <span class="mono">${fmtDate(d.data)}</span>${sizeTxt ? ' · '+sizeTxt : ''}${d.obs ? ' · '+escapeHtml(d.obs) : ''}
+        </div>
+        ${d.processo ? `<div class="d-meta">${processoDivergente ? `<span class="pill pill-warning" title="Processo cadastrado na perícia: ${escapeHtml(c.numeroProcesso)}">Processo diverge: <span class="mono">${escapeHtml(d.processo)}</span></span>` : `Processo: <span class="mono">${escapeHtml(d.processo)}</span>`}</div>` : ''}
+        ${d.codigoAcesso ? `<div class="d-meta">Código de acesso: <span class="mono">${escapeHtml(d.codigoAcesso)}</span></div>` : ''}
+      </div>
+      <div class="d-actions">
+        ${d.arquivo ? `<button class="icon-btn" title="Abrir arquivo" onclick="event.stopPropagation(); openViewer('${c.id}','${d.id}')">${svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>')}</button>` : ''}
+        ${d.arquivo ? `<button class="icon-btn" title="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${c.id}','${d.id}')">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')}</button>` : ''}
+        <button class="icon-btn" title="Editar" onclick="event.stopPropagation(); editDoc('${d.id}')">${svg('<path d="M4 20h4L19 9a2.1 2.1 0 00-3-3L5 17z"/>')}</button>
+        <button class="icon-btn danger" title="Remover" onclick="event.stopPropagation(); removeDoc('${c.id}','${d.id}')">${svg('<path d="M18 6L6 18M6 6l12 12"/>')}</button>
+      </div>
+    </div>`;
+}
+
+function renderDocumentosSection(c){
+  const docs = c.documentos || [];
+  const faseListId = `faseList-${c.id}`;
+  const groups = groupByFase(docs);
+  const existingFases = [...new Set(docs.map(d => d.fase).filter(Boolean))];
+  const suggestions = [...new Set([...existingFases, ...SUGGESTED_FASES])];
+  const docTypeOptions = DOC_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  const limite = usingDb && storage ? '50 MB' : '5 MB';
+  return `
+    <div class="sub">
+      <h4>Documentos (${docs.length}) — por fase e data</h4>
+      ${docs.length===0 ? `<div class="hint" style="margin-bottom:10px;">Nenhum documento ainda. Importe um ZIP ou adicione manualmente abaixo.</div>` : ''}
+      ${groups.map(g => `
+        <div class="fase-group">
+          <div class="fase-title"><span>${escapeHtml(g.fase)}</span><span class="pill pill-muted">${g.items.length}</span></div>
+          ${g.items.map(d => renderDocItem(c,d)).join('')}
+        </div>`).join('')}
+
+      <datalist id="${faseListId}">${suggestions.map(s => `<option value="${escapeHtml(s)}">`).join('')}</datalist>
+
+      <div class="import-box">
+        <input type="file" id="zipInput-${c.id}" accept=".zip" style="display:none" onchange="handleZipImport('${c.id}', this)">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('zipInput-${c.id}').click()">Importar ZIP de documentos</button>
+        <div class="hint">Cada arquivo é separado por pasta (fase ou despacho) e pela data no nome. Arquivos até ${limite} ficam anexados; os maiores entram apenas como registro.</div>
+        <div id="zipStatus-${c.id}" class="hint" style="color:var(--accent-deep);"></div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="add-row" style="flex-wrap:wrap;">
+          <input id="docNome-${c.id}" placeholder="Nome do documento" style="flex:1 1 100%;">
+        </div>
+        <div class="add-row">
+          <input id="docFase-${c.id}" list="${faseListId}" placeholder="Fase / despacho">
+          <select id="docTipo-${c.id}">${docTypeOptions}</select>
+        </div>
+        <div class="add-row">
+          <input id="docData-${c.id}" type="date" value="${todayIso()}">
+          <input id="docObs-${c.id}" placeholder="Observação (opcional)">
+        </div>
+        <div class="add-row">
+          <input type="file" id="docArquivo-${c.id}" style="flex:1; border:none; padding:4px 0; background:transparent; font-size:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="addDocFromForm('${c.id}')">Adicionar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderObservacoesSection(c){
+  const obs = c.observacoes || [];
+  return `
+    <div class="sub">
+      <h4>Comentários e observações (${obs.length})</h4>
+      <div class="add-row" style="flex-wrap:wrap; margin-top:0; margin-bottom:10px;">
+        <textarea id="obsTexto-${c.id}" placeholder="Escreva um comentário sobre o andamento da perícia" style="flex:1 1 100%; min-height:64px; resize:vertical;"></textarea>
+      </div>
+      <div class="add-row" style="margin-top:0; margin-bottom:16px;"><button class="btn btn-ghost btn-sm" onclick="addObs('${c.id}')">Adicionar comentário</button></div>
+      ${obs.length===0 ? `<div class="hint">Nenhum comentário ainda.</div>` : ''}
+      ${[...obs].reverse().map(o => `
+        <div class="obs-item"><div><div class="o-date mono">${fmtDate(o.data)}</div>${escapeHtml(o.texto)}</div></div>`).join('')}
+    </div>`;
+}
+
+function renderDrawer(){
+  const c = casos.find(x => x.id === drawerCasoId);
+  if(!c){ closeDrawer(); return; }
+  const saldo = (c.honorarios||0) - (c.valorRecebido||0);
+  const statusOptions = Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${c.statusCaso===k?'selected':''}>${v.label}</option>`).join('');
+  const contadorOptions = Object.entries(CONTADORES).map(([k,v]) => `<option value="${k}" ${c.contador===k?'selected':''}>${v.label}</option>`).join('');
+  const statusProcessoOptions = `<option value="">—</option>` + Object.entries(STATUS_PROCESSO).map(([k,v]) => `<option value="${k}" ${c.statusProcesso===k?'selected':''}>${v.label}</option>`).join('');
+
+  document.getElementById('drawer').innerHTML = `
+    <div class="drawer-head">
+      <button class="back-btn" onclick="closeDrawer()">
+        ${svg('<path d="M19 12H5M11 18l-6-6 6-6"/>')}
+        Voltar
+      </button>
+      <input class="codigo-input" value="${escapeHtml(c.codigo)}" onchange="fieldUpdate('${c.id}','codigo',this.value)" aria-label="Código da perícia">
+      <input class="nome-input" value="${escapeHtml(c.nome)}" onchange="fieldUpdate('${c.id}','nome',this.value)" aria-label="Nome da perícia">
+      <button class="btn btn-danger btn-sm" onclick="confirmDelete('${c.id}')">Excluir perícia</button>
+    </div>
+    <div class="drawer-body">
+      <div id="drawerAlert-${c.id}" style="padding:0 24px;"></div>
+
+      <div class="meta-grid">
+        <div class="meta-item"><label>Perito responsável</label>
+          <select onchange="changeContadorDoCaso('${c.id}', this.value)">${contadorOptions}</select>
+        </div>
+        <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate('${c.id}','numeroProcesso',this.value)"></div>
+        <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate('${c.id}','codigoAcesso',this.value)"></div>
+        <div class="meta-item"><label>Status do processo</label>
+          <select onchange="fieldUpdate('${c.id}','statusProcesso',this.value)">${statusProcessoOptions}</select>
+        </div>
+        <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate('${c.id}','vara',this.value)"></div>
+        <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate('${c.id}','comarca',this.value)"></div>
+        <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate('${c.id}','partes',this.value)"></div>
+        <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate('${c.id}','dataNomeacao',this.value)"></div>
+        <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate('${c.id}','prazoEntrega',this.value)"></div>
+        <div class="meta-item"><label>Status</label>
+          <select onchange="fieldUpdate('${c.id}','statusCaso',this.value)">${statusOptions}</select>
+        </div>
+        <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate('${c.id}','honorarios',this.value,true)"></div>
+        <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate('${c.id}','valorRecebido',this.value,true)"></div>
+        <div class="meta-item"><label>Saldo a receber</label><div class="readout" style="color:${saldo>0?'var(--danger)':'var(--ok)'}">${fmtMoney(Math.max(0,saldo))}</div></div>
+      </div>
+
+      <div class="drawer-cols">
+        <div class="col-pane col-docs">${renderDocumentosSection(c)}</div>
+        <div class="col-pane">${renderObservacoesSection(c)}</div>
+      </div>
+    </div>`;
+}
+
+async function addObs(casoId){
+  const input = document.getElementById(`obsTexto-${casoId}`);
+  const texto = input.value.trim();
+  if(!texto) return;
+  const c = casos.find(x => x.id === casoId);
+  const observacoes = [...(c.observacoes||[]), {id:'o'+Date.now(), data:todayIso(), texto}];
+  await saveCaso(casoId, {observacoes});
+  renderDrawer();
+}
+function confirmDelete(casoId){
+  document.getElementById(`drawerAlert-${casoId}`).innerHTML = `
+    <div class="confirm-box" style="margin:16px 0 0;">
+      Excluir esta perícia e todos os seus documentos e comentários? Esta ação não pode ser desfeita.
+      <div class="row">
+        <button class="btn btn-danger btn-sm" onclick="excluirCaso('${casoId}')">Sim, excluir</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderDrawer()">Cancelar</button>
+      </div>
+    </div>`;
+}
+
+/* ========================================================================== */
+aplicarRail();
+renderAll();
+initDb();
+</script>
+
+</body>
+</html>
