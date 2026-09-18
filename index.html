@@ -424,6 +424,37 @@ body.rail #themeBtn{flex:1; justify-content:center;}
   background:var(--ground); color:var(--ink); font-size:13.5px;
   font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;
 }
+/* ---------- calculadoras ---------- */
+.form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:13px; margin-bottom:14px;}
+.field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.field label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.field input, .field select{
+  border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13px;
+  background:var(--ground); color:var(--ink); font-family:inherit; width:100%;
+}
+.field input[inputmode="decimal"]{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.field .dica{font-size:10.5px; color:var(--muted);}
+.acoes{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.resumo-calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(152px,1fr)); gap:12px; margin:4px 0 14px;}
+.resumo-item{background:var(--ground); border:1px solid var(--line); border-radius:8px; padding:11px 13px;}
+.resumo-item.destaque{border-color:var(--accent); background:var(--accent-soft);}
+.resumo-item .k{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.resumo-item .v{font-size:17px; font-weight:600; margin-top:3px; font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+.tabela-wrap{overflow-x:auto; overflow-y:auto; max-height:420px; border:1px solid var(--line); border-radius:8px; margin-top:14px;}
+table.memoria{border-collapse:collapse; width:100%; font-size:12.5px;}
+table.memoria th{
+  position:sticky; top:0; z-index:1; background:var(--surface-2); text-align:right;
+  padding:8px 11px; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--muted); white-space:nowrap; font-weight:600;
+}
+table.memoria th:first-child, table.memoria td:first-child{text-align:left;}
+table.memoria td{
+  padding:7px 11px; text-align:right; border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+table.memoria tbody tr:hover{background:var(--surface-2);}
+table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong); background:var(--surface-2);}
+.calc-nota{font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.55;}
 .kv-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:13px;}
 .kv{min-width:0;}
 .kv .k{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
@@ -650,7 +681,17 @@ const STATUS = {
   laudo_entregue:      {label:'Laudo entregue',      pill:'pill-success', final:true,  ramp:'var(--r4)'},
   concluida:           {label:'Concluída',           pill:'pill-success', final:true,  ramp:'var(--r5)'},
 };
-const DOC_TYPES = ['Despacho','Laudo Pericial','Quesitos','Procuração','Comprovante de Pagamento','Ofício','Ata de Audiência','Manifestação','Decisão/Sentença','Outro'];
+const DOC_TYPES = ['Despacho','Laudo Pericial','Quesitos','Procuração','Comprovante de Pagamento','Ofício','Ata de Audiência','Manifestação','Decisão/Sentença','Memória de Cálculo','Outro'];
+
+/* Séries do Banco Central usadas na correção monetária (api.bcb.gov.br, consulta pública) */
+const INDICES = {
+  ipca:  {cod:433,  nome:'IPCA (IBGE)',            nota:'variação mensal'},
+  ipcaE: {cod:7478, nome:'IPCA-E (IPCA-15)',       nota:'variação mensal'},
+  inpc:  {cod:188,  nome:'INPC (IBGE)',            nota:'variação mensal'},
+  igpm:  {cod:189,  nome:'IGP-M (FGV)',            nota:'variação mensal'},
+  tr:    {cod:226,  nome:'TR (Banco Central)',     nota:'acumulada por período'},
+  selic: {cod:4390, nome:'Selic acumulada no mês', nota:'já engloba juros de mora'},
+};
 const STATUS_PROCESSO = {
   em_tramitacao:  {label:'Em tramitação'},
   suspenso:       {label:'Suspenso'},
@@ -707,6 +748,8 @@ const SECTIONS = [
   {id:'visao',    titulo:'Visão geral',   sub:'Indicadores das perícias sob sua responsabilidade'},
   {id:'pericias', titulo:'Perícias',      sub:'Todas as perícias, com busca e filtros'},
   {id:'prazos',   titulo:'Agenda de prazos', sub:'Entregas ordenadas por urgência'},
+  {id:'calculos', titulo:'Cálculos',      sub:'Ferramentas periciais com memória de cálculo auditável'},
+  {id:'proposta', titulo:'Proposta de honorários', sub:'Preenche o seu modelo com os dados da perícia escolhida'},
   {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'config',   titulo:'Configurações', sub:'Conta, sincronização e limites de armazenamento'},
@@ -716,6 +759,8 @@ const ICONS = {
   visao:'<path d="M3 13h5v8H3zM10 3h5v18h-5zM17 9h4v12h-4z"/>',
   pericias:'<path d="M4 4h11l5 5v11a1 1 0 01-1 1H5a1 1 0 01-1-1z"/><path d="M14 4v6h6"/>',
   prazos:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  calculos:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M8 16h2M14 12h2M14 16h2"/>',
+  proposta:'<path d="M15 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
   docs:'<path d="M7 3h7l5 5v13H7z"/><path d="M13 3v6h6M10 13h7M10 17h5"/>',
   projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
   config:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
@@ -799,6 +844,12 @@ function bytesToBase64(bytes){
   let binary=''; const chunk=0x8000;
   for(let i=0;i<bytes.length;i+=chunk){ binary += String.fromCharCode.apply(null, bytes.subarray(i,i+chunk)); }
   return btoa(binary);
+}
+function base64ToBytes(base64){
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 function guessFromFilename(filename){
   const norm = normalizeText(filename);
@@ -1511,6 +1562,1104 @@ function renderProjudiResultado(d){
 }
 
 /* ==========================================================================
+   Seção: cálculos periciais
+   ========================================================================== */
+let calcAba = 'financiamento';
+let calcSaida = {};   // html do último resultado por aba
+let calcDados = {};   // dados estruturados do último resultado (CSV, anexo, cópia)
+
+/* aceita 1.234,56 · 1234,56 · 1234.56 */
+function num(v){
+  if(typeof v === 'number') return v;
+  let s = String(v ?? '').trim().replace(/\s|R\$/g, '');
+  if(!s) return 0;
+  if(s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+const brl = n => (isFinite(n) ? n : 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = (n, casas) => (isFinite(n) ? n*100 : 0).toLocaleString('pt-BR', {minimumFractionDigits:casas??4, maximumFractionDigits:casas??4}) + '%';
+
+/* ---------- sistemas de amortização ---------- */
+function tabelaPrice(pv, i, n){
+  const linhas = [];
+  const pmt = i === 0 ? pv/n : pv * i / (1 - Math.pow(1+i, -n));
+  let saldo = pv;
+  for(let k=1; k<=n; k++){
+    const juros = saldo * i;
+    let amort = pmt - juros, parcela = pmt;
+    if(k === n){ amort = saldo; parcela = amort + juros; }   // fecha o saldo no último mês
+    saldo -= amort;
+    if(Math.abs(saldo) < 0.005) saldo = 0;
+    linhas.push({k, parcela, juros, amort, saldo});
+  }
+  return linhas;
+}
+function tabelaSac(pv, i, n){
+  const linhas = [], amortFixa = pv/n;
+  let saldo = pv;
+  for(let k=1; k<=n; k++){
+    const juros = saldo * i;
+    let amort = (k === n) ? saldo : amortFixa;
+    const parcela = amort + juros;
+    saldo -= amort;
+    if(Math.abs(saldo) < 0.005) saldo = 0;
+    linhas.push({k, parcela, juros, amort, saldo});
+  }
+  return linhas;
+}
+function tabelaSam(pv, i, n){
+  const p = tabelaPrice(pv, i, n), s = tabelaSac(pv, i, n);
+  const linhas = [];
+  let saldo = pv;
+  for(let k=1; k<=n; k++){
+    const juros = saldo * i;
+    let parcela = (p[k-1].parcela + s[k-1].parcela) / 2;
+    let amort = parcela - juros;
+    if(k === n){ amort = saldo; parcela = amort + juros; }
+    saldo -= amort;
+    if(Math.abs(saldo) < 0.005) saldo = 0;
+    linhas.push({k, parcela, juros, amort, saldo});
+  }
+  return linhas;
+}
+const SISTEMAS = {price:{nome:'Price', fn:tabelaPrice}, sac:{nome:'SAC', fn:tabelaSac}, sam:{nome:'Misto (SAM)', fn:tabelaSam}};
+
+/* ---------- valor presente, VPL e TIR ---------- */
+function vpl(taxa, fluxo){ return fluxo.reduce((s,v,k) => s + v/Math.pow(1+taxa, k), 0); }
+function tir(fluxo){
+  let lo = -0.9999, hi = 10, flo = vpl(lo, fluxo);
+  if(!isFinite(flo) || flo * vpl(hi, fluxo) > 0) return null;
+  for(let it=0; it<300; it++){
+    const mid = (lo+hi)/2, f = vpl(mid, fluxo);
+    if(flo * f <= 0){ hi = mid; } else { lo = mid; flo = f; }
+  }
+  return (lo+hi)/2;
+}
+
+/* ---------- datas ---------- */
+function dataBr(iso){ return iso ? iso.split('-').reverse().join('/') : ''; }
+function mesesEntre(ini, fim){
+  const a = new Date(ini+'T00:00:00'), b = new Date(fim+'T00:00:00');
+  let m = (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth());
+  if(b.getDate() < a.getDate()) m--;
+  return Math.max(0, m);
+}
+function diasEntre(ini, fim){
+  return Math.round((new Date(fim+'T00:00:00') - new Date(ini+'T00:00:00')) / 86400000);
+}
+
+/* ---------- consulta de índice no Banco Central ---------- */
+async function buscarIndice(cod, dataIni, dataFim){
+  const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${cod}/dados?formato=json`
+            + `&dataInicial=${dataBr(dataIni)}&dataFinal=${dataBr(dataFim)}`;
+  const r = await fetch(url, {cache:'no-store'});
+  if(!r.ok) throw new Error('O Banco Central respondeu com status ' + r.status);
+  const j = await r.json();
+  if(!Array.isArray(j) || j.length === 0) throw new Error('A série não retornou valores para esse período.');
+  return j.map(x => ({data:x.data, valor: parseFloat(String(x.valor).replace(',', '.'))}));
+}
+
+/* ==========================================================================
+   Cálculos: entrega dos resultados (planilha, cópia, anexo na perícia)
+   ========================================================================== */
+function csvDe(aba){
+  const d = calcDados[aba];
+  if(!d) return '';
+  const linhas = [d.titulo, ''];
+  (d.parametros||[]).forEach(([k,v]) => linhas.push(`${k};${v}`));
+  linhas.push('');
+  linhas.push(d.colunas.join(';'));
+  d.linhas.forEach(l => linhas.push(l.join(';')));
+  if(d.totais){ linhas.push(d.totais.join(';')); }
+  linhas.push('');
+  linhas.push('Gerado pelo Gerenciador de Pericias em ' + new Date().toLocaleString('pt-BR'));
+  if(d.fonte) linhas.push(d.fonte);
+  return linhas.join('\n');
+}
+function nomeArquivoCalc(aba){
+  const d = calcDados[aba];
+  const base = (d && d.titulo ? d.titulo : 'calculo').normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'').toLowerCase();
+  return base.slice(0,60) + '_' + todayIso() + '.csv';
+}
+function exportarCSV(aba){
+  const csv = csvDe(aba);
+  if(!csv) return;
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nomeArquivoCalc(aba);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  avisoCalc('Planilha baixada.');
+}
+async function copiarLaudo(aba){
+  const d = calcDados[aba];
+  if(!d) return;
+  const cab = `<tr>${d.colunas.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}</tr>`;
+  const corpo = d.linhas.map(l => `<tr>${l.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`).join('');
+  const rodape = d.totais ? `<tr>${d.totais.map(c=>`<td><b>${escapeHtml(String(c))}</b></td>`).join('')}</tr>` : '';
+  const html = `<p><b>${escapeHtml(d.titulo)}</b></p><table border="1" cellspacing="0" cellpadding="4">${cab}${corpo}${rodape}</table>`;
+  const texto = [d.titulo, d.colunas.join('\t'), ...d.linhas.map(l=>l.join('\t')), d.totais ? d.totais.join('\t') : ''].filter(Boolean).join('\n');
+  try{
+    if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], {type:'text/html'}),
+        'text/plain': new Blob([texto], {type:'text/plain'}),
+      })]);
+    } else {
+      await navigator.clipboard.writeText(texto);
+    }
+    avisoCalc('Tabela copiada. É só colar no laudo.');
+  }catch(e){
+    avisoCalc('Não foi possível copiar. Use a exportação em planilha.');
+  }
+}
+async function anexarCalculo(aba){
+  const d = calcDados[aba];
+  if(!d) return;
+  const sel = document.getElementById('calcCaso');
+  const casoId = sel ? sel.value : '';
+  if(!casoId){ avisoCalc('Escolha a perícia que vai receber o cálculo.'); return; }
+  avisoCalc('Anexando...');
+  const csv = '﻿' + csvDe(aba);
+  const bytes = new TextEncoder().encode(csv);
+  const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+  const nome = nomeArquivoCalc(aba);
+  const built = await buildArquivo(casoId, docId, bytes, nome, 'text/csv');
+  await addDoc(casoId, {
+    nome, fase:'Memória de Cálculo', tipo:'Memória de Cálculo', data: todayIso(),
+    obs: d.resumo || d.titulo, tamanho: bytes.length, arquivo: built.arquivo,
+    processo: null, codigoAcesso: null
+  }, docId);
+  const c = casos.find(x => x.id === casoId);
+  avisoCalc('Anexado em ' + (c ? c.codigo : 'perícia') + ' como documento.');
+  renderNav();
+}
+function avisoCalc(texto){
+  const el = document.getElementById('calcAviso');
+  if(el){
+    el.textContent = texto;
+    clearTimeout(window.__calcTimer);
+    window.__calcTimer = setTimeout(() => { if(el) el.textContent = ''; }, 6000);
+  }
+}
+function blocoAcoes(aba){
+  const lista = casosDoContador();
+  return `
+    <div class="acoes" style="margin-top:16px;">
+      <button class="btn btn-ghost btn-sm" onclick="exportarCSV('${aba}')">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')} Exportar planilha</button>
+      <button class="btn btn-ghost btn-sm" onclick="copiarLaudo('${aba}')">${svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>')} Copiar para o laudo</button>
+      ${lista.length ? `
+        <select id="calcCaso" style="border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:12.5px; background:var(--ground); color:var(--ink); font-family:inherit; max-width:230px;">
+          ${lista.map(c => `<option value="${c.id}">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="anexarCalculo('${aba}')">Anexar à perícia</button>
+      ` : `<span class="dica" style="font-size:11.5px; color:var(--muted);">Cadastre uma perícia para poder anexar o cálculo.</span>`}
+      <span id="calcAviso" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
+    </div>`;
+}
+function tabelaHtml(colunas, linhas, totais){
+  return `
+    <div class="tabela-wrap">
+      <table class="memoria">
+        <thead><tr>${colunas.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+        <tbody>${linhas.map(l=>`<tr>${l.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`).join('')}</tbody>
+        ${totais ? `<tfoot><tr>${totais.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')}</tr></tfoot>` : ''}
+      </table>
+    </div>`;
+}
+
+/* ==========================================================================
+   Cálculo 1 — financiamento (Price, SAC e Misto)
+   ========================================================================== */
+function rodarFinanciamento(){
+  const pv = num(document.getElementById('fPv').value);
+  const prazo = Math.round(num(document.getElementById('fPrazo').value));
+  const taxaInf = num(document.getElementById('fTaxa').value) / 100;
+  const periodo = document.getElementById('fPeriodo').value;
+  const sistema = document.getElementById('fSistema').value;
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(pv <= 0 || prazo <= 0){
+    saida.innerHTML = bannerAviso('Informe o valor financiado e o prazo em meses.');
+    return;
+  }
+  if(prazo > 600){
+    saida.innerHTML = bannerAviso('O prazo máximo aceito é de 600 meses.');
+    return;
+  }
+  // taxa anual vira mensal equivalente (capitalização composta)
+  const i = periodo === 'ano' ? Math.pow(1 + taxaInf, 1/12) - 1 : taxaInf;
+
+  const linhas = SISTEMAS[sistema].fn(pv, i, prazo);
+  const totalJuros = linhas.reduce((s,l)=>s+l.juros, 0);
+  const totalPago = linhas.reduce((s,l)=>s+l.parcela, 0);
+
+  const comparativo = Object.entries(SISTEMAS).map(([k, s]) => {
+    const t = s.fn(pv, i, prazo);
+    return {chave:k, nome:s.nome, juros:t.reduce((a,l)=>a+l.juros,0), total:t.reduce((a,l)=>a+l.parcela,0), primeira:t[0].parcela, ultima:t[t.length-1].parcela};
+  });
+  const maxTotal = Math.max(...comparativo.map(c=>c.total));
+
+  const colunas = ['Parcela','Prestação (R$)','Juros (R$)','Amortização (R$)','Saldo devedor (R$)'];
+  const linhasCsv = linhas.map(l => [l.k, brl(l.parcela), brl(l.juros), brl(l.amort), brl(l.saldo)]);
+  const totais = ['Total', brl(totalPago), brl(totalJuros), brl(pv), '0,00'];
+
+  calcDados.financiamento = {
+    titulo: `Financiamento pelo sistema ${SISTEMAS[sistema].nome}`,
+    parametros: [
+      ['Valor financiado (R$)', brl(pv)],
+      ['Prazo (meses)', prazo],
+      ['Taxa informada', num(document.getElementById('fTaxa').value).toLocaleString('pt-BR') + '% ao ' + (periodo === 'ano' ? 'ano' : 'mês')],
+      ['Taxa mensal equivalente', pct(i)],
+      ['Sistema', SISTEMAS[sistema].nome],
+    ],
+    colunas, linhas: linhasCsv, totais,
+    resumo: `${SISTEMAS[sistema].nome} — ${prazo}x, juros totais de R$ ${brl(totalJuros)} sobre R$ ${brl(pv)} financiados.`,
+  };
+
+  saida.innerHTML = `
+    <div class="resumo-calc">
+      <div class="resumo-item destaque"><div class="k">1ª prestação</div><div class="v">R$ ${brl(linhas[0].parcela)}</div></div>
+      <div class="resumo-item"><div class="k">Última prestação</div><div class="v">R$ ${brl(linhas[linhas.length-1].parcela)}</div></div>
+      <div class="resumo-item"><div class="k">Total de juros</div><div class="v">R$ ${brl(totalJuros)}</div></div>
+      <div class="resumo-item"><div class="k">Total pago</div><div class="v">R$ ${brl(totalPago)}</div></div>
+      <div class="resumo-item"><div class="k">Taxa mensal</div><div class="v">${pct(i)}</div></div>
+    </div>
+
+    <h4 style="font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:18px 0 10px;">Composição do total pago em cada sistema</h4>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s1)"></span>Amortização (principal)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--s2)"></span>Juros</span>
+    </div>
+    ${comparativo.map(c => `
+      <div class="bar-row">
+        <span class="bar-label" ${c.chave===sistema?'style="color:var(--accent-deep); font-weight:600;" title="sistema selecionado"':''}>${c.nome}</span>
+        <span class="bar-track">
+          <span class="bar">
+            <span class="bar-seg" style="width:${(pv/maxTotal)*100}%; background:var(--s1)"
+              onmousemove="showTip(event, 'Principal<br><span class=\\'tt-v\\'>R$ ${brl(pv)}</span>')" onmouseleave="hideTip()"></span>
+            <span class="bar-seg" style="width:${(c.juros/maxTotal)*100}%; background:var(--s2)"
+              onmousemove="showTip(event, 'Juros<br><span class=\\'tt-v\\'>R$ ${brl(c.juros)}</span>')" onmouseleave="hideTip()"></span>
+          </span>
+          <span class="bar-value">R$ ${brl(c.total)}</span>
+        </span>
+      </div>`).join('')}
+    <div class="calc-nota">
+      Os três sistemas usam a mesma taxa mensal. O SAC começa com prestação maior e paga menos juros no total;
+      o Price mantém a prestação fixa; o Misto fica na média aritmética entre os dois.
+    </div>
+
+    ${tabelaHtml(colunas, linhasCsv, totais)}
+    <div class="calc-nota">A última prestação absorve o arredondamento, de modo que o saldo devedor encerre exatamente em zero.</div>
+    ${blocoAcoes('financiamento')}`;
+  calcSaida.financiamento = saida.innerHTML;
+}
+
+/* ==========================================================================
+   Cálculo 2 — atualização de débito (correção + juros + multa)
+   ========================================================================== */
+async function rodarAtualizacao(){
+  const principal = num(document.getElementById('aValor').value);
+  const di = document.getElementById('aInicio').value;
+  const df = document.getElementById('aFim').value;
+  const chave = document.getElementById('aIndice').value;
+  const jurosMes = num(document.getElementById('aJuros').value) / 100;
+  const tipoJuros = document.getElementById('aTipoJuros').value;
+  const multa = num(document.getElementById('aMulta').value) / 100;
+  const baseMulta = document.getElementById('aBaseMulta').value;
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(principal <= 0 || !di || !df){ saida.innerHTML = bannerAviso('Informe o valor, a data inicial e a data final.'); return; }
+  if(di >= df){ saida.innerHTML = bannerAviso('A data final precisa ser posterior à inicial.'); return; }
+
+  saida.innerHTML = `<div class="chart-empty">Consultando a série do Banco Central...</div>`;
+  let serie;
+  try{
+    serie = await buscarIndice(INDICES[chave].cod, di, df);
+  }catch(e){
+    saida.innerHTML = bannerAviso('Não foi possível obter o índice agora: ' + escapeHtml(e.message));
+    return;
+  }
+
+  let fator = 1;
+  const linhasTab = [];
+  serie.forEach(p => {
+    fator *= (1 + p.valor/100);
+    linhasTab.push([p.data, p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:4}), fator.toFixed(8).replace('.', ','), brl(principal * fator)]);
+  });
+
+  const corrigido = principal * fator;
+  const meses = mesesEntre(di, df);
+  const ehSelic = chave === 'selic';
+  const jurosAplicados = ehSelic ? 0 : (tipoJuros === 'composto'
+    ? corrigido * (Math.pow(1 + jurosMes, meses) - 1)
+    : corrigido * jurosMes * meses);
+  const subtotal = corrigido + jurosAplicados;
+  const valorMulta = multa * (baseMulta === 'corrigido' ? corrigido : subtotal);
+  const total = subtotal + valorMulta;
+
+  const colunas = ['Competência','Índice (%)','Fator acumulado','Valor corrigido (R$)'];
+  const totais = ['Total', '', fator.toFixed(8).replace('.', ','), brl(corrigido)];
+
+  calcDados.atualizacao = {
+    titulo: `Atualização de débito por ${INDICES[chave].nome}`,
+    parametros: [
+      ['Valor original (R$)', brl(principal)],
+      ['Período', `${dataBr(di)} a ${dataBr(df)}`],
+      ['Índice', INDICES[chave].nome],
+      ['Fator de correção', fator.toFixed(8).replace('.', ',')],
+      ['Valor corrigido (R$)', brl(corrigido)],
+      ['Juros de mora', ehSelic ? 'não aplicados (Selic já engloba juros)' : `${(jurosMes*100).toLocaleString('pt-BR')}% ao mês, ${tipoJuros}, por ${meses} meses`],
+      ['Juros (R$)', brl(jurosAplicados)],
+      ['Multa (R$)', brl(valorMulta)],
+      ['Total apurado (R$)', brl(total)],
+    ],
+    colunas, linhas: linhasTab, totais,
+    fonte: `Fonte: Banco Central do Brasil, serie SGS ${INDICES[chave].cod}, consultada em ${new Date().toLocaleDateString('pt-BR')}.`,
+    resumo: `R$ ${brl(principal)} atualizado por ${INDICES[chave].nome} de ${dataBr(di)} a ${dataBr(df)} resulta em R$ ${brl(total)}.`,
+  };
+
+  saida.innerHTML = `
+    ${ehSelic ? bannerInfo('A Selic acumulada já embute juros de mora, então os juros informados não foram aplicados — evita a contagem em duplicidade.') : ''}
+    <div class="resumo-calc">
+      <div class="resumo-item"><div class="k">Valor original</div><div class="v">R$ ${brl(principal)}</div></div>
+      <div class="resumo-item"><div class="k">Correção</div><div class="v">R$ ${brl(corrigido - principal)}</div></div>
+      <div class="resumo-item"><div class="k">Juros de mora</div><div class="v">R$ ${brl(jurosAplicados)}</div></div>
+      <div class="resumo-item"><div class="k">Multa</div><div class="v">R$ ${brl(valorMulta)}</div></div>
+      <div class="resumo-item destaque"><div class="k">Total apurado</div><div class="v">R$ ${brl(total)}</div></div>
+    </div>
+    <div class="calc-nota">
+      Fator de correção acumulado no período: <b>${fator.toFixed(8).replace('.', ',')}</b> em ${serie.length} competências.
+      Fonte: Banco Central do Brasil, série SGS ${INDICES[chave].cod}, consultada agora.
+    </div>
+    ${tabelaHtml(colunas, linhasTab, totais)}
+    ${blocoAcoes('atualizacao')}`;
+  calcSaida.atualizacao = saida.innerHTML;
+}
+
+/* ==========================================================================
+   Cálculo 3 — verbas rescisórias
+   ========================================================================== */
+function rodarRescisao(){
+  const salario = num(document.getElementById('rSalario').value);
+  const adm = document.getElementById('rAdmissao').value;
+  const dem = document.getElementById('rDemissao').value;
+  const motivo = document.getElementById('rMotivo').value;
+  const aviso = document.getElementById('rAviso').value;
+  const feriasVencidas = Math.round(num(document.getElementById('rFeriasVenc').value));
+  const saldoFgts = num(document.getElementById('rFgts').value);
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(salario <= 0 || !adm || !dem){ saida.innerHTML = bannerAviso('Informe o salário, a data de admissão e a de demissão.'); return; }
+  if(adm >= dem){ saida.innerHTML = bannerAviso('A data de demissão precisa ser posterior à admissão.'); return; }
+
+  const dDem = new Date(dem+'T00:00:00');
+  const anosCompletos = Math.floor(mesesEntre(adm, dem) / 12);
+
+  // direitos conforme o motivo da rescisão
+  const temAviso = (motivo === 'sem_justa_causa') && aviso === 'indenizado';
+  const temDecimo = motivo !== 'justa_causa';
+  const temFeriasProp = motivo !== 'justa_causa';
+  const temMulta = (motivo === 'sem_justa_causa');
+  const descontaAviso = (motivo === 'pedido' && aviso === 'nao_cumprido');
+
+  // saldo de salário: dias trabalhados no mês da rescisão
+  const diasSaldo = dDem.getDate();
+  const saldoSalario = salario / 30 * diasSaldo;
+
+  // aviso prévio: 30 dias + 3 por ano completo, limitado a 90 (Lei 12.506/2011)
+  const diasAviso = Math.min(90, 30 + 3 * anosCompletos);
+  const valorAviso = temAviso ? salario / 30 * diasAviso : 0;
+  const descontoAviso = descontaAviso ? salario : 0;
+
+  // a projeção do aviso indenizado integra o tempo de serviço
+  const fimProjetado = new Date(dDem);
+  if(temAviso) fimProjetado.setDate(fimProjetado.getDate() + diasAviso);
+  const isoProjetado = fimProjetado.toISOString().slice(0,10);
+
+  // 13º proporcional: avos no ano, contando mês com 15 dias ou mais
+  const inicioAno = isoProjetado.slice(0,4) + '-01-01';
+  const baseDecimo = adm > inicioAno ? adm : inicioAno;
+  let avosDecimo = 0;
+  if(temDecimo){
+    avosDecimo = mesesEntre(baseDecimo, isoProjetado);
+    const resto = diasEntre(baseDecimo, isoProjetado) - avosDecimo*30;
+    if(resto >= 15) avosDecimo++;
+    avosDecimo = Math.min(12, Math.max(0, avosDecimo));
+  }
+  const decimo = salario / 12 * avosDecimo;
+
+  // férias proporcionais: avos desde o último período aquisitivo completo
+  let avosFerias = 0;
+  if(temFeriasProp){
+    const mesesTotais = mesesEntre(adm, isoProjetado);
+    avosFerias = mesesTotais % 12;
+    const aniversario = new Date(adm+'T00:00:00');
+    aniversario.setMonth(aniversario.getMonth() + (mesesTotais - avosFerias));
+    const resto = diasEntre(aniversario.toISOString().slice(0,10), isoProjetado) - avosFerias*30;
+    if(resto >= 15) avosFerias++;
+    avosFerias = Math.min(12, Math.max(0, avosFerias));
+  }
+  const feriasProp = salario / 12 * avosFerias;
+  const tercoProp = feriasProp / 3;
+  const feriasVenc = salario * feriasVencidas;
+  const tercoVenc = feriasVenc / 3;
+
+  // FGTS do mês e multa rescisória
+  const fgtsSobreVerbas = 0.08 * (saldoSalario + valorAviso + decimo);
+  const baseMulta = saldoFgts + fgtsSobreVerbas;
+  const multaFgts = temMulta ? 0.40 * baseMulta : 0;
+
+  const itens = [
+    ['Saldo de salário', `${diasSaldo} dia(s)`, saldoSalario],
+    ['Aviso prévio indenizado', temAviso ? `${diasAviso} dia(s)` : 'não devido', valorAviso],
+    ['13º salário proporcional', `${avosDecimo}/12`, decimo],
+    ['Férias proporcionais', `${avosFerias}/12`, feriasProp],
+    ['Um terço sobre férias proporcionais', '', tercoProp],
+    ['Férias vencidas', feriasVencidas ? `${feriasVencidas} período(s)` : 'nenhuma', feriasVenc],
+    ['Um terço sobre férias vencidas', '', tercoVenc],
+    ['FGTS incidente sobre as verbas', '8%', fgtsSobreVerbas],
+    ['Multa rescisória do FGTS', temMulta ? '40% sobre R$ '+brl(baseMulta) : 'não devida', multaFgts],
+  ];
+  if(descontoAviso > 0) itens.push(['Desconto de aviso prévio não cumprido', '', -descontoAviso]);
+
+  const total = itens.reduce((s, it) => s + it[2], 0);
+  const colunas = ['Verba','Base','Valor (R$)'];
+  const linhasCsv = itens.map(it => [it[0], it[1], brl(it[2])]);
+  const totais = ['Total bruto', '', brl(total)];
+
+  const MOTIVOS = {sem_justa_causa:'Dispensa sem justa causa', pedido:'Pedido de demissão', justa_causa:'Dispensa por justa causa', termino:'Término de contrato por prazo determinado'};
+
+  calcDados.rescisao = {
+    titulo: 'Verbas rescisórias',
+    parametros: [
+      ['Salário (R$)', brl(salario)],
+      ['Admissão', dataBr(adm)],
+      ['Demissão', dataBr(dem)],
+      ['Motivo', MOTIVOS[motivo]],
+      ['Tempo de serviço', `${anosCompletos} ano(s), ${mesesEntre(adm,dem)} meses`],
+      ['Projeção do aviso até', temAviso ? dataBr(isoProjetado) : 'não aplicável'],
+    ],
+    colunas, linhas: linhasCsv, totais,
+    resumo: `${MOTIVOS[motivo]} — total bruto de R$ ${brl(total)}.`,
+  };
+
+  saida.innerHTML = `
+    <div class="resumo-calc">
+      <div class="resumo-item"><div class="k">Tempo de serviço</div><div class="v">${anosCompletos}a ${mesesEntre(adm,dem)%12}m</div></div>
+      <div class="resumo-item"><div class="k">Verbas salariais</div><div class="v">R$ ${brl(saldoSalario + valorAviso + decimo)}</div></div>
+      <div class="resumo-item"><div class="k">Férias e terço</div><div class="v">R$ ${brl(feriasProp+tercoProp+feriasVenc+tercoVenc)}</div></div>
+      <div class="resumo-item"><div class="k">FGTS e multa</div><div class="v">R$ ${brl(fgtsSobreVerbas+multaFgts)}</div></div>
+      <div class="resumo-item destaque"><div class="k">Total bruto</div><div class="v">R$ ${brl(total)}</div></div>
+    </div>
+    ${tabelaHtml(colunas, linhasCsv, totais)}
+    <div class="calc-nota">
+      Valores <b>brutos</b>: não estão deduzidos INSS, imposto de renda nem descontos contratuais, que dependem das tabelas
+      vigentes na competência. O aviso prévio segue a Lei 12.506/2011 — trinta dias, mais três por ano completo, limitado a noventa.
+      Quando indenizado, a projeção integra o tempo de serviço e repercute no 13º e nas férias.
+    </div>
+    ${blocoAcoes('rescisao')}`;
+  calcSaida.rescisao = saida.innerHTML;
+}
+
+/* ==========================================================================
+   Cálculo 4 — taxas, anatocismo e viabilidade
+   ========================================================================== */
+function rodarTaxas(){
+  const modo = document.getElementById('tModo').value;
+  const saida = document.getElementById('calcSaidaBox');
+
+  if(modo === 'equivalencia'){
+    const taxa = num(document.getElementById('tTaxa').value)/100;
+    const de = document.getElementById('tDe').value;
+    const para = document.getElementById('tPara').value;
+    const PER = {dia:1, mes:30, trimestre:90, semestre:180, ano:360};
+    const expo = PER[para]/PER[de];
+    const equivalente = Math.pow(1+taxa, expo) - 1;
+    const proporcional = taxa * expo;
+    const colunas = ['Critério','Taxa resultante','Diferença sobre R$ 100.000'];
+    const linhas = [
+      ['Equivalência composta (juros sobre juros)', pct(equivalente), 'R$ '+brl(100000*equivalente)],
+      ['Proporcionalidade simples (linear)', pct(proporcional), 'R$ '+brl(100000*proporcional)],
+      ['Diferença', pct(equivalente-proporcional), 'R$ '+brl(100000*(equivalente-proporcional))],
+    ];
+    calcDados.taxas = {
+      titulo:'Equivalência de taxas',
+      parametros:[['Taxa informada', pct(taxa)],['Período de origem', de],['Período de destino', para]],
+      colunas, linhas, totais:null,
+      resumo:`${pct(taxa)} ao ${de} equivale a ${pct(equivalente)} ao ${para}.`,
+    };
+    saida.innerHTML = `
+      <div class="resumo-calc">
+        <div class="resumo-item destaque"><div class="k">Taxa equivalente</div><div class="v">${pct(equivalente)}</div></div>
+        <div class="resumo-item"><div class="k">Taxa proporcional</div><div class="v">${pct(proporcional)}</div></div>
+        <div class="resumo-item"><div class="k">Diferença</div><div class="v">${pct(equivalente-proporcional)}</div></div>
+      </div>
+      ${tabelaHtml(colunas, linhas)}
+      <div class="calc-nota">
+        A conversão proporcional divide a taxa linearmente e é o critério dos juros simples; a equivalente preserva o
+        montante sob capitalização composta. A distância entre as duas é justamente o ponto discutido nas ações revisionais.
+      </div>
+      ${blocoAcoes('taxas')}`;
+
+  } else if(modo === 'anatocismo'){
+    const capital = num(document.getElementById('tCapital').value);
+    const taxa = num(document.getElementById('tTaxaMes').value)/100;
+    const n = Math.round(num(document.getElementById('tMeses').value));
+    if(capital <= 0 || n <= 0){ saida.innerHTML = bannerAviso('Informe o capital e o número de meses.'); return; }
+    if(n > 600){ saida.innerHTML = bannerAviso('O prazo máximo aceito é de 600 meses.'); return; }
+    const linhas = [];
+    for(let k=1; k<=n; k++){
+      const simples = capital * (1 + taxa*k);
+      const composto = capital * Math.pow(1+taxa, k);
+      linhas.push([k, brl(simples), brl(composto), brl(composto-simples)]);
+    }
+    const mSimples = capital*(1+taxa*n), mComposto = capital*Math.pow(1+taxa,n);
+    const colunas = ['Mês','Montante simples (R$)','Montante composto (R$)','Diferença (R$)'];
+    calcDados.taxas = {
+      titulo:'Juros simples comparados a juros compostos',
+      parametros:[['Capital (R$)', brl(capital)],['Taxa mensal', pct(taxa)],['Prazo (meses)', n]],
+      colunas, linhas, totais:['Final', brl(mSimples), brl(mComposto), brl(mComposto-mSimples)],
+      resumo:`Em ${n} meses a ${pct(taxa)} ao mês, a capitalização composta supera a simples em R$ ${brl(mComposto-mSimples)}.`,
+    };
+    saida.innerHTML = `
+      <div class="resumo-calc">
+        <div class="resumo-item"><div class="k">Montante simples</div><div class="v">R$ ${brl(mSimples)}</div></div>
+        <div class="resumo-item"><div class="k">Montante composto</div><div class="v">R$ ${brl(mComposto)}</div></div>
+        <div class="resumo-item destaque"><div class="k">Diferença</div><div class="v">R$ ${brl(mComposto-mSimples)}</div></div>
+        <div class="resumo-item"><div class="k">Excesso relativo</div><div class="v">${pct((mComposto-mSimples)/mSimples, 2)}</div></div>
+      </div>
+      ${tabelaHtml(colunas, linhas, calcDados.taxas.totais)}
+      <div class="calc-nota">A diferença mês a mês é exatamente o efeito da capitalização de juros sobre juros no período.</div>
+      ${blocoAcoes('taxas')}`;
+
+  } else {
+    const fluxoTxt = document.getElementById('tFluxo').value;
+    const taxaDesc = num(document.getElementById('tDesconto').value)/100;
+    const fluxo = fluxoTxt.split(/[;,\n\s]+/).map(s=>s.trim()).filter(Boolean).map(num);
+    if(fluxo.length < 2){ saida.innerHTML = bannerAviso('Informe ao menos dois valores no fluxo, começando pelo investimento como negativo.'); return; }
+    const valorPresente = vpl(taxaDesc, fluxo);
+    const taxaInterna = tir(fluxo);
+    const colunas = ['Período','Fluxo (R$)','Fator de desconto','Valor presente (R$)'];
+    const linhas = fluxo.map((v,k) => {
+      const fator = 1/Math.pow(1+taxaDesc, k);
+      return [k, brl(v), fator.toFixed(8).replace('.', ','), brl(v*fator)];
+    });
+    calcDados.taxas = {
+      titulo:'Valor presente líquido e taxa interna de retorno',
+      parametros:[['Taxa de desconto', pct(taxaDesc)],['Períodos', fluxo.length-1]],
+      colunas, linhas, totais:['VPL','','', brl(valorPresente)],
+      resumo:`VPL de R$ ${brl(valorPresente)} à taxa de ${pct(taxaDesc)}${taxaInterna!==null?`, com TIR de ${pct(taxaInterna)}`:''}.`,
+    };
+    saida.innerHTML = `
+      <div class="resumo-calc">
+        <div class="resumo-item destaque"><div class="k">VPL</div><div class="v">R$ ${brl(valorPresente)}</div></div>
+        <div class="resumo-item"><div class="k">TIR por período</div><div class="v">${taxaInterna!==null?pct(taxaInterna):'não converge'}</div></div>
+        <div class="resumo-item"><div class="k">Taxa de desconto</div><div class="v">${pct(taxaDesc)}</div></div>
+      </div>
+      ${tabelaHtml(colunas, linhas, calcDados.taxas.totais)}
+      <div class="calc-nota">
+        Serve tanto para apuração de haveres e avaliação de fluxo quanto para o Custo Efetivo Total de um financiamento:
+        nesse caso, informe o valor liberado como positivo no período zero e as prestações como negativas.
+        ${taxaInterna!==null ? `A TIR encontrada, de ${pct(taxaInterna)} por período, equivale a ${pct(Math.pow(1+taxaInterna,12)-1, 2)} ao ano se o período for mensal.` : 'O fluxo informado não muda de sinal, então não existe TIR.'}
+      </div>
+      ${blocoAcoes('taxas')}`;
+  }
+  calcSaida.taxas = saida.innerHTML;
+}
+
+/* ---------- formulários e navegação entre as calculadoras ---------- */
+function setCalcAba(a){ calcAba = a; renderAll(); }
+function setTaxaModo(){ calcSaida.taxas = ''; renderAll(); }
+
+function formFinanciamento(){
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="fPv">Valor financiado (R$)</label><input id="fPv" inputmode="decimal" value="100.000,00"></div>
+      <div class="field"><label for="fPrazo">Prazo (meses)</label><input id="fPrazo" inputmode="decimal" value="60"></div>
+      <div class="field"><label for="fTaxa">Taxa de juros (%)</label><input id="fTaxa" inputmode="decimal" value="1,50"></div>
+      <div class="field"><label for="fPeriodo">Período da taxa</label>
+        <select id="fPeriodo"><option value="mes">ao mês</option><option value="ano">ao ano</option></select></div>
+      <div class="field"><label for="fSistema">Sistema</label>
+        <select id="fSistema">${Object.entries(SISTEMAS).map(([k,s])=>`<option value="${k}">${s.nome}</option>`).join('')}</select></div>
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarFinanciamento()">Calcular</button></div>`;
+}
+function formAtualizacao(){
+  const hoje = todayIso();
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="aValor">Valor original (R$)</label><input id="aValor" inputmode="decimal" value="10.000,00"></div>
+      <div class="field"><label for="aInicio">Data inicial</label><input id="aInicio" type="date" value="${hoje.slice(0,4)-2}-01-01"></div>
+      <div class="field"><label for="aFim">Data final</label><input id="aFim" type="date" value="${hoje}"></div>
+      <div class="field"><label for="aIndice">Índice de correção</label>
+        <select id="aIndice">${Object.entries(INDICES).map(([k,v])=>`<option value="${k}">${v.nome}</option>`).join('')}</select>
+        <span class="dica">Consultado no Banco Central na hora do cálculo</span></div>
+      <div class="field"><label for="aJuros">Juros de mora (% ao mês)</label><input id="aJuros" inputmode="decimal" value="1,00"></div>
+      <div class="field"><label for="aTipoJuros">Capitalização dos juros</label>
+        <select id="aTipoJuros"><option value="simples">simples</option><option value="composto">composta</option></select></div>
+      <div class="field"><label for="aMulta">Multa (%)</label><input id="aMulta" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="aBaseMulta">Multa incide sobre</label>
+        <select id="aBaseMulta"><option value="corrigido">valor corrigido</option><option value="comJuros">corrigido mais juros</option></select></div>
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarAtualizacao()">Calcular</button></div>`;
+}
+function formRescisao(){
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="rSalario">Último salário (R$)</label><input id="rSalario" inputmode="decimal" value="3.000,00"></div>
+      <div class="field"><label for="rAdmissao">Admissão</label><input id="rAdmissao" type="date" value="2022-03-01"></div>
+      <div class="field"><label for="rDemissao">Demissão</label><input id="rDemissao" type="date" value="${todayIso()}"></div>
+      <div class="field"><label for="rMotivo">Motivo</label>
+        <select id="rMotivo">
+          <option value="sem_justa_causa">Dispensa sem justa causa</option>
+          <option value="pedido">Pedido de demissão</option>
+          <option value="justa_causa">Dispensa por justa causa</option>
+          <option value="termino">Término de contrato por prazo determinado</option>
+        </select></div>
+      <div class="field"><label for="rAviso">Aviso prévio</label>
+        <select id="rAviso">
+          <option value="indenizado">Indenizado</option>
+          <option value="trabalhado">Trabalhado</option>
+          <option value="nao_cumprido">Não cumprido pelo empregado</option>
+        </select></div>
+      <div class="field"><label for="rFeriasVenc">Períodos de férias vencidas</label><input id="rFeriasVenc" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="rFgts">Saldo de FGTS depositado (R$)</label><input id="rFgts" inputmode="decimal" value="0">
+        <span class="dica">Base da multa de 40%</span></div>
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarRescisao()">Calcular</button></div>`;
+}
+function formTaxas(){
+  const modo = (document.getElementById('tModo') || {}).value || 'equivalencia';
+  const campos = {
+    equivalencia: `
+      <div class="field"><label for="tTaxa">Taxa (%)</label><input id="tTaxa" inputmode="decimal" value="1,50"></div>
+      <div class="field"><label for="tDe">Do período</label>
+        <select id="tDe"><option value="mes">mês</option><option value="dia">dia</option><option value="trimestre">trimestre</option><option value="semestre">semestre</option><option value="ano">ano</option></select></div>
+      <div class="field"><label for="tPara">Para o período</label>
+        <select id="tPara"><option value="ano">ano</option><option value="dia">dia</option><option value="mes">mês</option><option value="trimestre">trimestre</option><option value="semestre">semestre</option></select></div>`,
+    anatocismo: `
+      <div class="field"><label for="tCapital">Capital (R$)</label><input id="tCapital" inputmode="decimal" value="10.000,00"></div>
+      <div class="field"><label for="tTaxaMes">Taxa (% ao mês)</label><input id="tTaxaMes" inputmode="decimal" value="2,00"></div>
+      <div class="field"><label for="tMeses">Prazo (meses)</label><input id="tMeses" inputmode="decimal" value="24"></div>`,
+    vpl: `
+      <div class="field" style="grid-column:1/-1;"><label for="tFluxo">Fluxo de caixa</label>
+        <input id="tFluxo" value="-100000; 22000; 22000; 22000; 22000; 22000; 22000">
+        <span class="dica">Separe por ponto e vírgula. O período zero é o investimento inicial, normalmente negativo.</span></div>
+      <div class="field"><label for="tDesconto">Taxa de desconto (% por período)</label><input id="tDesconto" inputmode="decimal" value="1,00"></div>`,
+  };
+  return `
+    <div class="form-grid">
+      <div class="field"><label for="tModo">Cálculo</label>
+        <select id="tModo" onchange="setTaxaModo()">
+          <option value="equivalencia" ${modo==='equivalencia'?'selected':''}>Equivalência de taxas</option>
+          <option value="anatocismo" ${modo==='anatocismo'?'selected':''}>Juros simples ou compostos</option>
+          <option value="vpl" ${modo==='vpl'?'selected':''}>VPL, TIR e Custo Efetivo Total</option>
+        </select></div>
+      ${campos[modo]}
+    </div>
+    <div class="acoes"><button class="btn btn-primary" onclick="rodarTaxas()">Calcular</button></div>`;
+}
+
+const CALC_ABAS = [
+  {id:'financiamento', nome:'Financiamento',   sub:'Price, SAC e Misto com tabela de amortização completa', form:formFinanciamento},
+  {id:'atualizacao',   nome:'Atualização',     sub:'Correção por índice oficial, juros de mora e multa',    form:formAtualizacao},
+  {id:'rescisao',      nome:'Rescisão',        sub:'Verbas rescisórias trabalhistas discriminadas',         form:formRescisao},
+  {id:'taxas',         nome:'Taxas',           sub:'Equivalência, anatocismo, VPL, TIR e Custo Efetivo',    form:formTaxas},
+];
+
+function renderCalculos(){
+  const aba = CALC_ABAS.find(a => a.id === calcAba) || CALC_ABAS[0];
+  return `
+    <div class="section-gap">
+      <div class="chips">
+        ${CALC_ABAS.map(a => `<button class="chip ${calcAba===a.id?'active':''}" onclick="setCalcAba('${a.id}')">${a.nome}</button>`).join('')}
+      </div>
+      ${panel('calcForm', aba.nome, aba.sub, aba.form())}
+      <div id="calcSaidaBox">${calcSaida[calcAba] || ''}</div>
+    </div>`;
+}
+
+/* ==========================================================================
+   Seção: proposta de honorários
+   Importa o modelo do perito (.docx, .html ou .txt), preenche os marcadores
+   com os dados da perícia e devolve o documento pronto, preservando margens,
+   cabeçalho e rodapé do arquivo original.
+   ========================================================================== */
+const LS_MODELO = 'pericias.modeloProposta';
+let modeloProposta = (function(){
+  try{ const raw = localStorage.getItem(LS_MODELO); if(raw) return JSON.parse(raw); }catch(e){}
+  return null;
+})();
+let propostaCasoId = null;
+
+/* ---------- número por extenso, em reais ---------- */
+const EXT_UNI = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+const EXT_DEZ = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+const EXT_CEM = ['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+function trecho(n){
+  if(n === 0) return '';
+  if(n === 100) return 'cem';
+  let t = [];
+  const c = Math.floor(n/100), d = n % 100;
+  if(c) t.push(EXT_CEM[c]);
+  if(d){
+    if(d < 20) t.push(EXT_UNI[d]);
+    else {
+      const dz = Math.floor(d/10), un = d % 10;
+      t.push(EXT_DEZ[dz] + (un ? ' e ' + EXT_UNI[un] : ''));
+    }
+  }
+  return t.join(' e ');
+}
+function inteiroExtenso(n){
+  if(n === 0) return 'zero';
+  const grupos = [];
+  let resto = n;
+  while(resto > 0){ grupos.push(resto % 1000); resto = Math.floor(resto/1000); }
+  const nomes = [['',''],['mil','mil'],['milhão','milhões'],['bilhão','bilhões']];
+  const partes = [];
+  for(let g = grupos.length-1; g >= 0; g--){
+    const v = grupos[g];
+    if(v === 0) continue;
+    let txt = (g === 1 && v === 1) ? 'mil' : trecho(v);
+    if(g > 1) txt += ' ' + (v === 1 ? nomes[g][0] : nomes[g][1]);
+    else if(g === 1 && v !== 1) txt += ' mil';
+    partes.push({txt, valor:v});
+  }
+  /* O conectivo "e" entra antes do último grupo quando ele é menor que cem
+     ou uma centena exata; nos demais casos a norma pede vírgula.
+     Ex.: mil e quinhentos · doze mil, trezentos e quarenta e cinco */
+  let saida = '';
+  partes.forEach((p, idx) => {
+    if(idx === 0){ saida = p.txt; return; }
+    const usaE = p.valor < 100 || p.valor % 100 === 0;
+    saida += (usaE ? ' e ' : ', ') + p.txt;
+  });
+  return saida;
+}
+function porExtenso(valor){
+  const inteiro = Math.floor(Math.abs(valor));
+  const centavos = Math.round((Math.abs(valor) - inteiro) * 100);
+  const partes = [];
+  if(inteiro > 0){
+    const txt = inteiroExtenso(inteiro);
+    /* milhão e bilhão redondos pedem a preposição: "um milhão de reais" */
+    const usaDe = /(milhão|milhões|bilhão|bilhões)$/.test(txt);
+    partes.push(txt + (usaDe ? ' de reais' : (inteiro === 1 ? ' real' : ' reais')));
+  }
+  if(centavos > 0) partes.push(inteiroExtenso(centavos) + (centavos === 1 ? ' centavo' : ' centavos'));
+  if(partes.length === 0) return 'zero real';
+  return partes.join(' e ');
+}
+
+/* ---------- leitura do processo e sugestão de honorários ---------- */
+function analisarPericia(c){
+  const texto = normalizeText([c.nome, c.vara, c.partes].join(' '));
+  const perfis = [
+    {re:/haveres|societari|dissolu/, area:'Apuração de haveres em dissolução societária', base:8000, obj:'apurar os haveres do sócio retirante, com levantamento do patrimônio líquido e do valor da participação societária'},
+    {re:/trabalhista|rescis|verbas/,  area:'Perícia contábil trabalhista', base:3500, obj:'revisar os cálculos de liquidação, conferindo verbas rescisórias, reflexos e critérios de atualização'},
+    {re:/presta[çc][ãa]o de contas|esp[óo]lio|inventari/, area:'Prestação de contas', base:5000, obj:'examinar a prestação de contas apresentada, confrontando lançamentos e documentos de suporte'},
+    {re:/fam[íi]lia|div[óo]rcio|partilha/, area:'Perícia contábil em partilha de bens', base:5000, obj:'levantar e avaliar o acervo patrimonial do casal para fins de partilha'},
+    {re:/revisional|financiamento|juros|contrat/, area:'Perícia contábil revisional', base:4500, obj:'recalcular o contrato, verificando a taxa efetivamente praticada, o sistema de amortização e a existência de capitalização'},
+    {re:/execu[çc][ãa]o|c[áa]lculo/, area:'Revisão de cálculos em execução', base:3500, obj:'conferir a memória de cálculo apresentada e apurar o valor devido na data-base'},
+  ];
+  const perfil = perfis.find(p => p.re.test(texto)) || {area:'Perícia contábil judicial', base:4000, obj:'responder aos quesitos formulados pelo juízo e pelas partes, com base no exame da documentação contábil'};
+  const valorCausa = num(c.valorCausa || 0);
+  const adicional = Math.min(perfil.base * 2, valorCausa * 0.005);
+  const sugerido = Math.round((perfil.base + adicional) / 100) * 100;
+  return {...perfil, sugerido, adicional, valorCausa};
+}
+
+/* ---------- marcadores disponíveis ---------- */
+function mapaDaPericia(c, honorarios, analise){
+  const hoje = new Date();
+  const contador = CONTADORES[c.contador] || {label:''};
+  const cidade = (c.comarca || '').split('/')[0].trim();
+  const mesExtenso = hoje.toLocaleDateString('pt-BR', {month:'long'});
+  return {
+    codigo: c.codigo || '',
+    nome: c.nome || '',
+    processo: c.numeroProcesso || '',
+    codigo_acesso: c.codigoAcesso || '',
+    vara: c.vara || '',
+    comarca: c.comarca || '',
+    cidade: cidade,
+    partes: c.partes || '',
+    autor: (c.partes || '').split(/\s+x\s+/i)[0] || '',
+    reu: (c.partes || '').split(/\s+x\s+/i)[1] || '',
+    perito: contador.label,
+    area: analise.area,
+    objeto: analise.obj,
+    data_nomeacao: fmtDate(c.dataNomeacao),
+    prazo: fmtDate(c.prazoEntrega),
+    status: (STATUS[c.statusCaso] || {}).label || '',
+    honorarios: brl(honorarios),
+    honorarios_extenso: porExtenso(honorarios),
+    valor_causa: c.valorCausa ? brl(num(c.valorCausa)) : '',
+    data: hoje.toLocaleDateString('pt-BR'),
+    data_extenso: `${cidade || 'Goiânia'}, ${hoje.getDate()} de ${mesExtenso} de ${hoje.getFullYear()}`,
+  };
+}
+const MARCADORES_DESC = [
+  ['processo','Número do processo'], ['vara','Vara'], ['comarca','Comarca'], ['cidade','Cidade da comarca'],
+  ['partes','Partes'], ['autor','Polo ativo'], ['reu','Polo passivo'], ['perito','Perito responsável'],
+  ['area','Área da perícia identificada'], ['objeto','Objeto proposto para o trabalho'],
+  ['honorarios','Honorários em números'], ['honorarios_extenso','Honorários por extenso'],
+  ['valor_causa','Valor da causa'], ['prazo','Prazo de entrega'], ['data_nomeacao','Data da nomeação'],
+  ['codigo','Código interno da perícia'], ['codigo_acesso','Código de acesso'], ['nome','Nome da perícia'],
+  ['status','Situação da perícia'], ['data','Data de hoje'], ['data_extenso','Local e data por extenso'],
+];
+
+/* ---------- preenchimento do modelo ---------- */
+function escaparXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function aplicarMapa(texto, mapa){
+  return texto.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g, (achado, chave) =>
+    Object.prototype.hasOwnProperty.call(mapa, chave) ? mapa[chave] : achado);
+}
+/* No .docx um marcador costuma vir quebrado entre vários <w:t>; por isso a troca
+   é feita no parágrafo inteiro e o resultado volta para o primeiro trecho. */
+function substituirNoXml(xml, mapa){
+  return xml.replace(/<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g, par => {
+    const trechos = [...par.matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g)];
+    if(trechos.length === 0) return par;
+    const juntado = trechos.map(m => m[1]).join('');
+    const trocado = aplicarMapa(juntado, mapa);
+    if(trocado === juntado) return par;
+    let i = 0;
+    return par.replace(/(<w:t)((?:\s[^>]*)?)(>)([\s\S]*?)(<\/w:t>)/g, (m, ini, attrs, fecha, conteudo, fim) => {
+      const novo = i === 0 ? escaparXml(trocado) : '';
+      i++;
+      const comEspaco = attrs.includes('xml:space') ? attrs : attrs + ' xml:space="preserve"';
+      return ini + comEspaco + fecha + novo + fim;
+    });
+  });
+}
+async function preencherDocx(bytes, mapa){
+  const zip = await JSZip.loadAsync(bytes);
+  const alvos = Object.keys(zip.files).filter(n => /^word\/(document|header\d*|footer\d*)\.xml$/.test(n));
+  for(const nome of alvos){
+    const xml = await zip.file(nome).async('string');
+    zip.file(nome, substituirNoXml(xml, mapa));
+  }
+  return await zip.generateAsync({type:'uint8array'});
+}
+
+/* ---------- modelo padrão, para quem ainda não importou o seu ---------- */
+function propostaPadrao(mapa){
+  const linha = (k,v) => v ? `<tr><td style="padding:3px 10px 3px 0; color:#555;">${k}</td><td style="padding:3px 0;"><b>${escapeHtml(v)}</b></td></tr>` : '';
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">
+<style>@page{margin:2.5cm 2cm;} body{font-family:'Times New Roman',serif; font-size:12pt; line-height:1.5; color:#000;}
+h1{font-size:13pt; text-align:center; text-transform:uppercase; letter-spacing:.06em; margin-bottom:26px;}
+p{text-align:justify; margin:0 0 12px;} .ass{margin-top:60px; text-align:center;}</style></head><body>
+<h1>Proposta de Honorários Periciais</h1>
+<table style="margin-bottom:22px; font-size:11pt;">
+${linha('Processo nº', mapa.processo)}${linha('Vara', mapa.vara)}${linha('Comarca', mapa.comarca)}
+${linha('Partes', mapa.partes)}${linha('Perito', mapa.perito)}${linha('Natureza', mapa.area)}
+</table>
+<p>Meritíssimo Juiz,</p>
+<p>${escapeHtml(mapa.perito)}, perito-contador nomeado nos autos em epígrafe, vem respeitosamente
+apresentar sua proposta de honorários periciais, nos termos do artigo 465, parágrafo 2º, do Código de Processo Civil.</p>
+<p><b>Objeto do trabalho.</b> A perícia tem por finalidade ${escapeHtml(mapa.objeto)}, abrangendo o exame da documentação
+juntada aos autos, a elaboração da memória de cálculo correspondente e a resposta aos quesitos das partes e do juízo.</p>
+<p><b>Honorários propostos.</b> Para a realização do trabalho, estimam-se honorários de
+<b>R$ ${escapeHtml(mapa.honorarios)}</b> (${escapeHtml(mapa.honorarios_extenso)}), considerando a complexidade da matéria,
+o volume de documentos a examinar e as horas técnicas estimadas.</p>
+<p><b>Prazo.</b> O laudo será entregue até ${escapeHtml(mapa.prazo || 'a data a ser fixada por este juízo')},
+contado da intimação do depósito dos honorários e da disponibilização integral dos documentos necessários.</p>
+<p>Nestes termos, pede deferimento.</p>
+<p class="ass">${escapeHtml(mapa.data_extenso)}<br><br>_______________________________________<br>${escapeHtml(mapa.perito)}<br>Perito-Contador</p>
+</body></html>`;
+}
+
+/* ---------- importação e geração ---------- */
+async function importarModelo(input){
+  const f = input.files[0];
+  if(!f) return;
+  const status = document.getElementById('modeloStatus');
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  if(bytes.length > 3 * 1024 * 1024){
+    status.textContent = 'O modelo passa de 3 MB. Use um arquivo menor.';
+    input.value = ''; return;
+  }
+  modeloProposta = {nome:f.name, tipo:f.type || mimeFor(extOf(f.name)), ext:extOf(f.name), base64:bytesToBase64(bytes), quando:todayIso()};
+  try{
+    localStorage.setItem(LS_MODELO, JSON.stringify(modeloProposta));
+  }catch(e){
+    status.textContent = 'O modelo foi carregado, mas não coube no armazenamento do navegador — ele vale só para esta sessão.';
+  }
+  input.value = '';
+  renderAll();
+}
+function removerModelo(){
+  modeloProposta = null;
+  try{ localStorage.removeItem(LS_MODELO); }catch(e){}
+  renderAll();
+}
+function dadosProposta(){
+  const casoId = (document.getElementById('propCaso') || {}).value;
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return null;
+  const analise = analisarPericia(c);
+  const campo = document.getElementById('propHonorarios');
+  const honorarios = campo ? num(campo.value) : analise.sugerido;
+  return {c, analise, honorarios, mapa: mapaDaPericia(c, honorarios, analise)};
+}
+async function gerarProposta(anexar){
+  const d = dadosProposta();
+  const status = document.getElementById('propStatus');
+  if(!d){ status.textContent = 'Escolha a perícia.'; return; }
+  if(d.honorarios <= 0){ status.textContent = 'Informe o valor dos honorários.'; return; }
+  status.textContent = 'Gerando...';
+  let bytes, nomeArq, mime;
+  try{
+    if(modeloProposta && modeloProposta.ext === 'docx'){
+      bytes = await preencherDocx(base64ToBytes(modeloProposta.base64), d.mapa);
+      nomeArq = `proposta_honorarios_${d.c.codigo}.docx`;
+      mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else if(modeloProposta){
+      const texto = aplicarMapa(new TextDecoder().decode(base64ToBytes(modeloProposta.base64)), d.mapa);
+      bytes = new TextEncoder().encode(texto);
+      nomeArq = `proposta_honorarios_${d.c.codigo}.${modeloProposta.ext || 'txt'}`;
+      mime = modeloProposta.tipo || 'text/plain';
+    } else {
+      bytes = new TextEncoder().encode(propostaPadrao(d.mapa));
+      nomeArq = `proposta_honorarios_${d.c.codigo}.doc`;
+      mime = 'application/msword';
+    }
+  }catch(e){
+    status.textContent = 'Não foi possível preencher o modelo. Verifique se o arquivo é um .docx válido.';
+    return;
+  }
+
+  if(anexar){
+    const docId = 'd'+Date.now()+Math.random().toString(36).slice(2,6);
+    const built = await buildArquivo(d.c.id, docId, bytes, nomeArq, mime);
+    await addDoc(d.c.id, {
+      nome: nomeArq, fase:'Proposta de Honorários', tipo:'Outro', data: todayIso(),
+      obs: `Proposta de R$ ${brl(d.honorarios)} — ${d.analise.area}.`,
+      tamanho: bytes.length, arquivo: built.arquivo, processo: d.c.numeroProcesso || null, codigoAcesso: null
+    }, docId);
+    status.textContent = `Anexado em ${d.c.codigo}.`;
+    renderNav();
+  } else {
+    const blob = new Blob([bytes], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nomeArq;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    status.textContent = 'Documento gerado.';
+  }
+}
+function atualizarPrevia(){
+  const alvo = document.getElementById('propPrevia');
+  if(!alvo) return;
+  const d = dadosProposta();
+  if(!d){ alvo.innerHTML = ''; return; }
+  const linhas = MARCADORES_DESC
+    .map(([chave, desc]) => [chave, desc, d.mapa[chave]])
+    .filter(l => String(l[2]).trim() !== '');
+  alvo.innerHTML = `
+    <div class="calc-nota" style="margin:0 0 10px;">
+      Perícia lida como <b>${escapeHtml(d.analise.area)}</b>.
+      Sugestão de honorários: base de R$ ${brl(d.analise.base)}${d.analise.adicional > 0 ? ` mais R$ ${brl(d.analise.adicional)}, equivalentes a 0,5% do valor da causa` : ''}.
+      O valor é uma referência — ajuste conforme o seu critério.
+    </div>
+    <div class="rows">
+      ${linhas.map(([chave, desc, valor]) => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title mono" style="font-size:12.5px;">{{${chave}}}</div>
+            <div class="row-sub">${desc}</div>
+          </div>
+          <div class="row-side"><span class="row-date" style="max-width:340px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(String(valor))}</span></div>
+        </div>`).join('')}
+    </div>`;
+}
+function trocarPericiaProposta(){
+  const d = dadosProposta();
+  const campo = document.getElementById('propHonorarios');
+  if(d && campo) campo.value = brl(d.analise.sugerido);
+  atualizarPrevia();
+}
+
+function renderProposta(){
+  const lista = casosDoContador();
+  if(lista.length === 0){
+    return `<div class="empty-state"><h3>Nenhuma perícia cadastrada</h3><p>Crie uma perícia para gerar a proposta de honorários dela.</p></div>`;
+  }
+  const primeiro = lista[0];
+  const analise = analisarPericia(primeiro);
+
+  const corpoModelo = modeloProposta ? `
+      <div class="rows" style="margin-bottom:12px;">
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(modeloProposta.nome)}</div>
+            <div class="row-sub">Importado em ${fmtDate(modeloProposta.quando)} · ${fmtBytes(Math.round(modeloProposta.base64.length*3/4))}</div>
+          </div>
+          <div class="row-side"><button class="btn btn-ghost btn-sm" onclick="removerModelo()">Remover</button></div>
+        </div>
+      </div>
+      <div class="calc-nota" style="margin-top:0;">O documento gerado mantém as margens, o cabeçalho, o rodapé e a logomarca do seu arquivo.</div>`
+    : `
+      <div class="banner banner-info" style="margin-bottom:12px;">
+        ${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}
+        <span>Nenhum modelo importado. Enquanto isso, o app gera uma proposta em formato padrão, que abre no Word.</span>
+      </div>`;
+
+  const corpoImport = `
+      <input type="file" id="modeloInput" accept=".docx,.html,.htm,.txt" style="display:none" onchange="importarModelo(this)">
+      <div class="acoes">
+        <button class="btn btn-primary" onclick="document.getElementById('modeloInput').click()">
+          ${svg('<path d="M12 21V9M7 13l5-5 5 5M4 4h16"/>')} Importar modelo
+        </button>
+        <span class="dica" style="font-size:11.5px; color:var(--muted);">Aceita .docx, .html ou .txt</span>
+      </div>
+      <div id="modeloStatus" class="hint"></div>`;
+
+  const corpoGerar = `
+      <div class="form-grid">
+        <div class="field" style="grid-column:1/-1;"><label for="propCaso">Perícia</label>
+          <select id="propCaso" onchange="trocarPericiaProposta()">
+            ${lista.map(c => `<option value="${c.id}">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</option>`).join('')}
+          </select></div>
+        <div class="field"><label for="propHonorarios">Honorários propostos (R$)</label>
+          <input id="propHonorarios" inputmode="decimal" value="${brl(analise.sugerido)}" oninput="atualizarPrevia()">
+          <span class="dica">Sugestão a partir da natureza da perícia e do valor da causa</span></div>
+      </div>
+      <div class="acoes">
+        <button class="btn btn-primary" onclick="gerarProposta(false)">Gerar documento</button>
+        <button class="btn btn-ghost" onclick="gerarProposta(true)">Gerar e anexar à perícia</button>
+        <span id="propStatus" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
+      </div>
+      <div id="propPrevia" style="margin-top:16px;"></div>`;
+
+  const corpoMarcadores = `
+      <div class="calc-nota" style="margin-top:0;">
+        Escreva estes marcadores no seu modelo, entre chaves duplas, exatamente como aparecem abaixo.
+        Cada um é trocado pelo dado da perícia no momento da geração; o que não existir no modelo é simplesmente ignorado.
+      </div>
+      <div class="kv-grid" style="margin-top:12px;">
+        ${MARCADORES_DESC.map(([chave, desc]) => `
+          <div class="kv"><div class="k mono" style="text-transform:none; letter-spacing:0; color:var(--accent-deep);">{{${chave}}}</div><div class="v" style="font-size:12.5px; color:var(--muted);">${desc}</div></div>`).join('')}
+      </div>`;
+
+  return `
+    <div class="section-gap">
+      ${panel('propModelo', 'Modelo do escritório', modeloProposta ? 'importado' : 'nenhum importado', corpoModelo + corpoImport)}
+      ${panel('propGerar', 'Gerar proposta', 'preenche com os dados da perícia', corpoGerar)}
+      ${panel('propMarcadores', 'Marcadores aceitos no modelo', `${MARCADORES_DESC.length} campos`, corpoMarcadores)}
+    </div>`;
+}
+
+/* ==========================================================================
    Seção: configurações
    ========================================================================== */
 function renderConfig(){
@@ -1570,6 +2719,8 @@ function renderAll(){
   if(activeSection === 'visao') view.innerHTML = renderVisao();
   else if(activeSection === 'pericias') view.innerHTML = renderPericias();
   else if(activeSection === 'prazos') view.innerHTML = renderPrazos();
+  else if(activeSection === 'calculos') view.innerHTML = renderCalculos();
+  else if(activeSection === 'proposta'){ view.innerHTML = renderProposta(); atualizarPrevia(); }
   else if(activeSection === 'docs') view.innerHTML = renderDocs();
   else if(activeSection === 'projudi') view.innerHTML = renderProjudi();
   else if(activeSection === 'config') view.innerHTML = renderConfig();
