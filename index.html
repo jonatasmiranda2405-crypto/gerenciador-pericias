@@ -850,6 +850,7 @@ body.travado{overflow:hidden;}
 <div class="drawer" id="drawer"></div>
 
 <div class="login" id="login"></div>
+<div class="login confirma" id="confirma"></div>
 <div class="aceite" id="aceite"></div>
 
 <div class="viewer-overlay" id="viewerOverlay" onclick="if(event.target===this) closeViewer();">
@@ -905,96 +906,134 @@ const STATUS_PROCESSO = {
    que as regras do servidor consultam para liberar o login — mudar aqui muda
    quem entra, sem precisar republicar o site.
    ========================================================================== */
-const LS_EQUIPE = 'pericias.equipe';
+const LS_PERFIL = 'pericias.perfil';
 const CORES_MEMBRO = ['var(--accent)','var(--violet)','var(--s2)','var(--ok)','var(--warn)','var(--danger)'];
-const PAPEIS = {
-  titular:   {label:'Titular',   desc:'administra a equipe e cria perícias'},
-  membro:    {label:'Perito',    desc:'cria e gerencia as próprias perícias'},
-  convidado: {label:'Convidado', desc:'vê apenas o que for compartilhado com ele'},
+const LEGADO = ['jonatasmiranda2405@gmail.com','rodrigodosantosmiranda@gmail.com','periciamiranda@gmail.com'];
+
+const PERFIL_VAZIO = {
+  email:'', nome:'', criadoEm:'', ficha:{}, aparencia:{}, aceite:null, contatos:[],
 };
-const EQUIPE_PADRAO = {
-  membros: [
-    {email:'jonatasmiranda2405@gmail.com',     nome:'Jonatas Miranda', iniciais:'JM', cor:'var(--accent)', papel:'titular'},
-    {email:'rodrigodosantosmiranda@gmail.com', nome:'Rodrigo Miranda', iniciais:'RM', cor:'var(--violet)', papel:'membro'},
-    {email:'periciamiranda@gmail.com',         nome:'Perícia Miranda', iniciais:'PM', cor:'var(--s2)',     papel:'titular'},
-  ],
-};
-/* As três listas abaixo são derivadas dos membros e gravadas no mesmo
-   documento: as regras do Firestore leem arrays, que não têm o problema de
-   chave com ponto que um e-mail traria se virasse nome de campo. */
-function listasDaEquipe(membros){
-  return {
-    emails:    membros.map(m => m.email),
-    titulares: membros.filter(m => m.papel === 'titular').map(m => m.email),
-    criadores: membros.filter(m => m.papel !== 'convidado').map(m => m.email),
-  };
-}
+let perfil = (function(){
+  try{ const raw = localStorage.getItem(LS_PERFIL); if(raw) return {...PERFIL_VAZIO, ...JSON.parse(raw)}; }catch(e){}
+  return JSON.parse(JSON.stringify(PERFIL_VAZIO));
+})();
+let perfilCarregado = false;
+
+function meuEmail(){ return ((currentUser && currentUser.email) || '').trim().toLowerCase(); }
+function contaVerificada(){ return !!(currentUser && currentUser.emailVerified); }
+function contaPronta(){ return !currentUser || contaVerificada(); }
+function possoCriar(){ return contaPronta(); }
+function souTitular(){ return true; }   /* no próprio espaço, cada um manda */
+
 function iniciaisDe(texto){
   const partes = String(texto || '').replace(/@.*/, '').split(/[\s._-]+/).filter(Boolean);
   if(partes.length === 0) return '?';
   if(partes.length === 1) return partes[0].slice(0,2).toUpperCase();
   return (partes[0][0] + partes[partes.length-1][0]).toUpperCase();
 }
-function normalizarEquipe(bruto){
-  const membros = (bruto && Array.isArray(bruto.membros) ? bruto.membros : EQUIPE_PADRAO.membros)
-    .filter(m => m && m.email)
-    .map((m, i) => ({
-      email: String(m.email).trim().toLowerCase(),
-      nome: m.nome || String(m.email).split('@')[0],
-      iniciais: m.iniciais || iniciaisDe(m.nome || m.email),
-      cor: m.cor || CORES_MEMBRO[i % CORES_MEMBRO.length],
-      papel: PAPEIS[m.papel] ? m.papel : 'membro',
-    }));
-  return {membros, ...listasDaEquipe(membros)};
+function corDoEmail(email){
+  let n = 0;
+  for(const ch of String(email)) n = (n * 31 + ch.charCodeAt(0)) % 997;
+  return CORES_MEMBRO[n % CORES_MEMBRO.length];
 }
-let equipe = (function(){
-  try{
-    const raw = localStorage.getItem(LS_EQUIPE);
-    if(raw) return normalizarEquipe(JSON.parse(raw));
-  }catch(e){}
-  return normalizarEquipe(EQUIPE_PADRAO);
-})();
-function persistirEquipe(){
-  try{ localStorage.setItem(LS_EQUIPE, JSON.stringify({membros: equipe.membros})); }catch(e){}
-}
-async function gravarEquipe(){
-  equipe = normalizarEquipe(equipe);
-  persistirEquipe();
-  if(usingDb && db){
-    try{ await db.collection('config').doc('equipe').set({membros: equipe.membros, ...listasDaEquipe(equipe.membros)}); }
-    catch(e){ cloudSetBanner(bannerAviso('A equipe mudou aqui, mas o servidor recusou a gravação — só um titular pode alterar a lista.')); }
-  }
-  renderAll();
-}
-async function sincronizarEquipe(){
-  if(!usingDb || !db) return;
-  try{
-    const doc = await db.collection('config').doc('equipe').get();
-    if(doc.exists){
-      equipe = normalizarEquipe(doc.data());
-      persistirEquipe();
-    } else {
-      await db.collection('config').doc('equipe').set({membros: equipe.membros, ...listasDaEquipe(equipe.membros)});
-    }
-  }catch(e){ /* offline ou sem permissão: segue com a cópia local */ }
-}
-
-/* ---------- quem sou eu ---------- */
-function meuEmail(){ return ((currentUser && currentUser.email) || '').trim().toLowerCase(); }
+/* a agenda é minha: eu escolho como cada e-mail aparece na minha tela */
 function membroDe(email){
   const e = String(email || '').trim().toLowerCase();
-  const achado = equipe.membros.find(m => m.email === e);
-  if(achado) return achado;
-  return {email:e, nome: e ? e.split('@')[0] : 'Sem conta', iniciais: iniciaisDe(e), cor:'var(--muted)', papel:'convidado', forasteiro:true};
+  if(!e) return {email:'', nome:'Sem conta', iniciais:'?', cor:'var(--muted)'};
+  if(e === meuEmail()){
+    const nome = perfil.nome || (currentUser && currentUser.displayName) || e.split('@')[0];
+    return {email:e, nome, iniciais: iniciaisDe(nome), cor:'var(--accent)', souEu:true};
+  }
+  const achado = (perfil.contatos || []).find(c => c.email === e);
+  const nome = (achado && achado.nome) || e.split('@')[0];
+  return {email:e, nome, iniciais: iniciaisDe(nome), cor: corDoEmail(e)};
 }
-function souTitular(){
-  const e = meuEmail();
-  if(!e) return true;                       /* sem login, o app é só deste navegador */
-  return equipe.titulares.includes(e);
+/* quem convive com as minhas perícias: sai dos compartilhamentos e da agenda */
+function pessoasDoEspaco(){
+  const vistos = new Set(), lista = [];
+  const juntar = e => {
+    const x = String(e||'').toLowerCase();
+    if(x && !vistos.has(x)){ vistos.add(x); lista.push(membroDe(x)); }
+  };
+  juntar(meuEmail());
+  casos.forEach(c => { juntar(donoDe(c)); acessosDe(c).forEach(juntar); });
+  (perfil.contatos || []).forEach(c => juntar(c.email));
+  return lista;
 }
-function possoCriar(){
+function quantasPericias(email){
+  const e = String(email||'').toLowerCase();
+  return casos.filter(c => acessosDe(c).includes(e)).length;
+}
+
+/* ---------- gravação do perfil ---------- */
+function persistirPerfilLocal(){
+  try{ localStorage.setItem(LS_PERFIL, JSON.stringify(perfil)); }catch(e){}
+}
+async function salvarPerfil(patch){
+  perfil = {...perfil, ...patch};
+  persistirPerfilLocal();
+  if(usingDb && db && currentUser){
+    try{ await db.collection('usuarios').doc(currentUser.uid).set(patch, {merge:true}); }
+    catch(e){ cloudSetBanner(bannerAviso('Não foi possível salvar o perfil agora (' + escapeHtml(e.code||'erro') + ').')); }
+  }
+}
+/* As três contas antigas guardavam ficha e aceite em config/*. Na primeira
+   entrada com esta versão, o que era delas passa para o perfil pessoal. */
+async function trazerDoLegado(){
   const e = meuEmail();
-  return !e || equipe.criadores.includes(e);
+  if(!LEGADO.includes(e)) return {};
+  const trazido = {};
+  try{
+    const d = await db.collection('config').doc('peritos').get();
+    if(d.exists && d.data()[e]) trazido.ficha = d.data()[e];
+  }catch(err){}
+  try{
+    const d = await db.collection('config').doc('aceites').get();
+    const meu = d.exists && (d.data().lista||[]).find(a => a.email === e);
+    if(meu) trazido.aceite = {versao: meu.versao, quando: meu.quando};
+  }catch(err){}
+  try{
+    const d = await db.collection('config').doc('equipe').get();
+    if(d.exists){
+      const m = (d.data().membros||[]).find(x => x.email === e);
+      if(m && m.nome) trazido.nome = m.nome;
+      trazido.contatos = (d.data().membros||[]).filter(x => x.email !== e).map(x => ({email:x.email, nome:x.nome}));
+    }
+  }catch(err){}
+  return trazido;
+}
+async function carregarPerfil(){
+  if(!usingDb || !db || !currentUser) return;
+  const ref = db.collection('usuarios').doc(currentUser.uid);
+  let dados = null;
+  try{
+    const d = await ref.get();
+    if(d.exists) dados = d.data();
+  }catch(e){ return; }
+  if(!dados){
+    dados = {
+      email: meuEmail(),
+      nome: (currentUser.displayName || '').trim() || meuEmail().split('@')[0],
+      criadoEm: new Date().toISOString(),
+      ficha:{}, aparencia:{}, aceite:null, contatos:[],
+      ...(await trazerDoLegado()),
+    };
+    try{ await ref.set(dados); }catch(e){}
+  }
+  perfil = {...PERFIL_VAZIO, ...dados, email: meuEmail()};
+  perfilCarregado = true;
+  persistirPerfilLocal();
+  aparenciaDoPerfil();
+  renderAll();
+}
+
+/* ---------- agenda de contatos ---------- */
+async function definirContato(email, nome){
+  const e = String(email||'').trim().toLowerCase();
+  if(!e) return;
+  const contatos = [...(perfil.contatos||[]).filter(c => c.email !== e)];
+  if(nome && nome.trim()) contatos.push({email:e, nome:nome.trim()});
+  await salvarPerfil({contatos});
 }
 
 /* ---------- dono e acesso de cada perícia ---------- */
@@ -1002,7 +1041,7 @@ const DE_PARA_ANTIGO = {jonatas:'jonatasmiranda2405@gmail.com', rodrigo:'rodrigo
 function donoDe(c){
   if(c && c.dono) return String(c.dono).toLowerCase();
   if(c && c.contador && DE_PARA_ANTIGO[c.contador]) return DE_PARA_ANTIGO[c.contador];
-  return meuEmail() || (equipe.emails[0] || '');
+  return meuEmail();
 }
 function acessosDe(c){ return Array.isArray(c.emails) ? c.emails : [donoDe(c)]; }
 function editoresDe(c){ return Array.isArray(c.editores) ? c.editores : [donoDe(c)]; }
@@ -1050,7 +1089,7 @@ async function migrarAcessos(){
   if(pendentes.length === 0){ migracaoFeita = true; return; }
   for(const c of pendentes){
     const dono = donoDe(c);
-    const outros = equipe.emails.filter(e => e !== dono);
+    const outros = LEGADO.filter(e => e !== dono);
     try{
       await saveCaso(c.id, {
         dono,
@@ -1079,14 +1118,7 @@ async function compartilhar(casoId, emailBruto, nivel){
   if(email === donoDe(c)) return {erro:'Este e-mail já é o dono da perícia.'};
   if(!podeEditar(c)) return {erro:'Só quem tem acesso de edição pode compartilhar.'};
 
-  let aviso = '';
-  if(!equipe.emails.includes(email)){
-    if(!souTitular()) return {erro:'Este e-mail não está na equipe. Peça a um titular para incluí-lo em Equipe.'};
-    equipe.membros = [...equipe.membros, {email, nome: email.split('@')[0], iniciais: iniciaisDe(email),
-      cor: CORES_MEMBRO[equipe.membros.length % CORES_MEMBRO.length], papel:'convidado'}];
-    await gravarEquipe();
-    aviso = ' O e-mail entrou na equipe como convidado, senão não conseguiria fazer login.';
-  }
+  const aviso = ' Se a pessoa ainda não tiver conta, ela cria a dela com este mesmo e-mail e a perícia aparece lá.';
   const emails = [...new Set([...acessosDe(c), email])];
   const editores = nivel === 'editar'
     ? [...new Set([...editoresDe(c), email])]
@@ -1161,58 +1193,6 @@ async function copiarConvite(casoId, email, alvoId){
   setTimeout(() => { if(aviso) aviso.textContent = ''; }, 4000);
 }
 
-/* ---------- administração da equipe ---------- */
-async function adicionarMembro(){
-  const aviso = document.getElementById('equipeAviso');
-  const email = (document.getElementById('novoMembroEmail').value || '').trim().toLowerCase();
-  const nome = (document.getElementById('novoMembroNome').value || '').trim();
-  const papel = document.getElementById('novoMembroPapel').value;
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ aviso.textContent = 'Informe um e-mail válido.'; return; }
-  if(equipe.emails.includes(email)){ aviso.textContent = 'Esse e-mail já está na equipe.'; return; }
-  equipe.membros = [...equipe.membros, {email, nome: nome || email.split('@')[0], iniciais: iniciaisDe(nome || email),
-    cor: CORES_MEMBRO[equipe.membros.length % CORES_MEMBRO.length], papel}];
-  await gravarEquipe();
-}
-async function alterarMembro(email, campo, valor){
-  const e = String(email).toLowerCase();
-  equipe.membros = equipe.membros.map(m => m.email === e
-    ? {...m, [campo]: valor, ...(campo === 'nome' ? {iniciais: iniciaisDe(valor || e)} : {})}
-    : m);
-  equipe = normalizarEquipe(equipe);
-  persistirEquipe();
-  if(usingDb && db){
-    try{ await db.collection('config').doc('equipe').set({membros: equipe.membros, ...listasDaEquipe(equipe.membros)}); }catch(e2){}
-  }
-}
-function confirmarRemocao(email){
-  const alvo = document.getElementById('equipeAviso');
-  const m = membroDe(email);
-  const nPericias = casos.filter(c => donoDe(c) === m.email).length;
-  alvo.innerHTML = `
-    <div class="confirm-box" style="margin:10px 0 0;">
-      Tirar <b>${escapeHtml(m.nome)}</b> da equipe? A conta deixa de conseguir entrar e perde o acesso ao que foi compartilhado com ela.
-      ${nPericias ? `<br>Atenção: ${nPericias} perícia${nPericias===1?'':'s'} tem esse e-mail como dono e ficaria sem responsável.` : ''}
-      <div class="row">
-        <button class="btn btn-danger btn-sm" onclick="removerMembro('${escapeHtml(m.email)}')">Sim, remover</button>
-        <button class="btn btn-ghost btn-sm" onclick="renderAll()">Cancelar</button>
-      </div>
-    </div>`;
-}
-async function removerMembro(email){
-  const e = String(email).toLowerCase();
-  if(e === meuEmail()){ document.getElementById('equipeAviso').textContent = 'Você não pode remover a própria conta.'; return; }
-  equipe.membros = equipe.membros.filter(m => m.email !== e);
-  if(equipe.membros.filter(m => m.papel === 'titular').length === 0){
-    document.getElementById('equipeAviso').textContent = 'A equipe precisa de pelo menos um titular.';
-    equipe = normalizarEquipe(equipe);
-    return;
-  }
-  await gravarEquipe();
-  /* tira o acesso dessa conta de tudo que passa por este navegador */
-  for(const c of casos.filter(c => acessosDe(c).includes(e) && donoDe(c) !== e && podeEditar(c))){
-    await descompartilhar(c.id, e);
-  }
-}
 const SUGGESTED_FASES = ['Despacho de Nomeação','Quesitos das Partes','Perícia em Campo / Diligência','Laudo Pericial','Manifestação das Partes','Impugnação','Decisão / Sentença'];
 const MAX_EMBED_BYTES = 5 * 1024 * 1024;
 
@@ -2779,70 +2759,22 @@ function renderCalculos(){
    do arquivo original ficam intactos.
    ========================================================================== */
 const LS_MODELO = 'pericias.modeloProposta';
-const LS_FICHAS = 'pericias.fichasPerito';
-
-let modeloProposta = (function(){
-  try{ const raw = localStorage.getItem(LS_MODELO); if(raw) return JSON.parse(raw); }catch(e){}
-  return null;
-})();
-
-/* ---------- ficha profissional de cada perito ---------- */
+/* ---------- cadastro profissional: é do dono da conta ---------- */
 const FICHA_VAZIA = {
   nomeCompleto:'', crcEstado:'', crcRegistro:'', cpf:'', telefone:'', endereco:'',
   cidadeUf:'', horaTecnica:467.29, referenciaHora:'Associação dos Peritos Contadores do Estado de Goiás - ASPECON',
 };
-const FICHAS_PADRAO = {
-  'jonatasmiranda2405@gmail.com': {
-    nomeCompleto:'Jonatas de Souza Miranda',
-    crcEstado:'Goiás', crcRegistro:'GO-030689/O-8', cpf:'702.671.401-50',
-    telefone:'(62) 9 84117863',
-    endereco:'Avenida coemitanga, Qd 107 Lt 01-31, Bairro Cardoso continuação, Aparecida de Goiânia - 74934001',
-    cidadeUf:'Goiânia - GO', horaTecnica:467.29,
-    referenciaHora:'Associação dos Peritos Contadores do Estado de Goiás - ASPECON',
-  },
-  'rodrigodosantosmiranda@gmail.com': {...FICHA_VAZIA, cidadeUf:'Goiânia - GO'},
-  'periciamiranda@gmail.com': {...FICHA_VAZIA, cidadeUf:'Goiânia - GO'},
-};
-/* as fichas antigas eram guardadas por apelido; passam a valer pelo e-mail */
-function converterFichasAntigas(bruto){
-  const de = {jonatas:'jonatasmiranda2405@gmail.com', rodrigo:'rodrigodosantosmiranda@gmail.com'};
-  const saida = {};
-  Object.entries(bruto || {}).forEach(([k, v]) => { saida[de[k] || String(k).toLowerCase()] = v; });
-  return saida;
-}
-let fichasPerito = (function(){
-  try{
-    const raw = localStorage.getItem(LS_FICHAS);
-    if(raw) return {...FICHAS_PADRAO, ...converterFichasAntigas(JSON.parse(raw))};
-  }catch(e){}
-  return JSON.parse(JSON.stringify(FICHAS_PADRAO));
-})();
-function fichaDe(email){ return {...FICHA_VAZIA, ...(fichasPerito[String(email||'').toLowerCase()] || {})}; }
-function persistirFichas(){
-  try{ localStorage.setItem(LS_FICHAS, JSON.stringify(fichasPerito)); }catch(e){}
-}
-/* A ficha acompanha a conta quando há Firestore; sem ele, vale só neste navegador. */
-async function sincronizarFichas(){
-  if(!usingDb || !db) return;
-  try{
-    const doc = await db.collection('config').doc('peritos').get();
-    if(doc.exists){
-      fichasPerito = {...FICHAS_PADRAO, ...converterFichasAntigas(doc.data() || {})};
-      persistirFichas();
-      if(activeSection === 'config' || activeSection === 'proposta') renderAll();
-    } else {
-      await db.collection('config').doc('peritos').set(fichasPerito);
-    }
-  }catch(e){ /* sem permissão ou offline: segue com a cópia local */ }
+/* A ficha de outra pessoa é privada: só a conta dela lê e grava. Por isso a
+   proposta só sai nas perícias em que você é o perito responsável. */
+function fichaDe(email){
+  const e = String(email||'').toLowerCase();
+  if(e && e !== meuEmail()) return {...FICHA_VAZIA, outroPerito:true};
+  return {...FICHA_VAZIA, ...(perfil.ficha || {})};
 }
 async function salvarFicha(key, campo, valor){
+  if(String(key||'').toLowerCase() !== meuEmail()) return;
   const v = campo === 'horaTecnica' ? num(valor) : valor;
-  key = String(key).toLowerCase();
-  fichasPerito[key] = {...fichaDe(key), [campo]: v};
-  persistirFichas();
-  if(usingDb && db){
-    try{ await db.collection('config').doc('peritos').set(fichasPerito, {merge:true}); }catch(e){}
-  }
+  await salvarPerfil({ficha: {...(perfil.ficha||{}), [campo]: v}});
 }
 
 /* ---------- número por extenso, em reais ---------- */
@@ -3457,6 +3389,11 @@ async function gerarProposta(anexar){
 /* ---------- tela ---------- */
 function renderProposta(){
   const c = casoDaProposta();
+  if(c && !souDono(c)){
+    return `<div class="empty-state"><h3>Perícia de outro perito</h3>
+      <p>A proposta sai assinada pelo perito responsável, com o CRC e o CPF dele — e esse cadastro é privado, só a conta dele lê.
+      ${escapeHtml(membroDe(donoDe(c)).nome)} gera a proposta desta perícia na conta dele.</p></div>`;
+  }
   if(!c){
     return '<div class="empty-state"><h3>Nenhuma perícia cadastrada</h3><p>Crie uma perícia para gerar a proposta de honorários dela.</p></div>';
   }
@@ -3597,11 +3534,6 @@ function avatarMembro(m, tamanho, foto){
     : escapeHtml(m.iniciais);
   return `<span class="perito-avatar" style="background:${m.cor}; width:${lado}px; height:${lado}px; font-size:${Math.round(lado*0.4)}px; overflow:hidden;">${dentro}</span>`;
 }
-function pillPapel(papel){
-  const p = PAPEIS[papel] || PAPEIS.membro;
-  const classe = papel === 'titular' ? 'pill-accent' : (papel === 'convidado' ? 'pill-muted' : 'pill-success');
-  return `<span class="pill ${classe}">${p.label}</span>`;
-}
 
 function renderPerfil(){
   const el = document.getElementById('perfil');
@@ -3710,7 +3642,7 @@ async function enviarCompartilhamento(casoId){
 function renderEquipe(){
   const email = meuEmail();
   const eu = membroDe(email);
-  const titular = souTitular();
+  const pessoas = pessoasDoEspaco().filter(m => m.email !== email);
 
   const corpoConta = `
       <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
@@ -3718,59 +3650,50 @@ function renderEquipe(){
         <div style="min-width:0;">
           <div style="font-size:16px; font-weight:600;">${escapeHtml(email ? eu.nome : 'Sem conta conectada')}</div>
           <div class="mono" style="font-size:12.5px; color:var(--muted); margin-top:2px;">${escapeHtml(email || 'os dados ficam só neste navegador')}</div>
-          <div style="margin-top:7px;">${email ? pillPapel(eu.papel) : '<span class="pill pill-warning">local</span>'}
-            <span class="dica" style="margin-left:6px;">${PAPEIS[eu.papel] ? PAPEIS[eu.papel].desc : ''}</span></div>
+          <div style="margin-top:7px;">
+            ${email ? (contaVerificada()
+              ? '<span class="pill pill-success">E-mail confirmado</span>'
+              : '<span class="pill pill-warning">E-mail não confirmado</span>') : '<span class="pill pill-warning">local</span>'}
+            ${perfil.criadoEm ? `<span class="dica" style="margin-left:8px;">conta criada em ${fmtDate(String(perfil.criadoEm).slice(0,10))}</span>` : ''}
+          </div>
         </div>
       </div>
       <div class="kv-grid" style="margin-top:16px;">
         <div class="kv"><div class="k">Minhas perícias</div><div class="v num">${contarVisao('minhas')}</div></div>
         <div class="kv"><div class="k">Compartilhadas comigo</div><div class="v num">${contarVisao('compartilhadas')}</div></div>
         <div class="kv"><div class="k">Compartilhei com outros</div><div class="v num">${casos.filter(c => souDono(c) && acessosDe(c).length > 1).length}</div></div>
-        <div class="kv"><div class="k">Pessoas na equipe</div><div class="v num">${equipe.membros.length}</div></div>
+        <div class="kv"><div class="k">Pessoas envolvidas</div><div class="v num">${pessoas.length}</div></div>
       </div>
       <div class="hint" style="margin-top:12px;">
-        Os dados do perito que entram na proposta de honorários (CRC, CPF, endereço) ficam em Configurações, na ficha dos peritos.
+        Este é o seu espaço. As perícias que você cria ficam suas, e as outras contas só enxergam o que você compartilhar com o e-mail delas.
       </div>`;
 
-  const corpoMembros = `
-      <div class="rows">
-        ${equipe.membros.map(m => {
-          const nPericias = casos.filter(c => donoDe(c) === m.email).length;
-          const souEu = m.email === email;
+  const corpoPessoas = pessoas.length === 0
+    ? `<div class="chart-empty">Você ainda não compartilhou nenhuma perícia. Abra uma perícia e use o bloco “Quem tem acesso”.</div>`
+    : `<div class="rows">
+        ${pessoas.map(m => {
+          const n = quantasPericias(m.email);
+          const naAgenda = (perfil.contatos||[]).some(c => c.email === m.email);
           return `
           <div class="row-item com-avatar" style="cursor:default;">
             ${avatarMembro(m, 30)}
             <div class="row-main">
-              <div class="row-title">${escapeHtml(m.nome)} ${souEu ? '<span class="pill pill-muted">você</span>' : ''}</div>
-              <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(m.email)} · ${nPericias} perícia${nPericias===1?'':'s'} própria${nPericias===1?'':'s'}</div>
+              <input value="${escapeHtml(naAgenda ? m.nome : '')}" placeholder="${escapeHtml(m.nome)}"
+                     onchange="definirContato('${escapeHtml(m.email)}', this.value)"
+                     style="font-size:13.5px; font-weight:500; padding:4px 7px; border:1px solid transparent; border-radius:6px; background:transparent; color:var(--ink); width:100%;"
+                     onfocus="this.style.borderColor='var(--line-strong)'; this.style.background='var(--ground)'"
+                     onblur="this.style.borderColor='transparent'; this.style.background='transparent'">
+              <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(m.email)}</div>
             </div>
-            <div class="row-side" style="display:flex; gap:7px; align-items:center;">
-              ${titular
-                ? `<select onchange="alterarMembro('${escapeHtml(m.email)}','papel',this.value)" style="padding:4px 8px; font-size:12px;">
-                     ${Object.entries(PAPEIS).map(([k,v]) => `<option value="${k}" ${m.papel===k?'selected':''}>${v.label}</option>`).join('')}
-                   </select>
-                   ${souEu ? '' : `<button class="btn btn-ghost btn-sm" onclick="confirmarRemocao('${escapeHtml(m.email)}')">Remover</button>`}`
-                : pillPapel(m.papel)}
+            <div class="row-side">
+              <span class="pill ${n ? 'pill-accent' : 'pill-muted'}">${n} perícia${n===1?'':'s'}</span>
             </div>
           </div>`;
         }).join('')}
       </div>
-      ${titular ? `
-      <div class="form-grid" style="margin:16px 0 0;">
-        <div class="field"><label for="novoMembroEmail">E-mail da conta Google</label>
-          <input id="novoMembroEmail" type="email" placeholder="email@exemplo.com"></div>
-        <div class="field"><label for="novoMembroNome">Nome</label>
-          <input id="novoMembroNome" placeholder="como aparece na equipe"></div>
-        <div class="field"><label for="novoMembroPapel">Papel</label>
-          <select id="novoMembroPapel">
-            ${Object.entries(PAPEIS).map(([k,v]) => `<option value="${k}" ${k==='membro'?'selected':''}>${v.label} — ${v.desc}</option>`).join('')}
-          </select></div>
-      </div>
-      <div class="acoes" style="margin-top:6px;">
-        <button class="btn btn-primary btn-sm" onclick="adicionarMembro()">Adicionar à equipe</button>
-      </div>
-      <div id="equipeAviso" class="hint"></div>`
-      : `<div id="equipeAviso" class="hint">Só um titular pode incluir ou remover pessoas.</div>`}`;
+      <div class="hint" style="margin-top:12px;">
+        Escreva um nome no lugar do e-mail e ele passa a aparecer assim nas suas telas. Esse apelido é só seu.
+      </div>`;
 
   const recebidas = casos.filter(c => !souDono(c) && temAcesso(c));
   const corpoRecebidas = recebidas.length === 0
@@ -3792,7 +3715,7 @@ function renderEquipe(){
 
   const enviadas = casos.filter(c => souDono(c) && acessosDe(c).length > 1);
   const corpoEnviadas = enviadas.length === 0
-    ? `<div class="chart-empty">Você ainda não compartilhou nenhuma perícia. Abra uma perícia e use o bloco “Quem tem acesso”.</div>`
+    ? `<div class="chart-empty">Nenhuma perícia sua está compartilhada no momento.</div>`
     : `<div class="rows">${enviadas.map(c => {
         const outros = acessosDe(c).filter(e => e !== donoDe(c));
         return `
@@ -3807,8 +3730,8 @@ function renderEquipe(){
 
   return `
     <div class="section-gap">
-      ${panel('minhaConta', 'Minha conta', email ? PAPEIS[eu.papel].label : 'sem login', corpoConta)}
-      ${panel('membros', 'Pessoas com acesso ao sistema', `${equipe.membros.length} cadastrada${equipe.membros.length===1?'':'s'}`, corpoMembros)}
+      ${panel('minhaConta', 'Minha conta', email ? 'espaço de trabalho' : 'sem login', corpoConta)}
+      ${panel('pessoas', 'Pessoas com acesso às minhas perícias', `${pessoas.length}`, corpoPessoas)}
       ${panel('recebidas', 'Compartilhadas comigo', `${recebidas.length}`, corpoRecebidas)}
       ${panel('enviadas', 'Compartilhadas por mim', `${enviadas.length}`, corpoEnviadas)}
     </div>`;
@@ -3859,24 +3782,22 @@ async function definirTema(id){
   if(!TEMAS.some(t => t.id === id)) return;
   prefTema = id;
   aplicarAparencia();
-  if(meuEmail()) await salvarFicha(meuEmail(), 'tema', id);
+  if(meuEmail()) await salvarPerfil({aparencia: {...(perfil.aparencia||{}), tema: id}});
   renderAll();
 }
 async function definirPaleta(id){
   if(!PALETAS.some(p => p.id === id)) return;
   prefPaleta = id;
   aplicarAparencia();
-  if(meuEmail()) await salvarFicha(meuEmail(), 'paleta', id);
+  if(meuEmail()) await salvarPerfil({aparencia: {...(perfil.aparencia||{}), paleta: id}});
   renderAll();
 }
 /* depois que as fichas chegam da nuvem, a preferência da conta prevalece */
 function aparenciaDoPerfil(){
-  const e = meuEmail();
-  if(!e) return;
-  const f = fichaDe(e);
+  const a = perfil.aparencia || {};
   let mudou = false;
-  if(f.tema && TEMAS.some(t => t.id === f.tema) && f.tema !== prefTema){ prefTema = f.tema; mudou = true; }
-  if(f.paleta && PALETAS.some(p => p.id === f.paleta) && f.paleta !== prefPaleta){ prefPaleta = f.paleta; mudou = true; }
+  if(a.tema && TEMAS.some(t => t.id === a.tema) && a.tema !== prefTema){ prefTema = a.tema; mudou = true; }
+  if(a.paleta && PALETAS.some(p => p.id === a.paleta) && a.paleta !== prefPaleta){ prefPaleta = a.paleta; mudou = true; }
   if(mudou) aplicarAparencia();
 }
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -3908,28 +3829,18 @@ function renderAparencia(){
 /* ==========================================================================
    Privacidade
    A página descreve o que o sistema realmente faz com os dados — inclusive o
-   que ele não protege. O aceite fica registrado por conta, em config/aceites.
+   que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
 const VERSAO_PRIVACIDADE = '1.0';
 const DATA_PRIVACIDADE = '18/09/2026';
-let aceites = [];
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
-async function sincronizarAceites(){
-  if(!usingDb || !db) return;
-  try{
-    const doc = await db.collection('config').doc('aceites').get();
-    aceites = doc.exists && Array.isArray(doc.data().lista) ? doc.data().lista : [];
-  }catch(e){ aceites = []; }
-  renderAll();
-}
 function meuAceite(){
-  const e = meuEmail();
-  if(!e) return null;
-  return aceites.find(a => a.email === e && a.versao === VERSAO_PRIVACIDADE) || null;
+  const a = perfil.aceite;
+  return (a && a.versao === VERSAO_PRIVACIDADE) ? a : null;
 }
 function precisaAceitar(){
-  return !!(currentUser && usingDb && !meuAceite());
+  return !!(currentUser && contaVerificada() && usingDb && perfilCarregado && !meuAceite());
 }
 function lerAntesDeAceitar(){
   aceiteAdiado = true;
@@ -3939,9 +3850,7 @@ async function registrarAceite(){
   const e = meuEmail();
   if(!e) return;
   aceiteAdiado = false;
-  aceites = [...aceites.filter(a => a.email !== e), {email:e, versao:VERSAO_PRIVACIDADE, quando:new Date().toISOString()}];
-  try{ await db.collection('config').doc('aceites').set({lista: aceites}); }
-  catch(err){ cloudSetBanner(bannerAviso('Não foi possível registrar o aceite agora. Tente novamente.')); return; }
+  await salvarPerfil({aceite: {versao: VERSAO_PRIVACIDADE, quando: new Date().toISOString()}});
   renderAll();
 }
 
@@ -3993,7 +3902,7 @@ function renderPrivacidade(){
       </div>
       <div class="kv-grid" style="margin-top:14px;">
         <div class="kv"><div class="k">Seu aceite</div><div class="v">${aceite ? 'registrado em ' + fmtDate(String(aceite.quando).slice(0,10)) : (currentUser ? 'pendente' : 'entre para registrar')}</div></div>
-        <div class="kv"><div class="k">Contas com aceite</div><div class="v num">${aceites.filter(a => a.versao === VERSAO_PRIVACIDADE).length}</div></div>
+        <div class="kv"><div class="k">Conta</div><div class="v">${escapeHtml(meuEmail() || 'sem login')}</div></div>
         <div class="kv"><div class="k">Transporte</div><div class="v">HTTPS ponta a ponta</div></div>
         <div class="kv"><div class="k">Acesso</div><div class="v">verificado no servidor</div></div>
       </div>`;
@@ -4004,22 +3913,24 @@ function renderPrivacidade(){
         <p style="font-size:13px; line-height:1.62; color:var(--ink-2); margin:0;">${escapeHtml(texto)}</p>
       </div>`).join('');
 
-  const corpoRegistro = aceites.length === 0
-    ? `<div class="chart-empty">Nenhum aceite registrado ainda.</div>`
-    : `<div class="rows">${aceites.slice().sort((a,b)=>String(b.quando).localeCompare(String(a.quando))).map(a => `
+  const corpoRegistro = aceite
+    ? `<div class="rows">
         <div class="row-item" style="cursor:default;">
           <div class="row-main">
-            <div class="row-title">${escapeHtml(membroDe(a.email).nome)}</div>
-            <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(a.email)}</div>
+            <div class="row-title">${escapeHtml(membroDe(meuEmail()).nome)}</div>
+            <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(meuEmail())}</div>
           </div>
-          <div class="row-side"><span class="row-date">${fmtDate(String(a.quando).slice(0,10))} · v${escapeHtml(a.versao)}</span></div>
-        </div>`).join('')}</div>`;
+          <div class="row-side"><span class="row-date">${fmtDate(String(aceite.quando).slice(0,10))} · v${escapeHtml(aceite.versao)}</span></div>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:12px;">O aceite fica no seu perfil. Cada conta registra o seu, e ninguém vê o das outras.</div>`
+    : `<div class="chart-empty">Você ainda não registrou o aceite desta versão.</div>`;
 
   return `
     <div class="section-gap">
       ${panel('privResumo', 'Selo e resumo', 'versão ' + VERSAO_PRIVACIDADE, corpoResumo)}
       ${panel('privTexto', 'Como os dados são tratados', TOPICOS_PRIVACIDADE.length + ' itens', corpoTexto)}
-      ${panel('privAceites', 'Registro de aceites', aceites.length + '', corpoRegistro)}
+      ${panel('privAceites', 'Meu aceite', aceite ? 'registrado' : 'pendente', corpoRegistro)}
     </div>`;
 }
 
@@ -4045,11 +3956,14 @@ function renderPortaAceite(){
 
 /* ==========================================================================
    Porta de entrada
-   Entrada pela conta Google ou por e-mail e senha. A senha é definida pela
-   própria pessoa, pelo link que o Firebase envia — o app nunca recebe nem
-   guarda senha. Quem não estiver na Equipe não passa daqui.
+   Qualquer pessoa cria a própria conta. A senha é definida por ela e validada
+   pelo Firebase — o app nunca recebe nem guarda senha. O e-mail precisa ser
+   confirmado antes de a conta escrever qualquer perícia: é o que separa uma
+   pessoa de verdade de um endereço inventado.
    ========================================================================== */
 let loginAberto = false;
+let loginModo = 'entrar';   /* entrar | criar */
+let enviandoEmail = false;
 
 function mensagemAuth(codigo){
   const mapa = {
@@ -4059,20 +3973,28 @@ function mensagemAuth(codigo){
     'auth/wrong-password': 'E-mail ou senha não conferem.',
     'auth/invalid-credential': 'E-mail ou senha não conferem.',
     'auth/invalid-login-credentials': 'E-mail ou senha não conferem.',
+    'auth/email-already-in-use': 'Já existe uma conta com esse e-mail. Use Entrar, ou peça um link de senha.',
+    'auth/weak-password': 'A senha precisa de pelo menos 6 caracteres.',
+    'auth/missing-password': 'Digite a senha.',
     'auth/too-many-requests': 'Muitas tentativas seguidas. Aguarde alguns minutos.',
     'auth/network-request-failed': 'Sem conexão com o servidor. Verifique a internet.',
-    'auth/operation-not-allowed': 'A entrada por senha ainda não está habilitada neste projeto.',
+    'auth/operation-not-allowed': 'A entrada por senha não está habilitada neste projeto.',
     'auth/popup-closed-by-user': 'A janela do Google foi fechada antes de concluir.',
     'auth/popup-blocked': 'O navegador bloqueou a janela do Google. Libere os pop-ups deste site.',
-    'auth/missing-password': 'Digite a senha.',
   };
-  return mapa[codigo] || 'Não foi possível entrar agora. Tente novamente.';
+  return mapa[codigo] || 'Não foi possível concluir agora. Tente novamente.';
 }
 function avisoLogin(texto, tipo){
   const el = document.getElementById('loginAviso');
   if(!el) return;
   el.textContent = texto || '';
   el.className = 'login-aviso ' + (tipo || '');
+}
+function trocarModoLogin(modo){
+  loginModo = modo;
+  renderLogin();
+  const alvo = document.getElementById(modo === 'criar' ? 'loginNome' : 'loginEmail');
+  if(alvo) alvo.focus();
 }
 
 async function entrarComSenha(){
@@ -4081,29 +4003,108 @@ async function entrarComSenha(){
   const senha = document.getElementById('loginSenha').value || '';
   if(!email || !senha){ avisoLogin('Preencha o e-mail e a senha.', 'erro'); return; }
   avisoLogin('Entrando...');
+  try{ await auth.signInWithEmailAndPassword(email, senha); }
+  catch(e){ avisoLogin(mensagemAuth(e.code), 'erro'); }
+}
+
+async function criarConta(){
+  if(!auth) return;
+  const nome = (document.getElementById('loginNome').value || '').trim();
+  const email = (document.getElementById('loginEmail').value || '').trim();
+  const senha = document.getElementById('loginSenha').value || '';
+  if(nome.length < 3){ avisoLogin('Escreva o seu nome completo.', 'erro'); return; }
+  if(!email){ avisoLogin('Informe o e-mail.', 'erro'); return; }
+  if(senha.length < 6){ avisoLogin('A senha precisa de pelo menos 6 caracteres.', 'erro'); return; }
+  avisoLogin('Criando a conta...');
   try{
-    await auth.signInWithEmailAndPassword(email, senha);
+    const cred = await auth.createUserWithEmailAndPassword(email, senha);
+    try{ await cred.user.updateProfile({displayName: nome}); }catch(e){}
+    /* o cadastro entra no banco já aqui, antes mesmo da confirmação */
+    try{
+      await firebase.firestore().collection('usuarios').doc(cred.user.uid).set({
+        email: email.toLowerCase(), nome, criadoEm: new Date().toISOString(),
+        ficha:{}, aparencia:{}, aceite:null, contatos:[],
+      });
+    }catch(e){}
+    try{ await cred.user.sendEmailVerification(); }catch(e){}
+    avisoLogin('Conta criada. Enviamos um e-mail de confirmação para ' + email + '.', 'ok');
   }catch(e){
     avisoLogin(mensagemAuth(e.code), 'erro');
   }
 }
+
 async function recuperarSenha(){
   if(!auth) return;
   const email = (document.getElementById('loginEmail').value || '').trim();
   if(!email){ avisoLogin('Digite o e-mail cadastrado para receber o link.', 'erro'); return; }
   avisoLogin('Enviando...');
+  try{ await auth.sendPasswordResetEmail(email); }
+  catch(e){
+    if(e.code === 'auth/invalid-email'){ avisoLogin('Esse e-mail não parece válido.', 'erro'); return; }
+    /* user-not-found não é revelado: dizer quais e-mails existem entregaria
+       a lista de quem tem conta no sistema */
+    if(e.code !== 'auth/user-not-found'){ avisoLogin(mensagemAuth(e.code), 'erro'); return; }
+  }
+  avisoLogin('Se esse e-mail tiver conta, o link para criar ou trocar a senha já está a caminho. Verifique também o spam.', 'ok');
+}
+
+/* ---------- confirmação do e-mail ---------- */
+async function reenviarConfirmacao(){
+  if(!currentUser || enviandoEmail) return;
+  enviandoEmail = true;
+  const el = document.getElementById('confirmaAviso');
+  if(el) el.textContent = 'Enviando...';
   try{
-    await auth.sendPasswordResetEmail(email);
+    await currentUser.sendEmailVerification();
+    if(el){ el.textContent = 'Enviamos outro e-mail para ' + currentUser.email + '.'; el.className = 'login-aviso ok'; }
   }catch(e){
-    /* user-not-found não é revelado de propósito: dizer quais e-mails existem
-       entregaria a lista de quem tem acesso ao sistema */
-    if(e.code !== 'auth/user-not-found' && e.code !== 'auth/invalid-email'){
-      avisoLogin(mensagemAuth(e.code), 'erro');
+    if(el){ el.textContent = mensagemAuth(e.code); el.className = 'login-aviso erro'; }
+  }
+  setTimeout(() => { enviandoEmail = false; }, 4000);
+}
+async function jaConfirmei(){
+  if(!currentUser) return;
+  const el = document.getElementById('confirmaAviso');
+  if(el){ el.textContent = 'Verificando...'; el.className = 'login-aviso'; }
+  try{
+    await currentUser.reload();
+    currentUser = auth.currentUser;
+    if(currentUser && currentUser.emailVerified){
+      try{ await currentUser.getIdToken(true); }catch(e){}
+      await applyAuthState();
       return;
     }
-    if(e.code === 'auth/invalid-email'){ avisoLogin('Esse e-mail não parece válido.', 'erro'); return; }
+    if(el){ el.textContent = 'Ainda não consta como confirmado. Abra o link do e-mail e tente de novo.'; el.className = 'login-aviso erro'; }
+  }catch(e){
+    if(el){ el.textContent = mensagemAuth(e.code); el.className = 'login-aviso erro'; }
   }
-  avisoLogin('Se esse e-mail tiver acesso, o link para criar ou trocar a senha já está a caminho. Verifique também o spam.', 'ok');
+}
+function renderConfirmacao(){
+  const alvo = document.getElementById('confirma');
+  if(!alvo) return;
+  const precisa = !!(currentUser && !currentUser.emailVerified);
+  if(!precisa){ alvo.classList.remove('aberto'); alvo.innerHTML = ''; return; }
+  alvo.classList.add('aberto');
+  alvo.innerHTML = `
+    <div class="login-caixa">
+      <div class="login-marca">
+        <span class="brand-mark grande"></span>
+        <span class="wordmark grande"><b>Perícia</b><i>Flow</i></span>
+      </div>
+      <h2 style="font-size:17px; margin:18px 0 10px;">Confirme o seu e-mail</h2>
+      <p style="font-size:13px; line-height:1.6; color:var(--ink-2); margin:0 0 10px;">
+        Enviamos uma mensagem para <b class="mono">${escapeHtml(currentUser.email || '')}</b>.
+        Abra o link que está nela para liberar a conta.
+      </p>
+      <p style="font-size:12.5px; line-height:1.55; color:var(--muted); margin:0 0 18px;">
+        O seu cadastro já está guardado; falta só a confirmação. Se a mensagem não chegou em alguns minutos, olhe o spam.
+      </p>
+      <button class="btn btn-primary login-entrar" style="margin-top:0;" onclick="jaConfirmei()">Já confirmei, entrar</button>
+      <button class="link-sutil" onclick="reenviarConfirmacao()">Enviar o e-mail de novo</button>
+      <button class="link-sutil" onclick="signOutGoogle()">Sair e usar outra conta</button>
+      <div id="confirmaAviso" class="login-aviso"></div>
+      <div class="login-rodape">${selo(true)}</div>
+    </div>`;
 }
 
 function renderLogin(){
@@ -4111,6 +4112,7 @@ function renderLogin(){
   if(!alvo) return;
   if(!loginAberto){ alvo.classList.remove('aberto'); alvo.innerHTML = ''; return; }
   alvo.classList.add('aberto');
+  const criando = loginModo === 'criar';
   alvo.innerHTML = `
     <div class="login-caixa">
       <div class="login-marca">
@@ -4121,33 +4123,45 @@ function renderLogin(){
 
       <button class="btn btn-google" onclick="signInGoogle()">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 01-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.5l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.2H3.1v2.6A10 10 0 0012 22z"/><path fill="#FBBC05" d="M6.4 13.8a6 6 0 010-3.8V7.4H3.1a10 10 0 000 9l3.3-2.6z"/><path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 003.1 7.4L6.4 10c.8-2.4 3-4.1 5.6-4.1z"/></svg>
-        Entrar com a conta Google
+        ${criando ? 'Criar conta com o Google' : 'Entrar com a conta Google'}
       </button>
 
-      <div class="login-ou"><span>ou entre com senha</span></div>
+      <div class="login-ou"><span>${criando ? 'ou crie com e-mail e senha' : 'ou entre com senha'}</span></div>
+
+      ${criando ? `
+      <div class="field" style="margin-bottom:10px;"><label for="loginNome">Nome completo</label>
+        <input id="loginNome" autocomplete="name" placeholder="Como você assina o laudo"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginEmail').focus()}"></div>` : ''}
 
       <div class="field"><label for="loginEmail">E-mail</label>
         <input id="loginEmail" type="email" autocomplete="username" placeholder="seu@email.com"
                onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginSenha').focus()}"></div>
-      <div class="field" style="margin-top:10px;"><label for="loginSenha">Senha</label>
-        <input id="loginSenha" type="password" autocomplete="current-password" placeholder="••••••••"
-               onkeydown="if(event.key==='Enter'){event.preventDefault();entrarComSenha()}"></div>
 
-      <button class="btn btn-primary login-entrar" onclick="entrarComSenha()">Entrar</button>
-      <button class="link-sutil" onclick="recuperarSenha()">Criar ou recuperar senha por e-mail</button>
+      <div class="field" style="margin-top:10px;"><label for="loginSenha">Senha${criando ? ' (mínimo 6 caracteres)' : ''}</label>
+        <input id="loginSenha" type="password" autocomplete="${criando ? 'new-password' : 'current-password'}" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();${criando ? 'criarConta()' : 'entrarComSenha()'}}"></div>
+
+      <button class="btn btn-primary login-entrar" onclick="${criando ? 'criarConta()' : 'entrarComSenha()'}">${criando ? 'Criar conta' : 'Entrar'}</button>
+
+      ${criando
+        ? `<button class="link-sutil" onclick="trocarModoLogin('entrar')">Já tenho conta, quero entrar</button>`
+        : `<button class="link-sutil" onclick="recuperarSenha()">Criar ou recuperar senha por e-mail</button>
+           <button class="link-sutil" onclick="trocarModoLogin('criar')">Não tenho conta, quero me cadastrar</button>`}
 
       <div id="loginAviso" class="login-aviso"></div>
 
       <div class="login-rodape">
         ${selo(true)}
-        <p>O acesso é restrito às contas cadastradas pela equipe. O app não guarda a sua senha: quem a define e a valida é o Firebase, do Google.</p>
+        <p>${criando
+          ? 'Ao criar a conta você recebe um e-mail de confirmação. Cada conta tem o seu espaço: as suas perícias não aparecem para ninguém, a não ser que você compartilhe.'
+          : 'O app não guarda a sua senha: quem a define e a valida é o Firebase, do Google.'}</p>
       </div>
     </div>`;
 }
 function abrirLogin(v){
   loginAberto = !!v;
   renderLogin();
-  document.body.classList.toggle('travado', loginAberto);
+  document.body.classList.toggle('travado', loginAberto || !!(currentUser && !currentUser.emailVerified));
 }
 
 /* ==========================================================================
@@ -4171,16 +4185,15 @@ function renderConfig(){
         </div>`;
 
   const corpoContas = `
-        <div class="rows">
-          ${equipe.membros.map(m => `
-            <div class="row-item" style="cursor:default;">
-              <div class="row-main"><div class="row-title mono" style="font-size:13px;">${escapeHtml(m.email)}</div>
-                <div class="row-sub">${escapeHtml(m.nome)} · ${PAPEIS[m.papel].label}</div></div>
-              <div class="row-side">${currentUser && (currentUser.email||'').toLowerCase() === m.email ? '<span class="pill pill-success">conectada agora</span>' : '<span class="pill pill-muted">autorizada</span>'}</div>
-            </div>`).join('')}
+        <div class="kv-grid">
+          <div class="kv"><div class="k">Cadastro</div><div class="v">${currentUser ? 'aberto, com confirmação' : '—'}</div></div>
+          <div class="kv"><div class="k">Meu e-mail</div><div class="v">${currentUser ? (contaVerificada() ? 'confirmado' : 'pendente') : '—'}</div></div>
+          <div class="kv"><div class="k">Meu espaço</div><div class="v num">${contarVisao('minhas')}</div></div>
+          <div class="kv"><div class="k">Recebidas</div><div class="v num">${contarVisao('compartilhadas')}</div></div>
         </div>
         <div class="hint" style="margin-top:12px;">
-          A lista é mantida em <b>Equipe</b> e vale também no servidor: quem sai dela deixa de conseguir entrar.
+          Qualquer pessoa cria a própria conta e confirma o e-mail. O espaço dela nasce vazio: nenhuma conta enxerga
+          as perícias de outra, a não ser as que forem compartilhadas com o e-mail dela.
         </div>`;
 
   const corpoArmazenamento = `
@@ -4235,7 +4248,7 @@ function renderConfig(){
       ${panel('meuCadastro', 'Meu cadastro', 'usado na proposta de honorários', corpoMeuCadastro)}
       ${panel('aparencia', 'Aparência', (PALETAS.find(p => p.id === prefPaleta)||{}).nome + ' · ' + (TEMAS.find(t => t.id === prefTema)||{}).nome, renderAparencia())}
       ${panel('conta', 'Conta e sincronização', '', corpoConta)}
-      ${panel('contas', 'Contas autorizadas', 'a mesma lista que o servidor consulta', corpoContas)}
+      ${panel('contas', 'Acesso ao sistema', 'cadastro aberto, com confirmação', corpoContas)}
       ${panel('armazenamento', 'Documentos armazenados', '', corpoArmazenamento)}
     </div>`;
 }
@@ -4274,6 +4287,7 @@ function renderAll(){
     if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderConfig();
   }
   if(drawerCasoId) renderDrawer();
+  renderConfirmacao();
   renderPortaAceite();
 }
 function renderSeloRodape(){
@@ -4292,11 +4306,6 @@ const FIREBASE_CONFIG = {
   messagingSenderId: '501336744750',
   appId: '1:501336744750:web:c0b631495bcef8071490bf'
 };
-/* A lista de quem entra é a própria equipe (config/equipe no Firestore).
-   Esta cópia inicial só vale enquanto o app ainda não leu o servidor. */
-function emailAutorizado(email){
-  return equipe.emails.includes(String(email||'').trim().toLowerCase());
-}
 const MAX_STORAGE_BYTES = 50 * 1024 * 1024;
 const MAX_FIRESTORE_EMBED_BYTES = 700 * 1024;
 let auth = null, storage = null, currentUser = null, casosUnsub = null;
@@ -4332,15 +4341,7 @@ function firebaseInit(){
   auth = firebase.auth();
   storage = firebase.storage();
   auth.onAuthStateChanged(async (user) => {
-    if(user && emailAutorizado(user.email)){
-      currentUser = user;
-    } else {
-      if(user){
-        cloudSetBanner(bannerAviso('O e-mail ' + escapeHtml(user.email||'') + ' não está na equipe. Peça a um titular para incluí-lo em Equipe.'));
-        try{ await auth.signOut(); }catch(e){}
-      }
-      currentUser = null;
-    }
+    currentUser = user || null;
     updateAuthButton();
     await applyAuthState();
   });
@@ -4348,6 +4349,15 @@ function firebaseInit(){
 
 async function applyAuthState(){
   if(auth) abrirLogin(!currentUser);
+  if(currentUser && !currentUser.emailVerified){
+    /* a conta existe e o cadastro já foi gravado, mas nada mais acontece
+       antes de a pessoa abrir o link que chegou no e-mail */
+    usingDb = false; db = null;
+    if(casosUnsub){ casosUnsub(); casosUnsub = null; }
+    casos = [];
+    renderAll();
+    return;
+  }
   if(currentUser){
     db = firebase.firestore();
     usingDb = true;
@@ -4383,10 +4393,7 @@ async function startDbSync(){
     }
   }catch(e){ /* segue para a inscrição mesmo assim */ }
   assinarCasos(false);
-  await sincronizarEquipe();
-  await sincronizarFichas();
-  aparenciaDoPerfil();
-  sincronizarAceites();
+  await carregarPerfil();
   migrarAcessos();
   if(drawerCasoId) subscribeDocumentos(drawerCasoId);
 }
@@ -4488,10 +4495,10 @@ function nextCodigo(){
 }
 async function novaPericia(){
   if(!possoCriar()){
-    cloudSetBanner(bannerAviso('Sua conta está como convidada: ela enxerga o que for compartilhado, mas não abre perícias novas.'));
+    cloudSetBanner(bannerAviso('Confirme o seu e-mail para criar perícias.'));
     return;
   }
-  const dono = meuEmail() || equipe.emails[0] || '';
+  const dono = meuEmail();
   const data = {
     dono, emails:[dono], editores:[dono], compartilhamentos:[],
     codigo: nextCodigo(), nome:'Nova perícia', numeroProcesso:'', vara:'', comarca:'', partes:'',
@@ -4915,8 +4922,7 @@ function renderDrawer(){
   const saldo = (c.honorarios||0) - (c.valorRecebido||0);
   const statusOptions = Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${c.statusCaso===k?'selected':''}>${v.label}</option>`).join('');
   const dono = donoDe(c);
-  const donoOptions = equipe.membros.filter(m => m.papel !== 'convidado' || m.email === dono)
-    .map(m => `<option value="${escapeHtml(m.email)}" ${dono===m.email?'selected':''}>${escapeHtml(m.nome)}</option>`).join('');
+  const donoOptions = acessosDe(c).map(e => `<option value="${escapeHtml(e)}" ${dono===e?'selected':''}>${escapeHtml(membroDe(e).nome)}</option>`).join('');
   const meuNivel = souDono(c) ? 'dono' : (podeEditar(c) ? 'editar' : 'leitura');
   const statusProcessoOptions = `<option value="">—</option>` + Object.entries(STATUS_PROCESSO).map(([k,v]) => `<option value="${k}" ${c.statusProcesso===k?'selected':''}>${v.label}</option>`).join('');
 
