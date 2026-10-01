@@ -911,7 +911,7 @@ const CORES_MEMBRO = ['var(--accent)','var(--violet)','var(--s2)','var(--ok)','v
 const LEGADO = ['jonatasmiranda2405@gmail.com','rodrigodosantosmiranda@gmail.com','periciamiranda@gmail.com'];
 
 const PERFIL_VAZIO = {
-  email:'', nome:'', criadoEm:'', ficha:{}, aparencia:{}, aceite:null, contatos:[],
+  email:'', nome:'', criadoEm:'', ficha:{}, aparencia:{}, aceite:null, contatos:[], ia:{},
 };
 let perfil = (function(){
   try{ const raw = localStorage.getItem(LS_PERFIL); if(raw) return {...PERFIL_VAZIO, ...JSON.parse(raw)}; }catch(e){}
@@ -1015,7 +1015,7 @@ async function carregarPerfil(){
       email: meuEmail(),
       nome: (currentUser.displayName || '').trim() || meuEmail().split('@')[0],
       criadoEm: new Date().toISOString(),
-      ficha:{}, aparencia:{}, aceite:null, contatos:[],
+      ficha:{}, aparencia:{}, aceite:null, contatos:[], ia:{},
       ...(await trazerDoLegado()),
     };
     try{ await ref.set(dados); }catch(e){}
@@ -1238,6 +1238,7 @@ const SECTIONS = [
   {id:'calculos', titulo:'Cálculos',      sub:'Ferramentas periciais com memória de cálculo auditável'},
   {id:'proposta', titulo:'Proposta de honorários', sub:'Preenche o seu modelo com os dados da perícia escolhida'},
   {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
+  {id:'ia',       titulo:'Análise IA',    sub:'Leitura do processo pela IA: resumo, pontos de atenção, quesitos e prazos'},
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'privacidade', titulo:'Privacidade', sub:'Como os dados são guardados, quem vê e quais são os seus direitos'},
@@ -1251,6 +1252,7 @@ const ICONS = {
   calculos:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M8 16h2M14 12h2M14 16h2"/>',
   proposta:'<path d="M15 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
   docs:'<path d="M7 3h7l5 5v13H7z"/><path d="M13 3v6h6M10 13h7M10 17h5"/>',
+  ia:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/>',
   equipe:'<path d="M16 19v-1.4a3.6 3.6 0 00-3.6-3.6H7.6A3.6 3.6 0 004 17.6V19"/><circle cx="10" cy="7.5" r="3.1"/><path d="M20.5 19v-1.4a3.6 3.6 0 00-2.7-3.5M15.8 4.6a3.1 3.1 0 010 5.9"/>',
   projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
   privacidade:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>',
@@ -1440,9 +1442,9 @@ function matchesQuery(c, q){
 }
 function matchesFilter(c, f){
   if(f === 'todas') return true;
-  if(f === 'ativas') return !STATUS[c.statusCaso].final;
+  if(f === 'ativas') return !(STATUS[c.statusCaso]||{}).final;
   if(f === 'atrasadas') return prazoState(c) === 'atrasada';
-  if(f === 'concluidas') return STATUS[c.statusCaso].final;
+  if(f === 'concluidas') return !!(STATUS[c.statusCaso]||{}).final;
   return true;
 }
 
@@ -2759,6 +2761,15 @@ function renderCalculos(){
    do arquivo original ficam intactos.
    ========================================================================== */
 const LS_MODELO = 'pericias.modeloProposta';
+let iaCasoId = null;   /* perícia escolhida na aba Análise IA */
+
+/* O modelo .docx fica no navegador de quem o importou: é um arquivo do
+   escritório, não um dado da perícia. */
+let modeloProposta = (function(){
+  try{ const raw = localStorage.getItem(LS_MODELO); if(raw) return JSON.parse(raw); }catch(e){}
+  return null;
+})();
+
 /* ---------- cadastro profissional: é do dono da conta ---------- */
 const FICHA_VAZIA = {
   nomeCompleto:'', crcEstado:'', crcRegistro:'', cpf:'', telefone:'', endereco:'',
@@ -3831,8 +3842,8 @@ function renderAparencia(){
    A página descreve o que o sistema realmente faz com os dados — inclusive o
    que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
-const VERSAO_PRIVACIDADE = '1.0';
-const DATA_PRIVACIDADE = '18/09/2026';
+const VERSAO_PRIVACIDADE = '1.1';
+const DATA_PRIVACIDADE = '01/10/2026';
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
 function meuAceite(){
@@ -3866,7 +3877,7 @@ const TOPICOS_PRIVACIDADE = [
   ['Quem é o responsável',
    'O controlador dos dados é o perito ou o escritório que mantém esta conta. Os dados de contato para exercer os direitos abaixo são os que constam em Configurações, no cadastro do perito responsável pela perícia.'],
   ['Que dados o sistema guarda',
-   'Dados do processo (número, vara, comarca, partes, prazos e valores de honorários), os documentos que você anexa, os comentários que escreve, e o cadastro profissional de cada perito: nome, registro no CRC, CPF, telefone e endereço. Da conta de acesso, o sistema guarda o e-mail e, quando a entrada é pelo Google, o nome e a foto do perfil.'],
+   'Dados do processo (número, vara, comarca, partes, prazos e valores de honorários), os documentos que você anexa, os comentários que escreve, e o cadastro profissional de cada perito: nome, registro no CRC, CPF, telefone e endereço. Da conta de acesso, o sistema guarda o e-mail e, quando a entrada é pelo Google, o nome e a foto do perfil. Se você usar a Análise IA, o perfil guarda também a sua chave da API do Gemini e o texto das análises geradas.'],
   ['Onde os dados ficam',
    'Em serviços do Google Cloud contratados por meio do Firebase: o cadastro das perícias no Cloud Firestore e os arquivos no Cloud Storage. O tráfego entre o seu navegador e esses serviços é cifrado por HTTPS. Não há servidor próprio nem cópia em outro provedor.'],
   ['Quem consegue ver',
@@ -3874,13 +3885,15 @@ const TOPICOS_PRIVACIDADE = [
   ['O que o sistema não protege',
    'O link de download de um arquivo anexado é gerado pelo Firebase Storage e funciona para quem tiver o endereço completo, mesmo sem login. Esse link só aparece para quem já tem acesso à perícia, mas se ele for repassado por fora, quem o receber consegue abrir o arquivo. Trate esses endereços como o próprio documento.'],
   ['Compartilhamento com terceiros',
-   'Os dados não são vendidos, cedidos nem usados para publicidade. O sistema não tem rastreadores, pixels de anúncio nem ferramentas de análise de comportamento. Os únicos serviços externos acionados são o Firebase, para autenticação e armazenamento, o Google Fonts, para as fontes da interface, e a API pública do Banco Central, usada apenas para buscar índices de correção quando você roda um cálculo — nessa consulta não vai nenhum dado do processo.'],
+   'Os dados não são vendidos, cedidos nem usados para publicidade. O sistema não tem rastreadores, pixels de anúncio nem ferramentas de análise de comportamento. Os serviços externos acionados são o Firebase, para autenticação e armazenamento, o Google Fonts, para as fontes da interface, a API pública do Banco Central, usada apenas para buscar índices de correção quando você roda um cálculo — nessa consulta não vai nenhum dado do processo — e, se você ligar a Análise IA, a API do Gemini, do Google, que é o único caso em que conteúdo do processo sai para fora. O item seguinte trata disso em detalhe.'],
   ['Armazenamento no navegador',
    'O app guarda no seu navegador as preferências de tema e paleta, a última seção aberta, o modelo de proposta importado e uma cópia local das perícias para funcionar quando você está sem conexão. Nada disso é enviado a terceiros. Limpar os dados do site apaga essa cópia local.'],
   ['Por quanto tempo',
    'Os dados de uma perícia permanecem enquanto ela existir no sistema. Excluir a perícia remove o registro, os comentários e os documentos, inclusive os arquivos no Storage. A remoção é definitiva e não há backup automático acessível pelo app.'],
   ['Seus direitos',
    'A Lei Geral de Proteção de Dados assegura confirmação de tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamento e eliminação dos dados. Dentro do sistema, o acesso e a correção são diretos: cada perito edita o próprio cadastro em Configurações, e o dono de cada perícia edita ou exclui os dados dela. Para os demais pedidos, procure o controlador indicado no primeiro item.'],
+  ['Análise por IA, quando você liga',
+   'A aba Análise IA é opcional e só funciona depois que você guarda a sua própria chave do Google AI Studio e dá um aceite específico. Ligada, ela envia para a API do Gemini, do Google, a ficha da perícia, as suas anotações, o rascunho da proposta e o texto extraído dos PDFs anexados — ou seja, conteúdo do processo sai do seu controle nesse momento, e esse envio passa a ser regido pelos termos da API do Google, não por este app. Em processo sob segredo de justiça, pense duas vezes antes de usar. Sem chave guardada, nada é enviado; com a chave guardada, só é enviado quando você clica em Analisar, ou automaticamente após anexar documentos se você tiver ligado essa opção. A chave fica no seu perfil, que só a sua conta lê, e pode ser removida a qualquer momento. O resultado é rascunho de leitura, não laudo: o modelo erra e pode afirmar com segurança algo que não está nos autos, por isso cada item vem com a fonte para você conferir.'],
   ['Dados de terceiros nos autos',
    'Ao anexar documentos, você trata dados de partes, testemunhas e terceiros. O tratamento se justifica pelo exercício regular de direitos em processo judicial e pelo cumprimento da nomeação. Anexe apenas o que a perícia exigir e evite subir documentos alheios ao objeto da prova.'],
 ];
@@ -4045,7 +4058,7 @@ async function recuperarSenha(){
        a lista de quem tem conta no sistema */
     if(e.code !== 'auth/user-not-found'){ avisoLogin(mensagemAuth(e.code), 'erro'); return; }
   }
-  avisoLogin('Se esse e-mail tiver conta, o link para criar ou trocar a senha já está a caminho. Verifique também o spam.', 'ok');
+  avisoLogin('Se esse e-mail tiver conta, o link já está a caminho. A mensagem vem de noreply@gerenciador-pericias-app.firebaseapp.com — se não aparecer, procure no spam.', 'ok');
 }
 
 /* ---------- confirmação do e-mail ---------- */
@@ -4097,7 +4110,9 @@ function renderConfirmacao(){
         Abra o link que está nela para liberar a conta.
       </p>
       <p style="font-size:12.5px; line-height:1.55; color:var(--muted); margin:0 0 18px;">
-        O seu cadastro já está guardado; falta só a confirmação. Se a mensagem não chegou em alguns minutos, olhe o spam.
+        O seu cadastro já está guardado; falta só a confirmação. A mensagem chega de
+        <b class="mono">noreply@gerenciador-pericias-app.firebaseapp.com</b>, com o assunto
+        “Verifique seu e-mail do app PeríciaFlow”. Se não aparecer em alguns minutos, procure no spam.
       </p>
       <button class="btn btn-primary login-entrar" style="margin-top:0;" onclick="jaConfirmei()">Já confirmei, entrar</button>
       <button class="link-sutil" onclick="reenviarConfirmacao()">Enviar o e-mail de novo</button>
@@ -4254,6 +4269,544 @@ function renderConfig(){
 }
 
 /* ==========================================================================
+   Análise por IA
+   Lê o que já existe na perícia — cadastro, documentos anexados em PDF,
+   cálculos e a proposta — e pede ao Gemini um resumo de leitura: do que trata,
+   o que merece atenção, quais quesitos cabem, o que falta pedir e qual é a
+   linha do tempo.
+
+   Três coisas valem dizer em voz alta, porque mudam o que é seguro fazer aqui:
+
+   1. O texto sai do seu computador. A chamada vai para a API do Google com a
+      sua chave. Documento sob sigilo processual deixa de estar só com você no
+      momento em que a análise roda. Por isso nada é enviado sem clique, e a
+      primeira vez exige um aceite específico, guardado em perfil.ia.
+   2. A chave é sua e fica no seu perfil (usuarios/{uid}), que só a sua conta
+      lê. Quem entrar na sua conta alcança a chave — trate-a como senha.
+   3. O resultado é rascunho de leitura, não laudo. O modelo erra e inventa com
+      aparência de certeza. Cada item sai com a fonte de onde foi tirado,
+      justamente para você conferir contra os autos antes de usar qualquer
+      linha disso.
+   ========================================================================== */
+
+const IA_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
+const IA_MODELOS = [
+  {id:'gemini-2.5-flash', nome:'Gemini 2.5 Flash', nota:'rápido e barato; dá conta da maioria das perícias'},
+  {id:'gemini-2.5-pro',   nome:'Gemini 2.5 Pro',   nota:'lê com mais cuidado processos longos; custa mais'},
+];
+const IA_MAX_CHARS = 180000;   /* teto do material enviado */
+const IA_MAX_PAGINAS = 40;     /* páginas lidas por PDF */
+
+let iaRodando = new Set();
+let iaEstado = {};             /* casoId -> mensagem de progresso */
+let iaAutoTimer = null;
+
+function iaConfig(){ return perfil.ia || {}; }
+function iaChave(){ return String(iaConfig().chave || '').trim(); }
+function iaModelo(){ return iaConfig().modelo || IA_MODELOS[0].id; }
+function iaCiente(){ return !!iaConfig().cienciaEm; }
+function iaAuto(){ return !!iaConfig().auto; }
+function iaPronta(){ return !!iaChave() && iaCiente(); }
+
+async function iaSalvarConfig(patch){
+  await salvarPerfil({ia: {...iaConfig(), ...patch}});
+  renderAll();
+}
+async function iaDefinirChave(valor){
+  const v = String(valor || '').trim();
+  await salvarPerfil({ia: {...iaConfig(), chave: v}});
+}
+async function iaDefinirModelo(id){ await iaSalvarConfig({modelo: id}); }
+async function iaAlternarAuto(v){ await iaSalvarConfig({auto: !!v}); }
+async function iaRegistrarCiencia(){
+  await iaSalvarConfig({cienciaEm: new Date().toISOString(), versao: VERSAO_PRIVACIDADE});
+}
+async function iaApagarChave(){
+  await salvarPerfil({ia: {...iaConfig(), chave: ''}});
+  renderAll();
+}
+
+/* ---------- material: o que a IA vai ler ----------
+   A assinatura resume o estado do material. Se ela muda, a análise guardada
+   envelheceu e o app avisa em vez de mostrar algo que já não corresponde. */
+function iaAssinatura(c){
+  const partes = [
+    c.nome, c.numeroProcesso, c.vara, c.comarca, c.partes, c.objeto,
+    c.statusCaso, c.prazoEntrega, c.honorarios, c.valorRecebido,
+    (c.documentos||[]).map(d => d.id + ':' + (d.tamanho||0)).sort().join(','),
+    c.proposta ? JSON.stringify(c.proposta.horas || []) : '',
+  ].join('|');
+  let h = 0;
+  for(const ch of partes) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return String(h);
+}
+function iaAnalise(c){ return c && c.analiseIA ? c.analiseIA : null; }
+function iaDesatualizada(c){
+  const a = iaAnalise(c);
+  return !!a && a.assinatura !== iaAssinatura(c);
+}
+
+async function iaTextoDoPdf(bytes, maxPag){
+  if(!ensurePdfJs()) return '';
+  try{
+    const doc = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+    const n = Math.min(doc.numPages, maxPag || IA_MAX_PAGINAS);
+    const partes = [];
+    for(let i=1; i<=n; i++){
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      partes.push(content.items.map(it => it.str).join(' '));
+      if(partes.join(' ').length > IA_MAX_CHARS) break;
+    }
+    const texto = partes.join('\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+    return doc.numPages > n ? texto + `\n[... documento continua; lidas ${n} de ${doc.numPages} páginas ...]` : texto;
+  }catch(e){ return ''; }
+}
+async function iaBytesDoDoc(d){
+  if(!d.arquivo) return null;
+  try{
+    const res = await fetch(arquivoSrc(d.arquivo));
+    if(!res.ok) return null;
+    return new Uint8Array(await res.arrayBuffer());
+  }catch(e){ return null; }
+}
+function iaEhPdf(d){
+  const mime = (d.arquivo && d.arquivo.mime) || '';
+  return /pdf/i.test(mime) || /\.pdf$/i.test(d.nome || '');
+}
+
+function iaFichaDoCaso(c){
+  const st = (STATUS[c.statusCaso] || {}).label || c.statusCaso || '—';
+  const linhas = [
+    ['Código interno', c.codigo],
+    ['Nome da perícia', c.nome],
+    ['Processo', c.numeroProcesso],
+    ['Vara', c.vara],
+    ['Comarca', c.comarca],
+    ['Partes', c.partes],
+    ['Objeto declarado', c.objeto],
+    ['Situação', st],
+    ['Nomeação', c.dataNomeacao ? fmtDate(c.dataNomeacao) : ''],
+    ['Prazo de entrega', c.prazoEntrega ? fmtDate(c.prazoEntrega) : ''],
+    ['Honorários arbitrados', c.honorarios ? fmtMoney(c.honorarios) : ''],
+    ['Já recebido', c.valorRecebido ? fmtMoney(c.valorRecebido) : ''],
+  ].filter(([,v]) => v !== undefined && v !== null && String(v).trim() !== '');
+  return linhas.map(([k,v]) => `${k}: ${v}`).join('\n');
+}
+function iaTextoDaProposta(c){
+  const p = c.proposta;
+  if(!p || !Array.isArray(p.horas)) return '';
+  const horas = p.horas.reduce((s,h) => s + num(h), 0);
+  const hora = num(p.horaTecnica || 0);
+  const linhas = TAREFAS.map((t,i) => `  - ${t}: ${num(p.horas[i]||0)} h`);
+  return [
+    'PROPOSTA DE HONORÁRIOS EM RASCUNHO',
+    p.area ? 'Área: ' + p.area : '',
+    p.objeto ? 'Objeto proposto: ' + p.objeto : '',
+    'Horas por tarefa:', ...linhas,
+    `Total: ${horas} h x ${fmtMoney(hora)} = ${fmtMoney(horas*hora)}`,
+    p.adiantamento ? `Adiantamento pedido: ${p.adiantamento}%` : '',
+  ].filter(Boolean).join('\n');
+}
+function iaObservacoes(c){
+  const obs = (c.observacoes || []).filter(o => o && (o.texto || o));
+  if(obs.length === 0) return '';
+  return 'ANOTAÇÕES DO PERITO\n' + obs.map(o => '- ' + (o.texto || o)).join('\n');
+}
+
+/* Reúne tudo e devolve o material e a lista do que entrou — a lista é
+   mostrada ao perito antes do envio, para ele ver o que está saindo. */
+async function iaReunirMaterial(c, progresso){
+  const blocos = [];
+  const fontes = [];
+  const avisos = [];
+
+  blocos.push('FICHA DA PERÍCIA\n' + iaFichaDoCaso(c));
+  fontes.push({tipo:'ficha', nome:'Ficha cadastral da perícia', chars: blocos[0].length});
+
+  const prop = iaTextoDaProposta(c);
+  if(prop){ blocos.push(prop); fontes.push({tipo:'proposta', nome:'Proposta de honorários (rascunho)', chars: prop.length}); }
+
+  const anot = iaObservacoes(c);
+  if(anot){ blocos.push(anot); fontes.push({tipo:'anotacao', nome:'Anotações do perito', chars: anot.length}); }
+
+  const docs = (c.documentos || []).slice().sort((a,b) => (a.data||'').localeCompare(b.data||''));
+  let total = blocos.join('\n\n').length;
+  for(let i=0; i<docs.length; i++){
+    const d = docs[i];
+    const cabeca = `DOCUMENTO: ${d.nome || 'sem nome'}\nFase: ${d.fase || '—'} · Tipo: ${d.tipo || '—'} · Data: ${d.data ? fmtDate(d.data) : '—'}${d.obs ? '\nObservação: ' + d.obs : ''}`;
+    let corpo = '';
+    if(iaEhPdf(d) && d.arquivo){
+      if(progresso) progresso(`Lendo ${i+1} de ${docs.length}: ${d.nome || 'documento'}`);
+      const bytes = await iaBytesDoDoc(d);
+      if(!bytes){
+        avisos.push(`${d.nome || 'Documento'}: o arquivo não pôde ser baixado para leitura. Entrou só pelo cabeçalho.`);
+      } else {
+        corpo = await iaTextoDoPdf(bytes);
+        if(!corpo) avisos.push(`${d.nome || 'Documento'}: PDF sem camada de texto, provavelmente digitalizado. Entrou só pelo cabeçalho — um PDF assim precisa de OCR antes.`);
+      }
+    } else if(d.arquivo){
+      avisos.push(`${d.nome || 'Documento'}: formato não lido aqui. Entrou só pelo cabeçalho.`);
+    }
+    const bloco = corpo ? cabeca + '\n---\n' + corpo : cabeca;
+    if(total + bloco.length > IA_MAX_CHARS){
+      avisos.push(`O material passou do limite de leitura. ${docs.length - i} documento(s) ficaram de fora: ${docs.slice(i).map(x => x.nome).filter(Boolean).join(', ')}.`);
+      break;
+    }
+    total += bloco.length;
+    blocos.push(bloco);
+    fontes.push({tipo:'documento', nome: d.nome || 'Documento', chars: bloco.length, comTexto: !!corpo});
+  }
+  return {texto: blocos.join('\n\n==============================\n\n'), fontes, avisos};
+}
+
+/* ---------- a chamada ---------- */
+const IA_ESQUEMA = {
+  type:'OBJECT',
+  properties:{
+    resumo:        {type:'STRING'},
+    areaProvavel:  {type:'STRING'},
+    objeto:        {type:'STRING'},
+    confianca:     {type:'STRING'},
+    pontosAtencao: {type:'ARRAY', items:{type:'OBJECT', properties:{
+      titulo:{type:'STRING'}, detalhe:{type:'STRING'}, risco:{type:'STRING'}, fonte:{type:'STRING'}},
+      required:['titulo','detalhe','risco','fonte']}},
+    quesitos:      {type:'ARRAY', items:{type:'OBJECT', properties:{
+      pergunta:{type:'STRING'}, porque:{type:'STRING'}},
+      required:['pergunta','porque']}},
+    documentos:    {type:'ARRAY', items:{type:'OBJECT', properties:{
+      item:{type:'STRING'}, deQuem:{type:'STRING'}, porque:{type:'STRING'}},
+      required:['item','deQuem','porque']}},
+    linhaDoTempo:  {type:'ARRAY', items:{type:'OBJECT', properties:{
+      data:{type:'STRING'}, fato:{type:'STRING'}, fonte:{type:'STRING'}},
+      required:['data','fato','fonte']}},
+    prazos:        {type:'ARRAY', items:{type:'OBJECT', properties:{
+      quando:{type:'STRING'}, oQue:{type:'STRING'}, critico:{type:'BOOLEAN'}},
+      required:['quando','oQue','critico']}},
+    lacunas:       {type:'ARRAY', items:{type:'STRING'}},
+  },
+  required:['resumo','areaProvavel','objeto','confianca','pontosAtencao','quesitos','documentos','linhaDoTempo','prazos','lacunas'],
+};
+
+function iaInstrucao(c){
+  const f = fichaDe(meuEmail());
+  return [
+    'Você auxilia um perito-contador judicial brasileiro na leitura de um processo.',
+    'Leia o material abaixo e devolva uma análise em JSON, no idioma português do Brasil.',
+    '',
+    'Regras que não se negociam:',
+    '- Use apenas o que está no material. Não complete com conhecimento geral sobre o caso.',
+    '- Se algo não estiver no material, diga em "lacunas" em vez de supor.',
+    '- Em "fonte", cite o nome do documento e, quando houver, a página ou o trecho. É por aí que o perito confere.',
+    '- Não afirme valor, data ou número que não apareça no material.',
+    '- "confianca" deve ser "alta", "media" ou "baixa", conforme o material seja suficiente ou não.',
+    '- "risco" de cada ponto de atenção: "alto", "medio" ou "baixo".',
+    '- Os quesitos sugeridos são sugestões de redação, não quesitos deferidos.',
+    '- Não escreva laudo nem conclusão pericial: quem conclui é o perito.',
+    '',
+    f.nomeCompleto ? `Perito responsável: ${f.nomeCompleto}${f.crcRegistro ? ', CRC ' + f.crcRegistro : ''}.` : '',
+    '',
+    'MATERIAL:',
+  ].filter(l => l !== null).join('\n');
+}
+
+async function iaChamar(material, c){
+  const corpo = {
+    contents: [{role:'user', parts:[{text: iaInstrucao(c) + '\n\n' + material}]}],
+    generationConfig: {
+      temperature: 0.2,
+      responseMimeType: 'application/json',
+      responseSchema: IA_ESQUEMA,
+    },
+  };
+  const res = await fetch(IA_ENDPOINT + encodeURIComponent(iaModelo()) + ':generateContent', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'x-goog-api-key': iaChave()},
+    body: JSON.stringify(corpo),
+  });
+  if(!res.ok){
+    let detalhe = '';
+    try{ const j = await res.json(); detalhe = (j.error && j.error.message) || ''; }catch(e){}
+    const mapa = {
+      400: 'A chave não foi aceita, ou o material ficou grande demais para este modelo.',
+      401: 'Chave inválida. Confira em Configurações.',
+      403: 'A chave existe mas não tem permissão para este modelo. Verifique no Google AI Studio.',
+      429: 'Você passou do limite de chamadas do momento. Espere alguns minutos.',
+      500: 'O serviço do Google falhou agora. Tente de novo em instantes.',
+      503: 'O serviço do Google está sobrecarregado. Tente de novo em instantes.',
+    };
+    throw new Error((mapa[res.status] || ('Erro ' + res.status + ' na chamada.')) + (detalhe ? ' (' + detalhe + ')' : ''));
+  }
+  const dados = await res.json();
+  const cand = (dados.candidates || [])[0];
+  if(!cand) throw new Error('O modelo não devolveu resposta. Pode ter sido bloqueio de conteúdo.');
+  const texto = ((cand.content || {}).parts || []).map(p => p.text || '').join('');
+  if(!texto) throw new Error('A resposta veio vazia.');
+  try{ return JSON.parse(texto); }
+  catch(e){ throw new Error('A resposta não veio no formato esperado.'); }
+}
+
+async function iaAnalisar(casoId, silencioso){
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return;
+  if(iaRodando.has(casoId)) return;
+  if(!iaPronta()){ setSection('ia'); return; }
+  if(!podeEditar(c)){
+    iaEstado[casoId] = 'Só quem tem acesso de edição pode gravar a análise nesta perícia.';
+    renderAll(); return;
+  }
+  iaRodando.add(casoId);
+  const passo = msg => { iaEstado[casoId] = msg; if(activeSection === 'ia') renderAll(); };
+  passo('Reunindo o material...');
+  try{
+    const material = await iaReunirMaterial(c, passo);
+    passo('Enviando para o Gemini e aguardando a leitura...');
+    const saida = await iaChamar(material.texto, c);
+    const analise = {
+      ...saida,
+      quando: new Date().toISOString(),
+      modelo: iaModelo(),
+      por: meuEmail(),
+      assinatura: iaAssinatura(c),
+      fontes: material.fontes,
+      avisos: material.avisos,
+      chars: material.texto.length,
+    };
+    await saveCaso(casoId, {analiseIA: analise});
+    delete iaEstado[casoId];
+  }catch(e){
+    iaEstado[casoId] = 'Não deu certo: ' + e.message;
+  }finally{
+    iaRodando.delete(casoId);
+    renderAll();
+  }
+}
+
+/* Automático: só quando a pessoa liga a opção. Espera a poeira baixar depois
+   de um anexo, para não disparar uma análise por arquivo de um lote. */
+function iaAgendarAuto(casoId){
+  if(!iaAuto() || !iaPronta()) return;
+  clearTimeout(iaAutoTimer);
+  iaAutoTimer = setTimeout(() => iaAnalisar(casoId, true), 25000);
+}
+
+/* ---------- tela ---------- */
+function iaPillRisco(r){
+  const v = String(r||'').toLowerCase();
+  if(v.startsWith('alt')) return 'pill-danger';
+  if(v.startsWith('med')) return 'pill-warning';
+  return 'pill-muted';
+}
+function iaRotuloRisco(r){
+  const v = String(r||'').toLowerCase();
+  if(v.startsWith('alt')) return 'risco alto';
+  if(v.startsWith('med')) return 'risco médio';
+  return 'risco baixo';
+}
+function iaQuando(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+}
+
+function iaCorpoChave(){
+  const chave = iaChave();
+  const temChave = !!chave;
+  return `
+      ${temChave ? `
+      <div class="row-item" style="cursor:default;">
+        <div class="row-main">
+          <div class="row-title">Chave do Google AI Studio guardada</div>
+          <div class="row-sub mono">${escapeHtml(chave.slice(0,6))}${'•'.repeat(Math.max(0, Math.min(18, chave.length-10)))}${escapeHtml(chave.slice(-4))}</div>
+        </div>
+        <div class="row-side"><button class="btn btn-ghost btn-sm" onclick="iaApagarChave()">Remover</button></div>
+      </div>` : `
+      <div class="field">
+        <label for="iaChave">Chave da API do Gemini</label>
+        <input id="iaChave" type="password" autocomplete="off" spellcheck="false" placeholder="cole aqui a chave do Google AI Studio"
+               onchange="iaDefinirChave(this.value).then(renderAll)">
+        <span class="dica">Pegue em aistudio.google.com, em “Get API key”. É gratuita até um limite diário e depois cobra por uso — a conta é sua.</span>
+      </div>`}
+
+      <div class="field" style="margin-top:12px;">
+        <label for="iaModelo">Modelo</label>
+        <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
+          ${IA_MODELOS.map(m => `<option value="${m.id}" ${iaModelo()===m.id?'selected':''}>${escapeHtml(m.nome)} — ${escapeHtml(m.nota)}</option>`).join('')}
+        </select>
+      </div>
+
+      <label class="check" style="margin-top:14px; display:flex; gap:9px; align-items:flex-start; cursor:pointer;">
+        <input type="checkbox" ${iaAuto()?'checked':''} onchange="iaAlternarAuto(this.checked)" style="margin-top:3px;">
+        <span style="font-size:13px; line-height:1.5;">Analisar sozinho quando eu anexar documentos novos
+          <span class="dica" style="display:block; margin-top:2px;">Espera 25 segundos depois do último anexo e roda uma vez. Cada rodada consome a sua cota.</span>
+        </span>
+      </label>
+
+      <div class="hint" style="margin-top:14px;">
+        A chave fica no seu perfil, que só a sua conta lê. Ainda assim, trate-a como senha: quem entrar na sua conta alcança a chave.
+      </div>`;
+}
+
+function iaCorpoCiencia(){
+  return `
+      <div style="font-size:13px; line-height:1.65; color:var(--ink-2);">
+        <p style="margin:0 0 10px;">Antes da primeira análise, o que precisa estar claro:</p>
+        <ul style="margin:0 0 14px; padding-left:18px;">
+          <li style="margin-bottom:7px;">O texto da perícia e dos documentos selecionados <b>sai deste navegador</b> e vai para a API do Google, com a sua chave. Documento sob sigilo processual deixa de estar apenas com você nesse momento.</li>
+          <li style="margin-bottom:7px;">O Google trata esse envio pelos termos da API dele, não por este app. Vale ler os termos antes, sobretudo em processo que corra em segredo de justiça.</li>
+          <li style="margin-bottom:7px;">O resultado é <b>rascunho de leitura</b>. O modelo erra e às vezes inventa com cara de certeza. Cada item vem com a fonte justamente para você conferir nos autos.</li>
+          <li>Nada é enviado sem clique seu — a não ser que você ligue a análise automática ali em cima, e aí o clique é esse.</li>
+        </ul>
+        <button class="btn btn-primary" onclick="iaRegistrarCiencia()">Li e estou ciente — liberar a análise</button>
+      </div>`;
+}
+
+function iaCorpoAnalise(c){
+  const a = iaAnalise(c);
+  const rodando = iaRodando.has(c.id);
+  const msg = iaEstado[c.id];
+
+  const cabecalho = `
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px;">
+        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar('${c.id}')" ${rodando?'disabled':''}>
+          ${svg('<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>')}
+          ${rodando ? 'Analisando...' : (a ? 'Analisar de novo' : 'Analisar esta perícia')}
+        </button>
+        ${a ? `<span class="dica">última leitura em ${iaQuando(a.quando)} · ${escapeHtml(a.modelo || '')}</span>` : ''}
+        ${iaDesatualizada(c) ? '<span class="pill pill-warning">a perícia mudou depois desta análise</span>' : ''}
+      </div>
+      ${msg ? `<div class="banner" style="margin-bottom:14px;">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
+
+  if(!a) return cabecalho + `<div class="chart-empty">Esta perícia ainda não foi analisada. O material enviado será a ficha, a proposta em rascunho, as suas anotações e o texto dos PDFs anexados.</div>`;
+
+  const lista = (titulo, itens, linha) => itens && itens.length ? `
+      <div style="margin-top:18px;">
+        <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;">${titulo}</div>
+        <div class="rows">${itens.map(linha).join('')}</div>
+      </div>` : '';
+
+  return cabecalho + `
+      <div class="banner" style="margin-bottom:16px;">
+        ${svg('<path d="M12 9v4M12 17v.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>')}
+        <span>Rascunho de leitura, não laudo. Confira cada ponto contra os autos antes de usar.</span>
+      </div>
+
+      <div class="kv-grid" style="margin-bottom:14px;">
+        <div class="kv"><div class="k">Área provável</div><div class="v">${escapeHtml(a.areaProvavel || '—')}</div></div>
+        <div class="kv"><div class="k">Confiança do modelo</div><div class="v">${escapeHtml(a.confianca || '—')}</div></div>
+        <div class="kv"><div class="k">Material lido</div><div class="v num">${(a.fontes||[]).length} fonte${(a.fontes||[]).length===1?'':'s'}</div></div>
+        <div class="kv"><div class="k">Caracteres enviados</div><div class="v num">${(a.chars||0).toLocaleString('pt-BR')}</div></div>
+      </div>
+
+      <div style="font-size:13.5px; line-height:1.7; color:var(--ink);">${escapeHtml(a.resumo || '')}</div>
+      ${a.objeto ? `<div class="hint" style="margin-top:10px;"><b>Objeto:</b> ${escapeHtml(a.objeto)}</div>` : ''}
+
+      ${lista('Pontos de atenção', a.pontosAtencao, p => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(p.titulo||'')}</div>
+            <div class="row-sub">${escapeHtml(p.detalhe||'')}</div>
+            <div class="row-sub mono" style="font-size:11px; opacity:.8;">fonte: ${escapeHtml(p.fonte||'não indicada')}</div>
+          </div>
+          <div class="row-side"><span class="pill ${iaPillRisco(p.risco)}">${iaRotuloRisco(p.risco)}</span></div>
+        </div>`)}
+
+      ${lista('Quesitos sugeridos', a.quesitos, (q,i) => `
+        <div class="row-item row-full" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${i+1}. ${escapeHtml(q.pergunta||'')}</div>
+            <div class="row-sub">${escapeHtml(q.porque||'')}</div>
+          </div>
+        </div>`)}
+
+      ${lista('Documentos a requisitar', a.documentos, d => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(d.item||'')}</div>
+            <div class="row-sub">${escapeHtml(d.porque||'')}</div>
+          </div>
+          <div class="row-side"><span class="pill pill-muted">${escapeHtml(d.deQuem||'—')}</span></div>
+        </div>`)}
+
+      ${lista('Linha do tempo', a.linhaDoTempo, t => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(t.fato||'')}</div>
+            <div class="row-sub mono" style="font-size:11px; opacity:.8;">fonte: ${escapeHtml(t.fonte||'não indicada')}</div>
+          </div>
+          <div class="row-side"><span class="mono" style="font-size:12px;">${escapeHtml(t.data||'—')}</span></div>
+        </div>`)}
+
+      ${lista('Prazos apontados', a.prazos, p => `
+        <div class="row-item" style="cursor:default;">
+          <div class="row-main"><div class="row-title">${escapeHtml(p.oQue||'')}</div></div>
+          <div class="row-side">
+            <span class="mono" style="font-size:12px; margin-right:8px;">${escapeHtml(p.quando||'—')}</span>
+            ${p.critico ? '<span class="pill pill-danger">crítico</span>' : ''}
+          </div>
+        </div>`)}
+
+      ${(a.lacunas && a.lacunas.length) ? `
+      <div style="margin-top:18px;">
+        <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;">O que faltou no material</div>
+        <ul style="margin:0; padding-left:18px; font-size:13px; line-height:1.7; color:var(--ink-2);">
+          ${a.lacunas.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+        </ul>
+      </div>` : ''}
+
+      ${(a.avisos && a.avisos.length) ? `
+      <div class="hint" style="margin-top:16px;">
+        <b>Sobre a leitura:</b> ${a.avisos.map(x => escapeHtml(x)).join(' ')}
+      </div>` : ''}
+
+      <div class="hint" style="margin-top:12px;">
+        Fontes enviadas: ${(a.fontes||[]).map(f => escapeHtml(f.nome) + (f.comTexto === false ? ' (só cabeçalho)' : '')).join(' · ') || '—'}
+      </div>`;
+}
+
+function renderIA(){
+  const lista = casosVisiveis();
+  const c = lista.find(x => x.id === iaCasoId) || lista[0] || null;
+  if(c) iaCasoId = c.id;
+
+  const seletor = lista.length === 0 ? '' : `
+      <div class="rows" style="margin-bottom:4px;">
+        ${lista.map(x => {
+          const a = iaAnalise(x);
+          const estado = iaRodando.has(x.id) ? 'analisando'
+            : !a ? 'sem análise'
+            : iaDesatualizada(x) ? 'desatualizada'
+            : 'analisada em ' + iaQuando(a.quando).split(' às')[0];
+          const cor = iaRodando.has(x.id) ? 'pill-accent' : !a ? 'pill-muted' : iaDesatualizada(x) ? 'pill-warning' : 'pill-success';
+          return `
+          <div class="row-item ${x.id === (c&&c.id) ? 'ativo' : ''}" onclick="iaEscolher('${x.id}')">
+            <div class="row-main">
+              <div class="row-title">${escapeHtml(x.codigo || '')} — ${escapeHtml(x.nome || 'sem nome')}</div>
+              <div class="row-sub">${escapeHtml(x.numeroProcesso || 'sem número de processo')} · ${(x.documentos||[]).length} documento${(x.documentos||[]).length===1?'':'s'}</div>
+            </div>
+            <div class="row-side"><span class="pill ${cor}">${escapeHtml(estado)}</span></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+
+  const corpoPericia = !c
+    ? `<div class="chart-empty">Nenhuma perícia para analisar ainda.</div>`
+    : (!iaPronta()
+        ? `<div class="chart-empty">Guarde a sua chave e dê o aceite nos painéis acima para liberar a análise.</div>`
+        : iaCorpoAnalise(c));
+
+  return `
+    <div class="section-gap">
+      ${!iaChave() || !iaCiente() ? panel('iaChave', 'Chave e modelo', iaChave() ? 'chave guardada' : 'nenhuma chave', iaCorpoChave()) : ''}
+      ${iaChave() && !iaCiente() ? panel('iaCiencia', 'Antes da primeira análise', 'leia isto', iaCorpoCiencia()) : ''}
+      ${lista.length ? panel('iaLista', 'Perícias', `${lista.length}`, seletor) : ''}
+      ${panel('iaAnalise', c ? 'Análise — ' + (c.codigo || '') : 'Análise', c ? (iaAnalise(c) ? 'leitura guardada' : 'ainda não analisada') : '', corpoPericia)}
+      ${iaChave() && iaCiente() ? panel('iaChave', 'Chave e modelo', 'chave guardada', iaCorpoChave()) : ''}
+    </div>`;
+}
+function iaEscolher(id){ iaCasoId = id; renderAll(); }
+
+/* ==========================================================================
    Render principal
    ========================================================================== */
 function renderAll(){
@@ -4276,6 +4829,11 @@ function renderAll(){
     else view.innerHTML = renderProposta();
   }
   else if(activeSection === 'docs') view.innerHTML = renderDocs();
+  else if(activeSection === 'ia'){
+    /* o campo da chave não pode perder o foco enquanto está sendo colado */
+    const foco = document.activeElement;
+    if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderIA();
+  }
   else if(activeSection === 'equipe'){
     const foco = document.activeElement;
     if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderEquipe();
@@ -4632,6 +5190,7 @@ async function addDocFromForm(casoId){
   const c = casos.find(x => x.id === casoId);
   if(c && processo && !c.numeroProcesso){ await saveCaso(casoId, {numeroProcesso: processo}); }
   if(c && codigoAcesso && !c.codigoAcesso){ await saveCaso(casoId, {codigoAcesso}); }
+  iaAgendarAuto(casoId);
   nomeInput.value=''; document.getElementById(`docFase-${casoId}`).value=''; document.getElementById(`docObs-${casoId}`).value=''; fileInput.value='';
   renderDrawer(); renderAll();
 }
