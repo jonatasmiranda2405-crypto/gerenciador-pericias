@@ -4290,10 +4290,53 @@ function renderConfig(){
    ========================================================================== */
 
 const IA_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
+/* Nome de modelo envelhece: o Google aposenta versões e o app quebraria junto.
+   Por isso o padrão são os apelidos -latest, que sempre apontam para a versão
+   corrente da linha, e a lista do seletor é perguntada à própria API. */
+const IA_MODELO_PADRAO = 'gemini-flash-latest';
 const IA_MODELOS = [
-  {id:'gemini-2.5-flash', nome:'Gemini 2.5 Flash', nota:'rápido e barato; dá conta da maioria das perícias'},
-  {id:'gemini-2.5-pro',   nome:'Gemini 2.5 Pro',   nota:'lê com mais cuidado processos longos; custa mais'},
+  {id:'gemini-flash-latest', nome:'Flash (versão atual)', nota:'rápido e barato; dá conta da maioria das perícias'},
+  {id:'gemini-pro-latest',   nome:'Pro (versão atual)',   nota:'lê com mais cuidado processos longos; custa mais'},
 ];
+/* modelos que o Google já aposentou — não adianta insistir neles */
+const IA_APOSENTADOS = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+/* o catálogo traz muita coisa que não serve para ler processo */
+const IA_FORA = /tts|image|audio|transcribe|robotics|computer-use|lyria|nano-banana|embedding|veo|imagen|deep-research|antigravity|customtools|omni/i;
+let iaCatalogo = null;      /* lista viva, quando a API responde */
+let iaCatalogoErro = null;
+let iaBuscandoCatalogo = false;
+
+async function iaCarregarCatalogo(forcar){
+  if(!iaChave() || iaBuscandoCatalogo) return;
+  if(iaCatalogo && !forcar) return;
+  iaBuscandoCatalogo = true;
+  try{
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',
+      {headers:{'x-goog-api-key': iaChave()}});
+    const j = await res.json();
+    if(!res.ok) throw new Error((j.error && j.error.message) || ('erro ' + res.status));
+    const lista = (j.models || [])
+      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map(m => String(m.name).replace('models/', ''))
+      .filter(n => !IA_FORA.test(n) && !IA_APOSENTADOS.includes(n));
+    const apelidos = lista.filter(n => n.endsWith('-latest')).sort();
+    const resto = lista.filter(n => !n.endsWith('-latest')).sort().reverse();
+    iaCatalogo = [...apelidos, ...resto];
+    iaCatalogoErro = null;
+  }catch(e){
+    iaCatalogoErro = e.message;
+  }finally{
+    iaBuscandoCatalogo = false;
+    if(activeSection === 'ia') renderAll();
+  }
+}
+function iaModelosParaEscolher(){
+  if(iaCatalogo && iaCatalogo.length){
+    const nota = id => (IA_MODELOS.find(m => m.id === id) || {}).nota || '';
+    return iaCatalogo.map(id => ({id, nome: id, nota: nota(id)}));
+  }
+  return IA_MODELOS;
+}
 const IA_MAX_CHARS = 180000;   /* teto do material enviado */
 const IA_MAX_PAGINAS = 40;     /* páginas lidas por PDF */
 
@@ -4303,7 +4346,11 @@ let iaAutoTimer = null;
 
 function iaConfig(){ return perfil.ia || {}; }
 function iaChave(){ return String(iaConfig().chave || '').trim(); }
-function iaModelo(){ return iaConfig().modelo || IA_MODELOS[0].id; }
+function iaModelo(){
+  const m = iaConfig().modelo;
+  /* se o perfil ainda guarda um modelo aposentado, o padrão assume */
+  return (!m || IA_APOSENTADOS.includes(m)) ? IA_MODELO_PADRAO : m;
+}
 function iaCiente(){ return !!iaConfig().cienciaEm; }
 function iaAuto(){ return !!iaConfig().auto; }
 function iaPronta(){ return !!iaChave() && iaCiente(); }
@@ -4510,7 +4557,16 @@ function iaInstrucao(c){
   ].filter(l => l !== null).join('\n');
 }
 
-async function iaChamar(material, c){
+const IA_ERROS = {
+  400: 'A chave não foi aceita, ou o material ficou grande demais para este modelo.',
+  401: 'Chave inválida. Confira no painel Chave e modelo.',
+  403: 'A chave existe mas não tem permissão para este modelo. Verifique no Google AI Studio.',
+  404: 'Este modelo não existe mais nesta conta.',
+  429: 'Você passou da cota da sua chave. Espere alguns minutos, ou escolha um modelo da linha Flash, que gasta menos.',
+  500: 'O serviço do Google falhou agora.',
+  503: 'O modelo está com procura alta no momento.',
+};
+async function iaUmaChamada(modelo, material, c){
   const corpo = {
     contents: [{role:'user', parts:[{text: iaInstrucao(c) + '\n\n' + material}]}],
     generationConfig: {
@@ -4519,7 +4575,7 @@ async function iaChamar(material, c){
       responseSchema: IA_ESQUEMA,
     },
   };
-  const res = await fetch(IA_ENDPOINT + encodeURIComponent(iaModelo()) + ':generateContent', {
+  const res = await fetch(IA_ENDPOINT + encodeURIComponent(modelo) + ':generateContent', {
     method: 'POST',
     headers: {'Content-Type':'application/json', 'x-goog-api-key': iaChave()},
     body: JSON.stringify(corpo),
@@ -4527,15 +4583,9 @@ async function iaChamar(material, c){
   if(!res.ok){
     let detalhe = '';
     try{ const j = await res.json(); detalhe = (j.error && j.error.message) || ''; }catch(e){}
-    const mapa = {
-      400: 'A chave não foi aceita, ou o material ficou grande demais para este modelo.',
-      401: 'Chave inválida. Confira em Configurações.',
-      403: 'A chave existe mas não tem permissão para este modelo. Verifique no Google AI Studio.',
-      429: 'Você passou do limite de chamadas do momento. Espere alguns minutos.',
-      500: 'O serviço do Google falhou agora. Tente de novo em instantes.',
-      503: 'O serviço do Google está sobrecarregado. Tente de novo em instantes.',
-    };
-    throw new Error((mapa[res.status] || ('Erro ' + res.status + ' na chamada.')) + (detalhe ? ' (' + detalhe + ')' : ''));
+    const erro = new Error((IA_ERROS[res.status] || ('Erro ' + res.status + ' na chamada.')) + (detalhe ? ' (' + detalhe + ')' : ''));
+    erro.status = res.status;
+    throw erro;
   }
   const dados = await res.json();
   const cand = (dados.candidates || [])[0];
@@ -4544,6 +4594,32 @@ async function iaChamar(material, c){
   if(!texto) throw new Error('A resposta veio vazia.');
   try{ return JSON.parse(texto); }
   catch(e){ throw new Error('A resposta não veio no formato esperado.'); }
+}
+/* 503 é fila cheia, passa sozinho: vale esperar. 404 é modelo aposentado:
+   não adianta insistir, mas adianta cair no apelido da versão corrente. */
+async function iaChamar(material, c, aviso){
+  let modelo = iaModelo();
+  const esperas = [0, 5000, 12000];
+  let ultimo = null;
+  for(let i = 0; i < esperas.length; i++){
+    if(esperas[i]){
+      if(aviso) aviso('O modelo está com fila. Tentando de novo em ' + (esperas[i]/1000) + ' segundos...');
+      await new Promise(r => setTimeout(r, esperas[i]));
+    }
+    try{ return {saida: await iaUmaChamada(modelo, material, c), modelo}; }
+    catch(e){
+      ultimo = e;
+      if(e.status === 404 && modelo !== IA_MODELO_PADRAO){
+        modelo = IA_MODELO_PADRAO;
+        await iaSalvarConfig({modelo});
+        if(aviso) aviso('O modelo escolhido saiu do ar. Passando para ' + IA_MODELO_PADRAO + '...');
+        iaCarregarCatalogo(true);
+        continue;
+      }
+      if(e.status !== 503) throw e;
+    }
+  }
+  throw ultimo;
 }
 
 async function iaAnalisar(casoId, silencioso){
@@ -4561,11 +4637,11 @@ async function iaAnalisar(casoId, silencioso){
   try{
     const material = await iaReunirMaterial(c, passo);
     passo('Enviando para o Gemini e aguardando a leitura...');
-    const saida = await iaChamar(material.texto, c);
+    const r = await iaChamar(material.texto, c, passo);
     const analise = {
-      ...saida,
+      ...r.saida,
       quando: new Date().toISOString(),
-      modelo: iaModelo(),
+      modelo: r.modelo,
       por: meuEmail(),
       assinatura: iaAssinatura(c),
       fontes: material.fontes,
@@ -4631,8 +4707,15 @@ function iaCorpoChave(){
       <div class="field" style="margin-top:12px;">
         <label for="iaModelo">Modelo</label>
         <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
-          ${IA_MODELOS.map(m => `<option value="${m.id}" ${iaModelo()===m.id?'selected':''}>${escapeHtml(m.nome)} — ${escapeHtml(m.nota)}</option>`).join('')}
+          ${iaModelosParaEscolher().map(m => `<option value="${m.id}" ${iaModelo()===m.id?'selected':''}>${escapeHtml(m.nome)}${m.nota ? ' — ' + escapeHtml(m.nota) : ''}</option>`).join('')}
         </select>
+        <span class="dica">
+          ${iaCatalogo
+            ? `${iaCatalogo.length} modelos disponíveis na sua chave. <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="iaCarregarCatalogo(true)">atualizar lista</button>`
+            : iaCatalogoErro
+              ? `Não foi possível ler a lista de modelos da sua chave (${escapeHtml(iaCatalogoErro)}). O seletor mostra os apelidos, que acompanham a versão atual.`
+              : 'Os apelidos “versão atual” seguem o modelo corrente do Google, então não quebram quando uma versão é aposentada.'}
+        </span>
       </div>
 
       <label class="check" style="margin-top:14px; display:flex; gap:9px; align-items:flex-start; cursor:pointer;">
@@ -4765,6 +4848,7 @@ function iaCorpoAnalise(c){
 }
 
 function renderIA(){
+  if(iaChave() && !iaCatalogo && !iaBuscandoCatalogo && !iaCatalogoErro) iaCarregarCatalogo();
   const lista = casosVisiveis();
   const c = lista.find(x => x.id === iaCasoId) || lista[0] || null;
   if(c) iaCasoId = c.id;
