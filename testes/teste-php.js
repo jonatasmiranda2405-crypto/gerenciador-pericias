@@ -23,6 +23,10 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const erros = [];
   let sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js"));
   while (!sw) { const w = await ctx.waitForEvent("serviceworker", { timeout: 10000 }); if (w.url().endsWith("/background.js")) sw = w; }
+  for (let i = 0; i < 40 && !(await sw.evaluate(() => !!(self.chrome && chrome.storage && chrome.storage.local)).catch(() => false)); i++) {
+    await sleep(250);
+    sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js")) || sw; // pode ter reiniciado
+  }
   await sw.evaluate(() => chrome.storage.local.set({ email: "teste@exemplo.com" }));
   { const r0 = await ctx.newPage(); await r0.goto("https://projudi.tjgo.jus.br/__reiniciar").catch(() => {}); await r0.close(); }
 
@@ -39,10 +43,10 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
 
   console.log("\n1) Baixar autos para o PeríciaFlow PHP");
   await pf.click("[data-pf-autos]");
-  let t = await esperar(/verificação|clique em Buscar|concluído|erro/, 30000);
-  if (/verificação/.test(t)) { await aba().click("#cf-ok"); t = await esperar(/clique em Buscar|concluído|erro/, 30000); }
-  check("pede o clique em Buscar", /clique em Buscar/.test(t), t);
-  await aba().click("input[value=Buscar]");
+  let t = await esperar(/verificação|clique em Consultar|concluído|erro/, 30000);
+  if (/verificação/.test(t)) { await aba().click("#cf-ok"); t = await esperar(/clique em Consultar|concluído|erro/, 30000); }
+  check("pede o clique em Consultar", /clique em Consultar/.test(t), t);
+  await aba().check("#cf-humano").catch(() => {}); await aba().click("input[name=Localizar]");
   t = await esperar(/concluído|erro/);
   check("concluído", /concluído/.test(t) && /3 arquivo/.test(t), t);
   const lista = await api("acao=listar&caso_id=caso-42");
@@ -57,8 +61,8 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
 
   console.log("\n2) Repetir (sem duplicar)");
   await pf.click("[data-pf-autos]");
-  t = await esperar(/clique em Buscar|concluído|erro/, 30000);
-  if (/clique em Buscar/.test(t)) { await aba().click("input[value=Buscar]"); t = await esperar(/concluído|erro|Nada novo/); }
+  t = await esperar(/clique em Consultar|concluído|erro/, 30000);
+  if (/clique em Consultar/.test(t)) { await aba().check("#cf-humano").catch(() => {}); await aba().click("input[name=Localizar]"); t = await esperar(/concluído|erro|Nada novo/); }
   const lista2 = await api("acao=listar&caso_id=caso-42");
   check("nada duplicado", lista2.arquivos.length === 3, t);
   const dup = await pf.evaluate(async () => {

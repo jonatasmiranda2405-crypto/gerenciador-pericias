@@ -26,6 +26,10 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   // assinatura: grava o e-mail do assinante (o servidor de teste responde ativo)
   let sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js"));
   while (!sw) { const w = await ctx.waitForEvent("serviceworker", { timeout: 10000 }); if (w.url().endsWith("/background.js")) sw = w; }
+  for (let i = 0; i < 40 && !(await sw.evaluate(() => !!(self.chrome && chrome.storage && chrome.storage.local)).catch(() => false)); i++) {
+    await sleep(250);
+    sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js")) || sw; // pode ter reiniciado
+  }
   await sw.evaluate(() => chrome.storage.local.set({ email: "teste@exemplo.com" }));
   { const r0 = await ctx.newPage(); await r0.goto("https://projudi.tjgo.jus.br/__reiniciar").catch(() => {}); await r0.close(); }
 
@@ -51,16 +55,16 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   const abaProjudi = () => ctx.pages().find((p) => p.url().includes("projudi.tjgo.jus.br/BuscaProcesso"));
   // ---------- 1) pelo código de acesso, sem login ----------
   console.log("\n1) Baixar autos pelo código de acesso (sem login)");
-  const c1 = await novoCaso({ nome: "Teste código", numero: NUM, codigo: "AB12CD34" });
+  const c1 = await novoCaso({ nome: "Teste código", numero: NUM, codigo: "Ab12Cd34" });
   await pf.click(`button[onclick="pjBaixarAutos('${c1}')"]`);
   let e = await esperarEtapa(c1, ["captcha", "confirmar", "fim", "erro", "assistido", "login"], 30000);
   check("detecta a verificação do Cloudflare e pede ao perito", e.s.etapa === "captcha", e.s.texto);
   await abaProjudi().click("#cf-ok");                       // o perito resolve a verificação
   e = await esperarEtapa(c1, ["confirmar", "fim", "erro", "assistido", "login"], 30000);
   check("preenche e pede para clicar em Buscar (sem clique automático)", e.s.etapa === "confirmar", e.s.texto);
-  const campos1 = await abaProjudi().evaluate(() => [document.querySelector("#numeroProcesso").value, document.querySelector("#CodigoAcesso").value]);
-  check("número e código preenchidos", campos1[0] === NUM && campos1[1] === "AB12CD34", campos1.join(" / "));
-  await abaProjudi().click("input[value=Buscar]");            // o perito clica em Buscar
+  const campos1 = await abaProjudi().evaluate(() => [document.querySelector("#ProcessoNumero").value, document.querySelector("#CodigoAcesso").value]);
+  check("número curto e código (com maiúsculas e minúsculas) preenchidos", campos1[0] === "5151870-23" && campos1[1] === "Ab12Cd34", campos1.join(" / "));
+  await abaProjudi().check("#cf-humano").catch(() => {}); await abaProjudi().click("input[name=Localizar]");            // o perito clica em Buscar
   e = await esperarEtapa(c1, ["fim", "erro", "assistido", "login"]);
   check("terminou", e.s.etapa === "fim", e.s.texto);
   check("3 documentos gravados", e.docs.length === 3, e.docs.map((d) => d.id).join(", "));
@@ -76,14 +80,14 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   await pf.click(`button[onclick="pjBaixarAutos('${c1}')"]`);
   await sleep(500);
   e = await esperarEtapa(c1, ["confirmar", "fim", "erro", "assistido", "login"]);
-  if (e.s.etapa === "confirmar") { await abaProjudi().click("input[value=Buscar]"); }
+  if (e.s.etapa === "confirmar") { await abaProjudi().check("#cf-humano").catch(() => {}); await abaProjudi().click("input[name=Localizar]"); }
   e = await esperarEtapa(c1, ["fim", "erro", "assistido", "login"]);
   check("sem arquivos novos", e.s.etapa === "fim" && e.docs.length === 3, e.s.texto);
   await pf.evaluate(() => fetch("/__liberar_extra"));
   await pf.click(`button[onclick="pjBaixarAutos('${c1}')"]`);
   await sleep(500);
   e = await esperarEtapa(c1, ["confirmar", "fim", "erro", "assistido", "login"]);
-  if (e.s.etapa === "confirmar") { await abaProjudi().click("input[value=Buscar]"); }
+  if (e.s.etapa === "confirmar") { await abaProjudi().check("#cf-humano").catch(() => {}); await abaProjudi().click("input[name=Localizar]"); }
   e = await esperarEtapa(c1, ["fim", "erro", "assistido", "login"]);
   check("só o arquivo novo veio", e.docs.length === 4 && e.s.texto.includes("1 arquivo"), e.s.texto);
 
@@ -100,7 +104,7 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   await aba.click("button[type=submit]");
   e = await esperarEtapa(c2, ["confirmar", "fim", "erro", "assistido"], 60000);
   check("depois do login, preenche a busca e pede o clique", e.s.etapa === "confirmar", e.s.texto);
-  await abaProjudi().click("input[value=Buscar]");
+  await abaProjudi().check("#cf-humano").catch(() => {}); await abaProjudi().click("input[name=Localizar]");
   e = await esperarEtapa(c2, ["fim", "erro", "assistido"], 60000);
   check("continuou sozinho depois do login", e.s.etapa === "fim" && e.docs.length === 4, e.s.texto);
 

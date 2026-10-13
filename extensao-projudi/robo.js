@@ -41,11 +41,13 @@
   const campos = () => [...document.querySelectorAll("input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button])")].filter(visivel);
 
   function acharNumero() {
-    const real = document.querySelector('input[name*="numeroProcesso" i], input#numeroProcesso, input[name*="ProcessoNumero" i]');
+    const real = document.querySelector('input#ProcessoNumero, input[name="ProcessoNumero"], input[name*="numeroProcesso" i], input#numeroProcesso');
     if (real && visivel(real)) return real;
     return campos().find((el) => el.type !== "password" && /processo|numero/.test(rotulo(el)) && !/codigo|chave|senha|advog|oab|cpf|nome|parte|usuario/.test(rotulo(el)));
   }
   function acharCodigo() {
+    const real = document.querySelector('input#CodigoAcesso, input[name="CodigoAcesso"]');
+    if (real && visivel(real)) return real;
     return campos().find((el) => /codigo|chave|senha do processo|acesso/.test(rotulo(el)) && !/usuario|cpf|login|captcha|caracteres/.test(rotulo(el)));
   }
   function temCaptcha() {
@@ -55,7 +57,8 @@
   }
   // Página de verificação do Cloudflare ("Just a moment…", "Verifique se você é humano").
   function verificacaoCloudflare() {
-    if (document.querySelector('iframe[src*="challenges.cloudflare.com"], #challenge-form, #cf-challenge-running, .cf-turnstile, #turnstile-wrapper')) return true;
+    // página inteira de desafio (o widget Turnstile dentro do formulário NÃO conta: o perito resolve junto com o "Consultar")
+    if (document.querySelector('#challenge-form, #cf-challenge-running, #challenge-stage')) return true;
     const t = norm(document.title + " " + (document.body ? document.body.innerText.slice(0, 600) : ""));
     return /just a moment|um momento|verify(ing)? you are human|verifique se voce e humano|checking your browser|verificando (se|seu navegador)/.test(t);
   }
@@ -86,6 +89,8 @@
   function botaoBuscar(form) {
     const raiz = form || document;
     const bts = [...raiz.querySelectorAll('button, input[type=submit], input[type=button], input[type=image], a.botao, a[onclick]')].filter(visivel);
+    const real = raiz.querySelector('input#formLocalizarBotao[name="Localizar"]');
+    if (real) return real;
     return bts.find((b) => /buscar|consultar|pesquisar|localizar/.test(norm(b.textContent || b.value || b.title || b.alt))) ||
       bts.find((b) => b.type === "submit") || null;
   }
@@ -110,7 +115,7 @@
       const textos = {
         login: "Entre no PROJUDI com o seu certificado digital ou CPF e senha. Depois disso a busca continua sozinha.",
         captcha: "O PROJUDI pediu uma verificação de segurança. Resolva nesta aba; o resto continua sozinho.",
-        confirmar: `Confira o processo ${pedido.numero}${pedido.metodo === "codigo" ? " e o código de acesso" : ""} e clique em Buscar. O resto continua sozinho.`,
+        confirmar: `Confira o processo ${pedido.numero}${pedido.metodo === "codigo" ? " e o código de acesso" : ""}, marque a verificação se aparecer e clique em Consultar. O resto continua sozinho.`,
         assistido: `Não consegui chegar sozinho ao processo ${pedido.numero}. Abra o processo nesta aba: o download para o PeríciaFlow começa sozinho.`
       };
       faixa(textos[etapa], true);
@@ -142,10 +147,11 @@
         await precisar("assistido");
         return;
       }
-      await preencher(campoNum, pedido.numero);
-      if (campoCod) await preencher(campoCod, pedido.codigo);
+      const numeroAlvo = pedido.metodo === "codigo" ? (pedido.numeroBusca || pedido.numero) : pedido.numero;
+      if (digitos(campoNum.value) !== digitos(numeroAlvo)) await preencher(campoNum, numeroAlvo);
+      if (campoCod && campoCod.value !== pedido.codigo) await preencher(campoCod, pedido.codigo); // diferencia maiúsculas
       if (temCaptcha()) { await precisar("captcha"); return; }
-      // Clique automático em Buscar fica desligado por padrão: o Cloudflare bloqueia.
+      // Clique automático em Consultar fica desligado por padrão: o Cloudflare (Turnstile) bloqueia.
       if (!clicaBuscar) { await precisar("confirmar"); return; }
       const bt = botaoBuscar(campoNum.form);
       if (!(await tentar(pedido.metodo === "codigo" ? "Consultando pelo código de acesso…" : "Consultando o processo…"))) return;

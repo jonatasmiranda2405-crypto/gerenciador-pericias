@@ -1378,8 +1378,9 @@ function mimeFromDataUrl(dataUrl){
 function arquivoSrc(arquivo){ return arquivo.url || arquivo.dataUrl; }
 function arquivoMime(arquivo){ return arquivo.mime || mimeFromDataUrl(arquivo.dataUrl); }
 function guessCodigoAcessoFromText(text){
-  const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,20})/i);
-  return m ? m[1].toUpperCase() : null;
+  // O PROJUDI diferencia maiúsculas de minúsculas no código: guardar exatamente como veio.
+  const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,40})/i);
+  return m ? m[1] : null;
 }
 function svg(path, extra){
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" ${extra||''}>${path}</svg>`;
@@ -5708,7 +5709,7 @@ function pjStatusHtml(casoId){
   const s = PJ.status[casoId];
   if(!s) return '';
   const pill = {erro:'pill-danger', cancelado:'pill-muted', login:'pill-warning', assistido:'pill-warning', captcha:'pill-warning', confirmar:'pill-warning', fim:'pill-success'}[s.etapa] || 'pill-accent';
-  const rotulo = {erro:'erro', cancelado:'cancelado', login:'entre no PROJUDI', assistido:'precisa de você', captcha:'verificação', confirmar:'clique em Buscar', fim:'concluído', transferindo:'recebendo'}[s.etapa] || 'em andamento';
+  const rotulo = {erro:'erro', cancelado:'cancelado', login:'entre no PROJUDI', assistido:'precisa de você', captcha:'verificação', confirmar:'clique em Consultar', fim:'concluído', transferindo:'recebendo'}[s.etapa] || 'em andamento';
   const barra = s.etapa === 'transferindo' && s.total
     ? `<div class="bar-track" style="margin-top:6px; height:6px;"><div class="bar-seg" style="width:${Math.round(100*s.feitos/s.total)}%; background:var(--accent); height:100%;"></div></div>` : '';
   const ativo = s.pedidoId && !['fim','erro','cancelado'].includes(s.etapa);

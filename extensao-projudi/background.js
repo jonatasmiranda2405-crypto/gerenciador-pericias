@@ -101,6 +101,11 @@ chrome.downloads.onChanged.addListener(async (d) => {
 const PED = "pf_ped_";
 const minutos = (n) => n * 60 * 1000;
 const soDigitos = (s) => String(s || "").replace(/\D/g, "");
+// "5151870-23.2026.8.09.0051" → "5151870-23" (formato pedido pelo formulário do PROJUDI)
+function numeroParaBusca(numero) {
+  const m = String(numero || "").match(/(\d{1,7})[-.](\d{2})/);
+  return PROJUDI_NUMERO_CURTO && m ? `${m[1]}-${m[2]}` : String(numero || "");
+}
 
 async function listarPedidos() {
   const all = await chrome.storage.session.get(null);
@@ -280,7 +285,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const metodo = codigo && pref !== "sessao" ? "codigo" : "sessao";
         // um pedido por perícia: refazer o pedido substitui o anterior
         for (const v of await listarPedidos()) if (v.casoId === msg.casoId && v.origem === "site") await encerrarPedido(v.id);
-        const aba = await chrome.tabs.create({ url: metodo === "codigo" ? PROJUDI_URLS.porCodigo : PROJUDI_URLS.comLogin, active: false });
+        // Por código: a página do PROJUDI já abre preenchida (ela lê NumeroProcesso e CodigoAcesso da URL).
+        let url = metodo === "codigo" ? PROJUDI_URLS.porCodigo : PROJUDI_URLS.comLogin;
+        if (metodo === "codigo") url += `&NumeroProcesso=${encodeURIComponent(numeroParaBusca(numero))}&CodigoAcesso=${encodeURIComponent(codigo)}`;
+        const aba = await chrome.tabs.create({ url, active: false });
         const p = await gravarPedido({
           id: crypto.randomUUID(), origem: "site", casoId: msg.casoId, numero, codigo, metodo,
           jaTenho: msg.jaTenho || [], tabPF: sender.tab?.id, tabProjudi: aba.id, abriuAba: true,
@@ -334,7 +342,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "PJ_TAREFA") {
     pedidoDaAba(sender.tab?.id).then((p) => {
       const ativo = p && ["buscando", "login", "assistido", "captcha", "confirmar"].includes(p.etapa);
-      sendResponse(ativo ? { pedido: { id: p.id, numero: p.numero, codigo: p.codigo, metodo: p.metodo, etapa: p.etapa, tentativas: p.tentativas }, urls: PROJUDI_URLS, max: ROBO_MAX_TENTATIVAS, clicaBuscar: ROBO_CLICA_BUSCAR } : { pedido: null });
+      sendResponse(ativo ? { pedido: { id: p.id, numero: p.numero, numeroBusca: numeroParaBusca(p.numero), codigo: p.codigo, metodo: p.metodo, etapa: p.etapa, tentativas: p.tentativas }, urls: PROJUDI_URLS, max: ROBO_MAX_TENTATIVAS, clicaBuscar: ROBO_CLICA_BUSCAR } : { pedido: null });
     });
     return true;
   }
@@ -362,7 +370,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const textos = {
         login: "Entre no PROJUDI na aba que abriu (certificado digital ou CPF e senha). Depois disso a busca continua sozinha.",
         captcha: "O PROJUDI pediu uma verificação de segurança. Resolva na aba que abriu; depois disso a busca continua sozinha.",
-        confirmar: "Os dados do processo já estão preenchidos no PROJUDI. Clique em Buscar na aba que abriu; o resto continua sozinho.",
+        confirmar: "Os dados do processo já estão preenchidos no PROJUDI. Na aba que abriu, marque a verificação se ela aparecer e clique em Consultar; o resto continua sozinho.",
         assistido: `Não consegui chegar sozinho ao processo. Abra o processo ${p.numero} na aba do PROJUDI e o download começa.`
       };
       avisarSite(p, { etapa: p.etapa, texto: textos[msg.etapa] || textos.assistido });

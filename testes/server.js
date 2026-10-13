@@ -5,7 +5,7 @@ const path = require("path");
 const D = __dirname;
 const APP = path.join(__dirname, "..", "index.html");
 const NUM = "5151870-23.2026.8.09.0051";
-const COD = "AB12CD34";
+const COD = "Ab12Cd34"; // o PROJUDI diferencia maiúsculas de minúsculas
 let extraLiberado = false; // simula um arquivo novo juntado depois
 
 const ARQS = {
@@ -39,21 +39,29 @@ function projudi(req, res, u) {
   }
   if (p === "/LogOn" && req.method === "POST") return redir(res, "/", { "Set-Cookie": "sess=1; Path=/; Secure; SameSite=Lax" });
   if (p === "/BuscaProcesso") {
-    const tipo = u.searchParams.get("TipoConsultaProcesso");
-    const pag = u.searchParams.get("PaginaAtual");
+    const tipo = u.searchParams.get("TipoConsultaProcesso") || "";
+    if (req.method === "POST") {
+      let corpo = ""; req.on("data", (c) => (corpo += c));
+      req.on("end", () => {
+        const f = new URLSearchParams(corpo);
+        const t = f.get("TipoConsultaProcesso");
+        if (t === "24" && !logado) return redir(res, "/");
+        if (t === "23" && !f.get("cf-turnstile-response")) return html(res, `<p>Verificação de segurança não realizada.</p>` + formCodigo("", ""));
+        const num = (f.get("ProcessoNumero") || f.get("numeroProcesso") || "").trim();
+        const curto = NUM.slice(0, 10); // 5151870-23
+        const okNum = t === "23" ? num === curto : num.replace(/\D/g, "") === NUM.replace(/\D/g, "");
+        const ok = okNum && (t === "24" || f.get("CodigoAcesso") === COD);
+        if (!ok) return html(res, `<p>Processo não encontrado.</p>` + (t === "23" ? formCodigo("", "") : formBusca(t)));
+        html(res, `<table><tr><td><a href="/Processo?Id=77">${NUM}</a></td><td>Procedimento Comum Cível</td></tr></table>`,
+          t === "23" ? { "Set-Cookie": "pub=1; Path=/; Secure; SameSite=Lax" } : {});
+      });
+      return;
+    }
     if (tipo === "24" && !logado) return redir(res, "/");
-    // verificação do Cloudflare na primeira visita
+    // verificação de página inteira do Cloudflare na primeira visita
     if (ck.cf !== "1") return html(res, `<title>Just a moment...</title><div id="challenge-form"><p>Verifying you are human.</p>
       <button id="cf-ok" onclick="document.cookie='cf=1; path=/; Secure'; location.reload()">Verificar</button></div>`);
-    if (pag === "2") {
-      const num = u.searchParams.get("numeroProcesso") || "";
-      const cod = u.searchParams.get("CodigoAcesso") || "";
-      const okNum = num.replace(/\D/g, "") === NUM.replace(/\D/g, "");
-      const ok = okNum && (tipo === "24" || cod === COD);
-      if (!ok) return html(res, `<p>Processo não encontrado.</p>` + formBusca(tipo));
-      return html(res, `<table><tr><td><a href="/Processo?Id=77">${NUM}</a></td><td>Procedimento Comum Cível</td></tr></table>`,
-        tipo === "23" ? { "Set-Cookie": "pub=1; Path=/; Secure; SameSite=Lax" } : {});
-    }
+    if (tipo === "23") return html(res, formCodigo(u.searchParams.get("NumeroProcesso") || "", u.searchParams.get("CodigoAcesso") || ""));
     return html(res, formBusca(tipo));
   }
   if (p === "/Processo") {
@@ -84,12 +92,31 @@ function projudi(req, res, u) {
   }
   res.writeHead(404); res.end("404");
 }
+function formCodigo(numero, codigo) {
+  const esc = (v) => String(v).replace(/"/g, "&quot;");
+  return `<title>Busca Publica de Processo</title><div class="area"><h2>» Consulta de Processos por Código de Acesso</h2></div>
+    <form action="/BuscaProcesso" method="post" name="Formulario" id="Formulario">
+      <input id="PaginaAtual" name="PaginaAtual" type="hidden" value="-1">
+      <input id="TipoConsultaProcesso" name="TipoConsultaProcesso" type="hidden" value="23">
+      <input class="formEdicaoInput" name="ProcessoNumero" id="ProcessoNumero" placeholder="*Número do Processo" type="text" maxlength="18" value="${esc(numero)}">
+      <label for="ProcessoNumero">*Número do Processo</label>
+      <input class="formEdicaoInput" name="CodigoAcesso" id="CodigoAcesso" placeholder="*Código de Acesso" type="text" maxlength="40" value="${esc(codigo)}">
+      <label for="CodigoAcesso">*Código de Acesso</label>
+      <div id="widget-container"><label><input type="checkbox" id="cf-humano" onclick="document.getElementById('cfr').value=this.checked?'token-ok':''"> Confirme que é humano</label>
+        <input type="hidden" name="cf-turnstile-response" id="cfr" value=""></div>
+      <input id="g-recaptcha-response" type="hidden" name="g-recaptcha-response" value="">
+      <input id="formLocalizarBotao" class="formLocalizarBotao" type="submit" name="Localizar" value="Consultar" onclick="document.getElementById('PaginaAtual').value='2'">
+      <input id="formLocalizarBotao" class="formLocalizarBotao" type="submit" name="Limpar" value="Limpar">
+    </form>
+    <input type="text" style="display:none"><input type="password" style="display:none">
+    <div id="divLerSenha" style="display:none"><input type="password" id="senhaCertificado"></div>`;
+}
 function formBusca(tipo) {
-  return `<form method="get" action="/BuscaProcesso">
+  return `<form method="post" action="/BuscaProcesso">
     <input type="hidden" name="PaginaAtual" value="2"><input type="hidden" name="TipoConsultaProcesso" value="${tipo}">
     <table><tr><td>Número do Processo</td><td><input name="numeroProcesso" id="numeroProcesso"></td></tr>
     ${tipo === "23" ? `<tr><td>Código de Acesso</td><td><input name="CodigoAcesso" id="CodigoAcesso"></td></tr>` : ""}
-    </table><input type="button" value="Buscar" onclick="this.form.submit()"></form>`;
+    </table><input id="formLocalizarBotao" type="submit" name="Localizar" value="Consultar"></form>`;
 }
 
 const CERT = path.join(D, ".saida", "cert");

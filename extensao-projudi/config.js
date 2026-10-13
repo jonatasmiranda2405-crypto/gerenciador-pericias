@@ -32,6 +32,7 @@ const PERICIAFLOW_ENVIO_MIN = 30;
 //    Se o tribunal mudar alguma tela, ajuste só aqui.
 const PROJUDI_URLS = {
   // Consulta pública "Processo por Código": número + código de acesso, sem login.
+  // A própria página lê NumeroProcesso e CodigoAcesso da URL e preenche o formulário.
   porCodigo: "https://projudi.tjgo.jus.br/BuscaProcesso?PaginaAtual=4&TipoConsultaProcesso=23",
   // Busca pelo número com o perito logado (certificado digital ou CPF + senha).
   comLogin: "https://projudi.tjgo.jus.br/BuscaProcesso?PaginaAtual=4&TipoConsultaProcesso=24",
@@ -40,6 +41,8 @@ const PROJUDI_URLS = {
 };
 // Quantas tentativas automáticas o robô faz antes de pedir ajuda ao perito na aba.
 const ROBO_MAX_TENTATIVAS = 4;
-// O robô preenche a busca; quem clica em "Buscar" é o perito. Clicar sozinho aciona o bloqueio
+// O robô preenche a busca; quem clica em "Consultar" é o perito. Clicar sozinho aciona o bloqueio
 // do Cloudflare no PROJUDI (visto em produção na v1.1). Troque para true se isso mudar.
 const ROBO_CLICA_BUSCAR = false;
+// O formulário do PROJUDI pede o número curto: número e dígito ("5151870-23"), até 18 caracteres.
+const PROJUDI_NUMERO_CURTO = true;

@@ -70,7 +70,7 @@
     const s = st.status[casoId];
     if (!s) return "";
     const tipo = { erro: "erro", cancelado: "", fim: "ok", login: "alerta", assistido: "alerta", captcha: "alerta", confirmar: "alerta" }[s.etapa] || "";
-    const rotulo = { erro: "erro", cancelado: "cancelado", login: "entre no PROJUDI", assistido: "precisa de você", captcha: "verificação", confirmar: "clique em Buscar", fim: "concluído", transferindo: "recebendo" }[s.etapa] || "em andamento";
+    const rotulo = { erro: "erro", cancelado: "cancelado", login: "entre no PROJUDI", assistido: "precisa de você", captcha: "verificação", confirmar: "clique em Consultar", fim: "concluído", transferindo: "recebendo" }[s.etapa] || "em andamento";
     const barra = s.etapa === "transferindo" && s.total ? `<div class="pf-autos-barra"><i style="width:${Math.round(100 * s.feitos / s.total)}%"></i></div>` : "";
     const ativo = s.pedidoId && !["fim", "erro", "cancelado"].includes(s.etapa);
     return `<div class="pf-autos-st"><span class="pf-autos-pill ${tipo}">${rotulo}</span><span style="flex:1;min-width:0">${esc(s.texto)}${barra}</span>
