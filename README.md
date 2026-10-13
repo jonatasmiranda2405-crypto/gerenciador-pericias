@@ -23,7 +23,7 @@ Perícia (PeríciaFlow) → extensão → aba do PROJUDI (código de acesso ou l
 
 O PeríciaFlow nunca pede nem guarda senha ou certificado do PROJUDI. O login é sempre feito
 pelo perito, no site do tribunal. Por causa do Cloudflare do PROJUDI, a extensão preenche a busca
-e quem clica em **Buscar** é o perito.
+e quem clica em **Consultar** é o perito.
 
 ## Prévia das telas novas
 
@@ -44,7 +44,7 @@ ela passa a ser o `index.html`.
 ```
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
-sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as duas suítes:
+sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as quatro suítes:
 o site (24), o mesmo fluxo na prévia (24), as telas novas (27) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
