@@ -25,8 +25,6 @@ PF_AUTOS_CONFIG="$PHPDIR/autos-config.php" php -S localhost:8080 ../servidor-php
 trap 'kill $S1 $S2 2>/dev/null || true' EXIT
 sleep 1
 
-python3 ../ferramentas/montar-novo.py > /dev/null
-echo "== Site do GitHub (index.html)"; node teste.js
-echo "== Prévia /novo: fluxo dos autos"; PF_CAMINHO=novo/ node teste.js
-echo "== Prévia /novo: telas novas"; node teste-telas.js
+echo "== Site: fluxo dos autos do PROJUDI"; node teste.js
+echo "== Site: telas, barra lateral e paleta"; node teste-telas.js
 echo "== PeríciaFlow PHP"; PF_ARMAZ="$PHPDIR/armazenamento" node teste-php.js

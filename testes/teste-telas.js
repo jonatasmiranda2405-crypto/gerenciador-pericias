@@ -7,7 +7,7 @@ let chromium;
 try { ({ chromium } = require("playwright")); } catch (e) { ({ chromium } = require("/opt/npm-tools/node_modules/playwright")); }
 const EXT = path.join(__dirname, "..", "extensao-projudi");
 const SAIDA = path.join(__dirname, ".saida");
-const PF = "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/novo/";
+const PF = "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/";
 const NUM = "5151870-23.2026.8.09.0051";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const res = [];

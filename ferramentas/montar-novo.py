@@ -7,6 +7,11 @@ de um jeito que quebre a montagem, o script para com uma mensagem clara.
 """
 import pathlib, sys
 
+# APOSENTADO em 13/10/2026: a prévia virou o site principal. As telas novas, a barra lateral e a
+# paleta já estão dentro do index.html, que voltou a ser a única fonte. Os arquivos desta pasta
+# ficam como referência do que foi acrescentado.
+sys.exit("montar-novo: aposentado. Edite o index.html diretamente (a prévia já é o site principal).")
+
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 h = (RAIZ / "index.html").read_text(encoding="utf-8")
 mod = (RAIZ / "ferramentas" / "telas-novas.js").read_text(encoding="utf-8")

@@ -7,9 +7,10 @@ Gerenciador de perícias judiciais. O site é publicado pelo GitHub Pages a part
 
 | Pasta / arquivo | O que é |
 |---|---|
-| `index.html` | O PeríciaFlow publicado (app de uma página). |
-| `novo/index.html` | **Prévia** com as telas novas (Importar processo, Publicações, Prazos e alertas, Tarefas, Agenda, Financeiro, Integrações). Mesmo login e mesmos dados do site. Gerada, não editar à mão. |
-| `ferramentas/` | `telas-novas.js` (telas novas), `barra-lateral.js/.css/.html` e `paleta.html` (barra lateral e paleta Ctrl K) e `montar-novo.py`, que gera a prévia a partir do `index.html`. |
+| `index.html` | O PeríciaFlow publicado (app de uma página): perícias, importação de processos, publicações, prazos e alertas, tarefas, agenda, financeiro, cálculos, proposta, documentos, IA, equipe e integrações, com barra lateral em grupos e paleta Ctrl K. **É a única fonte: edite aqui.** |
+| `anterior/index.html` | O site como estava antes da troca de 13/10/2026, para voltar rápido se precisar (`…/gerenciador-pericias/anterior/`). |
+| `novo/` | Endereço antigo da prévia; agora só redireciona para o site principal. |
+| `ferramentas/` | Referência das partes acrescentadas na prévia (telas novas, barra lateral, paleta). O `montar-novo.py` está aposentado. |
 | `extensao-projudi/` | Extensão do Chrome **PROJUDI PDFs** (v1.7): ZIP dos autos, envio ao PeríciaFlow, busca pelo código de acesso ou com o login do perito, assinatura pelo Mercado Pago. Arquitetura em `extensao-projudi/LEIA-ME-ARQUITETURA.md`. |
 | `servidor-php/` | Peças para o PeríciaFlow em PHP/MySQL (`localhost:8080`): API de upload dos autos (criptografada, sem duplicados), tabela e receptor. Instalação em `servidor-php/LEIA-ME.md`. |
 | `testes/` | Testes de ponta a ponta com Chromium, a extensão real e um PROJUDI simulado. |
@@ -25,17 +26,16 @@ O PeríciaFlow nunca pede nem guarda senha ou certificado do PROJUDI. O login é
 pelo perito, no site do tribunal. Por causa do Cloudflare do PROJUDI, a extensão preenche a busca
 e quem clica em **Consultar** é o perito.
 
-## Prévia das telas novas
-
-Endereço: `…/gerenciador-pericias/novo/`. Para refazer depois de mudar o `index.html` ou as telas:
-
-```bash
-python3 ferramentas/montar-novo.py
-```
+## Dados das telas novas
 
 Tarefas, compromissos e o valor depositado ficam dentro de cada perícia (mesmo documento do
-Firestore), então não há coleção nova nem regra nova no Firebase. Quando a prévia for aprovada,
-ela passa a ser o `index.html`.
+Firestore: `tarefas`, `compromissos`, `honorariosDepositados`), então não há coleção nova no Firebase.
+Se as regras do Firestore limitarem os campos aceitos em `casos`, esses três precisam ser liberados.
+
+## Voltar para a versão anterior
+
+Se algo der errado, copie `anterior/index.html` por cima do `index.html` e publique. O site
+volta a ser o de antes; os dados não mudam.
 
 ## Testes
 
@@ -44,8 +44,8 @@ ela passa a ser o `index.html`.
 ```
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
-sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as quatro suítes:
-o site (24), o mesmo fluxo na prévia (24), as telas novas com a barra e a paleta (37) e o PHP com o Mercado Pago (13).
+sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as três suítes:
+o fluxo dos autos no site (24), as telas, a barra lateral e a paleta (37) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
 
