@@ -5707,8 +5707,8 @@ function pjComPrazo(promessa, ms, padrao){
 function pjStatusHtml(casoId){
   const s = PJ.status[casoId];
   if(!s) return '';
-  const pill = {erro:'pill-danger', cancelado:'pill-muted', login:'pill-warning', assistido:'pill-warning', captcha:'pill-warning', fim:'pill-success'}[s.etapa] || 'pill-accent';
-  const rotulo = {erro:'erro', cancelado:'cancelado', login:'entre no PROJUDI', assistido:'precisa de você', captcha:'verificação', fim:'concluído', transferindo:'recebendo'}[s.etapa] || 'em andamento';
+  const pill = {erro:'pill-danger', cancelado:'pill-muted', login:'pill-warning', assistido:'pill-warning', captcha:'pill-warning', confirmar:'pill-warning', fim:'pill-success'}[s.etapa] || 'pill-accent';
+  const rotulo = {erro:'erro', cancelado:'cancelado', login:'entre no PROJUDI', assistido:'precisa de você', captcha:'verificação', confirmar:'clique em Buscar', fim:'concluído', transferindo:'recebendo'}[s.etapa] || 'em andamento';
   const barra = s.etapa === 'transferindo' && s.total
     ? `<div class="bar-track" style="margin-top:6px; height:6px;"><div class="bar-seg" style="width:${Math.round(100*s.feitos/s.total)}%; background:var(--accent); height:100%;"></div></div>` : '';
   const ativo = s.pedidoId && !['fim','erro','cancelado'].includes(s.etapa);
