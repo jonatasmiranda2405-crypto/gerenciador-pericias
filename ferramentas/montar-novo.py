@@ -42,7 +42,7 @@ CSS = """<style>
 .pf-kacoes .btn{padding:2px 8px;}
 .pf-vazio{font-size:12px; color:var(--muted); padding:8px 4px;}
 .pf-prio{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
-.pf-prio.alta{background:var(--danger);} .pf-prio.media{background:var(--warn);} .pf-prio.baixa{background:var(--ok);}
+.pf-prio.alta{background:var(--danger);} .pf-prio.media{background:var(--warn);} .pf-prio.baixa{background:var(--line-strong);}
 .pf-dia{display:grid; grid-template-columns:70px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
 .pf-dia:last-child{border-bottom:0;}
 .pf-dia-d{text-align:center;}
@@ -68,6 +68,17 @@ CSS = """<style>
 .pf-toggle:disabled{opacity:.45; cursor:not-allowed;}
 #pfAviso{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:90; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:8px; font-size:13px; box-shadow:var(--shadow);}
 .pf-tabela .link-sutil,.pf-kcard .link-sutil,.pf-ev .link-sutil{padding:0; margin:0; text-align:left; background:none; border:0;}
+/* acabamento */
+.pf-campo input,.pf-campo select{height:40px; box-sizing:border-box;}
+.pf-campo small{font-size:11.5px; color:var(--muted); line-height:1.35;}
+.pf-form{align-items:flex-start;}
+.pf-form > .btn{margin-top:20px; height:40px;}
+.pf-ev .hint .link-sutil{display:inline; width:auto;}
+#pfAviso{display:flex; align-items:center; gap:14px;}
+#pfAviso[hidden]{display:none;}
+#pfAviso button{background:none; border:0; color:inherit; font:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:0;}
+.pf-card :focus-visible,.pf-kcard :focus-visible,.pf-form :focus-visible,.pf-tabela :focus-visible,#pfAviso :focus-visible,.pf-toggle:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+@media (max-width:760px){ .pf-kanban{grid-template-columns:1fr; overflow-x:visible;} .pf-kcol{min-height:0;} }
 @media (prefers-reduced-motion:reduce){.pf-toggle::after{transition:none;}}
 </style>
 </head>"""

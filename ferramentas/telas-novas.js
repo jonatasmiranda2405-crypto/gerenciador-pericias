@@ -15,6 +15,7 @@ const PF_TIPO_COMP = {diligencia:'Diligência', audiencia:'Audiência', reuniao:
 const pfNovoId = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const pfEditaveis = () => casosVisiveis('todas').filter(c => podeEditar(c));
 const pfOpcoesCasos = (sel) => pfEditaveis().map(c => `<option value="${c.id}" ${sel===c.id?'selected':''}>${escapeHtml(c.codigo)} · ${escapeHtml(c.nome)}</option>`).join('');
+const pfEscolhaCaso = (sel) => `<option value="" ${sel ? '' : 'selected'} disabled>Escolha a perícia</option>` + pfOpcoesCasos(sel);
 function pfQuando(iso){
   const n = diasAte(iso);
   if(n === null) return '';
@@ -30,11 +31,19 @@ function pfPillData(iso, final){
   const cls = n < 0 ? 'pill-danger' : n <= 3 ? 'pill-danger' : n <= 7 ? 'pill-warning' : 'pill-muted';
   return `<span class="pill ${cls}">${pfQuando(iso)}</span>`;
 }
-function pfAviso(texto){
+function pfAviso(texto, desfazer){
   const el = document.getElementById('pfAviso');
   if(!el) return;
-  el.textContent = texto; el.hidden = false;
-  clearTimeout(pfAviso.t); pfAviso.t = setTimeout(() => { el.hidden = true; }, 3200);
+  el.innerHTML = '';
+  el.append(texto);
+  if(desfazer){
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = 'Desfazer';
+    b.onclick = async () => { el.hidden = true; await desfazer(); };
+    el.append(b);
+  }
+  el.hidden = false;
+  clearTimeout(pfAviso.t); pfAviso.t = setTimeout(() => { el.hidden = true; }, desfazer ? 7000 : 3200);
 }
 
 /* ---------- Tarefas (quadro) ---------- */
@@ -67,7 +76,13 @@ function pfPassoTarefa(casoId, id, delta){
   const j = Math.max(0, Math.min(PF_TAREFA_COLS.length - 1, i + delta));
   if(i !== j) pfMoverTarefa(casoId, id, PF_TAREFA_COLS[j][0]);
 }
-function pfApagarTarefa(casoId, id){ return pfSalvarTarefas(casoId, l => l.filter(t => t.id !== id)); }
+async function pfApagarTarefa(casoId, id){
+  const c = casos.find(x => x.id === casoId);
+  const lista = c ? [...(c.tarefas || [])] : [];
+  const t = lista.find(x => x.id === id);
+  await pfSalvarTarefas(casoId, l => l.filter(x => x.id !== id));
+  if(t) pfAviso('Tarefa apagada.', () => pfSalvarTarefas(casoId, () => lista));
+}
 function pfSoltar(ev, col){
   ev.preventDefault();
   ev.currentTarget.classList.remove('over');
@@ -81,8 +96,8 @@ function renderTarefas(){
   const ordemPrio = {alta:0, media:1, baixa:2};
   const form = editaveis.length ? `
     <form class="pf-form" onsubmit="pfAddTarefa(event)">
-      <label class="pf-campo pf-largo"><span>Tarefa</span><input name="titulo" id="pfTarefaTitulo" placeholder="Ex.: responder quesitos complementares" required></label>
-      <label class="pf-campo"><span>Perícia</span><select name="caso" id="pfTarefaCaso">${pfOpcoesCasos(drawerCasoId)}</select></label>
+      <label class="pf-campo pf-largo"><span>Tarefa</span><input name="titulo" id="pfTarefaTitulo" placeholder="Ex.: responder quesitos" required></label>
+      <label class="pf-campo pf-largo"><span>Perícia</span><select name="caso" id="pfTarefaCaso" required>${pfEscolhaCaso(drawerCasoId)}</select></label>
       <label class="pf-campo"><span>Prioridade</span><select name="prio" id="pfTarefaPrio"><option value="alta">Alta</option><option value="media" selected>Média</option><option value="baixa">Baixa</option></select></label>
       <label class="pf-campo"><span>Até</span><input type="date" name="ate" id="pfTarefaAte"></label>
       <button class="btn btn-primary" type="submit">Adicionar</button>
@@ -97,12 +112,12 @@ function renderTarefas(){
           <div class="pf-krow"><span class="pf-prio ${t.prio || 'media'}" title="prioridade ${PF_PRIO[t.prio] || 'Média'}"></span><b>${escapeHtml(t.titulo)}</b></div>
           <div class="pf-krow pf-kmeta"><button class="link-sutil mono" onclick="openDrawer('${t.casoId}')">${escapeHtml(t.caso.codigo)}</button><span style="flex:1"></span>${t.ate ? pfPillData(t.ate, k === 'feito') : ''}</div>
           <div class="pf-krow pf-kacoes">
-            ${ci > 0 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa('${t.casoId}','${t.id}',-1)" aria-label="Voltar">←</button>` : ''}
-            ${ci < 2 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa('${t.casoId}','${t.id}',1)" aria-label="Avançar">→</button>` : ''}
+            ${ci > 0 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa('${t.casoId}','${t.id}',-1)" aria-label="Voltar" title="Voltar para ${PF_TAREFA_COLS[ci-1][1]}">←</button>` : ''}
+            ${ci < 2 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa('${t.casoId}','${t.id}',1)" aria-label="Avançar" title="Mover para ${PF_TAREFA_COLS[ci+1][1]}">→</button>` : ''}
             <span style="flex:1"></span>
             <button class="btn btn-ghost btn-sm" onclick="pfApagarTarefa('${t.casoId}','${t.id}')">Apagar</button>
           </div>
-        </div>`).join('') || `<div class="pf-vazio">Nada aqui.</div>`}
+        </div>`).join('') || `<div class="pf-vazio">${['Nenhuma tarefa por fazer. Crie a próxima no formulário acima.', 'Arraste para cá a tarefa que você começar.', 'As tarefas concluídas aparecem aqui.'][ci]}</div>`}
     </div>`;
   }).join('');
   return `<div class="section-gap">
@@ -132,8 +147,10 @@ async function pfAddCompromisso(ev){
 async function pfApagarCompromisso(casoId, id){
   const c = casos.find(x => x.id === casoId);
   if(!c || !podeEditar(c)) return;
-  await saveCaso(casoId, {compromissos: (c.compromissos || []).filter(m => m.id !== id)});
+  const lista = [...(c.compromissos || [])];
+  await saveCaso(casoId, {compromissos: lista.filter(m => m.id !== id)});
   renderAll();
+  pfAviso('Compromisso apagado.', async () => { await saveCaso(casoId, {compromissos: lista}); renderAll(); });
 }
 // Arquivo .ics: abre no Google Agenda, Outlook e celular.
 function pfBaixarIcs(){
@@ -175,14 +192,14 @@ function renderAgenda(){
   const linha = (e) => `<div class="pf-ev">
       <time class="mono">${e.hora || '—'}</time>
       <div style="flex:1; min-width:0;">
-        <b>${escapeHtml(e.titulo)}</b> <span class="pill ${pillTipo[e.tipo] || 'pill-muted'}">${e.tipo === 'prazo' ? 'prazo' : PF_TIPO_COMP[e.tipo] || 'compromisso'}</span>
+        <b>${escapeHtml(e.titulo)}</b> <span class="pill ${pillTipo[e.tipo] || 'pill-muted'}">${e.tipo === 'prazo' ? 'Prazo' : PF_TIPO_COMP[e.tipo] || 'Compromisso'}</span>
         <div class="hint"><button class="link-sutil mono" onclick="openDrawer('${e.casoId}')">${escapeHtml(e.caso.codigo)}</button>${e.local ? ' · ' + escapeHtml(e.local) : ''}</div>
       </div>
       ${e.origem === 'compromisso' && podeEditar(e.caso) ? `<button class="btn btn-ghost btn-sm" onclick="pfApagarCompromisso('${e.casoId}','${e.id}')">Apagar</button>` : ''}
     </div>`;
   const lista = Object.keys(porDia).length ? Object.entries(porDia).map(([d, itens]) => {
       const dt = new Date(d + 'T12:00:00');
-      return `<div class="pf-dia"><div class="pf-dia-d"><b>${dt.getDate()}</b><small>${sem[dt.getDay()]} · ${dt.toLocaleDateString('pt-BR', {month:'short'})}</small></div><div>${itens.map(linha).join('')}</div></div>`;
+      return `<div class="pf-dia"><div class="pf-dia-d"><b>${dt.getDate()}</b><small>${sem[dt.getDay()]}, ${dt.toLocaleDateString('pt-BR', {month:'short'}).replace('.', '')}</small></div><div>${itens.map(linha).join('')}</div></div>`;
     }).join('') : `<div class="chart-empty">Nenhum compromisso pela frente.</div>`;
   const form = pfEditaveis().length ? `
     <form class="pf-form" onsubmit="pfAddCompromisso(event)">
@@ -191,7 +208,7 @@ function renderAgenda(){
       <label class="pf-campo"><span>Data</span><input type="date" name="data" id="pfCompData" required></label>
       <label class="pf-campo"><span>Hora</span><input type="time" name="hora" id="pfCompHora"></label>
       <label class="pf-campo pf-largo"><span>Local</span><input name="local" id="pfCompLocal" placeholder="Endereço ou sala"></label>
-      <label class="pf-campo"><span>Perícia</span><select name="caso" id="pfCompCaso">${pfOpcoesCasos(drawerCasoId)}</select></label>
+      <label class="pf-campo"><span>Perícia</span><select name="caso" id="pfCompCaso" required>${pfEscolhaCaso(drawerCasoId)}</select></label>
       <button class="btn btn-primary" type="submit">Salvar</button>
     </form>` : `<div class="chart-empty">Crie uma perícia para agendar compromissos.</div>`;
   return `<div class="section-gap">
@@ -298,7 +315,7 @@ function renderImportar(){
       <p class="hint" style="margin:0;">Com o código de acesso, a consulta é pública e não precisa de login. Sem o código, a extensão usa o seu login no PROJUDI (certificado digital ou CPF e senha, digitados por você no site do tribunal). Os PDFs chegam um a um, separados por movimentação, sem repetir os que já estão na perícia.</p>
       <form class="pf-form" onsubmit="pfImportarProjudi(event)">
         <label class="pf-campo pf-largo"><span>Número do processo (CNJ)</span><input name="numero" id="pfImpNumero" class="mono" placeholder="0000000-00.0000.8.09.0000" oninput="pfAtualizarDestino(this)" required></label>
-        <label class="pf-campo"><span>Código de acesso (opcional)</span><input name="codigo" id="pfImpCodigo" class="mono" autocomplete="off" placeholder="diferencia maiúsculas"></label>
+        <label class="pf-campo"><span>Código de acesso <i style="font-style:normal; opacity:.75;">(opcional)</i></span><input name="codigo" id="pfImpCodigo" class="mono" autocomplete="off" spellcheck="false" placeholder="Ex.: Ab12Cd34" aria-describedby="pfImpCodigoDica"><small id="pfImpCodigoDica">Digite como está no documento: maiúsculas e minúsculas contam.</small></label>
         <label class="pf-campo pf-largo"><span>Guardar em</span><select name="destino" id="pfImpDestino"><option value="novo">Nova perícia</option>${pfOpcoesCasos()}</select></label>
         <button class="btn btn-primary" type="submit" ${PJ.versao ? '' : 'disabled'}>Baixar autos</button>
       </form>
@@ -396,8 +413,8 @@ function renderAlertasPainel(){
   return `<div class="pf-grid2">
     <div class="pf-card">
       <b>Quando avisar</b>
-      <div class="chips">${[15, 7, 3, 1, 0].map(d => `<button class="chip ${cfg.dias.includes(d) ? 'active' : ''}" aria-pressed="${cfg.dias.includes(d)}" onclick="pfAlternarDia(${d})">${d === 0 ? 'no dia' : d + (d === 1 ? ' dia antes' : ' dias antes')}</button>`).join('')}</div>
-      <div class="hint">Prazos vencidos são sempre avisados.</div>
+      <div class="chips" role="group" aria-label="Dias de antecedência">${[15, 7, 3, 1, 0].map(d => `<button class="chip ${cfg.dias.includes(d) ? 'active' : ''}" aria-pressed="${cfg.dias.includes(d)}" onclick="pfAlternarDia(${d})">${d === 0 ? 'No dia' : d + (d === 1 ? ' dia' : ' dias')}</button>`).join('')}</div>
+      <div class="hint">Dias antes do vencimento. Prazos vencidos são sempre avisados.</div>
     </div>
     <div class="pf-card">
       <b>Por onde avisar</b>

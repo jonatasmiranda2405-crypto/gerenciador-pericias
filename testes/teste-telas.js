@@ -77,6 +77,12 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const salvo = await pf.evaluate((id) => (casos.find((c) => c.id === id).tarefas || []).map((t) => t.col + ":" + t.prio), c1);
   check("tarefa gravada na perícia", salvo.join() === "fazendo:alta", salvo.join());
   check("selo de tarefas abertas no menu", /Tarefas\s*1/.test(await pf.textContent("#nav")));
+  await pf.click('.pf-kcol[data-col="fazendo"] .pf-kcard button:has-text("Apagar")');
+  await sleep(300);
+  const apagou = await pf.locator(".pf-kcard").count() === 0;
+  await pf.click("#pfAviso button");
+  await sleep(300);
+  check("apagar mostra Desfazer e a tarefa volta", apagou && await pf.locator('.pf-kcol[data-col="fazendo"] .pf-kcard').count() === 1);
   await foto("tarefas");
 
   console.log("\n3) Agenda");
