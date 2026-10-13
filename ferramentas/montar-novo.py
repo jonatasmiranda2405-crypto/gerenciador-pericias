@@ -137,8 +137,28 @@ trocar("  return `<div class=\"section-gap\">${blocos}${concluido}</div>`;",
 old = "      ${panel('entregas', 'Próximas entregas', 'perícias não concluídas',"
 trocar(old, "      ${renderHoje()}\n" + old, "visão geral")
 
+# ---------- barra lateral limpa + paleta de comandos (Ctrl K) ----------
+FERR = RAIZ / "ferramentas"
+barra_js = (FERR / "barra-lateral.js").read_text(encoding="utf-8")
+barra_css = (FERR / "barra-lateral.css").read_text(encoding="utf-8")
+barra_html = (FERR / "barra-lateral.html").read_text(encoding="utf-8").rstrip()
+paleta_html = (FERR / "paleta.html").read_text(encoding="utf-8").rstrip()
+
+ini = h.index('<aside class="sidebar" id="sidebar">')
+fim = h.index("</aside>", ini) + len("</aside>")
+aside = h[ini:fim]
+b0 = aside.index('<div class="brand">')
+b1 = aside.index("<div>", b0 + 10)  # depois da marca vem o bloco "Perfil"
+marca = aside[b0:b1].strip()
+h = h[:ini] + barra_html.replace("{MARCA}", marca) + h[fim:]
+
+trocar('<div id="pfAviso" role="status" hidden></div>', '<div id="pfAviso" role="status" hidden></div>\n' + paleta_html, "paleta")
+trocar("</style>\n</head>", barra_css + "</style>\n</head>", "estilo da barra")
+for nome in ("renderNav", "renderPerfil", "renderAccount"):
+    trocar(f"function {nome}(){{", f"function {nome}Original(){{", f"função {nome}")
+
 alvo = "/* ========================================================================== */\naplicarRail();"
-trocar(alvo, mod + "\n" + alvo, "inicialização")
+trocar(alvo, mod + "\n" + barra_js + "\n" + alvo, "inicialização")
 
 (RAIZ / "novo").mkdir(exist_ok=True)
 (RAIZ / "novo" / "index.html").write_text(h, encoding="utf-8")

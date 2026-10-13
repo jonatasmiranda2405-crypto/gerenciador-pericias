@@ -76,7 +76,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await sleep(300);
   const salvo = await pf.evaluate((id) => (casos.find((c) => c.id === id).tarefas || []).map((t) => t.col + ":" + t.prio), c1);
   check("tarefa gravada na perícia", salvo.join() === "fazendo:alta", salvo.join());
-  check("selo de tarefas abertas no menu", /Tarefas\s*1/.test(await pf.textContent("#nav")));
+  check("menu sem selo para tarefa que ainda não vence", await pf.locator('#nav .nav-item[data-sec="tarefas"] .nav-badge').count() === 0);
   await pf.click('.pf-kcol[data-col="fazendo"] .pf-kcard button:has-text("Apagar")');
   await sleep(300);
   const apagou = await pf.locator(".pf-kcard").count() === 0;
@@ -172,6 +172,36 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
     check(`${s} sem rolagem lateral no celular`, largura <= 1, `${largura}px`);
     await foto(`${s}-celular-escuro`);
   }
+
+  console.log("\n9) Barra lateral e paleta de comandos");
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await pf.evaluate(() => { document.documentElement.setAttribute("data-theme", "light"); setSection("visao"); });
+  check("sem contadores informativos (Perícias, Documentos)", await pf.locator('#nav .nav-item[data-sec="pericias"] .nav-badge, #nav .nav-item[data-sec="docs"] .nav-badge').count() === 0);
+  check("grupo Sistema começa fechado", await pf.$eval('#nav .pf-grupo-tit[aria-controls="pfg-sistema"]', (b) => b.getAttribute("aria-expanded")) === "false");
+  await pf.click('#nav .pf-grupo-tit[aria-controls="pfg-sistema"]');
+  check("grupo abre e o app lembra", await pf.evaluate(() => JSON.parse(localStorage.getItem("pf_nav_grupos")).sistema) === true);
+  await pf.keyboard.press("Control+k");
+  check("Ctrl K abre a paleta", await pf.isVisible("#pfPaleta"));
+  await pf.keyboard.type("5151870");
+  await sleep(150);
+  const primeiro = await pf.textContent(".pf-pal-item.sel");
+  check("busca a perícia pelo número do processo", /Revisional de contrato/.test(primeiro), primeiro.trim().slice(0, 80));
+  await pf.keyboard.press("Enter");
+  await sleep(300);
+  check("Enter abre a perícia", await pf.evaluate(() => drawerCasoId) === c1);
+  await pf.evaluate(() => closeDrawer());
+  await pf.keyboard.press("/");
+  await pf.keyboard.type("financ");
+  await pf.keyboard.press("Enter");
+  await sleep(300);
+  check("/ abre a paleta e leva à tela", await pf.evaluate(() => activeSection) === "financeiro");
+  await pf.keyboard.press("Control+k"); await pf.keyboard.press("Escape");
+  check("Esc fecha a paleta", !(await pf.isVisible("#pfPaleta")));
+  await pf.evaluate(() => toggleRail());
+  await sleep(300);
+  await pf.screenshot({ path: path.join(SAIDA, "barra-recolhida.png") });
+  check("modo recolhido mostra só ícones", await pf.$eval('#nav .nav-item[data-sec="financeiro"] span', (s) => getComputedStyle(s).display) === "none");
+  await pf.evaluate(() => toggleRail());
 
   check("sem erros de JavaScript", erros.length === 0, erros.slice(0, 3).join(" | "));
   await ctx.close();

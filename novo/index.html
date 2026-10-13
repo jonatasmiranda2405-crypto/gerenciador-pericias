@@ -845,6 +845,78 @@ body.travado{overflow:hidden;}
 .pf-card :focus-visible,.pf-kcard :focus-visible,.pf-form :focus-visible,.pf-tabela :focus-visible,#pfAviso :focus-visible,.pf-toggle:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 @media (max-width:760px){ .pf-kanban{grid-template-columns:1fr; overflow-x:visible;} .pf-kcol{min-height:0;} }
 @media (prefers-reduced-motion:reduce){.pf-toggle::after{transition:none;}}
+/* ===== Barra lateral limpa ===== */
+.sidebar{gap:14px; padding:18px 12px 12px;}
+.pf-busca{display:flex; align-items:center; gap:8px; width:100%; height:36px; padding:0 8px 0 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface-2); color:var(--muted); font:inherit; font-size:13px; cursor:pointer; text-align:left; transition:border-color .15s, color .15s;}
+.pf-busca:hover{border-color:var(--line-strong); color:var(--ink);}
+.pf-busca svg{width:15px; height:15px; flex-shrink:0;}
+.pf-busca span{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-busca kbd,.pf-pal-busca kbd,.pf-pal-rodape kbd{font:500 10.5px/1 'IBM Plex Mono',monospace; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:3px 5px;}
+.nav{position:relative; gap:0;}
+.pf-ind{position:absolute; left:0; right:0; top:0; height:34px; border-radius:8px; background:var(--accent-soft); opacity:0; pointer-events:none; z-index:0; transition:transform .24s cubic-bezier(.2,.75,.25,1), height .24s;}
+.nav .nav-item{position:relative; z-index:1; height:34px; padding:0 10px; gap:10px; font-size:13.5px; color:var(--ink-2); border-radius:8px;}
+.nav .nav-item svg{width:16px; height:16px; color:var(--muted);}
+.nav .nav-item.active{background:transparent; color:var(--accent-deep); font-weight:600;}
+.nav .nav-item.active svg{color:var(--accent-deep);}
+.nav .nav-item.active:hover{background:transparent;}
+.nav-badge.warn{background:var(--warn-soft); color:var(--warn);}
+.pf-grupo-itens{display:grid; gap:1px;}
+.pf-grupo{margin-top:12px;}
+.pf-grupo-tit{display:flex; align-items:center; gap:6px; width:100%; height:26px; padding:0 10px; border:0; border-radius:6px; background:none; color:var(--muted); font:inherit; font-size:11.5px; font-weight:600; cursor:pointer;}
+.pf-grupo-tit:hover{color:var(--ink);}
+.pf-chev{width:13px; height:13px; margin-left:auto; transition:transform .2s ease;}
+.pf-grupo.aberto .pf-chev{transform:rotate(90deg);}
+.pf-ponto{width:6px; height:6px; border-radius:50%; background:var(--danger);}
+.pf-grupo-corpo{display:grid; grid-template-rows:0fr; transition:grid-template-rows .22s ease;}
+.pf-grupo.aberto .pf-grupo-corpo{grid-template-rows:1fr;}
+.pf-grupo-corpo > .pf-grupo-itens{min-height:0; overflow:hidden;}
+.pf-grupo:not(.aberto) .nav-item{visibility:hidden;}
+.side-foot{gap:0; padding-top:10px;}
+.pf-rodape{display:flex; align-items:center; gap:2px; flex-wrap:wrap;}
+.pf-perfil{flex:1; min-width:0;}
+.pf-quem{display:flex; align-items:center; gap:9px; width:100%; padding:6px; border:0; border-radius:9px; background:none; color:var(--ink); font:inherit; text-align:left; cursor:pointer;}
+.pf-quem:hover,.pf-quem.active{background:var(--surface-2);}
+.pf-quem-txt{display:grid; min-width:0; line-height:1.3;}
+.pf-quem-txt b{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-quem-txt span{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted); white-space:nowrap;}
+.pf-rodape .icon-btn{flex-shrink:0;}
+.pf-entrar{flex-basis:100%; justify-content:center; margin-top:6px;}
+.pf-oculto{display:none !important;}
+.sidebar :focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+body.rail .pf-busca{justify-content:center; width:40px; height:36px; padding:0; margin:0 auto; flex-shrink:0;}
+body.rail .pf-busca span,body.rail .pf-busca kbd{display:none;}
+/* recolhida: grupos viram divisórias finas e ficam sempre abertos */
+body.rail .pf-grupo{margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+body.rail .pf-grupo-tit{display:none;}
+body.rail .pf-grupo-corpo{grid-template-rows:1fr;}
+body.rail .pf-grupo:not(.aberto) .nav-item{visibility:visible;}
+body.rail .nav .nav-item{justify-content:center; padding:0;}
+body.rail .pf-quem{justify-content:center;}
+body.rail .pf-quem-txt,body.rail .pf-entrar{display:none;}
+body.rail .pf-rodape{flex-direction:column;}
+
+/* ===== Paleta de comandos ===== */
+#pfPaleta{position:fixed; inset:0; z-index:120; display:flex; justify-content:center; align-items:flex-start; padding:12vh 16px 16px; background:rgba(10,14,18,.45);}
+#pfPaleta[hidden]{display:none;}
+.pf-pal-caixa{width:min(620px,100%); max-height:72vh; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line-strong); border-radius:14px; box-shadow:0 28px 70px -24px rgba(10,14,18,.55); overflow:hidden; animation:pfPal .16s ease-out;}
+@keyframes pfPal{from{opacity:0; transform:translateY(-6px) scale(.985);} to{opacity:1; transform:none;}}
+.pf-pal-busca{display:flex; align-items:center; gap:10px; padding:0 14px 0 16px; border-bottom:1px solid var(--line);}
+.pf-pal-busca svg{width:18px; height:18px; color:var(--muted); flex-shrink:0;}
+.pf-pal-busca input{flex:1; min-width:0; height:54px; border:0; outline:0; background:none; color:var(--ink); font:inherit; font-size:16px;}
+#pfPalLista{overflow-y:auto; padding:6px;}
+.pf-pal-grupo{padding:10px 10px 4px; font-size:11.5px; font-weight:600; color:var(--muted);}
+.pf-pal-item{display:flex; align-items:center; gap:12px; width:100%; padding:9px 10px; border:0; border-radius:9px; background:none; color:var(--ink); font:inherit; text-align:left; cursor:pointer;}
+.pf-pal-item svg{width:17px; height:17px; flex-shrink:0; color:var(--muted);}
+.pf-pal-item.sel{background:var(--accent-soft);}
+.pf-pal-item.sel svg{color:var(--accent-deep);}
+.pf-pal-txt{display:grid; min-width:0;}
+.pf-pal-txt b{font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-pal-txt span{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-pal-vazio{padding:28px 16px; text-align:center; color:var(--muted); font-size:13.5px;}
+.pf-pal-rodape{display:flex; flex-wrap:wrap; gap:6px 16px; padding:9px 14px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted);}
+.pf-pal-rodape kbd{margin-right:2px;}
+@media (max-width:560px){ #pfPaleta{padding-top:8vh;} .pf-pal-rodape{display:none;} }
+@media (prefers-reduced-motion:reduce){ .pf-ind,.pf-grupo-corpo,.pf-chev{transition:none;} .pf-pal-caixa{animation:none;} }
 </style>
 </head>
 <body>
@@ -861,29 +933,20 @@ body.travado{overflow:hidden;}
       </div>
     </div>
 
-    <div>
-      <div class="side-label">Perfil</div>
-      <div class="peritos" id="perfil"></div>
-    </div>
+    <button class="pf-busca" type="button" onclick="pfAbrirPaleta()" title="Buscar ou ir para">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <span>Buscar ou ir para…</span><kbd id="pfAtalho">Ctrl K</kbd>
+    </button>
 
-    <div>
-      <div class="side-label">Navegação</div>
-      <nav class="nav" id="nav"></nav>
-    </div>
+    <nav class="nav" id="nav" aria-label="Navegação principal"></nav>
 
     <div class="side-foot">
-      <div class="account">
-        <span class="account-dot" id="accountDot"></span>
-        <div class="account-text">
-          <div class="account-state" id="accountState">Armazenamento local</div>
-          <div class="account-mail" id="accountMail">Não conectado</div>
-        </div>
+      <div class="pf-rodape">
+        <div id="perfil" class="pf-perfil"></div>
+        <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro e escuro"></button>
+        <button id="authBtn" onclick="signInGoogle()"></button>
       </div>
-      <div id="seloRodape"></div>
-      <div class="side-actions">
-        <button class="btn btn-ghost btn-sm" id="authBtn" style="flex:1; justify-content:center;" onclick="signInGoogle()">Entrar com Google</button>
-        <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro e escuro"></button>
-      </div>
+      <div class="pf-oculto" aria-hidden="true"><span id="accountDot"></span><span id="accountState"></span><span id="accountMail"></span><div id="seloRodape"></div></div>
     </div>
   </aside>
 
@@ -910,6 +973,17 @@ body.travado{overflow:hidden;}
 
 <div class="drawer" id="drawer"></div>
 <div id="pfAviso" role="status" hidden></div>
+<div id="pfPaleta" hidden onclick="if(event.target===this) pfFecharPaleta()">
+  <div class="pf-pal-caixa" role="dialog" aria-modal="true" aria-label="Buscar ou ir para">
+    <div class="pf-pal-busca">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <input id="pfPalInput" placeholder="Buscar perícia, tela ou ação" oninput="pfFiltrarPaleta(this.value)" autocomplete="off" spellcheck="false" role="combobox" aria-controls="pfPalLista" aria-expanded="true">
+      <kbd>Esc</kbd>
+    </div>
+    <div id="pfPalLista" role="listbox" aria-label="Resultados"></div>
+    <div class="pf-pal-rodape"><span><kbd>↑</kbd><kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>/</kbd> ou <kbd>Ctrl K</kbd> abre de qualquer tela</span></div>
+  </div>
+</div>
 
 <div class="login" id="login"></div>
 <div class="login confirma" id="confirma"></div>
@@ -1629,7 +1703,7 @@ function renderThemeButton(){
 })();
 
 
-function renderNav(){
+function renderNavOriginal(){
   const base = casosVisiveis();
   const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
   const badges = {
@@ -1658,7 +1732,7 @@ function renderTopbar(){
   }
 }
 
-function renderAccount(){
+function renderAccountOriginal(){
   const dot = document.getElementById('accountDot');
   const state = document.getElementById('accountState');
   const mail = document.getElementById('accountMail');
@@ -3624,7 +3698,7 @@ function avatarMembro(m, tamanho, foto){
   return `<span class="perito-avatar" style="background:${m.cor}; width:${lado}px; height:${lado}px; font-size:${Math.round(lado*0.4)}px; overflow:hidden;">${dentro}</span>`;
 }
 
-function renderPerfil(){
+function renderPerfilOriginal(){
   const el = document.getElementById('perfil');
   if(!el) return;
   const email = meuEmail();
@@ -6516,6 +6590,201 @@ function renderHoje(){
 // confere os alertas ao abrir e a cada hora
 setTimeout(() => pfVerificarAlertas(false), 4000);
 setInterval(() => pfVerificarAlertas(false), 60 * 60 * 1000);
+
+/* ==========================================================================
+   Barra lateral limpa + paleta de comandos (Ctrl/⌘ K)
+   - Dia a dia sempre à vista; o resto em grupos que abrem e fecham (o app lembra).
+   - Selos só quando pedem ação: prazos atrasados e tarefas vencendo.
+   - Rodapé compacto: quem está usando, se sincroniza, tema e sair.
+   - Paleta: telas, perícias (código, nome ou número) e ações, sem tirar a mão do teclado.
+   ========================================================================== */
+const PF_NAV = [
+  {id:null,        itens:['visao','pericias','prazos','tarefas','agenda']},
+  {id:'processos', titulo:'Processos',        itens:['importar','publicacoes','docs']},
+  {id:'producao',  titulo:'Produção técnica', itens:['calculos','proposta','ia']},
+  {id:'escritorio',titulo:'Escritório',       itens:['financeiro','equipe']},
+  {id:'sistema',   titulo:'Sistema',          itens:['integracoes','projudi','privacidade','config'], fechado:true},
+];
+function pfGruposAbertos(){
+  let salvo = {};
+  try{ salvo = JSON.parse(localStorage.getItem('pf_nav_grupos') || '{}'); }catch(e){}
+  const abertos = {};
+  PF_NAV.forEach(g => { if(g.id) abertos[g.id] = g.id in salvo ? salvo[g.id] : !g.fechado; });
+  return abertos;
+}
+function pfAlternarGrupo(id){
+  const abertos = pfGruposAbertos();
+  abertos[id] = !abertos[id];
+  try{ localStorage.setItem('pf_nav_grupos', JSON.stringify(abertos)); }catch(e){}
+  renderNav();
+}
+
+let pfIndTopo = null; // posição anterior do destaque, para ele deslizar
+function renderNav(){
+  const base = casosVisiveis();
+  const atrasadas = base.filter(c => prazoState(c) === 'atrasada').length;
+  const tarefasUrgentes = pfTarefasAbertas().filter(t => t.ate && diasAte(t.ate) <= 0).length;
+  const selos = {
+    prazos: atrasadas ? `<span class="nav-badge alert" title="${atrasadas} prazo(s) vencido(s)">${atrasadas}</span>` : '',
+    tarefas: tarefasUrgentes ? `<span class="nav-badge warn" title="${tarefasUrgentes} tarefa(s) para hoje ou atrasada(s)">${tarefasUrgentes}</span>` : '',
+  };
+  const abertos = pfGruposAbertos();
+  const item = (id) => {
+    const s = SECTIONS.find(x => x.id === id);
+    if(!s) return '';
+    return `<button class="nav-item ${activeSection === id ? 'active' : ''}" data-sec="${id}" onclick="setSection('${id}')" title="${escapeHtml(s.titulo)}" ${activeSection === id ? 'aria-current="page"' : ''}>
+      ${svg(ICONS[id] || ICONS.docs)}<span>${escapeHtml(s.titulo)}</span>${selos[id] || ''}</button>`;
+  };
+  const html = PF_NAV.map(g => {
+    if(!g.id) return `<div class="pf-grupo-itens">${g.itens.map(item).join('')}</div>`;
+    const temAtivo = g.itens.includes(activeSection);
+    const aberto = abertos[g.id] || temAtivo;
+    const alerta = !aberto && g.itens.some(i => selos[i]);
+    return `<div class="pf-grupo ${aberto ? 'aberto' : ''}">
+      <button class="pf-grupo-tit" onclick="pfAlternarGrupo('${g.id}')" aria-expanded="${aberto}" aria-controls="pfg-${g.id}">
+        <span>${g.titulo}</span>${alerta ? '<i class="pf-ponto" aria-label="tem pendências"></i>' : ''}
+        ${svg('<path d="M9 6l6 6-6 6"/>', 'class="pf-chev"')}
+      </button>
+      <div class="pf-grupo-corpo" id="pfg-${g.id}"><div class="pf-grupo-itens">${g.itens.map(item).join('')}</div></div>
+    </div>`;
+  }).join('');
+  const nav = document.getElementById('nav');
+  nav.innerHTML = `<span class="pf-ind" aria-hidden="true"></span>${html}`;
+  requestAnimationFrame(() => pfPosicionarInd(true));
+  pfObservarNav(nav);
+}
+
+// Destaque deslizante: anima ao trocar de tela; ao mudar o tamanho da barra, só acompanha.
+function pfPosicionarInd(animar){
+  const nav = document.getElementById('nav');
+  const ind = nav && nav.querySelector('.pf-ind');
+  const ativo = nav && nav.querySelector('.nav-item.active');
+  if(!ind) return;
+  if(!ativo || !ativo.offsetParent || getComputedStyle(ativo).visibility === 'hidden'){ ind.style.opacity = 0; return; }
+  const topo = ativo.offsetTop, alt = ativo.offsetHeight;
+  const deslizar = animar && pfIndTopo !== null && pfIndTopo !== topo;
+  ind.style.transition = 'none';
+  if(deslizar){ ind.style.transform = `translateY(${pfIndTopo}px)`; void ind.offsetHeight; ind.style.transition = ''; }
+  ind.style.transform = `translateY(${topo}px)`; ind.style.height = alt + 'px'; ind.style.opacity = 1;
+  if(!deslizar) requestAnimationFrame(() => { ind.style.transition = ''; });
+  pfIndTopo = topo;
+}
+let pfNavObs = null;
+function pfObservarNav(nav){
+  if(pfNavObs || typeof ResizeObserver === 'undefined') return;
+  pfNavObs = new ResizeObserver(() => pfPosicionarInd(false));
+  pfNavObs.observe(nav);
+  // a abertura/fechamento dos grupos é animada: acompanha até o fim
+  nav.addEventListener('transitionend', (e) => { if(e.target.classList && e.target.classList.contains('pf-grupo-corpo')) pfPosicionarInd(false); });
+}
+
+/* ---------- rodapé: quem está usando ---------- */
+function renderPerfil(){
+  const el = document.getElementById('perfil');
+  if(!el) return;
+  const email = meuEmail();
+  const m = membroDe(email);
+  const foto = currentUser && currentUser.photoURL;
+  const nome = email ? m.nome : 'Sem conta conectada';
+  el.innerHTML = `<button class="pf-quem ${activeSection === 'equipe' ? 'active' : ''}" onclick="setSection('equipe')" title="${escapeHtml(email || 'Sem conta conectada')}">
+      ${avatarMembro(m, 30, foto)}
+      <span class="pf-quem-txt"><b>${escapeHtml(nome)}</b><span><i class="account-dot ${currentUser ? 'on' : ''}"></i>${currentUser ? 'Sincronizado' : 'Dados só neste navegador'}</span></span>
+    </button>`;
+}
+function renderAccount(){
+  const btn = document.getElementById('authBtn');
+  if(!btn) return;
+  if(currentUser){
+    btn.className = 'icon-btn pf-sair';
+    btn.innerHTML = svg('<path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 17l5-5-5-5M15 12H4"/>');
+    btn.title = 'Sair da conta'; btn.setAttribute('aria-label', 'Sair da conta');
+    btn.onclick = signOutGoogle;
+  } else {
+    btn.className = 'btn btn-primary btn-sm pf-entrar';
+    btn.textContent = 'Entrar com Google';
+    btn.title = ''; btn.removeAttribute('aria-label');
+    btn.onclick = signInGoogle;
+  }
+  renderPerfil();
+}
+
+/* ---------- paleta de comandos ---------- */
+const pfPal = {aberta:false, itens:[], sel:0};
+function pfAbrirPaleta(){
+  if(pfPal.aberta) return;
+  pfPal.aberta = true; pfPal.sel = 0;
+  const el = document.getElementById('pfPaleta');
+  el.hidden = false;
+  document.body.classList.add('pf-paleta-on');
+  const inp = document.getElementById('pfPalInput');
+  inp.value = '';
+  inp.focus(); // já visível: foco imediato para não perder as primeiras letras
+  pfFiltrarPaleta('');
+}
+function pfFecharPaleta(){
+  if(!pfPal.aberta) return;
+  pfPal.aberta = false;
+  document.getElementById('pfPaleta').hidden = true;
+  document.body.classList.remove('pf-paleta-on');
+}
+function pfOpcoesPaleta(){
+  const telas = SECTIONS.map(s => ({grupo:'Ir para', titulo:s.titulo, sub:s.sub, icone:ICONS[s.id] || ICONS.docs, busca:s.titulo + ' ' + s.sub, fazer:() => setSection(s.id)}));
+  const pericias = casosVisiveis('todas').map(c => ({grupo:'Perícias', titulo:c.nome, sub:[c.codigo, c.numeroProcesso, c.vara].filter(Boolean).join(' · '),
+    icone:ICONS.pericias, busca:[c.codigo, c.nome, c.numeroProcesso, (c.numeroProcesso || '').replace(/\D/g, ''), c.partes, c.vara].join(' '), fazer:() => openDrawer(c.id)}));
+  const acoes = [
+    possoCriar() && {grupo:'Ações', titulo:'Nova perícia', sub:'cria e abre para preencher', icone:'<path d="M12 5v14M5 12h14"/>', busca:'nova pericia criar adicionar', fazer:() => { setSection('pericias'); novaPericia(); }},
+    {grupo:'Ações', titulo:'Baixar autos do PROJUDI', sub:'pelo código de acesso ou com o seu login', icone:ICONS.importar, busca:'baixar autos projudi importar processo pdf', fazer:() => { pfOrigemImport = 'projudi'; setSection('importar'); setTimeout(() => { const i = document.getElementById('pfImpNumero'); if(i) i.focus(); }, 50); }},
+    {grupo:'Ações', titulo:'Nova tarefa', sub:'no quadro de tarefas', icone:ICONS.tarefas, busca:'nova tarefa adicionar fazer', fazer:() => { setSection('tarefas'); setTimeout(() => { const i = document.getElementById('pfTarefaTitulo'); if(i) i.focus(); }, 50); }},
+    {grupo:'Ações', titulo:'Novo compromisso', sub:'diligência, audiência ou reunião', icone:ICONS.agenda, busca:'novo compromisso agenda diligencia audiencia vistoria reuniao', fazer:() => { setSection('agenda'); setTimeout(() => { const i = document.getElementById('pfCompTitulo'); if(i) i.focus(); }, 50); }},
+    {grupo:'Ações', titulo:'Alternar tema claro/escuro', sub:'', icone:'<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>', busca:'tema escuro claro modo noturno', fazer:() => toggleTheme()},
+  ].filter(Boolean);
+  return {telas, pericias, acoes};
+}
+function pfFiltrarPaleta(q){
+  const {telas, pericias, acoes} = pfOpcoesPaleta();
+  const termos = normalizeText(q).split(/\s+/).filter(Boolean);
+  const casa = (o) => { const t = normalizeText(o.busca + ' ' + o.titulo); return termos.every(p => t.includes(p)); };
+  let lista;
+  if(!termos.length){
+    const recentes = pericias.slice(-4).reverse();
+    lista = [...acoes.slice(0, 4), ...recentes, ...telas.slice(0, 6)];
+  } else {
+    lista = [...telas.filter(casa).slice(0, 5), ...pericias.filter(casa).slice(0, 8), ...acoes.filter(casa).slice(0, 4)];
+  }
+  pfPal.itens = lista; pfPal.sel = 0;
+  const box = document.getElementById('pfPalLista');
+  if(!lista.length){ box.innerHTML = `<div class="pf-pal-vazio">Nada encontrado para “${escapeHtml(q)}”. Tente o número do processo ou o nome das partes.</div>`; return; }
+  let grupo = '';
+  box.innerHTML = lista.map((o, i) => {
+    const cab = o.grupo !== grupo ? `<div class="pf-pal-grupo">${termos.length || o.grupo !== 'Perícias' ? o.grupo : 'Perícias recentes'}</div>` : '';
+    grupo = o.grupo;
+    return `${cab}<button class="pf-pal-item ${i === 0 ? 'sel' : ''}" role="option" aria-selected="${i === 0}" data-i="${i}" onmousemove="pfMarcarPaleta(${i})" onclick="pfExecutarPaleta(${i})">
+      ${svg(o.icone)}<span class="pf-pal-txt"><b>${escapeHtml(o.titulo)}</b>${o.sub ? `<span>${escapeHtml(o.sub)}</span>` : ''}</span></button>`;
+  }).join('');
+}
+function pfMarcarPaleta(i){
+  if(i === pfPal.sel) return;
+  pfPal.sel = i;
+  document.querySelectorAll('.pf-pal-item').forEach(b => { const on = +b.dataset.i === i; b.classList.toggle('sel', on); b.setAttribute('aria-selected', on); });
+  const atual = document.querySelector('.pf-pal-item.sel');
+  if(atual) atual.scrollIntoView({block:'nearest'});
+}
+function pfExecutarPaleta(i){
+  const o = pfPal.itens[i];
+  pfFecharPaleta();
+  if(o) o.fazer();
+}
+document.addEventListener('keydown', (e) => {
+  const digitando = /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '') || (document.activeElement || {}).isContentEditable;
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); pfPal.aberta ? pfFecharPaleta() : pfAbrirPaleta(); return; }
+  if(!pfPal.aberta){ if(e.key === '/' && !digitando){ e.preventDefault(); pfAbrirPaleta(); } return; }
+  if(e.key === 'Escape'){ e.preventDefault(); pfFecharPaleta(); }
+  else if(e.key === 'ArrowDown'){ e.preventDefault(); pfMarcarPaleta(Math.min(pfPal.itens.length - 1, pfPal.sel + 1)); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); pfMarcarPaleta(Math.max(0, pfPal.sel - 1)); }
+  else if(e.key === 'Enter'){ e.preventDefault(); pfExecutarPaleta(pfPal.sel); }
+});
+// atalho certo para o sistema (⌘ no Mac)
+setTimeout(() => { const k = document.getElementById('pfAtalho'); if(k && /Mac|iPhone|iPad/.test(navigator.platform)) k.textContent = '⌘K'; }, 0);
 
 /* ========================================================================== */
 aplicarRail();

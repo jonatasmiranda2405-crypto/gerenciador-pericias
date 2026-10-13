@@ -1,0 +1,19 @@
+<aside class="sidebar" id="sidebar">
+    {MARCA}
+
+    <button class="pf-busca" type="button" onclick="pfAbrirPaleta()" title="Buscar ou ir para">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <span>Buscar ou ir para…</span><kbd id="pfAtalho">Ctrl K</kbd>
+    </button>
+
+    <nav class="nav" id="nav" aria-label="Navegação principal"></nav>
+
+    <div class="side-foot">
+      <div class="pf-rodape">
+        <div id="perfil" class="pf-perfil"></div>
+        <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro e escuro"></button>
+        <button id="authBtn" onclick="signInGoogle()"></button>
+      </div>
+      <div class="pf-oculto" aria-hidden="true"><span id="accountDot"></span><span id="accountState"></span><span id="accountMail"></span><div id="seloRodape"></div></div>
+    </div>
+  </aside>

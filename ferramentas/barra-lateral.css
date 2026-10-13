@@ -1,0 +1,72 @@
+/* ===== Barra lateral limpa ===== */
+.sidebar{gap:14px; padding:18px 12px 12px;}
+.pf-busca{display:flex; align-items:center; gap:8px; width:100%; height:36px; padding:0 8px 0 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface-2); color:var(--muted); font:inherit; font-size:13px; cursor:pointer; text-align:left; transition:border-color .15s, color .15s;}
+.pf-busca:hover{border-color:var(--line-strong); color:var(--ink);}
+.pf-busca svg{width:15px; height:15px; flex-shrink:0;}
+.pf-busca span{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-busca kbd,.pf-pal-busca kbd,.pf-pal-rodape kbd{font:500 10.5px/1 'IBM Plex Mono',monospace; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:3px 5px;}
+.nav{position:relative; gap:0;}
+.pf-ind{position:absolute; left:0; right:0; top:0; height:34px; border-radius:8px; background:var(--accent-soft); opacity:0; pointer-events:none; z-index:0; transition:transform .24s cubic-bezier(.2,.75,.25,1), height .24s;}
+.nav .nav-item{position:relative; z-index:1; height:34px; padding:0 10px; gap:10px; font-size:13.5px; color:var(--ink-2); border-radius:8px;}
+.nav .nav-item svg{width:16px; height:16px; color:var(--muted);}
+.nav .nav-item.active{background:transparent; color:var(--accent-deep); font-weight:600;}
+.nav .nav-item.active svg{color:var(--accent-deep);}
+.nav .nav-item.active:hover{background:transparent;}
+.nav-badge.warn{background:var(--warn-soft); color:var(--warn);}
+.pf-grupo-itens{display:grid; gap:1px;}
+.pf-grupo{margin-top:12px;}
+.pf-grupo-tit{display:flex; align-items:center; gap:6px; width:100%; height:26px; padding:0 10px; border:0; border-radius:6px; background:none; color:var(--muted); font:inherit; font-size:11.5px; font-weight:600; cursor:pointer;}
+.pf-grupo-tit:hover{color:var(--ink);}
+.pf-chev{width:13px; height:13px; margin-left:auto; transition:transform .2s ease;}
+.pf-grupo.aberto .pf-chev{transform:rotate(90deg);}
+.pf-ponto{width:6px; height:6px; border-radius:50%; background:var(--danger);}
+.pf-grupo-corpo{display:grid; grid-template-rows:0fr; transition:grid-template-rows .22s ease;}
+.pf-grupo.aberto .pf-grupo-corpo{grid-template-rows:1fr;}
+.pf-grupo-corpo > .pf-grupo-itens{min-height:0; overflow:hidden;}
+.pf-grupo:not(.aberto) .nav-item{visibility:hidden;}
+.side-foot{gap:0; padding-top:10px;}
+.pf-rodape{display:flex; align-items:center; gap:2px; flex-wrap:wrap;}
+.pf-perfil{flex:1; min-width:0;}
+.pf-quem{display:flex; align-items:center; gap:9px; width:100%; padding:6px; border:0; border-radius:9px; background:none; color:var(--ink); font:inherit; text-align:left; cursor:pointer;}
+.pf-quem:hover,.pf-quem.active{background:var(--surface-2);}
+.pf-quem-txt{display:grid; min-width:0; line-height:1.3;}
+.pf-quem-txt b{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-quem-txt span{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted); white-space:nowrap;}
+.pf-rodape .icon-btn{flex-shrink:0;}
+.pf-entrar{flex-basis:100%; justify-content:center; margin-top:6px;}
+.pf-oculto{display:none !important;}
+.sidebar :focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+body.rail .pf-busca{justify-content:center; width:40px; height:36px; padding:0; margin:0 auto; flex-shrink:0;}
+body.rail .pf-busca span,body.rail .pf-busca kbd{display:none;}
+/* recolhida: grupos viram divisórias finas e ficam sempre abertos */
+body.rail .pf-grupo{margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+body.rail .pf-grupo-tit{display:none;}
+body.rail .pf-grupo-corpo{grid-template-rows:1fr;}
+body.rail .pf-grupo:not(.aberto) .nav-item{visibility:visible;}
+body.rail .nav .nav-item{justify-content:center; padding:0;}
+body.rail .pf-quem{justify-content:center;}
+body.rail .pf-quem-txt,body.rail .pf-entrar{display:none;}
+body.rail .pf-rodape{flex-direction:column;}
+
+/* ===== Paleta de comandos ===== */
+#pfPaleta{position:fixed; inset:0; z-index:120; display:flex; justify-content:center; align-items:flex-start; padding:12vh 16px 16px; background:rgba(10,14,18,.45);}
+#pfPaleta[hidden]{display:none;}
+.pf-pal-caixa{width:min(620px,100%); max-height:72vh; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line-strong); border-radius:14px; box-shadow:0 28px 70px -24px rgba(10,14,18,.55); overflow:hidden; animation:pfPal .16s ease-out;}
+@keyframes pfPal{from{opacity:0; transform:translateY(-6px) scale(.985);} to{opacity:1; transform:none;}}
+.pf-pal-busca{display:flex; align-items:center; gap:10px; padding:0 14px 0 16px; border-bottom:1px solid var(--line);}
+.pf-pal-busca svg{width:18px; height:18px; color:var(--muted); flex-shrink:0;}
+.pf-pal-busca input{flex:1; min-width:0; height:54px; border:0; outline:0; background:none; color:var(--ink); font:inherit; font-size:16px;}
+#pfPalLista{overflow-y:auto; padding:6px;}
+.pf-pal-grupo{padding:10px 10px 4px; font-size:11.5px; font-weight:600; color:var(--muted);}
+.pf-pal-item{display:flex; align-items:center; gap:12px; width:100%; padding:9px 10px; border:0; border-radius:9px; background:none; color:var(--ink); font:inherit; text-align:left; cursor:pointer;}
+.pf-pal-item svg{width:17px; height:17px; flex-shrink:0; color:var(--muted);}
+.pf-pal-item.sel{background:var(--accent-soft);}
+.pf-pal-item.sel svg{color:var(--accent-deep);}
+.pf-pal-txt{display:grid; min-width:0;}
+.pf-pal-txt b{font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-pal-txt span{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pf-pal-vazio{padding:28px 16px; text-align:center; color:var(--muted); font-size:13.5px;}
+.pf-pal-rodape{display:flex; flex-wrap:wrap; gap:6px 16px; padding:9px 14px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted);}
+.pf-pal-rodape kbd{margin-right:2px;}
+@media (max-width:560px){ #pfPaleta{padding-top:8vh;} .pf-pal-rodape{display:none;} }
+@media (prefers-reduced-motion:reduce){ .pf-ind,.pf-grupo-corpo,.pf-chev{transition:none;} .pf-pal-caixa{animation:none;} }
