@@ -7,7 +7,7 @@ const EXT = path.join(__dirname, "..", "extensao-projudi");
 const SAIDA = path.join(__dirname, ".saida");
 const fs = require("fs");
 const NUM = "5151870-23.2026.8.09.0051";
-const PF = "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/";
+const PF = "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/" + (process.env.PF_CAMINHO || "");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const resultados = [];
 const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nome, extra || ""]); console.log(ok ? "  ✔" : "  ✘", nome, extra || ""); };

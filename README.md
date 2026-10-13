@@ -8,6 +8,8 @@ Gerenciador de perícias judiciais. O site é publicado pelo GitHub Pages a part
 | Pasta / arquivo | O que é |
 |---|---|
 | `index.html` | O PeríciaFlow publicado (app de uma página). |
+| `novo/index.html` | **Prévia** com as telas novas (Importar processo, Publicações, Prazos e alertas, Tarefas, Agenda, Financeiro, Integrações). Mesmo login e mesmos dados do site. Gerada, não editar à mão. |
+| `ferramentas/` | `telas-novas.js` (código das telas novas) e `montar-novo.py`, que gera a prévia a partir do `index.html`. |
 | `extensao-projudi/` | Extensão do Chrome **PROJUDI PDFs** (v1.7): ZIP dos autos, envio ao PeríciaFlow, busca pelo código de acesso ou com o login do perito, assinatura pelo Mercado Pago. Arquitetura em `extensao-projudi/LEIA-ME-ARQUITETURA.md`. |
 | `servidor-php/` | Peças para o PeríciaFlow em PHP/MySQL (`localhost:8080`): API de upload dos autos (criptografada, sem duplicados), tabela e receptor. Instalação em `servidor-php/LEIA-ME.md`. |
 | `testes/` | Testes de ponta a ponta com Chromium, a extensão real e um PROJUDI simulado. |
@@ -23,6 +25,18 @@ O PeríciaFlow nunca pede nem guarda senha ou certificado do PROJUDI. O login é
 pelo perito, no site do tribunal. Por causa do Cloudflare do PROJUDI, a extensão preenche a busca
 e quem clica em **Buscar** é o perito.
 
+## Prévia das telas novas
+
+Endereço: `…/gerenciador-pericias/novo/`. Para refazer depois de mudar o `index.html` ou as telas:
+
+```bash
+python3 ferramentas/montar-novo.py
+```
+
+Tarefas, compromissos e o valor depositado ficam dentro de cada perícia (mesmo documento do
+Firestore), então não há coleção nova nem regra nova no Firebase. Quando a prévia for aprovada,
+ela passa a ser o `index.html`.
+
 ## Testes
 
 ```bash
@@ -31,7 +45,7 @@ e quem clica em **Buscar** é o perito.
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
 sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as duas suítes:
-o site (24 verificações) e o PHP com o Mercado Pago (13 verificações).
+o site (24), o mesmo fluxo na prévia (24), as telas novas (27) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
 

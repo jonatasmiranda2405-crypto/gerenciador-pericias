@@ -131,6 +131,7 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
   if (u.pathname === "/__reiniciar") { extraLiberado = false; res.end("ok"); return; }
   if (host === "projudi.tjgo.jus.br") return projudi(req, res, u);
   if (host === "jonatasmiranda2405-crypto.github.io") {
+    if (u.pathname.startsWith("/gerenciador-pericias/novo/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(path.join(__dirname, "..", "novo", "index.html"))); }
     if (u.pathname.startsWith("/gerenciador-pericias/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(APP)); }
   }
   if (host === "script.google.com") {
