@@ -1973,6 +1973,7 @@ function renderProjudi(){
 
   return `
     <div class="section-gap">
+      ${panel('projudiAcesso', 'Baixar autos pela extensão', 'certificado digital, CPF e senha ou código de acesso', renderAcessoProjudi())}
       ${panel('consulta', 'Consulta processual', 'Tribunal de Justiça de Goiás', corpoConsulta)}
       ${panel('servicos', 'Serviços acessados', 'webservice público do Projudi', corpoServicos)}
     </div>`;
@@ -4262,6 +4263,7 @@ function renderConfig(){
     <div class="section-gap">
       ${panel('meuCadastro', 'Meu cadastro', 'usado na proposta de honorários', corpoMeuCadastro)}
       ${panel('aparencia', 'Aparência', (PALETAS.find(p => p.id === prefPaleta)||{}).nome + ' · ' + (TEMAS.find(t => t.id === prefTema)||{}).nome, renderAparencia())}
+      ${panel('projudiAcesso', 'Acesso ao PROJUDI', 'extensão PROJUDI PDFs', renderAcessoProjudi())}
       ${panel('conta', 'Conta e sincronização', '', corpoConta)}
       ${panel('contas', 'Acesso ao sistema', 'cadastro aberto, com confirmação', corpoContas)}
       ${panel('armazenamento', 'Documentos armazenados', '', corpoArmazenamento)}
@@ -5534,6 +5536,12 @@ function renderDocumentosSection(c){
         <div id="zipStatus-${c.id}" class="hint" style="color:var(--accent-deep);"></div>
       </div>
 
+      <div class="import-box" style="margin-top:10px;">
+        <button class="btn btn-primary btn-sm" onclick="pjBaixarAutos('${c.id}')">Baixar autos do PROJUDI</button>
+        <div class="hint">Traz os PDFs do processo direto do PROJUDI, um a um e sem repetir os que já estão aqui. ${c.codigoAcesso && pjMetodo() !== 'sessao' ? 'Usa o código de acesso desta perícia, sem login.' : 'Usa o seu login no PROJUDI (certificado digital ou CPF e senha).'}</div>
+        <div id="pjStatus-${c.id}" class="hint" style="color:var(--ink-2);">${pjStatusHtml(c.id)}</div>
+      </div>
+
       <div style="margin-top:14px;">
         <div class="add-row" style="flex-wrap:wrap;">
           <input id="docNome-${c.id}" placeholder="Nome do documento" style="flex:1 1 100%;">
@@ -5644,6 +5652,316 @@ function confirmDelete(casoId){
       </div>
     </div>`;
 }
+
+/* ==========================================================================
+   Autos do PROJUDI — integração com a extensão "PROJUDI PDFs" (v1.7+)
+
+   Quem faz o quê:
+   - Página da perícia (aqui): botão "Baixar autos do PROJUDI". Manda à extensão o número,
+     o código de acesso (se houver) e a lista do que já foi importado (projudiId).
+   - Extensão: abre o PROJUDI numa aba, consulta pelo código (sem login) ou com o login do
+     perito (certificado digital ou CPF e senha, feito pelo próprio perito na aba do tribunal),
+     lê a lista de arquivos e entrega UM arquivo por vez a esta página.
+   - Esta página grava cada arquivo no Storage/Firestore da conta, com ID fixo "pj_<id no
+     PROJUDI>": repetir o pedido nunca duplica, e a extensão nem baixa o que já existe.
+   O PeríciaFlow nunca pede nem guarda senha ou certificado do PROJUDI.
+   Conversa com a extensão: window.postMessage { __pf:"app" } ⇄ { __pf:"ext" } (periciaflow.js).
+   ========================================================================== */
+const PJ = {
+  versao: null,          // versão da extensão instalada (null = não detectada)
+  status: {},            // casoId -> { etapa, texto, feitos, total, falhas, pedidoId }
+  pedidos: {},           // pedidoId -> casoId
+  ofertas: new Map(),    // pedidoId -> pedido vindo de "Enviar ao PeríciaFlow" no PROJUDI
+  respostas: new Map(), ref: 0,
+  fila: Promise.resolve(),
+};
+const PJ_VERSAO_MINIMA = '1.7.0';
+const PJ_METODOS = [
+  {id:'auto',   nome:'Automático',          desc:'Usa o código de acesso quando a perícia tiver um; se não tiver, usa o seu login no PROJUDI.'},
+  {id:'sessao', nome:'Sempre o meu login',  desc:'Busca com a sua sessão no PROJUDI (certificado digital ou CPF e senha).'},
+  {id:'codigo', nome:'Só código de acesso', desc:'Consulta pública "Processo por Código", sem login. A perícia precisa ter o código cadastrado.'},
+];
+
+function pjMetodo(){ try{ return localStorage.getItem('pf_projudi_metodo') || 'auto'; }catch(e){ return 'auto'; } }
+function pjDefinirMetodo(id){ try{ localStorage.setItem('pf_projudi_metodo', id); }catch(e){} renderAll(); }
+function pjVersaoOk(){
+  if(!PJ.versao) return false;
+  const a = PJ.versao.split('.').map(Number), b = PJ_VERSAO_MINIMA.split('.').map(Number);
+  for(let i=0;i<3;i++){ if((a[i]||0) !== (b[i]||0)) return (a[i]||0) > (b[i]||0); }
+  return true;
+}
+function pjPost(dados){ window.postMessage({__pf:'app', ...dados}, location.origin); }
+function pjPedir(dados, ms){
+  return new Promise(res => {
+    const ref = ++PJ.ref;
+    PJ.respostas.set(ref, res);
+    pjPost({...dados, ref});
+    setTimeout(() => { if(PJ.respostas.has(ref)){ PJ.respostas.delete(ref); res({ok:false, erro:'A extensão não respondeu. Recarregue a página e tente de novo.'}); } }, ms || 20000);
+  });
+}
+function pjComPrazo(promessa, ms, padrao){
+  return Promise.race([promessa, new Promise(r => setTimeout(() => r(padrao), ms))]);
+}
+
+/* ---------- estado e mensagens na tela ---------- */
+function pjStatusHtml(casoId){
+  const s = PJ.status[casoId];
+  if(!s) return '';
+  const pill = {erro:'pill-danger', cancelado:'pill-muted', login:'pill-warning', assistido:'pill-warning', captcha:'pill-warning', fim:'pill-success'}[s.etapa] || 'pill-accent';
+  const rotulo = {erro:'erro', cancelado:'cancelado', login:'entre no PROJUDI', assistido:'precisa de você', captcha:'verificação', fim:'concluído', transferindo:'recebendo'}[s.etapa] || 'em andamento';
+  const barra = s.etapa === 'transferindo' && s.total
+    ? `<div class="bar-track" style="margin-top:6px; height:6px;"><div class="bar-seg" style="width:${Math.round(100*s.feitos/s.total)}%; background:var(--accent); height:100%;"></div></div>` : '';
+  const ativo = s.pedidoId && !['fim','erro','cancelado'].includes(s.etapa);
+  return `<div style="display:flex; gap:8px; align-items:flex-start; margin-top:8px;">
+      <span class="pill ${pill}">${rotulo}</span>
+      <span style="flex:1; min-width:0;">${escapeHtml(s.texto || '')}${barra}</span>
+      ${ativo ? `<button class="btn btn-ghost btn-sm" onclick="pjCancelar('${casoId}')">Cancelar</button>` : ''}
+    </div>`;
+}
+function pjStatus(casoId, patch){
+  if(!casoId) return;
+  PJ.status[casoId] = {...(PJ.status[casoId] || {}), ...patch};
+  const el = document.getElementById(`pjStatus-${casoId}`);
+  if(el) el.innerHTML = pjStatusHtml(casoId);
+}
+function pjCasoDoPedido(pedidoId, casoId){ return casoId || PJ.pedidos[pedidoId] || null; }
+
+/* ---------- pedir os autos (página da perícia) ---------- */
+async function pjIdsJaImportados(casoId){
+  const c = casos.find(x => x.id === casoId);
+  const ids = new Set(((c && c.documentos) || []).map(d => d.projudiId).filter(Boolean).map(String));
+  if(usingDb){
+    try{
+      const snap = await db.collection('casos').doc(casoId).collection('documentos').get();
+      snap.forEach(d => { const v = d.data().projudiId; if(v) ids.add(String(v)); });
+    }catch(e){ /* sem a lista do servidor, valem as do navegador; o ID fixo evita duplicar */ }
+  }
+  return [...ids];
+}
+
+async function pjBaixarAutos(casoId){
+  const c = casos.find(x => x.id === casoId);
+  if(!c) return;
+  if(!podeEditar(c)){ pjStatus(casoId, {etapa:'erro', texto:'Só quem pode editar esta perícia consegue baixar os autos.'}); return; }
+  if(!PJ.versao){ pjStatus(casoId, {etapa:'erro', texto:'Extensão PROJUDI PDFs não encontrada neste navegador. Instale a versão 1.7 ou mais nova e recarregue a página.'}); return; }
+  if(!pjVersaoOk()){ pjStatus(casoId, {etapa:'erro', texto:`A extensão instalada é a ${PJ.versao}. Atualize para a ${PJ_VERSAO_MINIMA} ou mais nova.`}); return; }
+  const numero = (c.numeroProcesso || '').trim();
+  if(numero.replace(/\D/g,'').length !== 20){ pjStatus(casoId, {etapa:'erro', texto:'Preencha o número do processo no formato CNJ (20 dígitos), em "Número do processo".'}); return; }
+  const codigo = (c.codigoAcesso || '').trim();
+  const metodo = pjMetodo();
+  if(metodo === 'codigo' && !codigo){ pjStatus(casoId, {etapa:'erro', texto:'Você escolheu "Só código de acesso", mas esta perícia não tem código cadastrado.'}); return; }
+
+  pjStatus(casoId, {etapa:'pedindo', texto:'Conferindo o que já foi importado…', feitos:0, total:0, falhas:0, pedidoId:null});
+  const jaTenho = await pjIdsJaImportados(casoId);
+  const r = await pjPedir({tipo:'baixar', casoId, numero, codigo, jaTenho, preferencia: metodo});
+  if(!r.ok){ pjStatus(casoId, {etapa:'erro', texto: r.erro || 'A extensão recusou o pedido.'}); return; }
+  PJ.pedidos[r.pedido.id] = casoId;
+  pjStatus(casoId, {etapa:'buscando', pedidoId:r.pedido.id, texto: r.pedido.metodo === 'codigo'
+    ? 'Consultando o PROJUDI pelo código de acesso, numa aba em segundo plano…'
+    : 'Abrindo o PROJUDI com o seu login, numa aba em segundo plano…'});
+}
+
+function pjCancelar(casoId){
+  const s = PJ.status[casoId];
+  if(s && s.pedidoId){ pjPost({tipo:'cancelar', pedidoId:s.pedidoId}); delete PJ.pedidos[s.pedidoId]; }
+  pjStatus(casoId, {etapa:'cancelado', texto:'Pedido cancelado. O que já chegou continua salvo.', pedidoId:null});
+}
+
+/* ---------- gravar cada arquivo recebido (um por vez) ---------- */
+async function pjGravarArquivo(d){
+  const casoId = pjCasoDoPedido(d.pedidoId, d.casoId);
+  const c = casos.find(x => x.id === casoId);
+  let ok = false;
+  try{
+    if(!c) throw new Error('perícia não encontrada');
+    const m = d.meta;
+    const bytes = new Uint8Array(await d.blob.arrayBuffer());
+    const nome = m.nome || ('documento_' + m.idArquivo);
+    const ext = extOf(nome) || (m.mime === 'application/pdf' ? 'pdf' : 'html');
+    const docId = 'pj_' + String(m.idArquivo).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 120);
+    const guess = guessFromFilename(nome);
+    const fase = cleanFolderName(m.fase) || guess.fase || 'Sem fase identificada';
+    let codigoAcesso = null;
+    if(ext === 'pdf'){
+      const info = await pjComPrazo(extractPdfInfo(bytes), 15000, {});
+      codigoAcesso = info.codigoAcesso || null;
+    }
+    const built = await buildArquivo(casoId, docId, bytes, nome, mimeFor(ext));
+    if(!usingDb) c.documentos = (c.documentos || []).filter(x => x.id !== docId); // sem duplicar no modo local
+    await addDoc(casoId, {
+      nome, fase, tipo: guess.tipo, data: m.data || todayIso(), obs: built.obs || '',
+      tamanho: bytes.length, arquivo: built.arquivo, processo: c.numeroProcesso || null, codigoAcesso,
+      projudiId: String(m.idArquivo), origem: 'projudi', movimentacao: m.mov || ''
+    }, docId);
+    if(codigoAcesso && !c.codigoAcesso) await saveCaso(casoId, {codigoAcesso});
+    ok = true;
+  }catch(e){
+    ok = false;
+  }
+  const s = PJ.status[casoId] || {};
+  pjStatus(casoId, {
+    feitos: (s.feitos || 0) + 1,
+    falhas: (s.falhas || 0) + (ok ? 0 : 1),
+    texto: `Recebendo ${Math.min((s.feitos || 0) + 1, s.total || 0)} de ${s.total || '?'}: ${d.meta.nome}`
+  });
+  pjPost({tipo:'salvo', pedidoId:d.pedidoId, ok});
+}
+
+/* ---------- envios feitos no PROJUDI ("Enviar ao PeríciaFlow") ---------- */
+function pjCriarPericiaDoProjudi(pedido){
+  const dono = meuEmail();
+  const capa = pedido.capa || {};
+  return criarCaso({
+    dono, emails:[dono], editores:[dono], compartilhamentos:[],
+    codigo: nextCodigo(), nome: capa.classe || `Processo ${pedido.numero}`,
+    numeroProcesso: pedido.numero, codigoAcesso:'', vara: capa.serventia || '', comarca: capa.comarca || '',
+    partes: [capa.poloAtivo, capa.poloPassivo].filter(Boolean).join(' x '),
+    dataNomeacao: todayIso(), prazoEntrega: todayIso(), honorarios:0, valorRecebido:0,
+    statusCaso:'em_andamento', observacoes:[], origem:'projudi'
+  });
+}
+
+function pjMostrarOfertas(){
+  let caixa = document.getElementById('pjOferta');
+  if(!PJ.ofertas.size){ if(caixa) caixa.remove(); return; }
+  if(!caixa){
+    caixa = document.createElement('div');
+    caixa.id = 'pjOferta';
+    caixa.setAttribute('role', 'dialog');
+    caixa.setAttribute('aria-label', 'Autos recebidos do PROJUDI');
+    caixa.style.cssText = 'position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:80; width:min(380px, calc(100vw - 32px)); background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; display:grid; gap:10px;';
+    document.body.appendChild(caixa);
+  }
+  const editaveis = casos.filter(c => podeEditar(c));
+  caixa.innerHTML = [...PJ.ofertas.values()].map(p => {
+    const dig = String(p.numero).replace(/\D/g,'');
+    const igual = editaveis.find(c => (c.numeroProcesso||'').replace(/\D/g,'') === dig);
+    const opcoes = [`<option value="novo" ${igual?'':'selected'}>Nova perícia com os dados do processo</option>`]
+      .concat(editaveis.map(c => `<option value="${c.id}" ${igual && igual.id===c.id ? 'selected' : ''}>${escapeHtml(c.codigo)} · ${escapeHtml(c.nome)}</option>`)).join('');
+    return `<div style="display:grid; gap:8px;">
+        <div><b>Chegou do PROJUDI</b><div class="hint">Processo <span class="mono">${escapeHtml(p.numero)}</span> · ${p.total} arquivo(s)</div></div>
+        <label class="hint" for="pjDestino-${p.id}">Guardar em</label>
+        <select id="pjDestino-${p.id}">${opcoes}</select>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="pjAceitarOferta('${p.id}')">Importar</button>
+          <button class="btn btn-ghost btn-sm" onclick="pjDescartarOferta('${p.id}')">Descartar</button>
+        </div>
+      </div>`;
+  }).join('<hr style="border:0; border-top:1px solid var(--line); margin:4px 0;">');
+}
+
+async function pjAceitarOferta(pedidoId){
+  const p = PJ.ofertas.get(pedidoId);
+  if(!p) return;
+  const sel = document.getElementById(`pjDestino-${pedidoId}`);
+  let casoId = sel ? sel.value : 'novo';
+  if(casoId === 'novo'){
+    if(!possoCriar()){ cloudSetBanner(bannerAviso('Confirme o seu e-mail para criar perícias.')); return; }
+    casoId = await pjCriarPericiaDoProjudi(p);
+  }
+  PJ.ofertas.delete(pedidoId); pjMostrarOfertas();
+  PJ.pedidos[pedidoId] = casoId;
+  openDrawer(casoId);
+  pjStatus(casoId, {etapa:'pedindo', texto:'Conferindo o que já foi importado…', feitos:0, total:0, falhas:0, pedidoId});
+  const jaTenho = await pjIdsJaImportados(casoId);
+  const r = await pjPedir({tipo:'aceitar', pedidoId, casoId, jaTenho});
+  if(!r.ok) pjStatus(casoId, {etapa:'erro', texto: r.erro || 'Não foi possível aceitar o envio.', pedidoId:null});
+}
+function pjDescartarOferta(pedidoId){
+  PJ.ofertas.delete(pedidoId);
+  pjPost({tipo:'cancelar', pedidoId});
+  pjMostrarOfertas();
+}
+
+/* ---------- bloco "Acesso ao PROJUDI" (Configurações e seção Projudi) ---------- */
+async function pjEntrar(){
+  const r = await pjPedir({tipo:'entrar'});
+  if(!r.ok) cloudSetBanner(bannerAviso(r.erro || 'Não foi possível abrir o PROJUDI.'));
+}
+function renderAcessoProjudi(){
+  const atual = pjMetodo();
+  const ext = !PJ.versao
+    ? `<span class="pill pill-warning">não encontrada</span> <span class="hint">Instale a extensão PROJUDI PDFs neste navegador e recarregue a página.</span>`
+    : pjVersaoOk() ? `<span class="pill pill-success">instalada · v${escapeHtml(PJ.versao)}</span>`
+    : `<span class="pill pill-warning">v${escapeHtml(PJ.versao)} · atualize para ${PJ_VERSAO_MINIMA}</span>`;
+  return `
+    <div class="kv-grid">
+      <div class="kv"><div class="k">Extensão</div><div class="v">${ext}</div></div>
+      <div class="kv"><div class="k">Login no PROJUDI</div><div class="v">feito por você, no site do tribunal</div></div>
+    </div>
+    <div style="margin:16px 0 8px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);">Como buscar os autos</div>
+    <div class="chips">
+      ${PJ_METODOS.map(m => `<button class="chip ${atual===m.id?'active':''}" onclick="pjDefinirMetodo('${m.id}')" aria-pressed="${atual===m.id}">${m.nome}</button>`).join('')}
+    </div>
+    <div class="hint" style="margin-top:8px;">${escapeHtml((PJ_METODOS.find(m => m.id === atual) || PJ_METODOS[0]).desc)}</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;">
+      <button class="btn btn-ghost btn-sm" onclick="pjEntrar()" ${PJ.versao ? '' : 'disabled'}>Entrar no PROJUDI</button>
+    </div>
+    <div class="hint" style="margin-top:12px;">
+      O PeríciaFlow não pede nem guarda a sua senha ou o seu certificado. Quando o pedido precisar do seu login,
+      a aba do PROJUDI vem para a frente e você entra como sempre: certificado digital (token) ou CPF, senha e o código
+      que chega por e-mail. A extensão só usa a sessão que você abriu, e a busca continua sozinha depois disso.
+    </div>`;
+}
+
+/* ---------- mensagens da extensão ---------- */
+window.addEventListener('message', (ev) => {
+  if(ev.source !== window || ev.origin !== location.origin || !ev.data || ev.data.__pf !== 'ext') return;
+  const d = ev.data;
+  switch(d.tipo){
+    case 'pronta': {
+      const antes = PJ.versao; PJ.versao = d.versao || '0';
+      if(antes !== PJ.versao && ['config','projudi'].includes(activeSection)) renderAll();
+      break;
+    }
+    case 'resposta': { const r = PJ.respostas.get(d.ref); if(r){ PJ.respostas.delete(d.ref); r(d); } break; }
+    case 'oferta': PJ.ofertas.set(d.pedido.id, d.pedido); pjMostrarOfertas(); break;
+    case 'status': {
+      const casoId = pjCasoDoPedido(d.pedidoId, d.casoId);
+      if(!casoId) break;
+      const fim = ['fim','cancelado'].includes(d.etapa);
+      pjStatus(casoId, {etapa: d.etapa === 'lista' ? 'buscando' : d.etapa, texto: d.texto, pedidoId: fim ? null : d.pedidoId});
+      if(fim) delete PJ.pedidos[d.pedidoId];
+      break;
+    }
+    case 'inicio': {
+      const casoId = pjCasoDoPedido(d.pedido.id, d.pedido.casoId);
+      PJ.pedidos[d.pedido.id] = casoId;
+      pjStatus(casoId, {etapa:'transferindo', pedidoId:d.pedido.id, feitos:0, falhas:0, total:d.pedido.total,
+        texto:`Recebendo ${d.pedido.total} arquivo(s)` + (d.pedido.pulados ? ` (${d.pedido.pulados} já estavam aqui)` : '') + '…'});
+      break;
+    }
+    case 'arquivo': PJ.fila = PJ.fila.then(() => pjGravarArquivo(d)); break;
+    case 'falha': {
+      const casoId = pjCasoDoPedido(d.pedidoId, d.casoId);
+      const s = PJ.status[casoId] || {};
+      pjStatus(casoId, {feitos:(s.feitos||0)+1, falhas:(s.falhas||0)+1, texto:`Não foi possível baixar ${d.meta && d.meta.nome}: ${d.erro}`});
+      break;
+    }
+    case 'fim': {
+      PJ.fila = PJ.fila.then(() => {
+        const casoId = pjCasoDoPedido(d.pedidoId, d.casoId);
+        const s = PJ.status[casoId] || {};
+        const r = d.resumo || {};
+        const falhas = s.falhas || 0;
+        pjStatus(casoId, {etapa: falhas && !r.gravados ? 'erro' : 'fim', pedidoId:null,
+          texto: `${r.gravados || 0} arquivo(s) importado(s)` + (r.pulados ? `, ${r.pulados} já estavam aqui` : '') +
+            (falhas ? `, ${falhas} com falha (peça de novo para tentar só esses)` : '') + '.'});
+        delete PJ.pedidos[d.pedidoId];
+        if(drawerCasoId === casoId) renderDrawer();
+        renderAll();
+      });
+      break;
+    }
+    case 'erro': {
+      const casoId = pjCasoDoPedido(d.pedidoId, d.casoId);
+      pjStatus(casoId, {etapa:'erro', texto:d.erro, pedidoId:null});
+      delete PJ.pedidos[d.pedidoId];
+      break;
+    }
+  }
+});
+pjPost({tipo:'ola'});
 
 /* ========================================================================== */
 aplicarRail();
