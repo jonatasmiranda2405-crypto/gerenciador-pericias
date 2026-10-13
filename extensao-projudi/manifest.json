@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "Baixador de PDFs para PROJUDI (TJGO)",
+  "short_name": "PROJUDI PDFs",
+  "version": "1.7.0",
+  "description": "Baixa os autos do PROJUDI/TJGO em ZIP ou direto no PeríciaFlow, pelo seu login ou código de acesso. Extensão não oficial.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "downloads",
+    "offscreen",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://projudi.tjgo.jus.br/*",
+    "https://*.tjgo.jus.br/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*",
+    "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/*",
+    "http://localhost:8080/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Baixador de PDFs para PROJUDI",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://projudi.tjgo.jus.br/*"
+      ],
+      "js": [
+        "page.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://projudi.tjgo.jus.br/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_idle",
+      "css": [
+        "page.css"
+      ]
+    },
+    {
+      "matches": [
+        "https://projudi.tjgo.jus.br/*"
+      ],
+      "js": [
+        "robo.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/*",
+        "http://localhost:8080/*"
+      ],
+      "js": [
+        "periciaflow.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

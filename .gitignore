@@ -1,0 +1,5 @@
+# configuração com senha do banco e chave de criptografia: nunca no GitHub
+servidor-php/api/autos-config.php
+# saídas dos testes (certificados temporários, banco SQLite, prints)
+testes/.saida/
+node_modules/

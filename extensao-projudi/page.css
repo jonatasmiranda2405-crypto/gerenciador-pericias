@@ -1,0 +1,34 @@
+#projudi-pdf-box {
+  position: fixed; right: 16px; bottom: 16px; z-index: 2147483647;
+  background: #fff; border: 1px solid #c9d3e0; border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.18); padding: 12px 14px 10px;
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1c2733;
+  max-width: 300px;
+}
+#projudi-pdf-btn, #projudi-pdf-send {
+  display: block; width: 100%; padding: 9px 12px; border: 0; border-radius: 7px;
+  background: #1f4e8c; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
+}
+#projudi-pdf-send { margin-top: 6px; background: #14655c; }
+#projudi-pdf-btn:hover { background: #173d6e; }
+#projudi-pdf-send:hover { background: #0e4a44; }
+#projudi-pdf-btn:disabled, #projudi-pdf-send:disabled { background: #7f95b3; cursor: not-allowed; }
+.projudi-pdf-opt { display: flex; gap: 6px; align-items: center; margin-top: 8px; font-size: 12px; color: #44505c; }
+#projudi-pdf-status { margin-top: 6px; font-size: 12px; color: #1f4e8c; min-height: 1em; }
+#projudi-pdf-close {
+  position: absolute; top: -9px; right: -9px; width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid #c9d3e0; background: #fff; color: #44505c; cursor: pointer; line-height: 18px; padding: 0;
+}
+#projudi-pdf-lic { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e3e8ef; font-size: 12px; color: #44505c; display: grid; gap: 6px; }
+#projudi-pdf-lic a { color: #1f4e8c; }
+#projudi-pdf-lic-form { display: flex; gap: 6px; }
+#projudi-pdf-lic-form[hidden], #projudi-pdf-assinar[hidden] { display: none; }
+#projudi-pdf-email { flex: 1; min-width: 0; padding: 5px 7px; border: 1px solid #c9d3e0; border-radius: 6px; font: inherit; }
+#projudi-pdf-lic-form button { padding: 5px 10px; border: 0; border-radius: 6px; background: #1f4e8c; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+#projudi-pdf-assinar { background: #f3f6fa; border-radius: 6px; padding: 6px 8px; color: #1c2733; }
+.projudi-pdf-planos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
+.projudi-pdf-planos button { display: grid; gap: 2px; padding: 6px 4px; border: 1px solid #c9d3e0; border-radius: 6px; background: #fff; color: #1c2733; font: inherit; cursor: pointer; }
+.projudi-pdf-planos button b { font-size: 12px; }
+.projudi-pdf-planos button span { font-size: 11px; color: #14655c; font-weight: 600; }
+.projudi-pdf-planos button:hover { border-color: #14655c; }
+.projudi-pdf-planos button:disabled { opacity: .6; cursor: wait; }
