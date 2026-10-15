@@ -321,7 +321,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.click('#login .lp-cab-acoes button:has-text("Entrar")');
   await sleep(200);
   check("Entrar abre o login em janela", await pf.isVisible("#lpJanela #loginEmail") && await pf.evaluate(() => document.activeElement && document.activeElement.id === "loginEmail"));
-  await pf.click('#lpJanela button:has-text("Não tenho conta")');
+  await pf.click('#lpJanela button:has-text("Criar conta grátis")');
   await sleep(150);
   check("trocar para criar conta na janela", await pf.isVisible("#lpJanela #loginNome"));
   await pf.keyboard.press("Escape");
