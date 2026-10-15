@@ -917,6 +917,63 @@ body.rail .pf-rodape{flex-direction:column;}
 .pf-pal-rodape kbd{margin-right:2px;}
 @media (max-width:560px){ #pfPaleta{padding-top:8vh;} .pf-pal-rodape{display:none;} }
 @media (prefers-reduced-motion:reduce){ .pf-ind,.pf-grupo-corpo,.pf-chev{transition:none;} .pf-pal-caixa{animation:none;} }
+/* ===== Revisão do processo pela IA ===== */
+.ia-topo{display:flex; flex-wrap:wrap; gap:12px 16px; align-items:center; justify-content:space-between;}
+.ia-topo-esq{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; min-width:0;}
+.ia-topo-esq select{height:40px; width:min(360px,100%); padding:0 10px; border-radius:9px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font:inherit; font-size:14px;}
+.ia-rot,.ia-num{font-size:12.5px; color:var(--muted);}
+.ia-topo-dir{display:flex; flex-wrap:wrap; gap:8px;}
+.ia-fresco{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:13px; color:var(--ink-2);}
+.ia-fresco > i{width:8px; height:8px; border-radius:50%; background:var(--ok); flex-shrink:0;}
+.ia-fresco.velho > i{background:var(--warn);}
+.ia-fresco.velho > span{color:var(--warn);}
+.ia-fresco .link-sutil,.ia-vazio .link-sutil{display:inline; width:auto; margin:0; padding:0; font-size:inherit;}
+.ia-auto{margin-left:auto; display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); cursor:pointer;}
+.ia-vazio{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; display:grid; gap:8px; font-size:14px; line-height:1.55; color:var(--ink-2);}
+.ia-vazio b{color:var(--ink); font-size:15px;}
+.ia-resumo{display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; padding:12px 16px; border-radius:var(--radius); background:var(--surface); border:1px solid var(--line); font-size:13px;}
+.ia-cont{display:inline-flex; align-items:center; gap:6px;}
+.ia-ponto{width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block;}
+.ia-prog{flex:1 1 220px; display:flex; align-items:center; gap:10px; min-width:0; color:var(--muted); white-space:nowrap;}
+.ia-prog > div{flex:1; height:6px; border-radius:3px; background:var(--surface-3); overflow:hidden;}
+.ia-prog > div > i{display:block; height:100%; background:var(--accent); transition:width .25s ease;}
+.ia-chips{display:flex; flex-wrap:wrap; gap:8px;}
+.ia-chip{height:34px; padding:0 13px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-2); font:inherit; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:7px;}
+.ia-chip span{font-weight:500; opacity:.7;}
+.ia-chip:hover{border-color:var(--line-strong);}
+.ia-chip[aria-pressed="true"]{background:var(--ink); color:var(--surface); border-color:var(--ink);}
+.ia-nav{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); margin-bottom:10px;}
+.ia-nav .icon-btn{width:38px; height:38px; border-radius:50%; border:1px solid var(--line-strong);}
+.ia-nav .icon-btn:disabled{opacity:.35; cursor:default;}
+.ia-trilho{display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; padding:2px 2px 10px; scrollbar-width:thin;}
+.ia-card{flex:0 0 262px; scroll-snap-align:start; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px; color:var(--ink); font:inherit; cursor:pointer; display:flex; flex-direction:column; gap:9px; min-height:156px; transition:border-color .15s, background .15s;}
+.ia-card:hover{border-color:var(--line-strong);}
+.ia-card.sel{border-color:var(--ink); background:var(--surface-2);}
+.ia-card-top{display:flex; align-items:center; gap:7px; width:100%; font-size:12px; font-weight:600; color:var(--ink-2);}
+.ia-card-top em{margin-left:auto; font-style:normal; font-weight:500; color:var(--muted);}
+.ia-card-tit{font-size:14.5px; font-weight:600; line-height:1.35;}
+.ia-card-fonte{margin-top:auto; font-size:11.5px; line-height:1.45; color:var(--muted); overflow-wrap:anywhere;}
+.ia-detalhe{background:var(--surface); border:1px solid var(--line-strong); border-radius:18px; padding:24px 26px; display:flex; flex-wrap:wrap; gap:26px; box-shadow:var(--shadow);}
+.ia-det-txt{flex:3 1 380px; min-width:0; display:grid; gap:12px; align-content:start;}
+.ia-det-txt h2{margin:0; font-size:21px; font-weight:600; line-height:1.3; text-wrap:balance;}
+.ia-det-txt p{margin:0; font-size:15px; line-height:1.6; color:var(--ink-2);}
+.ia-det-lado{flex:2 1 260px; min-width:0; display:grid; gap:10px; align-content:start;}
+.ia-onde{background:var(--surface-2); border-radius:12px; padding:13px 15px; display:grid; gap:6px; font-size:13px;}
+.ia-onde b{font-size:12px; font-weight:600; color:var(--muted);}
+.ia-onde .mono{line-height:1.5; overflow-wrap:anywhere;}
+.ia-onde q{font-style:italic; line-height:1.5; color:var(--ink-2);}
+.ia-acoes{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.ia-acoes .btn{justify-content:center; height:42px;}
+.ia-acoes .btn-primary{grid-column:1 / -1;}
+.ia-acoes .btn-ghost[aria-pressed="true"]{border-color:var(--ink); color:var(--ink);}
+.ia-nota{font-size:12px; color:var(--muted);}
+.ia-abas{display:flex; flex-wrap:wrap; gap:2px; border-bottom:1px solid var(--line); margin-bottom:14px;}
+.ia-aba{height:40px; padding:0 12px; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; background:none; color:var(--muted); font:inherit; font-size:13.5px; cursor:pointer;}
+.ia-aba span{opacity:.7;}
+.ia-aba[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink); font-weight:600;}
+.ia-card:focus-visible,.ia-chip:focus-visible,.ia-aba:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+@media (max-width:560px){ .ia-detalhe{padding:18px;} .ia-card{flex-basis:78%;} .ia-auto{margin-left:0;} }
+@media (prefers-reduced-motion:reduce){ .ia-card,.ia-prog > div > i{transition:none;} }
 </style>
 </head>
 <body>
@@ -1379,7 +1436,7 @@ const SECTIONS = [
   {id:'calculos', titulo:'Cálculos',      sub:'Ferramentas periciais com memória de cálculo auditável'},
   {id:'proposta', titulo:'Proposta de honorários', sub:'Preenche o seu modelo com os dados da perícia escolhida'},
   {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
-  {id:'ia',       titulo:'Análise IA',    sub:'Leitura do processo pela IA: resumo, pontos de atenção, quesitos e prazos'},
+  {id:'ia',       titulo:'Revisão IA',    sub:'Erros e inconsistências dos autos, com o lugar exato para conferir'},
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'integracoes', titulo:'Integrações', sub:'O que liga o PeríciaFlow aos tribunais e serviços'},
@@ -4676,12 +4733,11 @@ const IA_ESQUEMA = {
     areaProvavel:  {type:'STRING'},
     objeto:        {type:'STRING'},
     confianca:     {type:'STRING'},
-    pontosAtencao: {type:'ARRAY', items:{type:'OBJECT', properties:{
-      titulo:{type:'STRING'}, detalhe:{type:'STRING'}, risco:{type:'STRING'}, fonte:{type:'STRING'}},
-      required:['titulo','detalhe','risco','fonte']}},
-    quesitos:      {type:'ARRAY', items:{type:'OBJECT', properties:{
-      pergunta:{type:'STRING'}, porque:{type:'STRING'}},
-      required:['pergunta','porque']}},
+    achados:       {type:'ARRAY', items:{type:'OBJECT', properties:{
+      categoria:{type:'STRING', enum:['Cálculo','Valores','Índices','Datas','Documentos','Prazos','Honorários','Outros']},
+      gravidade:{type:'STRING', enum:['erro','atencao','verificar']},
+      titulo:{type:'STRING'}, detalhe:{type:'STRING'}, efeito:{type:'STRING'}, fonte:{type:'STRING'}, trecho:{type:'STRING'}},
+      required:['categoria','gravidade','titulo','detalhe','fonte']}},
     documentos:    {type:'ARRAY', items:{type:'OBJECT', properties:{
       item:{type:'STRING'}, deQuem:{type:'STRING'}, porque:{type:'STRING'}},
       required:['item','deQuem','porque']}},
@@ -4693,14 +4749,14 @@ const IA_ESQUEMA = {
       required:['quando','oQue','critico']}},
     lacunas:       {type:'ARRAY', items:{type:'STRING'}},
   },
-  required:['resumo','areaProvavel','objeto','confianca','pontosAtencao','quesitos','documentos','linhaDoTempo','prazos','lacunas'],
+  required:['resumo','areaProvavel','objeto','confianca','achados','documentos','linhaDoTempo','prazos','lacunas'],
 };
 
 function iaInstrucao(c){
   const f = fichaDe(meuEmail());
   return [
     'Você auxilia um perito-contador judicial brasileiro na leitura de um processo.',
-    'Leia o material abaixo e devolva uma análise em JSON, no idioma português do Brasil.',
+    'Faça uma revisão completa do material abaixo, como um conferente atento, e devolva o resultado em JSON, no idioma português do Brasil.',
     '',
     'Regras que não se negociam:',
     '- Use apenas o que está no material. Não complete com conhecimento geral sobre o caso.',
@@ -4708,8 +4764,11 @@ function iaInstrucao(c){
     '- Em "fonte", cite o nome do documento e, quando houver, a página ou o trecho. É por aí que o perito confere.',
     '- Não afirme valor, data ou número que não apareça no material.',
     '- "confianca" deve ser "alta", "media" ou "baixa", conforme o material seja suficiente ou não.',
-    '- "risco" de cada ponto de atenção: "alto", "medio" ou "baixo".',
-    '- Os quesitos sugeridos são sugestões de redação, não quesitos deferidos.',
+    '- Em "achados", liste cada erro ou inconsistência: cálculos (juros, correção, índices, somas, termos iniciais), valores que divergem entre documentos, datas incoerentes, documentos ausentes, prazos e honorários.',
+    '- "categoria" de cada achado: Cálculo, Valores, Índices, Datas, Documentos, Prazos, Honorários ou Outros.',
+    '- "gravidade": "erro" quando o material mostra a falha; "atencao" quando pode ser falha e depende de conferência; "verificar" quando falta informação para saber.',
+    '- "efeito": em uma frase, o que o achado muda no caso. "trecho": até 200 caracteres copiados do documento, quando houver.',
+    '- Não sugira nem redija quesitos: o perito responde aos quesitos das partes.',
     '- Não escreva laudo nem conclusão pericial: quem conclui é o perito.',
     '',
     f.nomeCompleto ? `Perito responsável: ${f.nomeCompleto}${f.crcRegistro ? ', CRC ' + f.crcRegistro : ''}.` : '',
@@ -4907,151 +4966,378 @@ function iaCorpoCiencia(){
       </div>`;
 }
 
+/* ==========================================================================
+   Revisão do processo pela IA — carrossel por categoria
+   A IA aponta erros e inconsistências ("achados") com o lugar exato para
+   conferir. O perito decide cada um: confirmado, não é erro ou ver depois.
+   As decisões ficam na perícia (campo iaRevisao); o PDF dos erros sai daqui.
+   ========================================================================== */
+const IA_CATEGORIAS = ['Cálculo','Valores','Índices','Datas','Documentos','Prazos','Honorários','Outros'];
+const IA_GRAV = {
+  erro:      {rotulo:'Erro',      pill:'pill-danger',  cor:'var(--danger)'},
+  atencao:   {rotulo:'Atenção',   pill:'pill-warning', cor:'var(--warn)'},
+  verificar: {rotulo:'Verificar', pill:'pill-accent',  cor:'var(--s1)'},
+};
+const IA_DECISAO = {
+  confirmado: {curto:'erro'},
+  descartado: {curto:'não é erro'},
+  depois:     {curto:'depois'},
+};
+let iaFiltro = 'Todos';
+const iaSel = {};
+let iaMaisAba = 'resumo';
+
+function iaHash(s){ let h = 0; for(const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'r' + h.toString(36); }
+function iaGravidade(v){
+  const t = normalizeText(v || '');
+  if(t.startsWith('err') || t.startsWith('alt')) return 'erro';
+  if(t.startsWith('aten') || t.startsWith('med')) return 'atencao';
+  return 'verificar';
+}
+function iaCategoria(v){
+  const t = normalizeText(v || '');
+  return IA_CATEGORIAS.find(c => normalizeText(c) === t) || (v ? String(v) : 'Outros');
+}
+/* Análises antigas (pontosAtencao) viram achados; quesitos sugeridos não são mais usados. */
+function iaAchados(c){
+  const a = iaAnalise(c);
+  if(!a) return [];
+  const brutos = Array.isArray(a.achados) ? a.achados
+    : (a.pontosAtencao || []).map(p => ({categoria:'Outros', gravidade:p.risco, titulo:p.titulo, detalhe:p.detalhe, efeito:'', fonte:p.fonte, trecho:''}));
+  const dec = c.iaRevisao || {};
+  const ordem = {erro:0, atencao:1, verificar:2};
+  return brutos.map(x => {
+    const chave = iaHash((x.titulo || '') + '|' + (x.fonte || ''));
+    return {categoria: iaCategoria(x.categoria), gravidade: iaGravidade(x.gravidade), titulo: x.titulo || 'Sem título',
+      detalhe: x.detalhe || '', efeito: x.efeito || '', fonte: x.fonte || '', trecho: x.trecho || '', chave, decisao: dec[chave] || ''};
+  }).sort((p, q) => ordem[p.gravidade] - ordem[q.gravidade]);
+}
+function iaFiltrados(c){
+  const todos = iaAchados(c);
+  if(iaFiltro !== 'Todos' && !todos.some(x => x.categoria === iaFiltro)) iaFiltro = 'Todos';
+  return iaFiltro === 'Todos' ? todos : todos.filter(x => x.categoria === iaFiltro);
+}
+function iaFiltrar(cat){ iaFiltro = cat; if(iaCasoId) iaSel[iaCasoId] = 0; renderAll(); }
+function iaIr(k){
+  const c = casos.find(x => x.id === iaCasoId);
+  if(!c) return;
+  const n = iaFiltrados(c).length;
+  if(!n) return;
+  iaSel[c.id] = Math.max(0, Math.min(n - 1, k));
+  renderAll();
+  requestAnimationFrame(() => {
+    const el = document.querySelector('.ia-card.sel');
+    if(el) el.scrollIntoView({block:'nearest', inline:'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  });
+}
+function iaPasso(d){ iaIr((iaSel[iaCasoId] || 0) + d); }
+async function iaDecidir(chave, v){
+  const c = casos.find(x => x.id === iaCasoId);
+  if(!c) return;
+  if(!podeEditar(c)){ pfAviso('Só quem pode editar esta perícia marca os achados.'); return; }
+  const dec = {...(c.iaRevisao || {})};
+  if(dec[chave] === v) delete dec[chave]; else dec[chave] = v;
+  await saveCaso(c.id, {iaRevisao: dec});
+  const F = iaFiltrados(c);
+  const i = F.findIndex(x => x.chave === chave);
+  iaSel[c.id] = (dec[chave] && i >= 0 && i < F.length - 1) ? i + 1 : Math.max(0, i);
+  renderAll();
+}
+function iaAba(k){ iaMaisAba = k; renderAll(); }
+
 function iaCorpoAnalise(c){
   const a = iaAnalise(c);
-  const rodando = iaRodando.has(c.id);
-  const msg = iaEstado[c.id];
+  if(!a) return `
+    <div class="ia-vazio">
+      <b>Esta perícia ainda não foi revisada.</b>
+      <span>A revisão lê a ficha, a proposta, as suas anotações e o texto dos PDFs anexados, e aponta erros e inconsistências com o lugar exato para conferir.</span>
+      ${(c.documentos || []).length ? '' : `<span>Ela fica bem melhor com os autos anexados: <button class="link-sutil" onclick="pfOrigemImport='projudi'; setSection('importar')">baixe os autos do PROJUDI</button>.</span>`}
+    </div>`;
 
-  const cabecalho = `
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px;">
-        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar('${c.id}')" ${rodando?'disabled':''}>
-          ${svg('<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>')}
-          ${rodando ? 'Analisando...' : (a ? 'Analisar de novo' : 'Analisar esta perícia')}
-        </button>
-        ${a ? `<span class="dica">última leitura em ${iaQuando(a.quando)} · ${escapeHtml(a.modelo || '')}</span>` : ''}
-        ${iaDesatualizada(c) ? '<span class="pill pill-warning">a perícia mudou depois desta análise</span>' : ''}
+  const todos = iaAchados(c);
+  const F = iaFiltrados(c);
+  const conta = g => todos.filter(x => x.gravidade === g).length;
+  const revisados = todos.filter(x => x.decisao).length;
+  const resumo = `
+    <div class="ia-resumo">
+      <span class="ia-cont"><i class="ia-ponto" style="background:${IA_GRAV.erro.cor}"></i>${conta('erro')} erro${conta('erro') === 1 ? '' : 's'}</span>
+      <span class="ia-cont"><i class="ia-ponto" style="background:${IA_GRAV.atencao.cor}"></i>${conta('atencao')} pede${conta('atencao') === 1 ? '' : 'm'} atenção</span>
+      <span class="ia-cont"><i class="ia-ponto" style="background:${IA_GRAV.verificar.cor}"></i>${conta('verificar')} para verificar</span>
+      <span class="ia-prog"><div><i style="width:${todos.length ? Math.round(100 * revisados / todos.length) : 0}%"></i></div>Revisados ${revisados} de ${todos.length}</span>
+    </div>`;
+
+  let carrossel = '';
+  if(!todos.length){
+    carrossel = `<div class="ia-vazio"><b>Nenhum erro ou inconsistência no material lido.</b><span>Confira em "Mais da revisão" o que faltou no material: a revisão só vale para o que foi lido.</span></div>`;
+  } else {
+    const i = Math.min(iaSel[c.id] || 0, F.length - 1);
+    iaSel[c.id] = i;
+    const s = F[i];
+    const g = IA_GRAV[s.gravidade];
+    const extras = [...new Set(todos.map(x => x.categoria))].filter(k => !IA_CATEGORIAS.includes(k));
+    const cats = ['Todos', ...IA_CATEGORIAS.filter(k => todos.some(x => x.categoria === k)), ...extras];
+    const botaoDec = (v, rotulo, classe) => `<button class="btn ${classe}" aria-pressed="${s.decisao === v}" onclick="iaDecidir('${s.chave}','${v}')">${s.decisao === v ? '✓ ' : ''}${rotulo}</button>`;
+    carrossel = `
+    <div class="ia-chips" role="group" aria-label="Filtrar por assunto">
+      ${cats.map(k => `<button class="ia-chip" aria-pressed="${iaFiltro === k}" onclick="iaFiltrar('${escapeHtml(k).replace(/'/g, '&#39;')}')">${escapeHtml(k)}<span>${k === 'Todos' ? todos.length : todos.filter(x => x.categoria === k).length}</span></button>`).join('')}
+    </div>
+    <section aria-label="Achados">
+      <div class="ia-nav">
+        <span>Achado ${i + 1} de ${F.length}</span>
+        <span style="flex:1"></span>
+        <button class="icon-btn" aria-label="Achado anterior" onclick="iaPasso(-1)" ${i === 0 ? 'disabled' : ''}>${svg('<path d="m15 6-6 6 6 6"/>')}</button>
+        <button class="icon-btn" aria-label="Próximo achado" onclick="iaPasso(1)" ${i === F.length - 1 ? 'disabled' : ''}>${svg('<path d="m9 6 6 6-6 6"/>')}</button>
       </div>
-      ${msg ? `<div class="banner" style="margin-bottom:14px;">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
-
-  if(!a) return cabecalho + `<div class="chart-empty">Esta perícia ainda não foi analisada. O material enviado será a ficha, a proposta em rascunho, as suas anotações e o texto dos PDFs anexados.</div>`;
-
-  const lista = (titulo, itens, linha) => itens && itens.length ? `
-      <div style="margin-top:18px;">
-        <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;">${titulo}</div>
-        <div class="rows">${itens.map(linha).join('')}</div>
-      </div>` : '';
-
-  return cabecalho + `
-      <div class="banner" style="margin-bottom:16px;">
-        ${svg('<path d="M12 9v4M12 17v.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>')}
-        <span>Rascunho de leitura, não laudo. Confira cada ponto contra os autos antes de usar.</span>
+      <div class="ia-trilho">
+        ${F.map((x, k) => `
+          <button class="ia-card ${k === i ? 'sel' : ''}" onclick="iaIr(${k})" aria-current="${k === i}">
+            <span class="ia-card-top"><i class="ia-ponto" style="background:${IA_GRAV[x.gravidade].cor}"></i>${escapeHtml(x.categoria)}${x.decisao ? `<em>${IA_DECISAO[x.decisao].curto}</em>` : ''}</span>
+            <span class="ia-card-tit">${escapeHtml(x.titulo)}</span>
+            <span class="ia-card-fonte mono">${escapeHtml(x.fonte.length > 70 ? x.fonte.slice(0, 68) + '…' : (x.fonte || 'fonte não indicada'))}</span>
+          </button>`).join('')}
       </div>
+    </section>
+    <section class="ia-detalhe" id="iaDetalhe" aria-live="polite">
+      <div class="ia-det-txt">
+        <div style="display:flex; flex-wrap:wrap; gap:8px;"><span class="pill pill-muted">${escapeHtml(s.categoria)}</span><span class="pill ${g.pill}">${g.rotulo}</span></div>
+        <h2>${escapeHtml(s.titulo)}</h2>
+        ${s.detalhe ? `<p>${escapeHtml(s.detalhe)}</p>` : ''}
+        ${s.efeito ? `<p><b style="color:var(--ink);">Efeito:</b> ${escapeHtml(s.efeito)}</p>` : ''}
+        <span class="ia-nota">Achado para conferência, não conclusão: quem conclui é o perito.</span>
+      </div>
+      <div class="ia-det-lado">
+        <div class="ia-onde">
+          <b>Onde conferir</b>
+          <span class="mono">${escapeHtml(s.fonte || 'A revisão não indicou a fonte.')}</span>
+          ${s.trecho ? `<q>${escapeHtml(s.trecho)}</q>` : ''}
+        </div>
+        <div class="ia-acoes">
+          ${botaoDec('confirmado', 'Confirmar erro', 'btn-primary')}
+          ${botaoDec('descartado', 'Não é erro', 'btn-ghost')}
+          ${botaoDec('depois', 'Ver depois', 'btn-ghost')}
+        </div>
+      </div>
+    </section>`;
+  }
 
-      <div class="kv-grid" style="margin-bottom:14px;">
+  const linha = (titulo, sub, lado) => `<div class="row-item" style="cursor:default;"><div class="row-main"><div class="row-title">${titulo}</div>${sub ? `<div class="row-sub">${sub}</div>` : ''}</div>${lado ? `<div class="row-side">${lado}</div>` : ''}</div>`;
+  const vazio = t => `<div class="chart-empty">${t}</div>`;
+  const abas = [
+    ['resumo', 'Resumo'],
+    ['tempo', 'Linha do tempo', (a.linhaDoTempo || []).length],
+    ['docs', 'Documentos a pedir', (a.documentos || []).length],
+    ['prazos', 'Prazos', (a.prazos || []).length],
+    ['faltou', 'O que faltou', (a.lacunas || []).length],
+    ['fontes', 'Fontes lidas', (a.fontes || []).length],
+  ];
+  const aba = abas.some(x => x[0] === iaMaisAba) ? iaMaisAba : 'resumo';
+  let corpo = '';
+  if(aba === 'resumo') corpo = `
+      <p style="margin:0 0 12px; font-size:14.5px; line-height:1.65;">${escapeHtml(a.resumo || '—')}</p>
+      ${a.objeto ? `<p class="hint" style="margin:0 0 14px;"><b>Objeto:</b> ${escapeHtml(a.objeto)}</p>` : ''}
+      <div class="kv-grid">
         <div class="kv"><div class="k">Área provável</div><div class="v">${escapeHtml(a.areaProvavel || '—')}</div></div>
-        <div class="kv"><div class="k">Confiança do modelo</div><div class="v">${escapeHtml(a.confianca || '—')}</div></div>
-        <div class="kv"><div class="k">Material lido</div><div class="v num">${(a.fontes||[]).length} fonte${(a.fontes||[]).length===1?'':'s'}</div></div>
-        <div class="kv"><div class="k">Caracteres enviados</div><div class="v num">${(a.chars||0).toLocaleString('pt-BR')}</div></div>
-      </div>
-
-      <div style="font-size:13.5px; line-height:1.7; color:var(--ink);">${escapeHtml(a.resumo || '')}</div>
-      ${a.objeto ? `<div class="hint" style="margin-top:10px;"><b>Objeto:</b> ${escapeHtml(a.objeto)}</div>` : ''}
-
-      ${lista('Pontos de atenção', a.pontosAtencao, p => `
-        <div class="row-item" style="cursor:default;">
-          <div class="row-main">
-            <div class="row-title">${escapeHtml(p.titulo||'')}</div>
-            <div class="row-sub">${escapeHtml(p.detalhe||'')}</div>
-            <div class="row-sub mono" style="font-size:11px; opacity:.8;">fonte: ${escapeHtml(p.fonte||'não indicada')}</div>
-          </div>
-          <div class="row-side"><span class="pill ${iaPillRisco(p.risco)}">${iaRotuloRisco(p.risco)}</span></div>
-        </div>`)}
-
-      ${lista('Quesitos sugeridos', a.quesitos, (q,i) => `
-        <div class="row-item row-full" style="cursor:default;">
-          <div class="row-main">
-            <div class="row-title">${i+1}. ${escapeHtml(q.pergunta||'')}</div>
-            <div class="row-sub">${escapeHtml(q.porque||'')}</div>
-          </div>
-        </div>`)}
-
-      ${lista('Documentos a requisitar', a.documentos, d => `
-        <div class="row-item" style="cursor:default;">
-          <div class="row-main">
-            <div class="row-title">${escapeHtml(d.item||'')}</div>
-            <div class="row-sub">${escapeHtml(d.porque||'')}</div>
-          </div>
-          <div class="row-side"><span class="pill pill-muted">${escapeHtml(d.deQuem||'—')}</span></div>
-        </div>`)}
-
-      ${lista('Linha do tempo', a.linhaDoTempo, t => `
-        <div class="row-item" style="cursor:default;">
-          <div class="row-main">
-            <div class="row-title">${escapeHtml(t.fato||'')}</div>
-            <div class="row-sub mono" style="font-size:11px; opacity:.8;">fonte: ${escapeHtml(t.fonte||'não indicada')}</div>
-          </div>
-          <div class="row-side"><span class="mono" style="font-size:12px;">${escapeHtml(t.data||'—')}</span></div>
-        </div>`)}
-
-      ${lista('Prazos apontados', a.prazos, p => `
-        <div class="row-item" style="cursor:default;">
-          <div class="row-main"><div class="row-title">${escapeHtml(p.oQue||'')}</div></div>
-          <div class="row-side">
-            <span class="mono" style="font-size:12px; margin-right:8px;">${escapeHtml(p.quando||'—')}</span>
-            ${p.critico ? '<span class="pill pill-danger">crítico</span>' : ''}
-          </div>
-        </div>`)}
-
-      ${(a.lacunas && a.lacunas.length) ? `
-      <div style="margin-top:18px;">
-        <div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;">O que faltou no material</div>
-        <ul style="margin:0; padding-left:18px; font-size:13px; line-height:1.7; color:var(--ink-2);">
-          ${a.lacunas.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
-        </ul>
-      </div>` : ''}
-
-      ${(a.avisos && a.avisos.length) ? `
-      <div class="hint" style="margin-top:16px;">
-        <b>Sobre a leitura:</b> ${a.avisos.map(x => escapeHtml(x)).join(' ')}
-      </div>` : ''}
-
-      <div class="hint" style="margin-top:12px;">
-        Fontes enviadas: ${(a.fontes||[]).map(f => escapeHtml(f.nome) + (f.comTexto === false ? ' (só cabeçalho)' : '')).join(' · ') || '—'}
+        <div class="kv"><div class="k">Confiança da leitura</div><div class="v">${escapeHtml(a.confianca || '—')}</div></div>
+        <div class="kv"><div class="k">Fontes lidas</div><div class="v num">${(a.fontes || []).length}</div></div>
+        <div class="kv"><div class="k">Modelo</div><div class="v">${escapeHtml(a.modelo || '—')}</div></div>
       </div>`;
+  else if(aba === 'tempo') corpo = (a.linhaDoTempo || []).length ? `<div class="rows">${a.linhaDoTempo.map(t => linha(escapeHtml(t.fato || ''), `<span class="mono">${escapeHtml(t.fonte || 'fonte não indicada')}</span>`, `<span class="mono" style="font-size:12px;">${escapeHtml(t.data || '—')}</span>`)).join('')}</div>` : vazio('Sem datas no material lido.');
+  else if(aba === 'docs') corpo = (a.documentos || []).length ? `<div class="rows">${a.documentos.map(d => linha(escapeHtml(d.item || ''), escapeHtml(d.porque || ''), `<span class="pill pill-muted">${escapeHtml(d.deQuem || '—')}</span>`)).join('')}</div>` : vazio('Nenhum documento a pedir.');
+  else if(aba === 'prazos') corpo = (a.prazos || []).length ? `<div class="rows">${a.prazos.map(p => linha(escapeHtml(p.oQue || ''), '', `<span class="mono" style="font-size:12px;">${escapeHtml(p.quando || '—')}</span>${p.critico ? ' <span class="pill pill-danger">crítico</span>' : ''}`)).join('')}</div>` : vazio('Nenhum prazo no material lido.');
+  else if(aba === 'faltou') corpo = (a.lacunas || []).length ? `<ul style="margin:0; padding-left:18px; font-size:13.5px; line-height:1.7; color:var(--ink-2);">${a.lacunas.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>` : vazio('Nada apontado como faltante.');
+  else corpo = `<div class="hint" style="line-height:1.7;">${(a.fontes || []).map(f => escapeHtml(f.nome) + (f.comTexto === false ? ' (só cabeçalho)' : '')).join(' · ') || '—'}</div>
+      ${(a.avisos && a.avisos.length) ? `<div class="hint" style="margin-top:10px;"><b>Sobre a leitura:</b> ${a.avisos.map(x => escapeHtml(x)).join(' ')}</div>` : ''}`;
+  const mais = panel('iaMais', 'Mais da revisão', '', `
+      <div class="ia-abas" role="tablist">${abas.map(([k, rotulo, n]) => `<button class="ia-aba" role="tab" aria-selected="${aba === k}" onclick="iaAba('${k}')">${rotulo}${n ? ` <span>${n}</span>` : ''}</button>`).join('')}</div>
+      ${corpo}`);
+
+  return resumo + carrossel + mais;
 }
 
 function renderIA(){
   if(iaChave() && !iaCatalogo && !iaBuscandoCatalogo && !iaCatalogoErro) iaCarregarCatalogo();
+  /* a chave e o modelo começam recolhidos: o dia a dia é a revisão */
+  try{ if(!localStorage.getItem('pf_ia_chave_recolhida')){ panelsFechados.add('iaChave'); localStorage.setItem('pf_ia_chave_recolhida', '1'); } }catch(e){}
   const lista = casosVisiveis();
   const c = lista.find(x => x.id === iaCasoId) || lista[0] || null;
   if(c) iaCasoId = c.id;
+  const pronta = iaPronta();
+  const a = c && iaAnalise(c);
+  const rodando = c && iaRodando.has(c.id);
+  const msg = c && iaEstado[c.id];
+  const velho = c && iaDesatualizada(c);
 
-  const seletor = lista.length === 0 ? '' : `
-      <div class="rows" style="margin-bottom:4px;">
-        ${lista.map(x => {
-          const a = iaAnalise(x);
-          const estado = iaRodando.has(x.id) ? 'analisando'
-            : !a ? 'sem análise'
-            : iaDesatualizada(x) ? 'desatualizada'
-            : 'analisada em ' + iaQuando(a.quando).split(' às')[0];
-          const cor = iaRodando.has(x.id) ? 'pill-accent' : !a ? 'pill-muted' : iaDesatualizada(x) ? 'pill-warning' : 'pill-success';
-          return `
-          <div class="row-item ${x.id === (c&&c.id) ? 'ativo' : ''}" onclick="iaEscolher('${x.id}')">
-            <div class="row-main">
-              <div class="row-title">${escapeHtml(x.codigo || '')} — ${escapeHtml(x.nome || 'sem nome')}</div>
-              <div class="row-sub">${escapeHtml(x.numeroProcesso || 'sem número de processo')} · ${(x.documentos||[]).length} documento${(x.documentos||[]).length===1?'':'s'}</div>
-            </div>
-            <div class="row-side"><span class="pill ${cor}">${escapeHtml(estado)}</span></div>
-          </div>`;
-        }).join('')}
-      </div>`;
+  const topo = !c ? '' : `
+    <div class="ia-topo">
+      <div class="ia-topo-esq">
+        ${lista.length > 1
+          ? `<label class="ia-rot" for="iaPericia">Perícia</label><select id="iaPericia" onchange="iaEscolher(this.value)">${lista.map(x => `<option value="${x.id}" ${x.id === c.id ? 'selected' : ''}>${escapeHtml(x.codigo || '')} · ${escapeHtml(x.nome || 'sem nome')}</option>`).join('')}</select>`
+          : `<b>${escapeHtml(c.codigo || '')} · ${escapeHtml(c.nome || '')}</b>`}
+        <span class="ia-num mono">${escapeHtml(c.numeroProcesso || 'sem número de processo')}</span>
+      </div>
+      <div class="ia-topo-dir">
+        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar('${c.id}')" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? 'Revisando…' : (a ? 'Revisar de novo' : 'Revisar esta perícia')}</button>
+        <button class="btn btn-primary" onclick="iaBaixarPdf('${c.id}')" ${a ? '' : 'disabled'}>${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>')} Baixar PDF dos erros</button>
+      </div>
+    </div>
+    ${a ? `
+    <div class="ia-fresco ${velho ? 'velho' : ''}">
+      <i></i><span>${velho ? 'A perícia mudou depois da revisão de ' + iaQuando(a.quando) + '.' : 'Em dia · revisão de ' + iaQuando(a.quando) + ' · ' + (a.fontes || []).length + ' fonte' + ((a.fontes || []).length === 1 ? '' : 's') + ' lida' + ((a.fontes || []).length === 1 ? '' : 's')}</span>
+      ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar('${c.id}')">Revisar de novo</button>` : ''}
+      <label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Rever sozinha quando chegar documento novo</label>
+    </div>` : ''}
+    ${msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
 
-  const corpoPericia = !c
-    ? `<div class="chart-empty">Nenhuma perícia para analisar ainda.</div>`
-    : (!iaPronta()
-        ? `<div class="chart-empty">Guarde a sua chave e dê o aceite nos painéis acima para liberar a análise.</div>`
-        : iaCorpoAnalise(c));
+  const corpo = !c ? `<div class="chart-empty">Nenhuma perícia para revisar ainda.</div>`
+    : !pronta ? `<div class="ia-vazio"><b>Falta pouco para a primeira revisão.</b><span>Guarde a sua chave do Gemini e dê o aceite nos painéis acima.</span></div>`
+    : iaCorpoAnalise(c);
 
   return `
     <div class="section-gap">
       ${!iaChave() || !iaCiente() ? panel('iaChave', 'Chave e modelo', iaChave() ? 'chave guardada' : 'nenhuma chave', iaCorpoChave()) : ''}
-      ${iaChave() && !iaCiente() ? panel('iaCiencia', 'Antes da primeira análise', 'leia isto', iaCorpoCiencia()) : ''}
-      ${lista.length ? panel('iaLista', 'Perícias', `${lista.length}`, seletor) : ''}
-      ${panel('iaAnalise', c ? 'Análise — ' + (c.codigo || '') : 'Análise', c ? (iaAnalise(c) ? 'leitura guardada' : 'ainda não analisada') : '', corpoPericia)}
-      ${iaChave() && iaCiente() ? panel('iaChave', 'Chave e modelo', 'chave guardada', iaCorpoChave()) : ''}
+      ${iaChave() && !iaCiente() ? panel('iaCiencia', 'Antes da primeira revisão', 'leia isto', iaCorpoCiencia()) : ''}
+      ${topo}
+      ${corpo}
+      ${pronta ? panel('iaChave', 'Chave e modelo', 'chave guardada', iaCorpoChave()) : ''}
     </div>`;
 }
-function iaEscolher(id){ iaCasoId = id; renderAll(); }
+function iaEscolher(id){ iaCasoId = id; iaFiltro = 'Todos'; renderAll(); }
+
+/* deslizar o cartão no celular e setas do teclado */
+(function(){
+  let x0 = null, y0 = null;
+  document.addEventListener('touchstart', e => {
+    const el = e.target.closest && e.target.closest('#iaDetalhe');
+    if(!el){ x0 = null; return; }
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if(x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > 1.5 * Math.abs(dy)) iaPasso(dx < 0 ? 1 : -1);
+  }, {passive:true});
+  document.addEventListener('keydown', e => {
+    if(activeSection !== 'ia' || e.altKey || e.ctrlKey || e.metaKey) return;
+    if(typeof pfPal !== 'undefined' && pfPal.aberta) return;
+    const t = document.activeElement;
+    if(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); iaPasso(1); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); iaPasso(-1); }
+  });
+})();
+
+/* ---------- PDF dos erros (jsPDF guardado no próprio site, em vendor/) ---------- */
+function iaCarregarJsPdf(){
+  if(window.jspdf) return Promise.resolve();
+  return new Promise((ok, falha) => {
+    const s = document.createElement('script');
+    s.src = 'vendor/jspdf-2.5.1.umd.min.js';
+    s.onload = () => window.jspdf ? ok() : falha(new Error('o gerador de PDF não carregou'));
+    s.onerror = () => falha(new Error('o gerador de PDF não carregou'));
+    document.head.appendChild(s);
+  });
+}
+/* as fontes padrão do PDF só têm o alfabeto latino: tira o que não cabe nelas */
+function iaPdfTexto(s){
+  return String(s || '').replace(/[‐-‒]/g, '-')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF–—‘’“”…•€]/g, '');
+}
+async function iaBaixarPdf(casoId){
+  const c = casos.find(x => x.id === casoId);
+  const a = iaAnalise(c);
+  if(!a){ pfAviso('Revise a perícia antes de gerar o PDF.'); return; }
+  try{ await iaCarregarJsPdf(); }
+  catch(e){ pfAviso('Não foi possível gerar o PDF: ' + e.message + '. Recarregue a página e tente de novo.'); return; }
+  const todos = iaAchados(c);
+  const conf = todos.filter(x => x.decisao === 'confirmado');
+  const pend = todos.filter(x => !x.decisao || x.decisao === 'depois');
+  const desc = todos.filter(x => x.decisao === 'descartado');
+  const doc = new window.jspdf.jsPDF({unit:'pt', format:'a4'});
+  const T = iaPdfTexto;
+  const L = 56, W = doc.internal.pageSize.getWidth() - 2 * L, H = doc.internal.pageSize.getHeight(), FIM = H - 64;
+  const ESCURO = [26, 34, 38], CINZA = [85, 99, 106], MEIO = [55, 65, 72];
+  let y = 60;
+  const quebra = h => { if(y + h > FIM){ doc.addPage(); y = 60; } };
+  const linhas = (txt, tam, estilo, larg) => { doc.setFont('helvetica', estilo || 'normal'); doc.setFontSize(tam); return doc.splitTextToSize(T(txt), larg || W); };
+  const escrever = (txt, tam, estilo, cor) => {
+    const ls = linhas(txt, tam, estilo);
+    quebra(ls.length * tam * 1.4);
+    doc.setTextColor(...(cor || ESCURO));
+    doc.text(ls, L, y + tam);
+    y += ls.length * tam * 1.4;
+  };
+  escrever('PeríciaFlow · documento de trabalho do perito', 9, 'normal', CINZA); y += 2;
+  escrever('Relatório de verificação dos autos', 20, 'bold'); y += 10;
+  [
+    ['Perícia', (c.codigo || '') + ' · ' + (c.nome || '')],
+    ['Processo', c.numeroProcesso || '—'],
+    ['Juízo', [c.vara, c.comarca].filter(Boolean).join(' · ') || '—'],
+    ['Revisão', iaQuando(a.quando) + ' · ' + (a.fontes || []).length + ' fonte(s) lida(s)'],
+    ['Situação', `${conf.length} erro(s) confirmado(s) · ${pend.length} ponto(s) a conferir · ${desc.length} descartado(s), fora deste relatório`],
+  ].forEach(([k, v]) => {
+    const ls = linhas(v, 10.5, 'normal', W - 100);
+    const h = ls.length * 14.7 + 9;
+    quebra(h);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5);
+    doc.setTextColor(...CINZA); doc.text(T(k), L, y + 11);
+    doc.setTextColor(...ESCURO); doc.text(ls, L + 100, y + 11);
+    y += h;
+    doc.setDrawColor(213, 219, 222); doc.setLineWidth(0.75); doc.line(L, y - 4, L + W, y - 4);
+  });
+  y += 10;
+  escrever('Cada linha traz o que foi encontrado e onde conferir nos autos. Marque o quadrado à medida que conferir. Este relatório não é laudo nem conclusão pericial.', 10.5);
+  y += 12;
+  let n = 0;
+  const secao = (titulo, itens) => {
+    quebra(60);
+    escrever(`${titulo} (${itens.length})`, 14, 'bold'); y += 6;
+    if(!itens.length){ escrever('Nenhum.', 10.5, 'normal', CINZA); y += 10; return; }
+    itens.forEach(x => {
+      n++;
+      const larg = W - 56;
+      const blocos = [
+        [x.titulo, 11, 'bold', ESCURO],
+        x.detalhe ? [x.detalhe, 10.5, 'normal', ESCURO] : null,
+        x.efeito ? ['Efeito: ' + x.efeito, 10.5, 'normal', ESCURO] : null,
+        ['Onde conferir: ' + (x.fonte || 'não indicado'), 10, 'normal', MEIO],
+        x.trecho ? ['Trecho: "' + x.trecho + '"', 10, 'italic', MEIO] : null,
+      ].filter(Boolean);
+      const alt = blocos.reduce((s, [t, tam, est]) => s + linhas(t, tam, est, larg).length * tam * 1.4, 0) + 18;
+      quebra(alt);
+      const y0 = y;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...ESCURO);
+      doc.text(String(n), L, y + 11);
+      doc.setDrawColor(...ESCURO); doc.setLineWidth(1); doc.rect(L + W - 13, y + 1, 12, 12);
+      blocos.forEach(([t, tam, est, cor]) => {
+        const ls = linhas(t, tam, est, larg);
+        doc.setTextColor(...cor); doc.text(ls, L + 26, y + tam);
+        y += ls.length * tam * 1.4;
+      });
+      y = Math.max(y, y0 + 16) + 6;
+      doc.setDrawColor(185, 194, 199); doc.setLineWidth(0.75); doc.line(L, y, L + W, y);
+      y += 10;
+    });
+    y += 8;
+  };
+  secao('Erros confirmados', conf);
+  secao('Pontos a conferir', pend);
+  quebra(140);
+  escrever('Anotações do perito', 14, 'bold');
+  for(let k = 0; k < 3; k++){ y += 22; doc.setDrawColor(185, 194, 199); doc.line(L, y, L + W, y); }
+  y += 40;
+  doc.setDrawColor(...ESCURO); doc.line(L, y, L + W * 0.6, y); doc.line(L + W * 0.7, y, L + W, y);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...CINZA);
+  doc.text('Conferido por', L, y + 13); doc.text('Data', L + W * 0.7, y + 13);
+  const total = doc.getNumberOfPages();
+  for(let p = 1; p <= total; p++){
+    doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...CINZA);
+    doc.text(T(`Gerado pelo PeríciaFlow em ${new Date().toLocaleDateString('pt-BR')}. Os achados apontam onde conferir; a conclusão é do perito.`), L, H - 30);
+    doc.text(`p. ${p} de ${total}`, L + W, H - 30, {align:'right'});
+  }
+  doc.save(`verificacao-${(c.codigo || 'pericia').replace(/[^A-Za-z0-9_-]+/g, '-')}.pdf`);
+  pfAviso('PDF dos erros gerado.');
+}
 
 /* ==========================================================================
    Render principal
@@ -5529,6 +5815,7 @@ async function handleZipImport(casoId, inputEl){
     statusEl.textContent = 'Não foi possível ler este ZIP. Verifique o arquivo e tente novamente.';
   }
   inputEl.value = '';
+  iaAgendarAuto(casoId);
   renderDrawer(); renderAll();
 }
 
@@ -6109,6 +6396,7 @@ window.addEventListener('message', (ev) => {
           texto: `${r.gravados || 0} arquivo(s) importado(s)` + (r.pulados ? `, ${r.pulados} já estavam aqui` : '') +
             (falhas ? `, ${falhas} com falha (peça de novo para tentar só esses)` : '') + '.'});
         delete PJ.pedidos[d.pedidoId];
+        if(r.gravados && typeof iaAgendarAuto === 'function') iaAgendarAuto(casoId);
         if(drawerCasoId === casoId) renderDrawer();
         renderAll();
       });

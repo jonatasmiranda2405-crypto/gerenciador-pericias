@@ -55,7 +55,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   console.log("\n1) Navegação");
   const nav = await pf.$$eval("#nav .nav-item span:first-of-type", (s) => s.map((x) => x.textContent));
   check("menu com as telas novas", ["Importar processo", "Publicações", "Prazos e alertas", "Tarefas", "Agenda", "Financeiro", "Integrações"].every((t) => nav.includes(t)), nav.join(" · "));
-  check("telas antigas continuam no menu", ["Perícias", "Cálculos", "Proposta de honorários", "Documentos", "Análise IA", "Equipe", "Projudi", "Configurações"].every((t) => nav.includes(t)));
+  check("telas antigas continuam no menu", ["Perícias", "Cálculos", "Proposta de honorários", "Documentos", "Revisão IA", "Equipe", "Projudi", "Configurações"].every((t) => nav.includes(t)));
 
   console.log("\n2) Tarefas");
   await ir("tarefas");
@@ -172,6 +172,55 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
     check(`${s} sem rolagem lateral no celular`, largura <= 1, `${largura}px`);
     await foto(`${s}-celular-escuro`);
   }
+
+  console.log("\n9) Revisão IA: carrossel, decisões e PDF");
+  await pf.evaluate(async (id) => {
+    perfil.ia = { chave: "chave-de-teste", cienciaEm: "2026-10-01T00:00:00Z" };
+    iaCatalogo = [];
+    const c = casos.find((x) => x.id === id);
+    await saveCaso(id, { analiseIA: {
+      resumo: "Embargos à execução com perícia contábil.", areaProvavel: "Contábil", objeto: "Cálculos", confianca: "media",
+      achados: [
+        { categoria: "Cálculo", gravidade: "erro", titulo: "Juros contados antes do termo inicial", detalhe: "Planilha aplica juros desde o contrato.", efeito: "aumenta o valor.", fonte: "Planilha, p. 3", trecho: "juros a partir da citação" },
+        { categoria: "Documentos", gravidade: "atencao", titulo: "Extratos de 2023 ausentes", detalhe: "Faltam extratos.", efeito: "", fonte: "Embargos, anexos 4 a 9", trecho: "" },
+        { categoria: "Prazos", gravidade: "verificar", titulo: "Prazo do laudo não encontrado", detalhe: "Sem prazo.", efeito: "", fonte: "Nomeação", trecho: "" },
+        { categoria: "Valores", gravidade: "erro", titulo: "Total não confere", detalhe: "Soma diferente.", efeito: "", fonte: "Planilha, p. 5", trecho: "" }
+      ],
+      documentos: [], linhaDoTempo: [{ data: "02/03/2026", fato: "Apelação provida", fonte: "Acórdão" }], prazos: [], lacunas: ["Planilha do exequente"],
+      quando: new Date().toISOString(), modelo: "gemini-teste", fontes: [{ nome: "a.pdf" }], avisos: [], chars: 100, assinatura: iaAssinatura(c) } });
+    iaCasoId = id;
+  }, c1);
+  await pf.evaluate(() => { document.documentElement.setAttribute("data-theme", "light"); });
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await ir("ia");
+  check("revisão mostra um cartão por achado, erros primeiro", await pf.locator(".ia-card").count() === 4 && /Erro/.test(await pf.textContent("#iaDetalhe")), await pf.textContent(".ia-nav"));
+  check("sem quesitos sugeridos na tela", !/Quesitos sugeridos/i.test(await pf.textContent("#view")));
+  check("selo de revisão em dia", /Em dia/.test(await pf.textContent(".ia-fresco")));
+  await pf.click('.ia-chip:has-text("Documentos")');
+  check("filtro por categoria", await pf.locator(".ia-card").count() === 1 && /Extratos de 2023/.test(await pf.textContent("#iaDetalhe")));
+  await pf.click('.ia-chip:has-text("Todos")');
+  await pf.click('#iaDetalhe button:has-text("Confirmar erro")');
+  await sleep(300);
+  const dec = await pf.evaluate((id) => Object.values(casos.find((c) => c.id === id).iaRevisao || {}), c1);
+  check("confirmar grava a decisão e passa ao próximo", dec.join() === "confirmado" && /2 de 4/.test(await pf.textContent(".ia-nav")), dec.join() + " · " + (await pf.textContent(".ia-nav")).trim());
+  await pf.keyboard.press("ArrowRight");
+  await sleep(200);
+  check("seta do teclado passa o cartão", /3 de 4/.test(await pf.textContent(".ia-nav")));
+  await pf.click(".ia-card >> nth=0");
+  await sleep(200);
+  check("cartão confirmado mostra a marca", /erro/.test(await pf.textContent(".ia-card >> nth=0 >> .ia-card-top em")));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-revisao-ia.png"), fullPage: true });
+  const [pdf] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click('button:has-text("Baixar PDF dos erros")')]);
+  const bytes = fs.readFileSync(await pdf.path());
+  const txt = bytes.toString("latin1");
+  check("PDF dos erros baixado", bytes.slice(0, 5).toString() === "%PDF-" && /Erros confirmados \\\(1\\\)/.test(txt) && /Pontos a conferir \\\(3\\\)/.test(txt), `${pdf.suggestedFilename()} · ${bytes.length} bytes`);
+  fs.copyFileSync(await pdf.path(), path.join(SAIDA, "verificacao-exemplo.pdf"));
+  await pf.evaluate(async (id) => {
+    const c = casos.find((x) => x.id === id);
+    await saveCaso(id, { analiseIA: Object.assign({}, c.analiseIA, { achados: undefined, pontosAtencao: [{ titulo: "Ponto antigo", detalhe: "x", risco: "alto", fonte: "y" }], quesitos: [{ pergunta: "Q antiga?", porque: "z" }] }) });
+  }, c1);
+  await ir("ia");
+  check("análise antiga continua abrindo, sem os quesitos", await pf.locator(".ia-card").count() === 1 && !/Q antiga/.test(await pf.textContent("#view")));
 
   console.log("\n9) Barra lateral e paleta de comandos");
   await pf.setViewportSize({ width: 1360, height: 900 });
