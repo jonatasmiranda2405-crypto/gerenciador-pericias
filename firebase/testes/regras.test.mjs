@@ -164,7 +164,7 @@ test('comercial: só administradores pelo Google leem e gravam contatos', async 
   await assertFails(setDoc(doc(adm, 'comercial/r2abc'), contato({ status: 'vip' })));
   await assertFails(setDoc(doc(adm, 'comercial/r3abc'), contato({ convite: 'A/B' })));
   await assertFails(setDoc(doc(adm, 'comercial/r4abc'), contato({ extra: 1 })));
-  await assertFails(setDoc(doc(adm, 'comercial/__proto__'), contato()));
+  await assertFails(setDoc(doc(adm, 'comercial/Maria-Silva'), contato()));
   await assertFails(getDocs(collection(senha('u-adm', ADM), 'comercial')));
   await assertFails(getDocs(collection(db('u-x', ESTRANHO), 'comercial')));
   await assertFails(setDoc(doc(db('u-x', ESTRANHO), 'comercial/r5abc'), contato()));
