@@ -793,6 +793,11 @@ body.travado{overflow:hidden;}
 .login-dica{display:block; margin-top:5px; font-size:11.5px; color:var(--muted);}
 .login-troca{margin:16px 0 0; text-align:center; font-size:13px; color:var(--muted);}
 .login-troca button{font-weight:600;}
+.login-tit{margin:4px 0 6px; font-size:19px; font-weight:600; color:var(--ink);}
+.login-txt{margin:0 0 18px; font-size:13.5px; line-height:1.6; color:var(--ink-2);}
+.login-txt-mudo{font-size:12.5px; color:var(--muted);}
+.login-ok{width:52px; height:52px; border-radius:14px; display:grid; place-items:center; margin:8px 0 14px; background:var(--accent-soft); color:var(--accent-deep);}
+.login-ok svg{width:26px; height:26px;}
 .login-termos{margin:20px 0 0; text-align:center; font-size:11.5px; line-height:1.55; color:var(--muted);}
 .login-termos .lg-link{color:var(--muted);}
 .login-termos .lg-link:hover{color:var(--ink);}
@@ -1892,23 +1897,23 @@ const ICONS = {
 
 function seedData(){
   return [
-    {id:'seed-1', dono:'jonatasmiranda2405@gmail.com', emails:['jonatasmiranda2405@gmail.com'], editores:['jonatasmiranda2405@gmail.com'], compartilhamentos:[], codigo:'PER-2026-014', nome:'Divórcio Litigioso — Partilha de Bens', numeroProcesso:'0812345-67.2025.8.26.0100', codigoAcesso:'JF7K92QX', statusProcesso:'em_tramitacao', vara:'3ª Vara de Família', comarca:'São Paulo/SP', partes:'Rocha x Almeida', dataNomeacao:'2026-06-02', prazoEntrega:'2026-09-25', honorarios:8500, valorRecebido:4250, statusCaso:'em_andamento',
+    {id:'seed-1', dono:'perito.a@exemplo.com', emails:['perito.a@exemplo.com'], editores:['perito.a@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-014', nome:'Divórcio Litigioso — Partilha de Bens', numeroProcesso:'0000001-00.2025.8.00.0000', codigoAcesso:'EXEMPLO1', statusProcesso:'em_tramitacao', vara:'3ª Vara de Família', comarca:'Comarca Exemplo/SP', partes:'Fulano de Tal x Beltrana Exemplo', dataNomeacao:'2026-06-02', prazoEntrega:'2026-09-25', honorarios:8500, valorRecebido:4250, statusCaso:'em_andamento',
       documentos:[
         {id:'d1', nome:'Procuração', tipo:'Procuração', fase:'Habilitação das Partes', data:'2026-06-10', obs:''},
         {id:'d2', nome:'Quesitos do juízo', tipo:'Quesitos', fase:'Quesitos das Partes', data:'2026-07-01', obs:'Recebidos via DJE'}
       ],
       observacoes:[{id:'o1',data:'2026-07-15',texto:'Aguardando resposta do banco sobre extratos societários solicitados por ofício.'}]},
-    {id:'seed-2', dono:'rodrigodosantosmiranda@gmail.com', emails:['rodrigodosantosmiranda@gmail.com'], editores:['rodrigodosantosmiranda@gmail.com'], compartilhamentos:[], codigo:'PER-2026-009', nome:'Apuração de Haveres — Dissolução Societária', numeroProcesso:'1002233-11.2024.8.26.0224', codigoAcesso:'RN4T18BZ', statusProcesso:'transitado', vara:'2ª Vara Empresarial', comarca:'Guarulhos/SP', partes:'Ferraz x Nogueira', dataNomeacao:'2026-03-14', prazoEntrega:'2026-08-20', honorarios:14000, valorRecebido:14000, statusCaso:'concluida',
+    {id:'seed-2', dono:'perito.b@exemplo.com', emails:['perito.b@exemplo.com'], editores:['perito.b@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-009', nome:'Apuração de Haveres — Dissolução Societária', numeroProcesso:'0000002-00.2025.8.00.0000', codigoAcesso:'EXEMPLO2', statusProcesso:'transitado', vara:'2ª Vara Empresarial', comarca:'Comarca Exemplo/SP', partes:'Empresa Exemplo Ltda x Sócio Exemplo', dataNomeacao:'2026-03-14', prazoEntrega:'2026-08-20', honorarios:14000, valorRecebido:14000, statusCaso:'concluida',
       documentos:[
         {id:'d3', nome:'Laudo Pericial Contábil', tipo:'Laudo Pericial', fase:'Laudo Pericial', data:'2026-08-18', obs:'Protocolado nos autos'}
       ],
       observacoes:[{id:'o2',data:'2026-08-19',texto:'Levantamento concluído; honorários integralmente recebidos.'}]},
-    {id:'seed-3', dono:'jonatasmiranda2405@gmail.com', emails:['jonatasmiranda2405@gmail.com'], editores:['jonatasmiranda2405@gmail.com'], compartilhamentos:[], codigo:'PER-2026-002', nome:'Revisão de Cálculos Trabalhistas — Execução', numeroProcesso:'0045566-90.2023.5.02.0031', codigoAcesso:'', statusProcesso:'suspenso', vara:'31ª Vara do Trabalho', comarca:'São Paulo/SP', partes:'Souza x Transportes Vale Ltda', dataNomeacao:'2025-11-20', prazoEntrega:'2026-08-30', honorarios:6200, valorRecebido:0, statusCaso:'aguardando_quesitos',
+    {id:'seed-3', dono:'perito.a@exemplo.com', emails:['perito.a@exemplo.com'], editores:['perito.a@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-002', nome:'Revisão de Cálculos Trabalhistas — Execução', numeroProcesso:'0000003-00.2025.8.00.0000', codigoAcesso:'', statusProcesso:'suspenso', vara:'31ª Vara do Trabalho', comarca:'Comarca Exemplo/SP', partes:'Trabalhador Exemplo x Transportadora Modelo Ltda', dataNomeacao:'2025-11-20', prazoEntrega:'2026-08-30', honorarios:6200, valorRecebido:0, statusCaso:'aguardando_quesitos',
       documentos:[
         {id:'d5', nome:'Despacho — quesitos suplementares', tipo:'Despacho', fase:'Despacho de Quesitos Suplementares', data:'2026-06-01', obs:''}
       ],
       observacoes:[{id:'o3',data:'2026-06-02',texto:'Partes intimadas para apresentação de quesitos suplementares.'}]},
-    {id:'seed-4', dono:'rodrigodosantosmiranda@gmail.com', emails:['rodrigodosantosmiranda@gmail.com'], editores:['rodrigodosantosmiranda@gmail.com'], compartilhamentos:[], codigo:'PER-2026-021', nome:'Prestação de Contas — Espólio', numeroProcesso:'0678812-45.2025.8.26.0577', codigoAcesso:'', statusProcesso:'em_tramitacao', vara:'1ª Vara de Sucessões', comarca:'São José dos Campos/SP', partes:'Espólio Martins x Herdeiros', dataNomeacao:'2026-08-01', prazoEntrega:'2026-11-30', honorarios:9800, valorRecebido:0, statusCaso:'aguardando_nomeacao',
+    {id:'seed-4', dono:'perito.b@exemplo.com', emails:['perito.b@exemplo.com'], editores:['perito.b@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-021', nome:'Prestação de Contas — Espólio', numeroProcesso:'0000004-00.2025.8.00.0000', codigoAcesso:'', statusProcesso:'em_tramitacao', vara:'1ª Vara de Sucessões', comarca:'Comarca Exemplo/SP', partes:'Espólio de Ciclano x Herdeiros Exemplo', dataNomeacao:'2026-08-01', prazoEntrega:'2026-11-30', honorarios:9800, valorRecebido:0, statusCaso:'aguardando_nomeacao',
       documentos:[],
       observacoes:[{id:'o4',data:'2026-08-05',texto:'Nomeação publicada no DJE; aguardando decurso do prazo recursal das partes.'}]},
   ];
@@ -5032,11 +5037,17 @@ function avisoLogin(texto, tipo){
   el.textContent = texto || '';
   el.className = 'login-aviso ' + (tipo || '');
 }
+let loginEmailMemo = '';
+let recuperarEnviado = '';
+let recuperarEspera = 0;
 function trocarModoLogin(modo){
+  const em = document.getElementById('loginEmail');
+  if(em) loginEmailMemo = em.value.trim();
   loginModo = modo;
+  if(modo !== 'recuperar') recuperarEnviado = '';
   renderLogin();
   const alvo = document.getElementById(modo === 'criar' ? 'loginNome' : 'loginEmail');
-  if(alvo) alvo.focus();
+  if(alvo){ if(alvo.id === 'loginEmail' && loginEmailMemo && !alvo.value) alvo.value = loginEmailMemo; alvo.focus(); }
 }
 
 async function entrarComSenha(){
@@ -5076,10 +5087,13 @@ async function criarConta(){
   }
 }
 
-async function recuperarSenha(){
-  if(!auth) return;
-  const email = (document.getElementById('loginEmail').value || '').trim();
-  if(!email){ avisoLogin('Digite o e-mail cadastrado para receber o link.', 'erro'); return; }
+async function recuperarSenha(reenviar){
+  if(!auth){ avisoLogin('Sem conexão com o servidor de contas agora. Tente de novo em instantes.', 'erro'); return; }
+  const campo = document.getElementById('loginEmail');
+  const email = reenviar ? recuperarEnviado : ((campo && campo.value) || '').trim();
+  if(!email){ avisoLogin('Digite o e-mail da sua conta.', 'erro'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ avisoLogin('Esse e-mail não parece válido.', 'erro'); return; }
+  if(reenviar && Date.now() < recuperarEspera) return;
   avisoLogin('Enviando...');
   try{ await auth.sendPasswordResetEmail(email); }
   catch(e){
@@ -5088,7 +5102,12 @@ async function recuperarSenha(){
        a lista de quem tem conta no sistema */
     if(e.code !== 'auth/user-not-found'){ avisoLogin(mensagemAuth(e.code), 'erro'); return; }
   }
-  avisoLogin('Se esse e-mail tiver conta, o link já está a caminho. A mensagem vem de noreply@gerenciador-pericias-app.firebaseapp.com — se não aparecer, procure no spam.', 'ok');
+  loginEmailMemo = email;
+  recuperarEnviado = email;
+  recuperarEspera = Date.now() + 30000;
+  loginModo = 'recuperar';
+  renderLogin();
+  setTimeout(() => { if(loginModo === 'recuperar' && recuperarEnviado) renderLogin(); }, 30500);
 }
 
 /* ---------- confirmação do e-mail ---------- */
@@ -5168,7 +5187,39 @@ function renderLogin(){
     ? `<div class="lp-janela-caixa"><button class="icon-btn lp-janela-fechar" onclick="lpFecharEntrar()" aria-label="Fechar">${svg('<path d="M6 6l12 12M18 6L6 18"/>')}</button>${loginCaixaHtml()}</div>`
     : '';
 }
+function loginRecuperarHtml(){
+  const marca = `<div class="login-marca"><span class="brand-mark grande">${MARCA_SVG}</span>
+        <span class="wordmark grande"><b>Gerenciador</b><i>de Perícia</i></span></div>`;
+  if(recuperarEnviado){
+    const falta = Math.max(0, Math.ceil((recuperarEspera - Date.now()) / 1000));
+    return `
+    <div class="login-caixa">
+      ${marca}
+      <div class="login-ok">${svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>')}</div>
+      <h2 class="login-tit">Confira o seu e-mail</h2>
+      <p class="login-txt">Se <b>${escapeHtml(recuperarEnviado)}</b> tiver conta, enviamos um link para criar uma nova senha. Ele vale por 1 hora.</p>
+      <p class="login-txt login-txt-mudo">Não chegou? Procure no spam ou nas promoções. O remetente é noreply@gerenciador-pericias-app.firebaseapp.com.</p>
+      <button class="btn btn-primary login-entrar" onclick="trocarModoLogin('entrar')">Voltar para entrar</button>
+      <p class="login-troca">${falta > 0 ? `Pode reenviar em ${falta} s` : `<button type="button" onclick="recuperarSenha(true)">Reenviar o link</button>`}</p>
+      <div id="loginAviso" class="login-aviso"></div>
+    </div>`;
+  }
+  return `
+    <div class="login-caixa">
+      ${marca}
+      <h2 class="login-tit">Redefinir a senha</h2>
+      <p class="login-txt">Informe o e-mail da sua conta. Vamos enviar um link para você criar uma nova senha.</p>
+      <div class="field"><label for="loginEmail">E-mail</label>
+        <input id="loginEmail" type="email" autocomplete="username" placeholder="seu@email.com" value="${escapeHtml(loginEmailMemo)}"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();recuperarSenha()}"></div>
+      <button class="btn btn-primary login-entrar" onclick="recuperarSenha()">Enviar link</button>
+      <p class="login-troca">Lembrou a senha? <button type="button" onclick="trocarModoLogin('entrar')">Voltar para entrar</button></p>
+      <p class="login-termos">Entrou sempre pelo Google? Você também pode criar uma senha por aqui, com o mesmo e-mail.</p>
+      <div id="loginAviso" class="login-aviso"></div>
+    </div>`;
+}
 function loginCaixaHtml(){
+  if(loginModo === 'recuperar') return loginRecuperarHtml();
   const criando = loginModo === 'criar';
   return `
     <div class="login-caixa">
@@ -5194,7 +5245,7 @@ function loginCaixaHtml(){
         <input id="loginEmail" type="email" autocomplete="username" placeholder="seu@email.com"
                onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginSenha').focus()}"></div>
 
-      <div class="field" style="margin-top:10px;"><div class="login-rot"><label for="loginSenha">Senha</label>${criando ? '' : '<button type="button" class="login-esqueci" onclick="recuperarSenha()">Esqueci a senha</button>'}</div>
+      <div class="field" style="margin-top:10px;"><div class="login-rot"><label for="loginSenha">Senha</label>${criando ? '' : '<button type="button" class="login-esqueci" onclick="trocarModoLogin(\'recuperar\')">Esqueci a senha</button>'}</div>
         <input id="loginSenha" type="password" autocomplete="${criando ? 'new-password' : 'current-password'}" placeholder="••••••••"
                onkeydown="if(event.key==='Enter'){event.preventDefault();${criando ? 'criarConta()' : 'entrarComSenha()'}}">
         ${criando ? '<span class="login-dica">Pelo menos 8 caracteres, com letras e números.</span>' : ''}</div>
@@ -7194,7 +7245,7 @@ async function applyAuthState(){
     usingDb = true;
     usingLocalStorage = false;
     await startDbSync();
-    cloudSetBanner(bannerInfo('Conectado como ' + escapeHtml(currentUser.email) + '. Os dados sincronizam automaticamente entre os dispositivos em que você entrar com esta conta.'));
+    cloudSetBanner('');   /* conta e sincronização já aparecem no rodapé da barra lateral */
   } else {
     usingDb = false;
     db = null;
@@ -7204,7 +7255,7 @@ async function applyAuthState(){
     if(loaded) casos = loaded;
     usingLocalStorage = true;
     persistCasosToLocalStorage();
-    cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com uma conta da equipe para sincronizar entre dispositivos.'));
+    cloudSetBanner('');   /* o rodapé da barra lateral já mostra "Dados só neste navegador" */
     renderAll();
   }
 }
@@ -7273,7 +7324,7 @@ async function initDb(){
   if(loaded) casos = loaded;
   usingLocalStorage = true;
   persistCasosToLocalStorage();
-  cloudSetBanner(bannerInfo('Dados salvos automaticamente neste navegador. Entre com uma conta da equipe para sincronizar entre dispositivos.'));
+  cloudSetBanner('');   /* o rodapé da barra lateral já mostra "Dados só neste navegador" */
   renderAll();
   firebaseInit();
 }

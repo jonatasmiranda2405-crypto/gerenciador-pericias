@@ -83,7 +83,7 @@ volta a ser o de antes; os dados não mudam.
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
 sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as três suítes:
-o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil, Configurações, segurança e termos (75) e o PHP com o Mercado Pago (13).
+o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil, Configurações, segurança, termos e apresentação (78) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
 

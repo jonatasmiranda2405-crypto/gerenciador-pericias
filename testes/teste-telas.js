@@ -321,6 +321,15 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.click('#login .lp-cab-acoes button:has-text("Entrar")');
   await sleep(200);
   check("Entrar abre o login em janela", await pf.isVisible("#lpJanela #loginEmail") && await pf.evaluate(() => document.activeElement && document.activeElement.id === "loginEmail"));
+  await pf.fill("#lpJanela #loginEmail", "perita@exemplo.com");
+  await pf.click('#lpJanela button:has-text("Esqueci a senha")');
+  await sleep(150);
+  check("Esqueci a senha abre a tela própria com o e-mail digitado", /Redefinir a senha/.test(await pf.textContent("#lpJanela")) && await pf.inputValue("#lpJanela #loginEmail") === "perita@exemplo.com");
+  await pf.evaluate(() => { recuperarEnviado = "perita@exemplo.com"; recuperarEspera = Date.now() + 30000; renderLogin(); });
+  check("depois do envio: confira o e-mail, com espera para reenviar", /Confira o seu e-mail/.test(await pf.textContent("#lpJanela")) && /Pode reenviar em/.test(await pf.textContent("#lpJanela")));
+  await pf.click('#lpJanela button:has-text("Voltar para entrar")');
+  await sleep(150);
+  check("voltar para entrar", await pf.isVisible("#lpJanela #loginSenha"));
   await pf.click('#lpJanela button:has-text("Criar conta grátis")');
   await sleep(150);
   check("trocar para criar conta na janela", await pf.isVisible("#lpJanela #loginNome"));
