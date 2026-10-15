@@ -21,7 +21,9 @@ const LICENSE_OFFLINE_DAYS = 3;
 //    do content script periciaflow.js e com o host_permissions do manifest.json.
 //    O primeiro é o principal (abre quando nenhum estiver aberto).
 const PERICIAFLOW_URLS = [
-  "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/", // site publicado (Firebase)
+  "https://gerenciadorpericias.com.br/",                                 // site publicado (domínio próprio)
+  "https://www.gerenciadorpericias.com.br/",
+  "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/", // endereço antigo (redireciona)
   "http://localhost:8080/"                                               // versão PHP/MySQL
 ];
 const PERICIAFLOW_URL = PERICIAFLOW_URLS[0];

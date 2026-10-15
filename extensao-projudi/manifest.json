@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Baixador de PDFs para PROJUDI (TJGO)",
   "short_name": "PROJUDI PDFs",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "description": "Baixa os autos do PROJUDI/TJGO em ZIP ou direto no Gerenciador de Perícia, pelo seu login ou código de acesso. Extensão não oficial.",
   "icons": {
     "16": "icons/icon16.png",
@@ -20,6 +20,8 @@
     "https://*.tjgo.jus.br/*",
     "https://script.google.com/*",
     "https://script.googleusercontent.com/*",
+    "https://gerenciadorpericias.com.br/*",
+    "https://www.gerenciadorpericias.com.br/*",
     "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/*",
     "http://localhost:8080/*"
   ],
@@ -64,6 +66,8 @@
     },
     {
       "matches": [
+        "https://gerenciadorpericias.com.br/*",
+        "https://www.gerenciadorpericias.com.br/*",
         "https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/*",
         "http://localhost:8080/*"
       ],

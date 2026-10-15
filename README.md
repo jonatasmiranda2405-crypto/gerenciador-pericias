@@ -62,6 +62,17 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
   só de servidor), site publicado igual ao repositório, CSP e proteção contra moldura no ar, e busca de
   senhas/chaves no código (`ferramentas/vigia.mjs`). Falhou: o GitHub manda e-mail.
 
+## Domínio próprio: gerenciadorpericias.com.br
+
+- Registro: Registro.br. DNS: Cloudflare (plano grátis). Hospedagem: GitHub Pages (arquivo `CNAME`).
+- DNS no Cloudflare: `@` A 185.199.108.153 / 185.199.109.153 / 185.199.110.153 / 185.199.111.153 e
+  `www` CNAME jonatasmiranda2405-crypto.github.io. Primeiro "Somente DNS" (nuvem cinza) até o GitHub
+  emitir o certificado; depois "Com proxy" (nuvem laranja), SSL/TLS "Completo (estrito)", HSTS e
+  cabeçalhos (X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy).
+- Firebase: domínios autorizados do login e restrição da chave por referenciador com o domínio novo.
+- Extensão 1.7.4 aceita o domínio novo e o antigo.
+- A Central do administrador confere sozinha: "Site no domínio próprio" e "Cabeçalhos de segurança do servidor".
+
 ## Agente comercial
 
 - **Escritório > Agente comercial** (só administradores, entrando pelo Google): cole uma lista

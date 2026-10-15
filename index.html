@@ -2359,7 +2359,8 @@ function pfFavicon(){
    ========================================================================== */
 const ADMINS = ['jonatasmiranda2405@gmail.com', 'rodrigodosantosmiranda@gmail.com'];
 const APP_VERSAO = '2026.10.15';
-const EXT_VERSAO_ATUAL = '1.7.3';
+const EXT_VERSAO_ATUAL = '1.7.4';
+const SITE_DOMINIO = 'gerenciadorpericias.com.br';
 const VIGIA_API = 'https://api.github.com/repos/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml/runs?per_page=5';
 const VIGIA_LINK = 'https://github.com/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml';
 function souAdmin(){ return !!(currentUser && contaVerificada() && ADMINS.includes(meuEmail())); }
@@ -2406,6 +2407,20 @@ async function adminSondas(){
   const externos = [...document.scripts].filter(s => s.src && new URL(s.src, location.href).origin !== location.origin).map(s => s.src);
   add('scripts', 'Código só do próprio site', externos.length === 0, externos.length ? externos.join(', ') : 'nenhum script de fora carregado', 'alto',
     'Algum script de fora foi incluído na página. Remova ou sirva pela pasta vendor/.');
+  if(location.hostname !== 'localhost'){
+    const noDominio = location.hostname === SITE_DOMINIO || location.hostname === 'www.' + SITE_DOMINIO;
+    add('dominio', 'Site no domínio próprio', noDominio, location.hostname, 'medio',
+      `O site ainda abre em ${location.hostname}. Siga o passo a passo do domínio ${SITE_DOMINIO} (DNS no Cloudflare e arquivo CNAME no repositório).`);
+    let h = null;
+    try{
+      const res = await fetch(location.href.split('#')[0], {cache: 'no-store', credentials: 'same-origin'});
+      const g = n => res.headers.get(n) || '';
+      h = {hsts: /max-age=\d{7,}/.test(g('strict-transport-security')), moldura: /deny|sameorigin/i.test(g('x-frame-options')) || /frame-ancestors/.test(g('content-security-policy')), nosniff: /nosniff/i.test(g('x-content-type-options')), referrer: !!g('referrer-policy')};
+    }catch(e){}
+    const faltam = h ? [['hsts', 'HSTS'], ['moldura', 'proteção de moldura'], ['nosniff', 'nosniff'], ['referrer', 'Referrer-Policy']].filter(([k]) => !h[k]).map(([, n]) => n) : [];
+    add('cabecalhos-http', 'Cabeçalhos de segurança do servidor', h ? faltam.length === 0 : null, h ? (faltam.length ? 'faltam: ' + faltam.join(', ') : 'HSTS, moldura, nosniff e Referrer-Policy') : 'não deu para conferir', 'medio',
+      'No Cloudflare: SSL/TLS > Certificados de borda > HSTS ligado (6 meses ou mais), e Regras > Transformar > Modificar cabeçalho de resposta com X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: strict-origin-when-cross-origin.');
+  }
   if(usingDb && db){
     const semLogin = async url => { try{ const res = await fetch(url, {credentials: 'omit', cache: 'no-store'}); return res.status; }catch(e){ return 0; } };
     const s1 = await semLogin(`https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/casos?pageSize=1`);
@@ -2458,9 +2473,9 @@ const ADM_MANUAIS = [
    correcao: 'Google Cloud Console > IAM > Contas de serviço > Criar conta "regras-github" com o papel "Administrador de regras do Firebase" > Chaves > Adicionar chave JSON. No GitHub: Settings > Secrets and variables > Actions > New secret, nome FIREBASE_SA, cole o JSON. A partir daí, toda mudança nas regras é testada e publicada sozinha, e o vigia confere todo dia se o publicado é igual ao repositório.',
    link: 'https://console.cloud.google.com/iam-admin/serviceaccounts?project=gerenciador-pericias-app'},
   {id: 'chave-firebase', grav: 'medio', titulo: 'Restringir a chave do Firebase ao domínio do site',
-   correcao: 'Google Cloud Console > APIs e serviços > Credenciais > chave "Browser key" > Restrições de aplicativo: Referenciadores HTTP com o endereço do site (e o domínio próprio, quando houver).'},
+   correcao: 'Google Cloud Console > APIs e serviços > Credenciais > chave "Browser key" > Restrições de aplicativo: Referenciadores HTTP com https://' + SITE_DOMINIO + '/*, https://www.' + SITE_DOMINIO + '/*, https://jonatasmiranda2405-crypto.github.io/* e https://gerenciador-pericias-app.firebaseapp.com/*.'},
   {id: 'dominios-auth', grav: 'medio', titulo: 'Revisar os domínios autorizados do login',
-   correcao: 'Firebase Console > Authentication > Configurações > Domínios autorizados: deixe só o endereço do site, o domínio próprio e o firebaseapp.com. Tire localhost.'},
+   correcao: 'Firebase Console > Authentication > Configurações > Domínios autorizados: deixe ' + SITE_DOMINIO + ', www.' + SITE_DOMINIO + ', jonatasmiranda2405-crypto.github.io e gerenciador-pericias-app.firebaseapp.com. Tire localhost.'},
   {id: 'app-check', grav: 'medio', titulo: 'Ativar o App Check',
    correcao: 'Firebase Console > App Check: registre o site com reCAPTCHA Enterprise e ative a aplicação no Firestore e no Storage. Bloqueia robôs que usam a chave pública do site.'},
   {id: 'orcamento', grav: 'medio', titulo: 'Alerta de orçamento no Google Cloud',
@@ -2468,7 +2483,7 @@ const ADM_MANUAIS = [
   {id: 'backup', grav: 'medio', titulo: 'Cópia de segurança do banco',
    correcao: 'Google Cloud Console > Firestore > Recuperação de desastres: ative a recuperação para um momento (PITR) ou exportações agendadas para um bucket.'},
   {id: 'cabecalhos', grav: 'medio', titulo: 'Cabeçalhos de segurança no servidor (HSTS e frame-ancestors)',
-   correcao: 'O GitHub Pages não permite configurar. Com o domínio próprio no Cloudflare, ative HSTS e as regras de cabeçalho. Fazemos isso na etapa do domínio.'},
+   correcao: 'O GitHub Pages não permite configurar. Com o domínio no Cloudflare: HSTS em SSL/TLS > Certificados de borda e os outros cabeçalhos em Regras > Transformar. A sonda "Cabeçalhos de segurança do servidor" confere sozinha.'},
   {id: 'csp-inline', grav: 'medio', titulo: "A CSP ainda permite código embutido ('unsafe-inline')",
    correcao: 'Os botões usam onclick na própria página. Para tirar essa permissão, os eventos precisam ir para o JavaScript. Os dados já são limpos e escapados; isto é uma camada a mais.'},
   {id: 'enumeracao', grav: 'baixo', titulo: 'Proteção contra descoberta de e-mails cadastrados',

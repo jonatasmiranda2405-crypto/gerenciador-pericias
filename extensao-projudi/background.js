@@ -192,7 +192,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 // ---------- Quem pode pedir o quê ----------
 // Cada tipo de mensagem só é aceito vindo do lugar certo: os pedidos "PF_" só da página do
 // Gerenciador de Perícia, os "PROJUDI_"/"PJ_" só do site do PROJUDI. E só baixamos arquivos do PROJUDI.
-const ORIGENS_PF = ["https://jonatasmiranda2405-crypto.github.io", "http://localhost:8080"];
+const ORIGENS_PF = ["https://gerenciadorpericias.com.br", "https://www.gerenciadorpericias.com.br", "https://jonatasmiranda2405-crypto.github.io", "http://localhost:8080"];
 const ORIGEM_PJ = "https://projudi.tjgo.jus.br";
 const TIPOS_PF = new Set(["PF_ACEITAR", "PF_BAIXAR", "PF_CANCELAR", "PF_ENTRAR", "PF_FIM", "PF_LICENCA", "PF_PENDENTES"]);
 const TIPOS_PJ = new Set(["PROJUDI_CHECKOUT", "PROJUDI_LICENSE", "PROJUDI_LISTA", "PROJUDI_TAREFA", "PROJUDI_ZIP", "PJ_TAREFA", "PJ_TENTATIVA", "PJ_PRECISA"]);
