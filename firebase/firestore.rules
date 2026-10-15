@@ -6,7 +6,8 @@ rules_version = '2';
 //
 // Modelo de acesso:
 //   usuarios/{uid}         só o próprio usuário (cadastro, preferências, chave da IA)
-//   casos/{casoId}         lê quem está em `emails`; altera quem está em `editores`; apaga só o `dono`
+//   casos/{casoId}         lê quem está em `emails`; altera quem está em `editores` (só o `dono`
+//                          tira ou rebaixa alguém); apaga só o `dono`
 //   casos/{id}/documentos  lê quem lê a perícia; grava quem edita a perícia
 //   config/*               só leitura, só para as três contas antigas (migração do cadastro)
 //   todo o resto           fechado
@@ -87,8 +88,13 @@ service cloud.firestore {
       allow update: if verificado()
         && acessosCoerentes(request.resource.data)
         && (
-          // editor comum: o dono não muda
-          (ehEditor(resource.data) && request.resource.data.dono == resource.data.dono)
+          // dono: altera tudo, menos a própria posição de dono
+          ('dono' in resource.data && resource.data.dono == email() && request.resource.data.dono == resource.data.dono)
+          // editor: altera a perícia e pode convidar, mas não tira nem rebaixa ninguém
+          || (ehEditor(resource.data)
+              && request.resource.data.dono == resource.data.dono
+              && request.resource.data.emails.hasAll(resource.data.emails)
+              && request.resource.data.editores.hasAll(resource.data.editores))
           // migração das perícias antigas, feita por uma das contas antigas
           || (semAcessos(resource.data) && legado())
         );

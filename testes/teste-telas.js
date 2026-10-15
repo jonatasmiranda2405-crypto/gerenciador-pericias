@@ -272,7 +272,15 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   }));
   check("endereço de arquivo perigoso é recusado", await pf.evaluate(() =>
     arquivoSrc({ url: "javascript:alert(1)" }) === "" && arquivoSrc({ dataUrl: "data:text/html;base64,PHNjcmlwdD4=" }) === "" &&
-    arquivoSrc({ url: "https://firebasestorage.googleapis.com/v0/b/x/o/a.pdf" }) !== "" && arquivoSrc({ dataUrl: "data:application/pdf;base64,JVBE" }) !== ""));
+    arquivoSrc({ url: "https://firebasestorage.googleapis.com/v0/b/outro-bucket/o/casos%2Fx.html?alt=media" }) === "" &&
+    arquivoSrc({ url: "https://firebasestorage.googleapis.com/v0/b/gerenciador-pericias-app.firebasestorage.app/o/casos%2Fc1%2Fdocumentos%2Fd1%2Fa.pdf?alt=media&token=t" }) !== "" &&
+    arquivoSrc({ dataUrl: "data:application/pdf;base64,JVBE" }) !== ""));
+  check("hora, prioridade, datas e valores voltam ao formato esperado", await pf.evaluate(() => {
+    const o = limparCaso({ honorarios: "<img src=x onerror=alert(1)>", prazoEntrega: "2026-01-01\"><b>", compromissos: [{ id: "e1", hora: "<img src=x onerror=alert(1)>", data: "x", tipo: "zz" }],
+      tarefas: [{ id: "t1", prio: "alta\" onmouseover=alert(1) x=\"", col: "zz", ate: 5 }], proposta: { adiantamento: "\"><script>" } });
+    return o.honorarios === 0 && o.prazoEntrega === "" && o.compromissos[0].hora === "" && o.compromissos[0].tipo === "outro" &&
+      o.tarefas[0].prio === "media" && o.tarefas[0].col === "fazer" && o.tarefas[0].ate === "" && o.proposta.adiantamento === 0;
+  }));
   await ir("privacidade");
   check("Termos e privacidade: três documentos em abas", await pf.locator(".lg-aba").count() === 3 && /Termos de uso/.test(await pf.textContent(".lg-texto h1")));
   check("índice lateral com as seções", await pf.locator(".lg-indice-item").count() === await pf.locator(".lg-sec").count() && await pf.locator(".lg-sec").count() >= 10);

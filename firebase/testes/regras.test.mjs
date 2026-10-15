@@ -76,6 +76,17 @@ test('editor altera e compartilha, mas não troca o dono nem o remove', async ()
   await assertFails(updateDoc(doc(f, 'casos/c1'), { emails: [EDITOR, LEITOR], editores: [EDITOR] }));
   await assertFails(updateDoc(doc(f, 'casos/c1'), { editores: [DONO, EDITOR, ESTRANHO] }));
 });
+test('editor não tira nem rebaixa ninguém; o dono pode', async () => {
+  const f = db('u-editor', EDITOR);
+  await assertFails(updateDoc(doc(f, 'casos/c1'), { emails: [DONO, EDITOR], editores: [DONO, EDITOR] }));
+  await assertSucceeds(updateDoc(doc(f, 'casos/c1'), { editores: [DONO, EDITOR, LEITOR] }));
+  const d = db('u-dona', DONO);
+  await assertSucceeds(updateDoc(doc(d, 'casos/c1'), { emails: [DONO, LEITOR], editores: [DONO] }));
+  await assertFails(updateDoc(doc(d, 'casos/c1'), { dono: LEITOR }));
+});
+test('quem só lê não vira editor sozinho', async () => {
+  await assertFails(updateDoc(doc(db('u-leitor', LEITOR), 'casos/c1'), { editores: [DONO, EDITOR, LEITOR] }));
+});
 test('leitor e estranho não alteram', async () => {
   await assertFails(updateDoc(doc(db('u-leitor', LEITOR), 'casos/c1'), { nome: 'x' }));
   await assertFails(updateDoc(doc(db('u-leitor', LEITOR), 'casos/c1'), { editores: [DONO, EDITOR, LEITOR] }));

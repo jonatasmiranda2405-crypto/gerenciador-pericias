@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Segurança: de onde a página aceita carregar e para onde pode mandar dados. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script>
   /* Anti-clickjacking: o PeríciaFlow nunca roda dentro de moldura de outro site. */
@@ -1469,6 +1469,7 @@ async function compartilhar(casoId, emailBruto, nivel){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return {erro:'Informe um e-mail válido.'};
   if(email === donoDe(c)) return {erro:'Este e-mail já é o dono da perícia.'};
   if(!podeEditar(c)) return {erro:'Só quem tem acesso de edição pode compartilhar.'};
+  if(!souDono(c) && editoresDe(c).includes(email) && nivel !== 'editar') return {erro:'Só o dono da perícia pode reduzir o acesso de alguém.'};
 
   const aviso = ' Se a pessoa ainda não tiver conta, ela cria a dela com este mesmo e-mail e a perícia aparece lá.';
   const emails = [...new Set([...acessosDe(c), email])];
@@ -1673,7 +1674,7 @@ let projudiEstado = '';
 /* ==========================================================================
    Utilitários
    ========================================================================== */
-const fmtMoney = v => (v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const fmtMoney = v => (Number(v) || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-BR') : '—';
 const todayIso = () => new Date().toISOString().slice(0,10);
 
@@ -1691,16 +1692,40 @@ function idLimpo(v){
   const s = String(v ?? '');
   return ID_SEGURO.test(s) ? s : (s.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 150) || 'x');
 }
+const isoLimpo = v => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) ? v : '';
+const numLimpo = v => (typeof v === 'number' && isFinite(v)) ? v
+  : (typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v.trim())) ? Number(v) : 0;
+const textoLimpo = v => (v == null ? '' : (typeof v === 'object' ? '' : String(v)));
+const umDe = (v, opcoes, padrao) => opcoes.includes(v) ? v : padrao;
+/* Cada campo volta ao tipo esperado: data ISO, número, hora HH:MM ou um valor de lista fechada.
+   Assim um campo adulterado por outro membro nunca chega à tela como marcação. */
 function limparCaso(c){
   const o = {...c};
+  ['dataNomeacao', 'prazoEntrega'].forEach(k => { if(k in o) o[k] = isoLimpo(o[k]); });
+  ['honorarios', 'valorRecebido', 'honorariosDepositados', 'valorCausa'].forEach(k => { if(k in o && o[k] != null) o[k] = numLimpo(o[k]); });
+  if('statusCaso' in o && typeof STATUS !== 'undefined' && !STATUS[o.statusCaso]) o.statusCaso = Object.keys(STATUS)[0];
+  if('statusProcesso' in o && typeof STATUS_PROCESSO !== 'undefined' && o.statusProcesso && !STATUS_PROCESSO[o.statusProcesso]) o.statusProcesso = '';
   ['tarefas', 'compromissos', 'observacoes'].forEach(k => {
     if(Array.isArray(o[k])) o[k] = o[k].filter(x => x && typeof x === 'object').map(x => ({...x, id: idLimpo(x.id)}));
+    else if(k in o) o[k] = [];
   });
+  if(Array.isArray(o.tarefas)) o.tarefas = o.tarefas.map(t => ({...t, titulo: textoLimpo(t.titulo),
+    col: umDe(t.col, ['fazer', 'fazendo', 'feito'], 'fazer'), prio: umDe(t.prio, ['alta', 'media', 'baixa'], 'media'), ate: isoLimpo(t.ate)}));
+  if(Array.isArray(o.compromissos)) o.compromissos = o.compromissos.map(e => ({...e, titulo: textoLimpo(e.titulo), local: textoLimpo(e.local),
+    data: isoLimpo(e.data), hora: (typeof e.hora === 'string' && /^\d{2}:\d{2}$/.test(e.hora)) ? e.hora : '',
+    tipo: umDe(e.tipo, ['diligencia', 'audiencia', 'reuniao', 'outro'], 'outro')}));
+  if(Array.isArray(o.observacoes)) o.observacoes = o.observacoes.map(x => ({...x, data: isoLimpo(x.data), texto: textoLimpo(x.texto)}));
+  if(o.proposta && typeof o.proposta === 'object') o.proposta = {...o.proposta, adiantamento: Math.max(0, Math.min(100, numLimpo(o.proposta.adiantamento)))};
   ['emails', 'editores'].forEach(k => {
     if(Array.isArray(o[k])) o[k] = o[k].map(e => String(e || '').toLowerCase()).filter(e => EMAIL_SEGURO.test(e));
   });
-  if(Array.isArray(o.compartilhamentos)) o.compartilhamentos = o.compartilhamentos.filter(x => x && EMAIL_SEGURO.test(String(x.email || '')));
+  if(Array.isArray(o.compartilhamentos)) o.compartilhamentos = o.compartilhamentos.filter(x => x && EMAIL_SEGURO.test(String(x.email || '')))
+    .map(x => ({...x, nivel: umDe(x.nivel, ['editar', 'leitura'], 'leitura')}));
   return o;
+}
+function limparDocumento(d){
+  return {...d, nome: textoLimpo(d.nome), tipo: textoLimpo(d.tipo), fase: textoLimpo(d.fase), obs: textoLimpo(d.obs),
+    data: isoLimpo(d.data), tamanho: numLimpo(d.tamanho), arquivo: (d.arquivo && typeof d.arquivo === 'object') ? d.arquivo : null};
 }
 function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -1771,7 +1796,7 @@ function mimeFromDataUrl(dataUrl){
    para que um dado adulterado numa perícia compartilhada não vire código rodando aqui. */
 function arquivoSrc(arquivo){
   const u = String((arquivo && (arquivo.url || arquivo.dataUrl)) || '');
-  if(/^https:\/\/firebasestorage\.googleapis\.com\//.test(u)) return u;
+  if(/^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/gerenciador-pericias-app\.(firebasestorage\.app|appspot\.com)\/o\/casos%2F[^?#"'<>\s]+\?/.test(u)) return u;
   if(/^data:(application\/(pdf|zip|octet-stream|msword|vnd\.[a-z0-9.+-]+)|image\/(png|jpe?g|gif|webp)|text\/(plain|csv));base64,/i.test(u.slice(0, 120))) return u;
   return '';
 }
@@ -3371,6 +3396,7 @@ function carregarRascunho(c){
   rascunho = {...base, ...salvo};
   if(!Array.isArray(rascunho.horas) || rascunho.horas.length !== TAREFAS.length) rascunho.horas = base.horas;
   rascunho.horas = rascunho.horas.map(h => Math.max(0, num(h)));
+  rascunho.adiantamento = Math.max(0, Math.min(100, num(rascunho.adiantamento)));
   return rascunho;
 }
 function agendarSalvar(){
@@ -3902,7 +3928,7 @@ function renderProposta(){
           <input id="propHoraTec" inputmode="decimal" value="${brl(r.horaTecnica)}" oninput="propCampo('horaTecnica', this.value)">
           <span class="dica">Padrão da ficha do perito · <a href="#" onclick="event.preventDefault();refazerTexto('horas')">refazer horas sugeridas</a></span></div>
         <div class="field"><label for="propAdiant">Adiantamento (%)</label>
-          <input id="propAdiant" inputmode="numeric" value="${r.adiantamento}" oninput="propCampo('adiantamento', this.value)">
+          <input id="propAdiant" inputmode="numeric" value="${escapeHtml(r.adiantamento)}" oninput="propCampo('adiantamento', this.value)">
           <span class="dica">Art. 465, §4º, do CPC</span></div>
       </div>
       <div class="kv-grid" style="margin-top:14px;">
@@ -4017,7 +4043,7 @@ function renderCompartilhamento(c){
   const corpo = `
       <div class="rows">
         ${linhaCompartilhamento(c, donoDe(c), false)}
-        ${outros.map(e => linhaCompartilhamento(c, e, editavel)).join('')}
+        ${outros.map(e => linhaCompartilhamento(c, e, souDono(c))).join('')}
       </div>
       ${editavel ? `
       <div class="form-grid" style="margin:14px 0 0;">
@@ -4438,11 +4464,11 @@ const LEGAL = {
       ]},
       {t:'Controle de acesso no servidor', b:[
         ['p','As regras de segurança do Firebase decidem cada leitura e gravação no servidor do Google. Mesmo quem tentar contornar a tela não passa delas.'],
-        ['lista',['Uma perícia só é lida por quem está na lista de acesso dela, alterada por quem tem acesso de edição e excluída só pelo dono.',
-                  'Os arquivos seguem o mesmo acesso da perícia. Arquivos HTML, SVG e scripts são recusados, e cada arquivo tem limite de 50 MB.',
+        ['lista',['Uma perícia só é lida por quem está na lista de acesso dela e excluída só pelo dono. Quem tem acesso de edição altera a perícia, os documentos e convida pessoas; tirar ou rebaixar alguém, só o dono. Dê edição só a quem precisa.',
+                  'Os arquivos seguem o mesmo acesso da perícia. Arquivos enviados como HTML, SVG ou script são recusados, e cada arquivo tem limite de 50 MB.',
                   'O seu perfil, com o cadastro e a chave da IA, só é lido pela sua conta.',
                   'Qualquer caminho que não esteja nas regras fica fechado.',
-                  'As regras são testadas automaticamente a cada mudança, no emulador oficial do Firebase.']],
+                  'As regras são testadas automaticamente a cada mudança nelas, no emulador oficial do Firebase.']],
       ]},
       {t:'Contas e senhas', b:[
         ['lista',['Entrada pelo Google ou por e-mail e senha. A senha é definida por você e validada pelo Firebase: o PeríciaFlow nunca a recebe nem a guarda.',
@@ -4451,11 +4477,11 @@ const LEGAL = {
                   'Cada conta nasce com o espaço vazio: nenhuma conta vê as perícias de outra sem compartilhamento.']],
       ]},
       {t:'Proteções no navegador', b:[
-        ['lista',['Política de segurança de conteúdo (CSP): a página só carrega código do próprio site e de serviços do Google necessários ao login, e só envia dados para os serviços listados.',
+        ['lista',['Política de segurança de conteúdo (CSP): a página só carrega bibliotecas do próprio site e só se conecta aos serviços do Google usados pelo sistema e ao Banco Central.',
                   'Bibliotecas servidas pelo próprio site, sem CDN de terceiros no carregamento.',
                   'Proteção contra clickjacking: o sistema não abre dentro de moldura de outro site.',
-                  'Os dados de perícias compartilhadas e as respostas da IA são tratados como texto: nada do que chega vira código na tela.',
-                  'Endereços de arquivo só são abertos se forem do Firebase Storage ou de um tipo de arquivo seguro.']],
+                  'Os dados de perícias compartilhadas e as respostas da IA são conferidos antes de aparecer: datas, valores e listas voltam ao formato esperado, e o texto é exibido como texto, nunca como código.',
+                  'Endereços de arquivo só são abertos se forem do armazenamento deste sistema ou de um tipo de arquivo seguro.']],
       ]},
       {t:'PROJUDI e extensão', b:[
         ['lista',['O login no PROJUDI é feito por você, no site do tribunal. A extensão só usa a sessão aberta e não guarda senha nem certificado.',
@@ -4481,7 +4507,8 @@ const LEGAL = {
       {t:'Limites conhecidos', b:[
         ['lista',['O link de download de arquivo funciona para quem tiver o endereço completo (veja a Política de privacidade).',
                   'O sistema ainda não tem verificação em duas etapas própria para a entrada por e-mail e senha; prefira entrar pelo Google com a verificação em duas etapas ligada.',
-                  'A cópia local das perícias fica no navegador do computador em que você usa o sistema.']],
+                  'A cópia local das perícias fica no navegador do computador em que você usa o sistema.',
+                  'Qualquer pessoa com conta pode compartilhar uma perícia com o seu e-mail, e ela aparece em Recebidas. Se não reconhecer quem compartilhou, não abra os arquivos e peça a remoção.']],
       ]},
       {t:'Encontrou uma falha?', b:[
         ['p',`Escreva para ${LEGAL_CONTATO} descrevendo o problema. Não acesse dados de outras pessoas nem tente explorar a falha além do necessário para mostrá-la. Respondemos e corrigimos o quanto antes.`],
@@ -5916,10 +5943,12 @@ function iaAchados(c){
     : (a.pontosAtencao || []).map(p => ({categoria:'Outros', gravidade:p.risco, titulo:p.titulo, detalhe:p.detalhe, efeito:'', fonte:p.fonte, trecho:''}));
   const dec = c.iaRevisao || {};
   const ordem = {erro:0, atencao:1, verificar:2};
-  return brutos.map(x => {
-    const chave = iaHash((x.titulo || '') + '|' + (x.fonte || ''));
-    return {categoria: iaCategoria(x.categoria), gravidade: iaGravidade(x.gravidade), titulo: x.titulo || 'Sem título',
-      detalhe: x.detalhe || '', efeito: x.efeito || '', fonte: x.fonte || '', trecho: x.trecho || '', chave, decisao: dec[chave] || ''};
+  const t = v => (v == null || typeof v === 'object') ? '' : String(v);
+  return brutos.filter(x => x && typeof x === 'object').map(x => {
+    const chave = iaHash(t(x.titulo) + '|' + t(x.fonte));
+    return {categoria: iaCategoria(t(x.categoria)), gravidade: iaGravidade(t(x.gravidade)), titulo: t(x.titulo) || 'Sem título',
+      detalhe: t(x.detalhe), efeito: t(x.efeito), fonte: t(x.fonte), trecho: t(x.trecho), chave,
+      decisao: IA_DECISAO[dec[chave]] ? dec[chave] : ''};
   }).sort((p, q) => ordem[p.gravidade] - ordem[q.gravidade]);
 }
 function iaFiltrados(c){
@@ -6550,7 +6579,7 @@ function subscribeDocumentos(casoId){
   currentDocsUnsub = db.collection('casos').doc(casoId).collection('documentos').onSnapshot(snap => {
     const cc = casos.find(x => x.id === casoId);
     if(!cc) return;
-    cc.documentos = snap.docs.filter(d => ID_SEGURO.test(d.id)).map(d => ({...d.data(), id:d.id}));
+    cc.documentos = snap.docs.filter(d => ID_SEGURO.test(d.id)).map(d => limparDocumento({...d.data(), id:d.id}));
     if(drawerCasoId === casoId) renderDrawer();
   }, err => { /* mantém último estado conhecido */ });
 }
@@ -6838,7 +6867,7 @@ function renderDocItem(c, d){
         <input list="${faseListId}" id="editFase-${d.id}" value="${escapeHtml(d.fase||'')}" placeholder="Fase / despacho" style="width:100%; margin-bottom:6px; border:1px solid var(--line); border-radius:7px; padding:7px 9px; background:var(--ground); color:var(--ink); font-family:inherit; font-size:13px;">
         <div class="add-row">
           <select id="editTipo-${d.id}">${DOC_TYPES.map(t=>`<option value="${t}" ${d.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
-          <input type="date" id="editData-${d.id}" value="${d.data||''}">
+          <input type="date" id="editData-${d.id}" value="${escapeHtml(d.data||'')}">
         </div>
         <div class="add-row">
           <button class="btn btn-primary btn-sm" onclick="saveDocEdit(${jsq(c.id)},${jsq(d.id)})">Salvar</button>
@@ -6974,13 +7003,13 @@ function renderDrawer(){
         <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate(${jsq(c.id)},'vara',this.value)"></div>
         <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate(${jsq(c.id)},'comarca',this.value)"></div>
         <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate(${jsq(c.id)},'partes',this.value)"></div>
-        <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate(${jsq(c.id)},'dataNomeacao',this.value)"></div>
-        <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate(${jsq(c.id)},'prazoEntrega',this.value)"></div>
+        <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${escapeHtml(c.dataNomeacao || '')}" onchange="fieldUpdate(${jsq(c.id)},'dataNomeacao',this.value)"></div>
+        <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${escapeHtml(c.prazoEntrega || '')}" onchange="fieldUpdate(${jsq(c.id)},'prazoEntrega',this.value)"></div>
         <div class="meta-item"><label>Status</label>
           <select onchange="fieldUpdate(${jsq(c.id)},'statusCaso',this.value)">${statusOptions}</select>
         </div>
-        <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate(${jsq(c.id)},'honorarios',this.value,true)"></div>
-        <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate(${jsq(c.id)},'valorRecebido',this.value,true)"></div>
+        <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${escapeHtml(c.honorarios ?? '')}" onchange="fieldUpdate(${jsq(c.id)},'honorarios',this.value,true)"></div>
+        <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${escapeHtml(c.valorRecebido ?? '')}" onchange="fieldUpdate(${jsq(c.id)},'valorRecebido',this.value,true)"></div>
         <div class="meta-item"><label>Saldo a receber</label><div class="readout" style="color:${saldo>0?'var(--danger)':'var(--ok)'}">${fmtMoney(Math.max(0,saldo))}</div></div>
       </div>
 
@@ -7435,7 +7464,7 @@ function renderTarefas(){
       <h5>${rotulo}<span>${lista.length}</span></h5>
       ${lista.map(t => `
         <div class="pf-kcard" draggable="true" ondragstart="event.dataTransfer.setData('text/plain',${jsq(t.casoId + '|' + t.id)})">
-          <div class="pf-krow"><span class="pf-prio ${t.prio || 'media'}" title="prioridade ${PF_PRIO[t.prio] || 'Média'}"></span><b>${escapeHtml(t.titulo)}</b></div>
+          <div class="pf-krow"><span class="pf-prio ${PF_PRIO[t.prio] ? t.prio : 'media'}" title="prioridade ${PF_PRIO[t.prio] || 'Média'}"></span><b>${escapeHtml(t.titulo)}</b></div>
           <div class="pf-krow pf-kmeta"><button class="link-sutil mono" onclick="openDrawer(${jsq(t.casoId)})">${escapeHtml(t.caso.codigo)}</button><span style="flex:1"></span>${t.ate ? pfPillData(t.ate, k === 'feito') : ''}</div>
           <div class="pf-krow pf-kacoes">
             ${ci > 0 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa(${jsq(t.casoId)},${jsq(t.id)},-1)" aria-label="Voltar" title="Voltar para ${PF_TAREFA_COLS[ci-1][1]}">←</button>` : ''}
@@ -7516,7 +7545,7 @@ function renderAgenda(){
   futuros.forEach(e => (porDia[e.data] = porDia[e.data] || []).push(e));
   const pillTipo = {prazo:'pill-danger', audiencia:'pill-warning', diligencia:'pill-accent', reuniao:'pill-muted', outro:'pill-muted'};
   const linha = (e) => `<div class="pf-ev">
-      <time class="mono">${e.hora || '—'}</time>
+      <time class="mono">${escapeHtml(e.hora || '—')}</time>
       <div style="flex:1; min-width:0;">
         <b>${escapeHtml(e.titulo)}</b> <span class="pill ${pillTipo[e.tipo] || 'pill-muted'}">${e.tipo === 'prazo' ? 'Prazo' : PF_TIPO_COMP[e.tipo] || 'Compromisso'}</span>
         <div class="hint"><button class="link-sutil mono" onclick="openDrawer(${jsq(e.casoId)})">${escapeHtml(e.caso.codigo)}</button>${e.local ? ' · ' + escapeHtml(e.local) : ''}</div>
@@ -7777,13 +7806,13 @@ function renderIntegracoes(){
 
 /* ---------- Painel: "hoje e próximos dias" na Visão geral ---------- */
 function renderHoje(){
-  const tarefas = pfTarefasAbertas().filter(t => t.ate && diasAte(t.ate) <= 3).sort((a, b) => a.ate.localeCompare(b.ate)).slice(0, 6);
+  const tarefas = pfTarefasAbertas().filter(t => t.ate && diasAte(t.ate) <= 3).sort((a, b) => String(a.ate).localeCompare(String(b.ate))).slice(0, 6);
   const comp = pfEventos().filter(e => e.origem === 'compromisso' && diasAte(e.data) >= 0 && diasAte(e.data) <= 7).slice(0, 6);
   if(!tarefas.length && !comp.length) return '';
   const item = (titulo, sub, iso, casoId) => `<div class="row-item" onclick="openDrawer(${jsq(casoId)})"><div class="row-main"><div class="row-title">${escapeHtml(titulo)}</div><div class="row-sub">${sub}</div></div><div class="row-side">${pfPillData(iso)}</div></div>`;
   return `<div class="pf-grid2">
     ${panel('hojeTarefas', 'Tarefas que vencem logo', `${pfTarefasAbertas().length} aberta${pfTarefasAbertas().length === 1 ? '' : 's'}`, tarefas.length ? `<div class="rows">${tarefas.map(t => item(t.titulo, `<span class="mono">${escapeHtml(t.caso.codigo)}</span> · prioridade ${PF_PRIO[t.prio] || 'Média'}`, t.ate, t.casoId)).join('')}</div>` : `<div class="chart-empty">Nenhuma tarefa vencendo.</div>`)}
-    ${panel('hojeAgenda', 'Agenda da semana', 'próximos 7 dias', comp.length ? `<div class="rows">${comp.map(e => item(e.titulo, `${e.hora || 'dia todo'} · <span class="mono">${escapeHtml(e.caso.codigo)}</span>${e.local ? ' · ' + escapeHtml(e.local) : ''}`, e.data, e.casoId)).join('')}</div>` : `<div class="chart-empty">Nada agendado na semana.</div>`)}
+    ${panel('hojeAgenda', 'Agenda da semana', 'próximos 7 dias', comp.length ? `<div class="rows">${comp.map(e => item(e.titulo, `${escapeHtml(e.hora || 'dia todo')} · <span class="mono">${escapeHtml(e.caso.codigo)}</span>${e.local ? ' · ' + escapeHtml(e.local) : ''}`, e.data, e.casoId)).join('')}</div>` : `<div class="chart-empty">Nada agendado na semana.</div>`)}
   </div>`;
 }
 
