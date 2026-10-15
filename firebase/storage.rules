@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// Regras do Cloud Storage do PeríciaFlow.
+// Publicar: Firebase Console > Storage > Regras (cole este arquivo e clique em Publicar)
+// ou `firebase deploy --only storage`.
+//
+// Os arquivos ficam em casos/{casoId}/documentos/{docId}/{arquivo}. O acesso segue o da
+// perícia no Firestore: lê quem está em `emails`, grava e apaga quem está em `editores`.
+// Limite de 50 MB por arquivo. HTML, SVG, XML e scripts são recusados, para nenhum arquivo
+// anexado virar página com código rodando.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function verificado() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function email() {
+      return request.auth.token.email.lower();
+    }
+    function caso(casoId) {
+      return firestore.get(/databases/(default)/documents/casos/$(casoId)).data;
+    }
+    function tipoPermitido() {
+      return !request.resource.contentType.matches('(?i).*(html|svg|xml|javascript|ecmascript|x-sh|x-msdownload).*');
+    }
+
+    match /casos/{casoId}/documentos/{docId}/{arquivo} {
+      allow read: if verificado() && email() in caso(casoId).emails;
+      allow create, update: if verificado()
+        && email() in caso(casoId).editores
+        && request.resource.size > 0
+        && request.resource.size <= 50 * 1024 * 1024
+        && tipoPermitido();
+      allow delete: if verificado() && email() in caso(casoId).editores;
+    }
+
+    // Qualquer outro caminho: fechado.
+    match /{caminho=**} {
+      allow read, write: if false;
+    }
+  }
+}
