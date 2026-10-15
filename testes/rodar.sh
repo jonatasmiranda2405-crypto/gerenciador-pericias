@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Roda os testes de ponta a ponta da extensão PROJUDI PDFs:
-#   1) site do GitHub (index.html)  2) PeríciaFlow PHP (servidor-php)
+#   1) site do GitHub (index.html)  2) Gerenciador de Perícia PHP (servidor-php)
 # Precisa de: node, php (com pdo_sqlite e openssl), openssl e o Playwright com Chromium.
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -27,4 +27,4 @@ sleep 1
 
 echo "== Site: fluxo dos autos do PROJUDI"; node teste.js
 echo "== Site: telas, barra lateral e paleta"; node teste-telas.js
-echo "== PeríciaFlow PHP"; PF_ARMAZ="$PHPDIR/armazenamento" node teste-php.js
+echo "== Gerenciador de Perícia PHP"; PF_ARMAZ="$PHPDIR/armazenamento" node teste-php.js

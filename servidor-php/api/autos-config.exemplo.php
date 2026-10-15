@@ -1,7 +1,7 @@
 <?php
 // Copie para autos-config.php e ajuste. NÃO publique o autos-config.php no GitHub.
 return [
-  // Banco (o mesmo do PeríciaFlow PHP)
+  // Banco (o mesmo do Gerenciador de Perícia PHP)
   'dsn'     => 'mysql:host=127.0.0.1;dbname=periciaflow;charset=utf8mb4',
   'usuario' => 'periciaflow',
   'senha'   => '',
@@ -17,7 +17,7 @@ return [
   // Tamanho máximo de um arquivo (bytes)
   'max_bytes' => 60 * 1024 * 1024,
 
-  // ---- Ligação com o login do PeríciaFlow PHP: ADAPTE estas duas funções ----
+  // ---- Ligação com o login do Gerenciador de Perícia PHP: ADAPTE estas duas funções ----
   // Quem está logado (ou null). Padrão: $_SESSION['usuario_id'].
   'usuario_atual' => function () {
     if (session_status() !== PHP_SESSION_ACTIVE) session_start();

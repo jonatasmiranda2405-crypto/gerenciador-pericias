@@ -1,9 +1,9 @@
-# PROJUDI PDFs v1.7.0 — autos direto no PeríciaFlow
+# PROJUDI PDFs v1.7.0 — autos direto no Gerenciador de Perícia
 
 ## O fluxo (seu desenho, na nossa realidade)
 
 ```
-PeríciaFlow (página da perícia)            Extensão                         PROJUDI · TJGO
+Gerenciador de Perícia (página da perícia)            Extensão                         PROJUDI · TJGO
  1. "Baixar autos do PROJUDI"  ─────────▶  periciaflow.js → background.js
     número + código + IDs que já tem        cria o pedido e abre uma aba ──▶ 2. aba em segundo plano
                                                                              3a. "Processo por Código" (sem login)
@@ -18,13 +18,13 @@ PeríciaFlow (página da perícia)            Extensão                         
  6. Firebase Storage + Firestore da conta (criptografados em repouso pelo Google)
 ```
 
-O PeríciaFlow é o "servidor do gerenciador": a gravação usa a sessão do perito no Firebase,
+O Gerenciador de Perícia é o "servidor do gerenciador": a gravação usa a sessão do perito no Firebase,
 então não existe uma API de upload aberta na internet. Duplicados são impossíveis porque
 o documento recebe sempre o mesmo ID, e a extensão nem baixa o que o site disse que já tem.
 
 ## Login no PROJUDI: regra de ouro
 
-Nem o PeríciaFlow nem a extensão pedem, leem ou guardam senha ou certificado.
+Nem o Gerenciador de Perícia nem a extensão pedem, leem ou guardam senha ou certificado.
 Quando o pedido precisa de login, a aba do PROJUDI vem para a frente com uma faixa
 explicando o que fazer. O perito entra como sempre: certificado digital A1/A3 ou CPF,
 senha e o código que chega por e-mail. A extensão só usa a sessão que ele abriu.
@@ -38,16 +38,16 @@ senha e o código que chega por e-mail. A extensão só usa a sessão que ele ab
 | `p7s.js` (novo) | Extrai o PDF de assinaturas CMS (DER e BER em pedaços). |
 | `background.js` | Motor de pedidos (`storage.session`), abre/fecha abas, filtra o que já existe. |
 | `offscreen.js` | Baixa com 3 tentativas, um arquivo por vez, entrega em partes com confirmação. |
-| `page.js` | Lê ID de cada arquivo e a capa; botão "Enviar ao PeríciaFlow"; inicia sozinho em abas de pedido. |
+| `page.js` | Lê ID de cada arquivo e a capa; botão "Enviar ao Gerenciador de Perícia"; inicia sozinho em abas de pedido. |
 | `bridge.js` | Rotas `lista` e `tarefa`. |
 | `config.js` | `PERICIAFLOW_URL`, `PROJUDI_URLS` e `ROBO_MAX_TENTATIVAS`. |
-| `manifest.json` | v1.7.0, permissão para o endereço do PeríciaFlow, novos content scripts. |
+| `manifest.json` | v1.7.0, permissão para o endereço do Gerenciador de Perícia, novos content scripts. |
 
 ## Dois destinos
 
-A mesma extensão entrega no PeríciaFlow do GitHub (Firebase) e no PeríciaFlow PHP em
+A mesma extensão entrega no Gerenciador de Perícia do GitHub (Firebase) e no Gerenciador de Perícia PHP em
 `http://localhost:8080` (pasta `periciaflow-php`, com a API de upload). Ela atende a aba que
-fez o pedido; quando o envio começa no PROJUDI, usa a aba do PeríciaFlow que estiver aberta.
+fez o pedido; quando o envio começa no PROJUDI, usa a aba do Gerenciador de Perícia que estiver aberta.
 Endereços em `PERICIAFLOW_URLS` (config.js) e no manifest.json.
 
 ## Antes de publicar na Chrome Web Store
@@ -66,7 +66,7 @@ Endereços em `PERICIAFLOW_URLS` (config.js) e no manifest.json.
    ("Número do Processo", "Código de Acesso"). Se não achar, ele pede ao perito para abrir
    o processo na aba, e o download continua sozinho. Ajustes ficam em `robo.js` e `config.js`.
 4. Atualizar a política de privacidade: os arquivos agora também vão para a conta do
-   próprio perito no PeríciaFlow.
+   próprio perito no Gerenciador de Perícia.
 
 ## Teste automatizado
 

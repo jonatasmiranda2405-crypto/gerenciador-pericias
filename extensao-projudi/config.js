@@ -17,7 +17,7 @@ const LICENSE_CACHE_HOURS = 12;
 // Se a internet/servidor falhar, aceita a última verificação por até N dias (dentro da validade).
 const LICENSE_OFFLINE_DAYS = 3;
 
-// 3) Endereços do PeríciaFlow (com a barra no fim). Precisam bater com o "matches"
+// 3) Endereços do Gerenciador de Perícia (com a barra no fim). Precisam bater com o "matches"
 //    do content script periciaflow.js e com o host_permissions do manifest.json.
 //    O primeiro é o principal (abre quando nenhum estiver aberto).
 const PERICIAFLOW_URLS = [
@@ -36,7 +36,7 @@ const PROJUDI_URLS = {
   porCodigo: "https://projudi.tjgo.jus.br/BuscaProcesso?PaginaAtual=4&TipoConsultaProcesso=23",
   // Busca pelo número com o perito logado (certificado digital ou CPF + senha).
   comLogin: "https://projudi.tjgo.jus.br/BuscaProcesso?PaginaAtual=4&TipoConsultaProcesso=24",
-  // Tela de entrada do PROJUDI (para o botão "Entrar no PROJUDI" do PeríciaFlow).
+  // Tela de entrada do PROJUDI (para o botão "Entrar no PROJUDI" do Gerenciador de Perícia).
   login: "https://projudi.tjgo.jus.br/"
 };
 // Quantas tentativas automáticas o robô faz antes de pedir ajuda ao perito na aba.

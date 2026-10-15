@@ -1,5 +1,5 @@
 <?php session_start(); $_SESSION['usuario_id'] = 'perito1'; ?>
-<!doctype html><meta charset="utf-8"><title>PeríciaFlow PHP — teste</title>
+<!doctype html><meta charset="utf-8"><title>Gerenciador de Perícia PHP — teste</title>
 <h1>Perícia caso-42</h1>
 <button data-pf-autos data-caso="caso-42" data-numero="5151870-23.2026.8.09.0051" data-codigo="Ab12Cd34">Baixar autos do PROJUDI</button>
 <div data-pf-autos-status="caso-42"></div>

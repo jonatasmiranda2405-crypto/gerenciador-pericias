@@ -1,4 +1,4 @@
-// Servidor de teste: PROJUDI simulado + PeríciaFlow (index.html do repositório) + verificador de assinatura.
+// Servidor de teste: PROJUDI simulado + Gerenciador de Perícia (index.html do repositório) + verificador de assinatura.
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
@@ -133,10 +133,12 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
   if (host === "jonatasmiranda2405-crypto.github.io") {
     // Os testes rodam no modo local (sem Firebase), como antes, quando o SDK vinha da gstatic e não carregava aqui.
     if (u.pathname.startsWith("/gerenciador-pericias/vendor/firebase-")) { res.writeHead(404); return res.end(); }
-    if (u.pathname.startsWith("/gerenciador-pericias/vendor/")) {
-      const base = path.join(__dirname, "..", "vendor");
-      const arq = path.normalize(path.join(base, decodeURIComponent(u.pathname.slice("/gerenciador-pericias/vendor/".length))));
-      if (arq.startsWith(base + path.sep) && fs.existsSync(arq) && fs.statSync(arq).isFile()) { res.writeHead(200, { "Content-Type": "application/javascript" }); return res.end(fs.readFileSync(arq)); }
+    const estatico = u.pathname.match(/^\/gerenciador-pericias\/(vendor|icones|apresentacao)\/(.+)$/) || u.pathname.match(/^\/gerenciador-pericias\/()(site\.webmanifest|favicon\.ico)$/);
+    if (estatico) {
+      const base = path.join(__dirname, "..", estatico[1]);
+      const arq = path.normalize(path.join(base, decodeURIComponent(estatico[2])));
+      const tipos = { ".js": "application/javascript", ".png": "image/png", ".svg": "image/svg+xml", ".webp": "image/webp", ".ico": "image/x-icon", ".webmanifest": "application/manifest+json", ".txt": "text/plain", ".md": "text/plain" };
+      if (arq.startsWith(base + path.sep) && fs.existsSync(arq) && fs.statSync(arq).isFile()) { res.writeHead(200, { "Content-Type": tipos[path.extname(arq)] || "application/octet-stream" }); return res.end(fs.readFileSync(arq)); }
       res.writeHead(404); return res.end();
     }
     if (u.pathname.startsWith("/gerenciador-pericias/novo/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(path.join(__dirname, "..", "novo", "index.html"))); }

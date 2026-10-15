@@ -1,4 +1,4 @@
-// Robô de navegação no PROJUDI. Só age em abas abertas por um pedido do PeríciaFlow.
+// Robô de navegação no PROJUDI. Só age em abas abertas por um pedido do Gerenciador de Perícia.
 // Cada carregamento de página dá UM passo: preencher a busca, clicar no processo ou pedir ajuda.
 // Nunca digita senha nem mexe no certificado: o login é sempre feito pelo perito.
 (() => {
@@ -23,7 +23,7 @@
       document.documentElement.appendChild(el);
     }
     el.style.background = alerta ? "#8a5f10" : "#14655c";
-    el.textContent = "PeríciaFlow · " + texto;
+    el.textContent = "Gerenciador de Perícia · " + texto;
   }
 
   // ---------- leitura de formulários ----------
@@ -116,7 +116,7 @@
         login: "Entre no PROJUDI com o seu certificado digital ou CPF e senha. Depois disso a busca continua sozinha.",
         captcha: "O PROJUDI pediu uma verificação de segurança. Resolva nesta aba; o resto continua sozinho.",
         confirmar: `Confira o processo ${pedido.numero}${pedido.metodo === "codigo" ? " e o código de acesso" : ""}, marque a verificação se aparecer e clique em Consultar. O resto continua sozinho.`,
-        assistido: `Não consegui chegar sozinho ao processo ${pedido.numero}. Abra o processo nesta aba: o download para o PeríciaFlow começa sozinho.`
+        assistido: `Não consegui chegar sozinho ao processo ${pedido.numero}. Abra o processo nesta aba: o download para o Gerenciador de Perícia começa sozinho.`
       };
       faixa(textos[etapa], true);
       await enviar({ type: "PJ_PRECISA", etapa });

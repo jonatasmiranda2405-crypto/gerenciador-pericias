@@ -1,4 +1,4 @@
-// Teste de ponta a ponta: extensão real + PROJUDI simulado + PeríciaFlow (index.html do repositório).
+// Teste de ponta a ponta: extensão real + PROJUDI simulado + Gerenciador de Perícia (index.html do repositório).
 const path = require("path");
 const os = require("os");
 let chromium;
@@ -109,14 +109,14 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   check("continuou sozinho depois do login", e.s.etapa === "fim" && e.docs.length === 4, e.s.texto);
 
   // ---------- 4) envio iniciado no PROJUDI ----------
-  console.log("\n4) Enviar ao PeríciaFlow a partir da tela do processo");
+  console.log("\n4) Enviar ao Gerenciador de Perícia a partir da tela do processo");
   const pj = await ctx.newPage();
   await pj.goto("https://projudi.tjgo.jus.br/Processo?Id=77");
   await pj.waitForSelector("#projudi-pdf-send:not([disabled])", { timeout: 15000 });
   await pj.click("#projudi-pdf-send");
   await pf.waitForSelector("#pjOferta select", { timeout: 30000 });
   const opcao = await pf.$eval("#pjOferta select", (s) => s.value);
-  check("oferta aparece no PeríciaFlow com a perícia do mesmo número pré-escolhida", opcao !== "novo", opcao);
+  check("oferta aparece no Gerenciador de Perícia com a perícia do mesmo número pré-escolhida", opcao !== "novo", opcao);
   await pf.selectOption("#pjOferta select", "novo");
   const antes = await pf.evaluate(() => casos.length);
   await pf.click("#pjOferta .btn-primary");

@@ -34,7 +34,7 @@
   }
 
   // Dados da capa do processo, quando a tela os mostrar. Tudo é opcional:
-  // o PeríciaFlow só exige o número; o resto ajuda a preencher a perícia nova.
+  // o Gerenciador de Perícia só exige o número; o resto ajuda a preencher a perícia nova.
   const ROTULOS = {
     classe: /^classe( processual)?$/i,
     assunto: /^assuntos?$/i,
@@ -134,7 +134,7 @@
   }
 
   // Lista no formato do ZIP: "261 - Juntada - Petição/2026-08-26_arquivo.pdf".
-  // O importador de ZIP do PeríciaFlow usa a pasta como fase e a data do nome.
+  // O importador de ZIP do Gerenciador de Perícia usa a pasta como fase e a data do nome.
   async function prepararArquivos(includeHtml, setStatus) {
     const toggles = await expandAll(setStatus);
     const files = collectFiles(toggles, includeHtml);
@@ -145,7 +145,7 @@
       return {
         url: f.url, isPdf: f.isPdf,
         zipName: (fase ? fase + "/" : "") + nome,
-        // usados no envio ao PeríciaFlow
+        // usados no envio ao Gerenciador de Perícia
         idArquivo: f.idArquivo || `${f.mov}-${sanitize(f.name)}`, nome, fase, mov: f.mov, tipo: f.tipo, data: f.data
       };
     });
@@ -158,7 +158,7 @@
     box.id = "projudi-pdf-box";
     box.innerHTML = `
       <button id="projudi-pdf-btn" type="button">⬇ Baixar todos os PDFs (ZIP)</button>
-      <button id="projudi-pdf-send" type="button">↗ Enviar ao PeríciaFlow</button>
+      <button id="projudi-pdf-send" type="button">↗ Enviar ao Gerenciador de Perícia</button>
       <label class="projudi-pdf-opt"><input type="checkbox" id="projudi-pdf-html"> incluir documentos HTML (decisões/despachos)</label>
       <div id="projudi-pdf-status"></div>
       <div id="projudi-pdf-lic">
@@ -272,7 +272,7 @@
       }
     };
 
-    // Envia a lista ao PeríciaFlow. pedidoId vem preenchido quando o próprio site pediu os autos.
+    // Envia a lista ao Gerenciador de Perícia. pedidoId vem preenchido quando o próprio site pediu os autos.
     async function enviarLista(pedidoId) {
       setBusy(true);
       try {
@@ -285,12 +285,12 @@
         if (res.license) { showLicense(res.license); setStatus(""); return; }
         if (!res.ok) { setStatus("Erro: " + (res.error || "não foi possível enviar.")); return; }
         if (res.oferta) {
-          setStatus(`${res.total} arquivo(s) prontos. Escolha a perícia na aba do PeríciaFlow` + (res.abaNova ? " que acabou de abrir." : "."));
+          setStatus(`${res.total} arquivo(s) prontos. Escolha a perícia na aba do Gerenciador de Perícia` + (res.abaNova ? " que acabou de abrir." : "."));
           return; // o progresso do envio continua chegando por onProgress
         } else if (!res.total) {
           setStatus("A perícia já tem todos os arquivos deste processo.");
         } else {
-          setStatus(`Enviando ${res.total} arquivo(s) novo(s) ao PeríciaFlow` + (res.pulados ? ` (${res.pulados} já estavam lá)` : "") + "…");
+          setStatus(`Enviando ${res.total} arquivo(s) novo(s) ao Gerenciador de Perícia` + (res.pulados ? ` (${res.pulados} já estavam lá)` : "") + "…");
           return; // o progresso continua chegando por onProgress
         }
         onProgress = null;
@@ -303,21 +303,21 @@
     }
     sendBtn.onclick = () => enviarLista(null);
 
-    // Aba aberta pela extensão a pedido do PeríciaFlow: começa sozinha se for o processo certo.
+    // Aba aberta pela extensão a pedido do Gerenciador de Perícia: começa sozinha se for o processo certo.
     request({ kind: "tarefa" }, 15000).then((res) => {
       const ped = res && res.pedido;
       if (!ped) return;
       const aqui = numeroProcesso().replace(/\D/g, "");
       if (aqui !== String(ped.numero).replace(/\D/g, "")) {
-        setStatus(`PeríciaFlow pediu o processo ${ped.numero}; esta tela é de outro.`);
+        setStatus(`O Gerenciador de Perícia pediu o processo ${ped.numero}; esta tela é de outro.`);
         return;
       }
-      setStatus("Pedido do PeríciaFlow: lendo os arquivos do processo…");
+      setStatus("Pedido do Gerenciador de Perícia: lendo os arquivos do processo…");
       let voltas = 0; // espera a verificação da assinatura (até ~15 s)
       const esperar = () => {
         if (licenciado) enviarLista(ped.id);
         else if (++voltas < 50) setTimeout(esperar, 300);
-        else setStatus("Ative a assinatura da extensão para continuar o pedido do PeríciaFlow.");
+        else setStatus("Ative a assinatura da extensão para continuar o pedido do Gerenciador de Perícia.");
       };
       esperar();
     });

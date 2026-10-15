@@ -1,4 +1,4 @@
-// Testes das regras do Firestore e do Storage do PeríciaFlow.
+// Testes das regras do Firestore e do Storage do Gerenciador de Perícia.
 // Rodam no emulador: `npm test` dentro de firebase/testes (ou no GitHub Actions).
 import { test, before, after, beforeEach } from 'node:test';
 import { readFileSync } from 'node:fs';

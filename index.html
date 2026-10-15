@@ -7,13 +7,22 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script>
-  /* Anti-clickjacking: o PeríciaFlow nunca roda dentro de moldura de outro site. */
+  /* Anti-clickjacking: o Gerenciador de Perícia nunca roda dentro de moldura de outro site. */
   if(window.top !== window.self){
     try{ window.top.location.replace(window.self.location.href); }
     catch(e){ document.documentElement.style.display = 'none'; }
   }
 </script>
-<title>PeríciaFlow — Perícia contábil</title>
+<title>Gerenciador de Perícia</title>
+<meta name="description" content="Gestão de perícias contábeis judiciais: processos, autos do PROJUDI, prazos, cálculos, proposta de honorários e revisão por IA.">
+<meta name="application-name" content="Gerenciador de Perícia">
+<meta name="apple-mobile-web-app-title" content="Gerenciador de Perícia">
+<meta name="theme-color" content="#1A3650">
+<link rel="icon" href="icones/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icones/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icones/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Montserrat:wght@600;700&display=swap">
@@ -177,9 +186,7 @@ body.rail .side-actions{justify-content:center;}
 body.rail #themeBtn{flex:1; justify-content:center;}
 .brand{display:flex; align-items:center; gap:10px; padding:0 6px;}
 .brand-mark{
-  width:34px; height:34px; border-radius:9px; flex-shrink:0;
-  background:#FFFFFF url(data:image/webp;base64,UklGRkAVAABXRUJQVlA4WAoAAAAQAAAAdwAAgQAAQUxQSE8KAAABCYYN0LYR4E7I/wcP54WI/k9A0JXAVhUI76R6W6Vijx0BIHdiz9/0rUTakORBxAtH1iBIe6K0IqfkwO58JzlIsgrclAZDQds20mL+rO+FEBETMB093rRFm2PeO7UZzOo+rZiBgkJUUaJL68Hxk/O8pNznkkEkSXFmD0zERmzHIpCfZxVETMAE+I4kyZJk27ZELMd8oDBpfk4MJgIT/98JyERgVrp8hLtn1SgEImICbG/bfkiS9Ly/iCyre2zbtj1r296j3TNb/4Ft27Z3W4Mem213ZUbG7z3IqvxFZMScR8QE5IfNqaiSzN45EkiLEAbWey1G1BnWYhXINkAHHHc3P/no/Q8+tjn2+oxk2AWRUyMCyTkeQICQAAFJgpt3OANgAbG7+aG7bl1/96N7R0AEkAS9+bhMLuMpRBiy9wFyPzpI3S1rvvOLLcL14CVdPxqyDSDBzdE2kgB721c/cRfCdVQBAaZxogfDvRkUg7GvHX/45l83hVhDc0rgmQTuYCF+ooElbUvsXPXlb3VDdQj4zJ865i5kG+6GNwLo/+NtZKqL/HOQSQKE/KgFGz90gEJFGSNvECO88oozHCpxHDkjRjs77lxQBU+JK07dz0pzbD2bfG7fMg21nRk8cBKliNaXEVo5JqdkrccAbAMPF6jQNRlVklBlaIC4QcNVKoPRP0kILIJtQNJSHubYeUI1LT6J3P/CmU0PA1bOWuKw1sjQWjC+FxPTcxNQOAsasJ3G2hwPEZNi+P+7N+WUb1SmxVYKQAIkQKMEWIzPzaw85PjzTlPpTBjbaXvu2UGtu9ZtpaEhG58+9PlvXqAUSzqF3n8U6wgZjZ445PrXnp71coxI37JGqqH52QEXv/xpsUe1f9hShxsHWvG0j1NUs/E3ZR1uHoTz/kZRhfvrHlN1GLlpxvb7UXQS9F4XVV1bbli/p6xCbz9wGbUWu3qxsJM4+D1RS7i9yBYmQnASLz6GQdPmgbxD+ornSIDUYmL6ZPpp4Wn7m2oVcEsAJ1zYd1I8+Vja352LVCQx9zSpIiO3hdjvj1kvwWTPzqlYmBb9QFFED4Xyo88GVIFoU/m/X5+MDBvS2OsMUlrLevFbe8JQ2+fPQCQ9tAte/2/FoQSsOAJUQetu+I3wMIPluRWpZXp/216ybDtOFDjNbhdx939DuQw+YnHkFKYC2tVs+2Mel/uO+1fTvsX/TWIYm5/ETnPbiEckD0e+cp6nxG2P5qTOzaM2kOpafEBxCBuYnAVVYOSRkqm73ICHkIDONDhNjPyKw1Adpnic9PFA0zUHP+9ahzog7kEJLqKltJOV8CVvPG+cukWqy55FughONrJueNWRhHpEmEmi6ILTvFesfMH8XmofOwQlhLiXKk82gukD8qndLmNdnSOS8F5wGgA5OSiy7yETZS+Ppesx08cUpBaLoLRTA0/nK2Zn87yD+7EeOHCqVMriDuw0iEVCvhAKshCCqCs73iJ1xx5iTBM4ZsXsvmFXH0AhuBYxeZXypE17QWmZcF2if8S//zURpPgzvdULVoof2EmVZgR92rP/8fVWEpyfYeua+TJtfR+UVr8UL3/BShyCyuFnH92Qk/4/GgGcfcyGP14AAsz8SPeueaXtXk+lEeR6TG9RSqwU9Adk+4Z9rBT/bwvgNEfqN06pCPlJe+x4kRy/VQIxbVQFEBj1++Tvk/v2cUr5YwFKCwFXZQcF4TgD8qP2n9ML0lc/yYgHs+xMS+ztADFWZq3/7d+/8pPep2SA2EgxH1smIGIrKhcb/rn4Gj40T/yQilVRsM952jzarRB8PSBWZLFuQ2dxGQLlXx7QQGOimF/y1osyhhwwntFUKyi2Yj5W/1MsYTv+tFfsvzMOMSwRkE3lu/uYy/Dhe78vV+QqzMzznjO7V1puCBJEIlQSKXcSAdpBQnofYlRkpuZvyhfF8gJK8rTTFOBAAQYP8vTP3w1eQsbSZfbZ32WZhyC0AYaFEKAkKdI5dj9s2cn9/z4kllSoj3zuoOkwL1/DhyoReKdQRk5+zT+B+Hz2xf+ddtQtJhYmsywbdUWbtYgBMKkbhbLkuKvPYb3AT+zs6tOUnWoKzO0XiiwLI8VlCYTieFBwjJx03bGR7ujDQ7bgqKuYdqZWEccPGishAKzVjayRsji5ZPqMi04EihkA5dYS1+TEPtZjTpnOyr6jBtCDSLBElDbyigsOP31/KAkdx4cKcdzRHgKnBbbR+PnPjcgiBEE5S1NAFm5CecqX9yfu7YwJ+AgcDznXgUtVspePfvEBCDuiGDmrE3JsI2b23+OxGVNxmDqxw9AVXIp5egZj63nxjKdUO1PGPCsjlZ8YraGcpgf4/wKUp1CHgtmkxNEZ5XttuhPUPVw6IJAMDN9cnlgofYfwbFSC0rybSAiQ+h7kVID0DcxH6k86zIwBTUnjSUkjQDuMPOVTs7h5EaXIFXC5Aki1uHUEAliAB7AA7yyKh0S6qDA8ULHXKyCexvUb+dxiw6YduAKlxb1AIPSBEKDrJpS6Srr3r3fHNFCAZFVXEFtlTl+hXLbk0X/eicxI+skIShZnQUwifXmKEYHRgAlhz2///DAl1SqtOwfRUK8kngLKUVkhQLaICuy9+4e30jHVqoJ7laACvNhGIIinkA1gl1nOtlv//l8yRyp2TKuLILTovbQOI2QIipwVokBBgQfX/uNB6HRpqBbxDPSwTRChNiKQMdjf8viaP2yDzF1qVE2NWOF8JsfWBky3t7hr+5N33XEHdCgLanVaV7ki2Y4desdwXF/vTeSRz27ZuG3bzgB0YtfUHNPuDQF93IYCKNTicNsbGVRO7FJ7rAmheNaV0YBAKzegHGO7zyia2ldutC4CEajy5IJRdpp3QQUltyoBFGWHEVfatatAwUnwFJcavzOk6QVFPLWFHJNY44PRXyGl3YdKDWtYddCCFoQz/YpAet3Ic1yx4kOJrfI7lfahDy3uVwpJQv2SepPnSnuenipQ5hhjM5zWFZeqnNebp6BNKyfQg1jrRAsIAWJsoUWMtN5FXGbvBfI0oRlKW+ti2FvAeHqVggoRNyM67eOVNITSQbEIwFlwI2ovAlZUeGGQFCAaGZzWHUQoIHJcI0WSlIVmoLRB46nIbTwDRIG2PPXFZXXinT6EINwS0iMrAtSQ81oNQQiioUobHBEgZK0OgDcum1GhdLWAAgXep5KEKhCjm+G0ELqKAEUWH0rTiipDaAlBZ41xrpvFgJFLRxripME4l+PhNSwUx2LnlnWrcDNcg0IoVIgYTsalszzEHbfd+iRqRERK0QsrsI8cPYRQRiu6u+rPIEUaaVFBBxGVAFGHoyXHvTvX/BGJSFNj0sjZjoC0Al4vD/1O1r1v9V1IkcYGanZKAbxeIxrkXnH730ukSIPVCUlfbzwIyd6Rvc2qH4Mwjc46JMdl6GRStAJYEYOrkE3Do1LkfaNs7A/p/V45vL8WZ9P4ftkRODqEJYo8xGEMvBeQXZaRNu2+Y3eQS8iUZ7jo88gevIS59wvj9RVqKMt88w7cHgBWUDggygoAAJA0AJ0BKngAggA+MRSIQyIhIRY4lvwgAwSziXABY0M3x9Gx/Sco50FG1fv8yefz0MbZDzAfs56tno18k31dvVS/ab2AP4B/UPTn/Zn4U/3J9gj9UM2G/pv4k+FP9V/GT9wO2/8Cev37rf3zRM/X37T+VPgAcYF+Lfyn+6/mDwr4APxX+Sf5D81/7R6QX7t6IfWD+zepb+O/3z8zP6r8i/4r/Ad4D+wfbN9gH8U/nH9+/pf7b/4j4lP6/7nfcT+M/3L/b/mH/WfsB/iX8q/wX9m/cr++////n/bl7AP3A9hH9Rkr/4fb4RUW4IqiH/GHd+NdXepKL2Rp2BBVXum0jEeVIcPzzGsw1+AhcWn1IVpyELNqV54iyxchxbUIzhLWviyDmu1EfgRuTSQ89q+uB9CcVUvFwkKAH8vbIqQpaPEL8k1I3sG3MsyYUEEo40aZXE2xGN36p5c3H0yQRjJpsyINzpVI9NBzP1GyGvcPEP5NhppnAM3cI+B+g7wy6h5H8qlgJKTX6g2TPJr/U1vdTtRllf+H/Zsk0fzrh00uoiOSE3eVPPhGe5bg+XDgAAD6z/ltc/yT72XUCAwripE5n9+GCfnx/4FNxHfv0XAVoVu++C1To+UmDX8MiM3LHVxcQfeMYI2TCaYSDXpPf6ZeZkbSZfJjCXIgDzRyTFcPO6PDg3A2hrZG8fQiOhwp9h7Mcww6qV5P5NX6gCqCsPkZcOPbM3LJxaKxHBCn8Rwne7uMAmbYLV6tFE3mmcRP/WtaQjK63Fo6v5cdDwREGzctoor49AS4SE//9390kQUZqwImw6Bs9hCXEfjxo/LfmWgpFRW84fkogG2kVDeJjOcSixtDn5ZejOyChSinNbN9neVIDkksSdpsocyZ1K//3MRtGxCiW/tyIEZnORLaa38rkjB+MmmXqAHJao8lLYbuVWc6Sn1QUJyo+BahS5f+2lmbcjo6ivDIjcvzVpcy6U93oHAgG1AxASBCnJARRWo4b6LcoKlPpIvDhvzRfsvzamE9vy46/JLv5pZihlWo1p7wp/oMM5o8wkv/qB2KBlwv6VGbe/gnK67bf03ykoV9Q8pdsXqymfLPTvdY6lFDSTJcy+l/c0oYo1VAblIPHyo0dago8E5mTWtRxrrjQU6WUSCArh/OJC7h/1BlSlSfDFGVKmtU2bM/Mu9rSGIenMfINuI8pmnZyZ311eFjB9V3OBfSU4ME36+TGb1osslT+9n7wFSIpG7LIr9Tp8KfaMyHsSkectf4M/syqNvyyW1TVQhtjQ36yeATypF7NBooRd9RExgxK7pFHmLVaLWNGKwOH3ezQrpeXK1QC8gVn/huAX/eq//8o6aPuqOvWJM15UVK8gv6GaPOQ0TC99y8cJhhJ+gDRc18FxnoS0AcS49PtS0fLPsU1tYJzXnEJtRBpVkyY818/Pk0zHN0YG3NLXv+vZllJv+WYQY6DqqMrPjlLi+2HVrj51NGuu9KFwMPPwUK3ZNLXO9XJvl+9NOFO416XSWMYd+XCAa/5K1ei0WLGDW9SXbyX4w9WL+PZ1UvFsvsdxYXNw8jxA2D/Pl04AlfSJ+58QUP6UW1NfdHe7ms1LJm8G+GAn7/Cq+NyotXtuDcIPAAz5No403IH7rmpYJ6YP/8NwVf+agRQn7vHuGSN7lVlX98SNFh5Z5Do5UhD6G0zUOn8YAxAzmg98t3K6qRKulg5lkQwSMRCgGdca7u6xd1mj99HBV1KFuO6rO+u83T4wensZc0YcQdkLkgoJAoPbyt1G81FueUpK5avbLCLdNy1aahAX8ayWPuE98qvGCWnu/1gphlI0nN2Kadcc9/yQcd1HKNNdJyS5medWqzhkY3Se5DDwJCckku1TW3mlZaggXGACBHuk+zdQ+AAF2H0d9ydlay+cYVqIHFaboH01jq/nzZuxjflx0zdvomdBWD7bNoIv+g6tT8u3mj3fmACrLESNPUAsglj53pkBlXpAJ8wButynkf2xJXkMTT8GxvO6srzx2xTvvcJYr3ueViYK1v5NfuWJR7GtGsOIA0DJV5KDtckxis9hXdRIN9EPjAalsiTAqHNnmzGwWyu9nn34RMtedgf6o7wvpfnlLAwpNFzLLrIH81km//gBsIwE1jMfwBbeyCh7Fa15oriq+9+DHYMKshh733rPXJeU/josig8nFDblnW7idjaF6TMdwTpcPzf1q+jmYmIMMx6klqCE4dta0AsmyB4bgxLItduftLTgcKstjhETGw4O2zjC4yPJng/wZZIwzdsP/u9WCMxRCc5M5f3W6oYManGsjJ18Rn6+jQvfxsuX4V88RNgoWmM1UaT/f8sLCYbKaQbCMqXAtcgfi/41ZP/PHFRmBP7BGnt8iy0hnthWfu5N5541rIIUlsXtbN8u35et8q5fjY1r3hHFbXSWWUe7xFZKN66kPo4ab9lL0H6zxkiT8YNETUmO8GKxVpmfcDyFgJPb1hISr4n1aXvgrhZ33AtXpvC6o6gJ4aot4Apt1vBcyglgTXc0OYG5ch8TAHdR9Q3WmErhJA6jCATzPO9RQaUphE8cy5XkvhuOPKGWRkhPnii4YDy+68F/rXPzAgiNyIsapX4fSJVtoeD3qgD3TsZTj1gI1kZmP4kgKWsodkRcdrfHOisSgq1N9oWupgwjYOQaU9OJ/48JU1iOk/aQXMwL6770FdvDm8E+wJ3Ybg3Sk999ChvVjx6nD2Dq2EMHgSynkglUCXezjQIqBBRE9IBESo3iRXoBwwWkOpzyt3xSR/1E6XMqpRKaiLiLeXS7NPZg7qNX30Dx/kg8l/0GLvAgtt0wsziKDTfXZUgWZRotoMer7UXhxbkP6FEEYWtqUZLK//DBhUyXD1Zk/xYcXUQ1d4r5yaNKnr9gSrPLW6UTzgvvzN6fEGbrIyBpxnZvxHXdvWtqWHw4N2Gc5IXyi9/B1CjQgkK85HQIkCWQPEpecycXZZSMzshuE4d2vfZxxri0fbGbUumZ6+KU+ad+8w9pEcf+k/cbFbkJpG2lsUYZqQocdJQBwK/9RmobZsqHOWK8T7hp5e29WoBxmu5KBfEc6Hqu1Mxt3OTzMwLJaQ0207NxbBqtwyyaZuvxpcykpkE5bc//VDgLzPHmv1M3iM6YM/x25uqVcKnAv+GdqhQGz0CuYjRIgpY0be+bsMRfk3wpu4LaaAVEEWayLLNlEL1/MOCHMMe4SDpm/HKE37N+UtqXHVstNPVWdVskTuZUpzNtpAYBwtUMp2MaoAL+/idtJVpBYv3vbtgOT7U1wiCtO2p8n//8nd6IYD+Gh5c1KYd4xrzNky3b7+PSpeBEtFHeHtqbPTO0pyaZ+1Pf/kl1kDL0y4TIMIilpjisVWY0EQKMJxV6yy1goqbFezXSFUJBC5eu0VDU1SRT/lKmGjQRwukQwQt8wcf2TazwW/Wd0qC8wIlZ6rlBobPZDJvJmd3EWk9/DWNV/6TBA1LomSijsa0c2zE6V7ju74P+gwGAB9D8Z+5Rfk/iAezw4Bqz6smxyuOKzqBien/I/fXp8Z8hsqKaNi7zlRLewCKj4Bn2sxEbi4sHCnvBPL3+2cvq6SVOGjEHTn7JqzBmic/32f+1s+NmXn/0/g59DEWMd7puZBmulytwePUj/GLZ+1PbBKk+WRy9aGxnYLk8xvRa3Tl/RkDY88l78CP/4jlAAAAAAA) center/62% auto no-repeat;
-  border:1px solid var(--line);
+  width:34px; height:34px; border-radius:9px; flex-shrink:0; line-height:0;
   display:flex; align-items:center; justify-content:center;
   font-family:'IBM Plex Mono',monospace;
 }
@@ -703,9 +710,9 @@ table.memoria tfoot td{font-weight:600; border-top:2px solid var(--line-strong);
   font-family:'Montserrat','IBM Plex Sans',system-ui,sans-serif;
   font-size:15px; line-height:1.15; letter-spacing:-.015em; white-space:nowrap;
 }
-.wordmark b{font-weight:700; color:var(--ink);}
-.wordmark i{font-style:normal; font-weight:600; color:var(--accent);}
-.wordmark.grande{font-size:29px; letter-spacing:-.025em;}
+.wordmark b{display:block; font-weight:700; color:var(--ink);}
+.wordmark i{display:block; font-style:normal; font-weight:600; color:var(--accent);}
+.wordmark.grande{font-size:25px; line-height:1.1; letter-spacing:-.025em;}
 
 /* ---------- selo de privacidade ---------- */
 .selo{
@@ -757,7 +764,7 @@ body.travado{overflow:hidden;}
   width:100%; max-width:392px; background:var(--surface); border:1px solid var(--line);
   border-radius:16px; padding:30px 28px 24px; box-shadow:var(--shadow);
 }
-.brand-mark.grande{width:50px; height:50px; border-radius:13px; background-size:64% auto;}
+.brand-mark.grande{width:54px; height:54px; border-radius:13px;}
 .login-marca{display:flex; align-items:center; gap:13px; margin-bottom:6px;}
 .login-sub{font-size:12.5px; color:var(--muted); margin:0 0 22px;}
 .btn-google{
@@ -1133,6 +1140,254 @@ body.rail .pf-rodape{flex-direction:column;}
   .lg-modal-caixa{height:100%; border-radius:0;}
   .lg-modal-rolagem{padding:18px 16px 26px;}
 }
+
+/* ---------- ícone (pasta com lupa): acompanha a paleta escolhida ---------- */
+:root{--marca:#1B3850; --marca-escuro:#132A3E; --marca-lente:#7FBCE6; --marca-claro:#C7D6E2;}
+:root[data-palette="jade"]{--marca:#0B5C49; --marca-escuro:#07463A; --marca-lente:#7FD8B8; --marca-claro:#BFE3D6;}
+:root[data-palette="indigo"]{--marca:#2F4485; --marca-escuro:#233466; --marca-lente:#A9BBF0; --marca-claro:#CBD5F2;}
+:root[data-palette="grafite"]{--marca:#3D444B; --marca-escuro:#2E3439; --marca-lente:#C3CCD5; --marca-claro:#D3D8DD;}
+:root[data-palette="bordo"]{--marca:#7A3139; --marca-escuro:#5E242B; --marca-lente:#F2AEB3; --marca-claro:#EBCACD;}
+:root[data-palette="oliva"]{--marca:#34521A; --marca-escuro:#273E13; --marca-lente:#B8D88F; --marca-claro:#D2E3BE;}
+.mk{width:100%; height:100%; display:block;}
+.mk-fundo{fill:var(--marca);}
+.mk-papel{fill:#FFFFFF;}
+.mk-aba{stroke:var(--marca-claro); fill:none;}
+.mk-lente{fill:var(--marca-escuro); stroke:var(--marca-lente);}
+.mk-cabo{stroke:var(--marca-lente); fill:none;}
+/* carregando: a lupa percorre a pasta */
+@keyframes mkVarre{0%{transform:translate(0,0)}25%{transform:translate(-150px,-60px)}50%{transform:translate(-90px,-150px)}75%{transform:translate(-20px,-110px)}100%{transform:translate(0,0)}}
+.mk-varre .mk-lupa{animation:mkVarre 3s ease-in-out infinite;}
+.mk-carregando{display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--surface); font-size:13.5px; color:var(--ink-2);}
+.mk-carregando .mk{width:44px; height:44px; flex-shrink:0;}
+/* telas vazias: a pasta esmaecida acima do texto */
+.empty-state::before{content:''; display:block; width:58px; height:58px; margin:0 auto 14px; opacity:.5;
+  background:url("icones/icone.svg") center/contain no-repeat;}
+/* selo de revisão em dia: a lupa com o check */
+.ia-fresco > i{width:18px; height:18px; border-radius:0; background:none !important; flex-shrink:0;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5' fill='none' stroke='black' stroke-width='2.4'/%3E%3Cpath d='M15.5 15.5l4.5 4.5' stroke='black' stroke-width='2.8' stroke-linecap='round'/%3E%3Cpath d='M7.6 10.8l2 2 3.4-3.7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5' fill='none' stroke='black' stroke-width='2.4'/%3E%3Cpath d='M15.5 15.5l4.5 4.5' stroke='black' stroke-width='2.8' stroke-linecap='round'/%3E%3Cpath d='M7.6 10.8l2 2 3.4-3.7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  background-color:var(--ok) !important;}
+.ia-fresco.velho > i{background-color:var(--warn) !important;}
+
+/* ---------- Página de apresentação ---------- */
+.login.lp-modo{display:block; padding:0; align-items:initial; justify-content:initial; scroll-behavior:auto;}
+.lp{min-height:100%; background:var(--ground); color:var(--ink); font-family:'IBM Plex Sans',system-ui,sans-serif;}
+.lp-lim{width:min(1180px, 100%); margin:0 auto; padding:0 24px; box-sizing:border-box;}
+.lp button{font-family:inherit;}
+.lp-cab{position:sticky; top:0; z-index:5; background:transparent; transition:background .2s ease, box-shadow .2s ease, border-color .2s ease; border-bottom:1px solid transparent;}
+.lp-cab.rolou{background:color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter:blur(10px); border-bottom-color:var(--line);}
+.lp-cab-in{display:flex; align-items:center; gap:20px; height:68px;}
+.lp-marca{display:flex; align-items:center; gap:10px; background:none; border:0; padding:0; cursor:pointer; color:var(--ink); text-align:left;}
+.lp-marca .brand-mark{width:36px; height:36px;}
+.lp-marca .wordmark{font-size:14.5px;}
+.lp-nav{display:flex; gap:2px; margin-left:auto;}
+.lp-nav button{background:none; border:0; padding:8px 12px; border-radius:8px; font-size:13.5px; color:var(--ink-2); cursor:pointer;}
+.lp-nav button:hover{background:var(--surface-2); color:var(--ink);}
+.lp-cab-acoes{display:flex; gap:8px;}
+.lp-btn-g{padding:12px 20px; font-size:14.5px; display:inline-flex; align-items:center; gap:8px;}
+.lp-btn-g svg{width:16px; height:16px;}
+
+.lp-heroi{padding:56px 0 40px; overflow:hidden;}
+.lp-heroi-in{display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.15fr); gap:48px; align-items:center;}
+.lp-selo{display:inline-flex; align-items:center; gap:7px; padding:6px 12px; border-radius:30px; background:var(--accent-soft); color:var(--accent-deep); font-size:12.5px; font-weight:600;}
+.lp-selo svg{width:15px; height:15px;}
+.lp-heroi h1{margin:18px 0 16px; font-family:Montserrat,'IBM Plex Sans',sans-serif; font-size:clamp(34px, 4.4vw, 52px); line-height:1.06; letter-spacing:-.03em; font-weight:700; text-wrap:balance;}
+.lp-heroi h1 em{font-style:normal; color:var(--accent);}
+.lp-heroi-txt > p{margin:0 0 26px; font-size:17px; line-height:1.6; color:var(--ink-2); max-width:540px;}
+.lp-heroi-cta{display:flex; gap:10px; flex-wrap:wrap;}
+.lp-heroi-pts{list-style:none; margin:22px 0 0; padding:0; display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--muted);}
+.lp-heroi-pts li{display:flex; align-items:center; gap:6px;}
+.lp-heroi-pts svg{width:15px; height:15px; color:var(--ok); stroke-width:2.4;}
+.lp-heroi-vis{position:relative;}
+.lp-janela-nav{border-radius:14px; overflow:hidden; border:1px solid var(--line); background:var(--surface); box-shadow:0 40px 80px -40px rgba(10,20,30,.45), 0 2px 6px rgba(10,20,30,.06);}
+.lp-janela-barra{display:flex; align-items:center; gap:6px; height:32px; padding:0 12px; background:var(--surface-2); border-bottom:1px solid var(--line);}
+.lp-janela-barra i{width:9px; height:9px; border-radius:50%; background:var(--line-strong);}
+.lp-janela-barra span{margin-left:10px; font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+.lp-heroi-telas{position:relative; aspect-ratio:1280/800;}
+.lp-heroi-telas img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:top left; opacity:0; transition:opacity .8s ease;}
+.lp-heroi-telas img.on{opacity:1;}
+.lp-flut{position:absolute; display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; background:var(--surface); border:1px solid var(--line); box-shadow:0 18px 40px -18px rgba(10,20,30,.45); font-size:12px; color:var(--muted); animation:lpFlutua 6s ease-in-out infinite;}
+.lp-flut b{display:block; font-size:13px; color:var(--ink);}
+.lp-flut > svg{width:20px; height:20px; color:var(--accent);}
+.lp-flut-1{left:-26px; top:18%;}
+.lp-flut-2{right:-18px; top:44%; animation-delay:-2s;}
+.lp-flut-3{left:8%; bottom:-18px; animation-delay:-4s;}
+.lp-flut-lupa{width:30px; height:30px; display:block;}
+.lp-flut-lupa .mk{width:30px; height:30px;}
+@keyframes lpFlutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lp-integra{display:flex; flex-wrap:wrap; align-items:center; gap:10px 26px; margin-top:64px; padding-top:22px; border-top:1px solid var(--line); font-size:13px; color:var(--muted);}
+.lp-integra b{font-weight:600; color:var(--ink-2); letter-spacing:.01em;}
+
+.lp-sec{padding:88px 0;}
+.lp-sec-alt{background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+.lp-tit{text-align:center; max-width:720px; margin:0 auto 40px;}
+.lp-tit > span{font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-deep);}
+.lp-tit h2{margin:10px 0 0; font-family:Montserrat,'IBM Plex Sans',sans-serif; font-size:clamp(26px, 3vw, 36px); line-height:1.15; letter-spacing:-.02em; font-weight:700; text-wrap:balance;}
+.lp-tit p{margin:12px 0 0; font-size:15px; color:var(--muted);}
+.lp-tit-esq{text-align:left; margin:0 0 28px;}
+.lp-ic{width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-deep); flex-shrink:0;}
+.lp-ic svg{width:21px; height:21px; stroke-width:1.8;}
+.lp-beneficios{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px;}
+.lp-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px; display:flex; flex-direction:column; gap:10px; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;}
+.lp-sec-alt .lp-card{background:var(--ground);}
+.lp-card:hover{transform:translateY(-3px); box-shadow:var(--shadow); border-color:var(--accent);}
+.lp-card b{font-size:16px; margin-top:6px;}
+.lp-card p{margin:0; font-size:13.5px; line-height:1.6; color:var(--muted);}
+.lp-passos{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; counter-reset:p; position:relative;}
+.lp-passos li{position:relative; padding:26px 22px 22px; border-radius:16px; background:var(--surface); border:1px solid var(--line);}
+.lp-passos i{font-style:normal; display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--accent); color:var(--surface); font-weight:700; margin-bottom:14px;}
+.lp-passos b{font-size:16px;}
+.lp-passos p{margin:6px 0 0; font-size:13.5px; line-height:1.6; color:var(--muted);}
+.lp-modulos{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px;}
+.lp-mod{display:flex; gap:14px; align-items:flex-start; padding:18px; border-radius:14px; border:1px solid var(--line); background:var(--surface); transition:border-color .2s ease, transform .2s ease;}
+.lp-mod:hover{border-color:var(--accent); transform:translateY(-2px);}
+.lp-mod b{font-size:14.5px;}
+.lp-mod p{margin:4px 0 0; font-size:13px; line-height:1.55; color:var(--muted);}
+
+.lp-demo-abas{display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; scrollbar-width:none;}
+.lp-demo-aba{flex:1 0 auto; display:flex; flex-direction:column; gap:7px; align-items:stretch; padding:9px 12px 0; background:none; border:0; border-radius:9px; cursor:pointer; color:var(--muted); font-size:13px; font-weight:500; text-align:left;}
+.lp-demo-aba:hover{color:var(--ink); background:var(--surface-2);}
+.lp-demo-aba.on{color:var(--ink); font-weight:600;}
+.lp-demo-aba i{display:block; height:3px; border-radius:3px; background:var(--line); overflow:hidden;}
+.lp-demo-aba s{display:block; height:100%; width:0; background:var(--accent); text-decoration:none;}
+.lp-demo-aba.on s{animation:lpBarra 6s linear forwards;}
+.lp-demo:hover .lp-demo-aba.on s{animation-play-state:paused;}
+@keyframes lpBarra{from{width:0}to{width:100%}}
+.lp-demo-tela{aspect-ratio:1280/800; background:var(--ground);}
+.lp-demo-tela img{width:100%; height:100%; object-fit:cover; object-position:top left; display:block; transition:opacity .2s ease, transform .3s ease;}
+.lp-demo-tela img.troca{opacity:0; transform:scale(.995);}
+.lp-demo-txt{margin:16px 0 0; text-align:center; font-size:15px; color:var(--ink-2); min-height:24px;}
+
+.lp-ia{display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:56px; align-items:center;}
+.lp-lista{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px;}
+.lp-lista li{display:flex; gap:12px; font-size:15px; line-height:1.55; color:var(--ink-2);}
+.lp-lista svg{width:20px; height:20px; flex-shrink:0; margin-top:2px; color:var(--ok); stroke-width:2.4;}
+.lp-lista b{color:var(--ink);}
+.lp-nota{margin:22px 0 0; padding:12px 16px; border-radius:12px; background:var(--accent-soft); color:var(--accent-deep); font-size:13.5px; line-height:1.55;}
+.lp-ia-vis{position:relative; padding:30px;}
+.lp-achado{background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 30px 60px -30px rgba(10,20,30,.4); display:flex; flex-direction:column; gap:10px; transition:opacity .25s ease, transform .25s ease;}
+.lp-achado.troca{opacity:0; transform:translateY(6px);}
+.lp-achado-top{display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted);}
+.lp-achado-top i{width:8px; height:8px; border-radius:50%; background:var(--danger);}
+.lp-achado-top em{font-style:normal; margin-left:4px; padding:3px 10px; border-radius:20px; background:var(--danger-soft); color:var(--danger); font-size:11.5px;}
+.lp-achado-top em[data-g="Atenção"]{background:var(--warn-soft); color:var(--warn);}
+.lp-achado-top em[data-g="Verificar"]{background:var(--accent-soft); color:var(--accent-deep);}
+.lp-achado b{font-size:19px; line-height:1.3;}
+.lp-achado p{margin:0; font-size:14px; color:var(--ink-2); line-height:1.55;}
+.lp-achado-onde{padding:12px 14px; border-radius:12px; background:var(--surface-2);}
+.lp-achado-onde small{display:block; font-size:11.5px; color:var(--muted); margin-bottom:3px;}
+.lp-achado-onde code{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink);}
+.lp-achado-bt{display:flex; gap:8px;}
+.lp-achado-bt span{flex:1; text-align:center; padding:10px; border-radius:10px; font-size:13px; font-weight:600; border:1px solid var(--line-strong);}
+.lp-achado-bt span:first-child{background:var(--accent); color:var(--surface); border-color:var(--accent);}
+.lp-ia-lupa{position:absolute; right:0; top:0; width:74px; height:74px; display:block; filter:drop-shadow(0 12px 18px rgba(10,20,30,.25));}
+
+.lp-ferr{background:var(--ground); border:1px solid var(--line); border-radius:20px; padding:10px; max-width:980px; margin:0 auto;}
+.lp-ferr-abas{display:flex; gap:4px; padding:4px; background:var(--surface-2); border-radius:12px; width:max-content; max-width:100%; margin:0 auto 10px;}
+.lp-ferr-abas button{border:0; background:none; padding:9px 16px; border-radius:9px; font-size:13.5px; font-weight:500; color:var(--muted); cursor:pointer;}
+.lp-ferr-abas button.on{background:var(--surface); color:var(--ink); font-weight:600; box-shadow:0 1px 3px rgba(10,20,30,.1);}
+.lp-ferr-corpo{display:grid; grid-template-columns:minmax(0, 1.3fr) minmax(0, 1fr); gap:10px;}
+.lp-ferr-corpo[hidden]{display:none;}
+.lp-ferr-campos{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:16px;}
+.lp-campo{display:flex; flex-direction:column; gap:6px; font-size:12.5px; font-weight:600; color:var(--ink-2);}
+.lp-campo input, .lp-campo select, .lp-campo textarea{font:inherit; font-weight:400; font-size:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink);}
+.lp-campo textarea{resize:vertical;}
+.lp-faixa{display:grid; grid-template-columns:minmax(0, 1fr) 46px; grid-template-rows:auto auto; gap:2px 12px; align-items:center; font-size:13px; color:var(--ink-2);}
+.lp-faixa span{grid-column:1 / -1;}
+.lp-faixa input{width:100%; accent-color:var(--accent);}
+.lp-faixa b{font-variant-numeric:tabular-nums; text-align:right; font-size:13px;}
+.lp-ferr-res{border-radius:14px; padding:26px; background:var(--marca, #1B3850); color:#FFFFFF; display:flex; flex-direction:column; gap:6px;}
+.lp-ferr-res small{font-size:12px; letter-spacing:.06em; text-transform:uppercase; opacity:.75;}
+.lp-ferr-res strong{font-family:Montserrat,sans-serif; font-size:clamp(26px, 3vw, 36px); font-weight:700; letter-spacing:-.02em; line-height:1.15; text-transform:none;}
+.lp-ferr-res > span{font-size:13.5px; opacity:.8;}
+.lp-ferr-linha{display:flex; justify-content:space-between; gap:10px; margin:12px 0 6px; padding:12px 0; border-top:1px solid rgba(255,255,255,.18); border-bottom:1px solid rgba(255,255,255,.18); font-size:14px;}
+.lp-ferr-res .btn{margin-top:10px; justify-content:center; background:#FFFFFF; color:var(--marca, #1B3850); border-color:#FFFFFF;}
+.lp-ferr-res .btn:hover{background:#E6EEF4;}
+.lp-ferr-res p{margin:10px 0 0; font-size:12px; line-height:1.5; opacity:.72;}
+
+.lp-seg-links{display:flex; justify-content:center; margin-top:26px; font-size:14px;}
+.lp-seg-links .lg-links{font-size:13.5px; gap:10px;}
+
+.lp-duvidas{display:grid; grid-template-columns:minmax(0, .8fr) minmax(0, 1.4fr); gap:48px; align-items:start;}
+.lp-faq{display:flex; flex-direction:column; gap:10px;}
+.lp-faq details{border:1px solid var(--line); border-radius:14px; background:var(--ground); padding:0 18px; transition:border-color .2s ease;}
+.lp-faq details[open]{border-color:var(--accent);}
+.lp-faq summary{list-style:none; display:flex; justify-content:space-between; align-items:center; gap:14px; padding:16px 0; cursor:pointer; font-size:15px; font-weight:600;}
+.lp-faq summary::-webkit-details-marker{display:none;}
+.lp-faq summary svg{width:18px; height:18px; flex-shrink:0; transition:transform .2s ease; color:var(--muted);}
+.lp-faq details[open] summary svg{transform:rotate(180deg);}
+.lp-faq details p{margin:0 0 16px; font-size:14px; line-height:1.65; color:var(--ink-2);}
+
+.lp-suporte{display:grid; grid-template-columns:minmax(0, 1.4fr) minmax(0, 1fr); gap:20px; align-items:start;}
+.lp-form{background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:24px; display:flex; flex-direction:column; gap:14px;}
+.lp-form-linha{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px;}
+.lp-form .btn{align-self:flex-start; padding:11px 18px;}
+.lp-form small{font-size:12px; color:var(--muted);}
+.lp-sup-lado{display:flex; flex-direction:column; gap:12px;}
+.lp-sup-card{display:flex; gap:14px; align-items:flex-start; padding:18px; border-radius:16px; border:1px solid var(--line); background:var(--surface); color:var(--ink); text-decoration:none; transition:border-color .2s ease;}
+a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
+.lp-sup-card > svg{width:24px; height:24px; color:var(--accent); flex-shrink:0;}
+.lp-sup-card span{display:flex; flex-direction:column; gap:3px; font-size:13.5px; color:var(--muted); overflow-wrap:anywhere;}
+.lp-sup-card b{color:var(--ink); font-size:15px;}
+.lp-sup-man span{gap:6px;}
+.lp-sup-man .lg-link{text-align:left; font-size:13.5px;}
+
+.lp-final{padding:90px 0; background:var(--marca, #1B3850); color:#FFFFFF; text-align:center;}
+.lp-final-in{display:flex; flex-direction:column; align-items:center; gap:22px;}
+.lp-final h2{margin:0; font-family:Montserrat,sans-serif; font-size:clamp(26px, 3.4vw, 40px); letter-spacing:-.02em; max-width:720px; text-wrap:balance;}
+.lp-final-marca{width:64px; height:64px; border-radius:16px; box-shadow:0 0 0 6px rgba(255,255,255,.08);}
+.lp-final .btn-primary{background:#FFFFFF; color:var(--marca, #1B3850); border-color:#FFFFFF;}
+.lp-final .btn-primary:hover{background:#E6EEF4;}
+.lp-btn-claro{color:#FFFFFF !important; border-color:rgba(255,255,255,.4) !important; background:transparent !important;}
+.lp-btn-claro:hover{background:rgba(255,255,255,.1) !important;}
+
+.lp-rodape{padding:56px 0 30px; background:var(--surface);}
+.lp-rodape-in{display:grid; grid-template-columns:1.4fr repeat(3, 1fr); gap:28px;}
+.lp-rodape-in > div{display:flex; flex-direction:column; align-items:flex-start; gap:8px;}
+.lp-rodape-in > div > b{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:4px;}
+.lp-rodape-in button{background:none; border:0; padding:0; font-size:14px; color:var(--ink-2); cursor:pointer; text-align:left;}
+.lp-rodape-in button:hover{color:var(--accent);}
+.lp-rodape-marca p{margin:6px 0 0; font-size:13.5px; color:var(--muted);}
+.lp-rodape-fim{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:40px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--muted);}
+
+/* janela de login */
+.lp-janela{position:fixed; inset:0; z-index:95; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(10,16,20,.55); backdrop-filter:blur(3px);}
+.lp-janela.aberta{display:flex;}
+.lp-janela-caixa{position:relative; width:100%; max-width:410px; max-height:calc(100vh - 40px); overflow:auto; border-radius:16px; animation:lpSobe .25s ease;}
+.lp-janela-caixa .login-caixa{max-width:none;}
+.lp-janela-fechar{position:absolute; top:10px; right:10px; z-index:2;}
+@keyframes lpSobe{from{opacity:0; transform:translateY(12px) scale(.98)}to{opacity:1; transform:none}}
+
+/* aparecer ao rolar */
+.lp-rev{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
+.lp-rev.lp-vis{opacity:1; transform:none;}
+@media (prefers-reduced-motion: reduce){
+  .lp-rev{opacity:1; transform:none;}
+  .lp-flut, .mk-varre .mk-lupa{animation:none !important;}
+}
+
+@media (max-width:1060px){
+  .lp-nav{display:none;}
+  .lp-cab-acoes{margin-left:auto;}
+  .lp-heroi-in, .lp-ia, .lp-duvidas, .lp-suporte, .lp-ferr-corpo{grid-template-columns:1fr;}
+  .lp-beneficios{grid-template-columns:repeat(2, minmax(0, 1fr));}
+  .lp-modulos{grid-template-columns:repeat(2, minmax(0, 1fr));}
+  .lp-flut-1{left:-6px;} .lp-flut-2{right:-6px;}
+  .lp-rodape-in{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:640px){
+  .lp-lim{padding:0 16px;}
+  .lp-cab-in{height:60px; gap:10px;}
+  .lp-marca .wordmark{display:none;}
+  .lp-heroi{padding-top:30px;}
+  .lp-heroi-txt > p{font-size:15.5px;}
+  .lp-beneficios, .lp-modulos, .lp-passos, .lp-form-linha{grid-template-columns:1fr;}
+  .lp-flut{display:none;}
+  .lp-sec{padding:60px 0;}
+  .lp-demo-aba{flex:0 0 auto;}
+  .lp-ia-vis{padding:30px 0 0;}
+  .lp-rodape-in{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -1142,10 +1397,9 @@ body.rail .pf-rodape{flex-direction:column;}
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-mark"></div>
+      <div class="brand-mark"><svg class="mk" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-fundo" width="512" height="512" rx="116"/><path class="mk-papel" d="M88 160a24 24 0 0 1 24-24h92l34 34h162a24 24 0 0 1 24 24v170a24 24 0 0 1-24 24H112a24 24 0 0 1-24-24z"/><path class="mk-aba" d="M88 214h336" stroke-width="16"/><g class="mk-lupa"><circle class="mk-lente" cx="336" cy="340" r="78" stroke-width="30"/><path class="mk-cabo" d="M392 396l48 48" stroke-width="36" stroke-linecap="round"/></g></svg></div>
       <div class="brand-text">
-        <div class="brand-name wordmark"><b>Perícia</b><i>Flow</i></div>
-        <div class="brand-sub">Perícia contábil</div>
+        <div class="brand-name wordmark"><b>Gerenciador</b><i>de Perícia</i></div>
       </div>
     </div>
 
@@ -1514,7 +1768,7 @@ function textoConvite(c, email){
   return [
     'Olá,',
     '',
-    `Compartilhei com você a perícia ${c.codigo} — ${c.nome} no Gerenciador de Perícias.`,
+    `Compartilhei com você a perícia ${c.codigo} — ${c.nome} no Gerenciador de Perícia.`,
     '',
     c.numeroProcesso ? `Processo: ${c.numeroProcesso}` : null,
     (c.vara || c.comarca) ? `Vara: ${[c.vara, c.comarca].filter(Boolean).join(' — ')}` : null,
@@ -1599,7 +1853,7 @@ const SECTIONS = [
   {id:'ia',       titulo:'Revisão IA',    sub:'Erros e inconsistências dos autos, com o lugar exato para conferir'},
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
-  {id:'integracoes', titulo:'Integrações', sub:'O que liga o PeríciaFlow aos tribunais e serviços'},
+  {id:'integracoes', titulo:'Integrações', sub:'O que liga o Gerenciador de Perícia aos tribunais e serviços'},
   {id:'privacidade', titulo:'Termos e privacidade', sub:'Termos de uso, política de privacidade e segurança'},
   {id:'config',   titulo:'Configurações', sub:'Tema, cores e manuais de uso'},
   {id:'perfil',   titulo:'Meu perfil',    sub:'Seu cadastro profissional, conta e acesso ao PROJUDI'},
@@ -1944,6 +2198,60 @@ function panel(id, titulo, nota, corpo){
       <div class="panel-body" id="pb-${id}"><div class="panel-inner"><div class="panel-pad">${corpo}</div></div></div>
     </section>`;
 }
+
+/* ==========================================================================
+   Ícone do Gerenciador de Perícia (pasta com lupa)
+   Na tela ele acompanha a cor da paleta; na aba do navegador ele avisa:
+   ganha um número com os prazos vencidos ou de hoje e pulsa enquanto a
+   Revisão IA trabalha.
+   ========================================================================== */
+const MARCA_SVG = '<svg class="mk" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-fundo" width="512" height="512" rx="116"/><path class="mk-papel" d="M88 160a24 24 0 0 1 24-24h92l34 34h162a24 24 0 0 1 24 24v170a24 24 0 0 1-24 24H112a24 24 0 0 1-24-24z"/><path class="mk-aba" d="M88 214h336" stroke-width="16"/><g class="mk-lupa"><circle class="mk-lente" cx="336" cy="340" r="78" stroke-width="30"/><path class="mk-cabo" d="M392 396l48 48" stroke-width="36" stroke-linecap="round"/></g></svg>';
+function marcaCarregando(texto){
+  return `<div class="mk-carregando mk-varre" role="status">${MARCA_SVG}<span>${escapeHtml(texto || 'Conferindo os autos…')}</span></div>`;
+}
+const PF_FAV = {img:null, chave:'', timer:null, fase:0};
+function pfFaviconDesenhar(n, pulso){
+  if(!PF_FAV.img) return;
+  let link = document.getElementById('pfFavicon');
+  if(!link){
+    document.querySelectorAll('link[rel="icon"]').forEach(l => l.remove());
+    link = document.createElement('link'); link.id = 'pfFavicon'; link.rel = 'icon'; link.type = 'image/png';
+    document.head.appendChild(link);
+  }
+  if(!n && !pulso){ link.type = 'image/svg+xml'; link.href = 'icones/favicon.svg'; return; }
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  g.globalAlpha = pulso && !PF_FAV.fase ? .4 : 1;
+  g.drawImage(PF_FAV.img, 0, 0, 64, 64);
+  g.globalAlpha = 1;
+  if(n > 0){
+    const t = n > 9 ? '9+' : String(n);
+    g.fillStyle = '#D23C2E'; g.beginPath(); g.arc(44, 20, 19, 0, Math.PI * 2); g.fill();
+    g.lineWidth = 4; g.strokeStyle = '#FFFFFF'; g.stroke();
+    g.fillStyle = '#FFFFFF'; g.font = 'bold 24px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(t, 44, 21);
+  }
+  link.type = 'image/png'; link.href = c.toDataURL('image/png');
+}
+function pfFavicon(){
+  let n = 0;
+  try{ n = casosVisiveis().filter(c => !(STATUS[c.statusCaso] || {}).final && c.prazoEntrega && diasAte(c.prazoEntrega) <= 0).length; }catch(e){}
+  const rodando = typeof iaRodando !== 'undefined' && iaRodando.size > 0;
+  const titulo = (n ? `(${n}) ` : '') + 'Gerenciador de Perícia';
+  if(document.title !== titulo) document.title = titulo;
+  const chave = n + '|' + rodando;
+  if(chave === PF_FAV.chave) return;
+  PF_FAV.chave = chave;
+  clearInterval(PF_FAV.timer); PF_FAV.timer = null;
+  const desenhar = () => pfFaviconDesenhar(n, rodando);
+  if(!PF_FAV.img){
+    const im = new Image();
+    im.onload = () => { PF_FAV.img = im; desenhar(); };
+    im.src = 'icones/icone-64.png';
+  } else desenhar();
+  if(rodando) PF_FAV.timer = setInterval(() => { PF_FAV.fase ^= 1; desenhar(); }, 700);
+}
+
 function setSection(id){
   /* solta o campo em edição: senão a proteção de foco impediria o redesenho */
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -4186,7 +4494,7 @@ function renderEquipe(){
    ordinal mantém contraste contra o fundo claro e o escuro.
    ========================================================================== */
 const PALETAS = [
-  {id:'flow',    nome:'PeríciaFlow', amostra:'#4B718C'},
+  {id:'flow',    nome:'Padrão',      amostra:'#4B718C'},
   {id:'jade',    nome:'Jade',        amostra:'#0E7B62'},
   {id:'indigo',  nome:'Índigo',      amostra:'#526AAE'},
   {id:'grafite', nome:'Grafite',     amostra:'#656E77'},
@@ -4296,21 +4604,21 @@ const LEGAL_FORO = 'Goiânia/GO';
 const LEGAL = {
   termos: {
     aba: 'Termos de uso', titulo: 'Termos de uso',
-    resumo: 'As regras para usar o PeríciaFlow e a extensão PROJUDI PDFs.',
+    resumo: 'As regras para usar o Gerenciador de Perícia e a extensão PROJUDI PDFs.',
     curto: [
-      'O PeríciaFlow organiza o seu trabalho; o laudo, os cálculos que você assina e as conclusões são seus.',
+      'O Gerenciador de Perícia organiza o seu trabalho; o laudo, os cálculos que você assina e as conclusões são seus.',
       'A conta é pessoal. Cada perícia aparece só para quem você compartilhar.',
       'A IA é opcional, usa a sua chave do Google e entrega rascunho para conferir.',
       'Os seus dados continuam seus: você corrige, exporta pelos documentos e exclui quando quiser.',
     ],
     secoes: [
       {t:'Aceitação', b:[
-        ['p', `Estes termos valem entre você e ${LEGAL_RESPONSAVEL}, que mantém o PeríciaFlow ("nós"). Ao criar a conta ou usar o sistema, você declara ter pelo menos 18 anos, capacidade para contratar e que leu estes termos e a Política de privacidade. Se não concordar, não use o sistema.`],
+        ['p', `Estes termos valem entre você e ${LEGAL_RESPONSAVEL}, que mantém o Gerenciador de Perícia ("nós"). Ao criar a conta ou usar o sistema, você declara ter pelo menos 18 anos, capacidade para contratar e que leu estes termos e a Política de privacidade. Se não concordar, não use o sistema.`],
       ]},
       {t:'O que é o serviço', b:[
-        ['p','O PeríciaFlow é uma ferramenta para peritos organizarem perícias: processos, documentos dos autos, prazos, tarefas, agenda, honorários, cálculos, proposta de honorários e revisão dos autos com inteligência artificial. A extensão PROJUDI PDFs, para o Google Chrome, baixa os autos do PROJUDI do TJGO para a perícia.'],
-        ['lista',['O PeríciaFlow não presta serviço pericial, contábil ou jurídico e não substitui o seu julgamento profissional.',
-                  'O PeríciaFlow e a extensão não são oficiais nem têm vínculo com o TJGO, o CNJ ou qualquer tribunal.']],
+        ['p','O Gerenciador de Perícia é uma ferramenta para peritos organizarem perícias: processos, documentos dos autos, prazos, tarefas, agenda, honorários, cálculos, proposta de honorários e revisão dos autos com inteligência artificial. A extensão PROJUDI PDFs, para o Google Chrome, baixa os autos do PROJUDI do TJGO para a perícia.'],
+        ['lista',['O Gerenciador de Perícia não presta serviço pericial, contábil ou jurídico e não substitui o seu julgamento profissional.',
+                  'O Gerenciador de Perícia e a extensão não são oficiais nem têm vínculo com o TJGO, o CNJ ou qualquer tribunal.']],
       ]},
       {t:'Conta e acesso', b:[
         ['lista',['A conta é pessoal e intransferível. Não empreste a sua senha nem a sua sessão.',
@@ -4335,7 +4643,7 @@ const LEGAL = {
                   'A IA aponta erros e inconsistências; ela não sugere quesitos nem conclui pela perícia.']],
       ]},
       {t:'Extensão PROJUDI PDFs', b:[
-        ['lista',['O login no PROJUDI é sempre feito por você, no site do tribunal, com certificado digital ou CPF e senha. Nem o PeríciaFlow nem a extensão pedem ou guardam a sua senha ou o seu certificado.',
+        ['lista',['O login no PROJUDI é sempre feito por você, no site do tribunal, com certificado digital ou CPF e senha. Nem o Gerenciador de Perícia nem a extensão pedem ou guardam a sua senha ou o seu certificado.',
                   'A extensão usa a sessão que você abriu e só baixa processos a que você tem acesso. Respeite as regras de uso do tribunal.',
                   'O funcionamento depende do PROJUDI. Mudanças no site do tribunal podem interromper a extensão até que ela seja ajustada.']],
       ]},
@@ -4345,7 +4653,7 @@ const LEGAL = {
                   'Na contratação pela internet, você pode desistir em até 7 dias a contar da compra, com devolução do valor pago (art. 49 do Código de Defesa do Consumidor).']],
       ]},
       {t:'Seus dados e o que é nosso', b:[
-        ['p','Os dados e documentos que você coloca no sistema continuam seus. Você nos autoriza a guardá-los e processá-los apenas para fazer o serviço funcionar para você e para quem você compartilhar. O software, a marca e a interface do PeríciaFlow são nossos e não podem ser copiados ou revendidos.'],
+        ['p','Os dados e documentos que você coloca no sistema continuam seus. Você nos autoriza a guardá-los e processá-los apenas para fazer o serviço funcionar para você e para quem você compartilhar. O software, a marca e a interface do Gerenciador de Perícia são nossos e não podem ser copiados ou revendidos.'],
       ]},
       {t:'Disponibilidade e cópias', b:[
         ['p','Trabalhamos para o sistema ficar no ar, mas ele depende de serviços de terceiros (Google, GitHub, Mercado Pago e o próprio PROJUDI) e pode ficar indisponível. Não há backup automático que você consiga restaurar pelo app: guarde por fora as versões finais dos seus laudos e os documentos de que precisar.'],
@@ -4370,7 +4678,7 @@ const LEGAL = {
 
   privacidade: {
     aba: 'Política de privacidade', titulo: 'Política de privacidade',
-    resumo: 'Que dados o PeríciaFlow trata, para quê, com quem e quais são os seus direitos pela LGPD.',
+    resumo: 'Que dados o Gerenciador de Perícia trata, para quê, com quem e quais são os seus direitos pela LGPD.',
     curto: [
       'Não vendemos dados, não usamos para publicidade e não há rastreadores no sistema.',
       'Os dados ficam no Google Cloud (Firebase), com acesso conferido no servidor perícia por perícia.',
@@ -4379,8 +4687,8 @@ const LEGAL = {
     ],
     secoes: [
       {t:'Quem trata os dados', b:[
-        ['p',`O PeríciaFlow é mantido por ${LEGAL_RESPONSAVEL}, que é o controlador dos dados da sua conta (cadastro, acesso e assinatura).`],
-        ['p','Os dados das perícias e dos autos são tratados pelo perito no exercício da nomeação: para eles, o perito é o controlador e o PeríciaFlow atua como operador, guardando e processando conforme as instruções de quem usa o sistema.'],
+        ['p',`O Gerenciador de Perícia é mantido por ${LEGAL_RESPONSAVEL}, que é o controlador dos dados da sua conta (cadastro, acesso e assinatura).`],
+        ['p','Os dados das perícias e dos autos são tratados pelo perito no exercício da nomeação: para eles, o perito é o controlador e o Gerenciador de Perícia atua como operador, guardando e processando conforme as instruções de quem usa o sistema.'],
       ]},
       {t:'Que dados tratamos', b:[
         ['lista',['Conta: e-mail, nome e, na entrada pelo Google, a foto do perfil.',
@@ -4449,18 +4757,18 @@ const LEGAL = {
 
   seguranca: {
     aba: 'Segurança', titulo: 'Segurança',
-    resumo: 'Como o PeríciaFlow protege as contas, as perícias e os arquivos, e o que cabe a você.',
+    resumo: 'Como o Gerenciador de Perícia protege as contas, as perícias e os arquivos, e o que cabe a você.',
     curto: [
       'Tudo trafega por HTTPS, e o Google cifra os dados guardados.',
       'Quem lê, edita ou apaga cada perícia é conferido no servidor, não só na tela, com testes automáticos a cada mudança.',
-      'A senha do PROJUDI e o certificado nunca passam pelo PeríciaFlow.',
+      'A senha do PROJUDI e o certificado nunca passam pelo Gerenciador de Perícia.',
       'Ative a verificação em duas etapas na sua conta Google.',
     ],
     secoes: [
       {t:'Criptografia', b:[
         ['lista',['Em trânsito: o site e todos os serviços usam HTTPS (TLS).',
                   'Guardados: o Google Cloud cifra os dados do Firestore e os arquivos do Storage (AES-256).',
-                  'No PeríciaFlow em PHP, os arquivos dos autos ficam cifrados em disco com AES-256-GCM, fora da pasta pública.']],
+                  'No Gerenciador de Perícia em PHP, os arquivos dos autos ficam cifrados em disco com AES-256-GCM, fora da pasta pública.']],
       ]},
       {t:'Controle de acesso no servidor', b:[
         ['p','As regras de segurança do Firebase decidem cada leitura e gravação no servidor do Google. Mesmo quem tentar contornar a tela não passa delas.'],
@@ -4471,7 +4779,7 @@ const LEGAL = {
                   'As regras são testadas automaticamente a cada mudança nelas, no emulador oficial do Firebase.']],
       ]},
       {t:'Contas e senhas', b:[
-        ['lista',['Entrada pelo Google ou por e-mail e senha. A senha é definida por você e validada pelo Firebase: o PeríciaFlow nunca a recebe nem a guarda.',
+        ['lista',['Entrada pelo Google ou por e-mail e senha. A senha é definida por você e validada pelo Firebase: o Gerenciador de Perícia nunca a recebe nem a guarda.',
                   'O Firebase guarda só um resumo irreversível da senha (hash scrypt) e bloqueia tentativas seguidas.',
                   'É preciso confirmar o e-mail antes de gravar qualquer perícia.',
                   'Cada conta nasce com o espaço vazio: nenhuma conta vê as perícias de outra sem compartilhamento.']],
@@ -4485,7 +4793,7 @@ const LEGAL = {
       ]},
       {t:'PROJUDI e extensão', b:[
         ['lista',['O login no PROJUDI é feito por você, no site do tribunal. A extensão só usa a sessão aberta e não guarda senha nem certificado.',
-                  'A extensão só tem acesso ao PeríciaFlow, ao PROJUDI e ao serviço que confere a assinatura, e a busca é confirmada pelo seu clique em "Consultar".',
+                  'A extensão só tem acesso ao Gerenciador de Perícia, ao PROJUDI e ao serviço que confere a assinatura, e a busca é confirmada pelo seu clique em "Consultar".',
                   'Arquivos baixados de novo não se duplicam: cada um leva o identificador fixo do PROJUDI.']],
       ]},
       {t:'Inteligência artificial', b:[
@@ -4609,7 +4917,7 @@ async function legalPdf(aba){
   const d = LEGAL[aba];
   if(!d) return;
   const ok = await gerarPdfDocs([d], {
-    arquivo: `periciaflow-${aba}.pdf`, rotulo: 'PeríciaFlow · ' + d.aba.toLowerCase(),
+    arquivo: `gerenciador-pericia-${aba}.pdf`, rotulo: 'Gerenciador de Perícia · ' + d.aba.toLowerCase(),
     data: `Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}`, indice: 'Neste documento',
   });
   if(ok) pfAviso(`${d.titulo} baixado em PDF.`);
@@ -4641,7 +4949,7 @@ function fecharLegal(){
   if(el){ el.classList.remove('aberto'); el.innerHTML = ''; }
   legalModalAba = null;
 }
-document.addEventListener('keydown', ev => { if(ev.key === 'Escape' && legalModalAba) fecharLegal(); });
+document.addEventListener('keydown', ev => { if(ev.key !== 'Escape') return; if(legalModalAba) fecharLegal(); else if(lpEntrarAberto) lpFecharEntrar(); });
 /* o selo e os links de rodapé abrem a seção, ou a janela quando o login ou o aceite estão na frente */
 function verLegal(aba){
   const travado = (document.getElementById('login') || {}).classList?.contains('aberto') || (document.getElementById('aceite') || {}).classList?.contains('aberto');
@@ -4662,7 +4970,7 @@ function renderPortaAceite(){
     <div class="aceite-caixa">
       ${selo()}
       <h2>Antes de continuar</h2>
-      <p>Para usar o PeríciaFlow, leia e aceite os <button class="lg-link" onclick="abrirLegal('termos')">Termos de uso</button> e a <button class="lg-link" onclick="abrirLegal('privacidade')">Política de privacidade</button>.</p>
+      <p>Para usar o Gerenciador de Perícia, leia e aceite os <button class="lg-link" onclick="abrirLegal('termos')">Termos de uso</button> e a <button class="lg-link" onclick="abrirLegal('privacidade')">Política de privacidade</button>.</p>
       <ul class="aceite-pontos">
         <li>Os seus dados ficam no Google Cloud (Firebase), com o acesso de cada perícia conferido no servidor.</li>
         <li>Não vendemos dados nem usamos para publicidade.</li>
@@ -4813,8 +5121,8 @@ function renderConfirmacao(){
   alvo.innerHTML = `
     <div class="login-caixa">
       <div class="login-marca">
-        <span class="brand-mark grande"></span>
-        <span class="wordmark grande"><b>Perícia</b><i>Flow</i></span>
+        <span class="brand-mark grande">${MARCA_SVG}</span>
+        <span class="wordmark grande"><b>Gerenciador</b><i>de Perícia</i></span>
       </div>
       <h2 style="font-size:17px; margin:18px 0 10px;">Confirme o seu e-mail</h2>
       <p style="font-size:13px; line-height:1.6; color:var(--ink-2); margin:0 0 10px;">
@@ -4824,7 +5132,7 @@ function renderConfirmacao(){
       <p style="font-size:12.5px; line-height:1.55; color:var(--muted); margin:0 0 18px;">
         O seu cadastro já está guardado; falta só a confirmação. A mensagem chega de
         <b class="mono">noreply@gerenciador-pericias-app.firebaseapp.com</b>, com o assunto
-        “Verifique seu e-mail do app PeríciaFlow”. Se não aparecer em alguns minutos, procure no spam.
+        “Verifique seu e-mail do app Gerenciador de Perícia”. Se não aparecer em alguns minutos, procure no spam.
       </p>
       <button class="btn btn-primary login-entrar" style="margin-top:0;" onclick="jaConfirmei()">Já confirmei, entrar</button>
       <button class="link-sutil" onclick="reenviarConfirmacao()">Enviar o e-mail de novo</button>
@@ -4834,17 +5142,30 @@ function renderConfirmacao(){
     </div>`;
 }
 
+/* A porta de entrada agora é a página de apresentação; o formulário de login
+   abre numa janela por cima dela (lpEntrar). */
 function renderLogin(){
   const alvo = document.getElementById('login');
   if(!alvo) return;
-  if(!loginAberto){ alvo.classList.remove('aberto'); alvo.innerHTML = ''; return; }
-  alvo.classList.add('aberto');
+  if(!loginAberto){ alvo.classList.remove('aberto', 'lp-modo'); alvo.innerHTML = ''; lpParar(); lpEntrarAberto = false; return; }
+  alvo.classList.add('aberto', 'lp-modo');
+  if(!alvo.querySelector('.lp')){
+    alvo.innerHTML = renderApresentacao() + '<div class="lp-janela" id="lpJanela" role="dialog" aria-modal="true" aria-label="Entrar ou criar conta" onclick="if(event.target===this) lpFecharEntrar()"></div>';
+    lpIniciar(alvo);
+  }
+  const j = document.getElementById('lpJanela');
+  j.classList.toggle('aberta', lpEntrarAberto);
+  j.innerHTML = lpEntrarAberto
+    ? `<div class="lp-janela-caixa"><button class="icon-btn lp-janela-fechar" onclick="lpFecharEntrar()" aria-label="Fechar">${svg('<path d="M6 6l12 12M18 6L6 18"/>')}</button>${loginCaixaHtml()}</div>`
+    : '';
+}
+function loginCaixaHtml(){
   const criando = loginModo === 'criar';
-  alvo.innerHTML = `
+  return `
     <div class="login-caixa">
       <div class="login-marca">
-        <span class="brand-mark grande"></span>
-        <span class="wordmark grande"><b>Perícia</b><i>Flow</i></span>
+        <span class="brand-mark grande">${MARCA_SVG}</span>
+        <span class="wordmark grande"><b>Gerenciador</b><i>de Perícia</i></span>
       </div>
       <p class="login-sub">Gestão de perícias contábeis judiciais</p>
 
@@ -4886,6 +5207,429 @@ function renderLogin(){
       </div>
     </div>`;
 }
+/* ==========================================================================
+   Página de apresentação (quem ainda não entrou)
+   Mostra o que o sistema oferece, com telas reais (pasta apresentacao/),
+   ferramentas que funcionam sem conta (simulador de honorários e contador de
+   prazo), dúvidas, suporte e o login numa janela por cima.
+   Nada aqui inventa número, depoimento ou cliente: só o que o sistema faz.
+   ========================================================================== */
+const SUPORTE_EMAIL = LEGAL_CONTATO;
+const SUPORTE_WHATSAPP = '';   /* só dígitos com DDI e DDD, ex.: '5562999999999'. Vazio esconde o botão. */
+let lpEntrarAberto = false;
+const LP = {demo: 0, heroi: 0, timers: [], obs: null, pausado: false};
+
+const LP_TELAS = [
+  {img: 'visao-geral', nome: 'Visão geral', txt: 'Prazos atrasados, honorários a receber, tarefas e agenda da semana na primeira tela.'},
+  {img: 'pericias', nome: 'Perícias', txt: 'Todas as perícias com busca por número, partes ou comarca, e o que falta receber de cada uma.'},
+  {img: 'revisao-ia', nome: 'Revisão IA', txt: 'Os achados da IA em cartões por categoria, com a página e o trecho para conferir.'},
+  {img: 'prazos', nome: 'Prazos e alertas', txt: 'Entregas por urgência e avisos antes do vencimento, nos dias que você escolher.'},
+  {img: 'tarefas', nome: 'Tarefas', txt: 'Quadro por etapa, cada tarefa ligada à perícia e com data.'},
+  {img: 'agenda', nome: 'Agenda', txt: 'Diligências, audiências e reuniões, com exportação para o Google Agenda.'},
+  {img: 'financeiro', nome: 'Financeiro', txt: 'Honorários arbitrados, depositados e levantados, perícia por perícia.'},
+  {img: 'calculos', nome: 'Cálculos', txt: 'Financiamento (Price, SAC, misto), atualização monetária, rescisão e taxas, com memória de cálculo.'},
+];
+const LP_MODULOS = [
+  ['pericias', 'Perícias', 'Cadastro completo, status, partes, vara e honorários de cada nomeação.'],
+  ['importar', 'Autos do PROJUDI', 'A extensão traz os PDFs do TJGO direto para a perícia, sem repetir arquivo.'],
+  ['prazos', 'Prazos e alertas', 'Avisos 15, 7, 3 e 1 dia antes e no dia do vencimento.'],
+  ['agenda', 'Agenda', 'Compromissos ligados à perícia e arquivo .ics para o seu calendário.'],
+  ['tarefas', 'Tarefas', 'Quadro a fazer, em andamento e feito, com prioridade e data.'],
+  ['docs', 'Documentos', 'Os autos organizados por fase, com visualização e download.'],
+  ['financeiro', 'Financeiro', 'O que foi arbitrado, depositado e levantado, e o que falta receber.'],
+  ['calculos', 'Cálculos periciais', 'Price, SAC, correção pelo Banco Central, rescisão, VPL e TIR.'],
+  ['proposta', 'Proposta de honorários', 'Gerada com os dados da perícia, a sua hora técnica e o seu cadastro.'],
+  ['ia', 'Revisão IA', 'Erros e inconsistências dos autos, com o lugar exato para conferir.'],
+  ['equipe', 'Equipe', 'Compartilhe cada perícia com edição ou só leitura.'],
+];
+const LP_DUVIDAS = [
+  ['Preciso instalar algum programa?', 'Não. O sistema funciona no navegador, no computador ou no celular. Para baixar os autos do PROJUDI direto para a perícia, instale a extensão PROJUDI PDFs no Google Chrome.'],
+  ['Quanto custa?', 'Criar a conta e usar o sistema é grátis. A extensão PROJUDI PDFs tem assinatura própria, a partir de R$ 15,99 por mês. A Revisão IA usa a sua chave do Google, e o uso é cobrado pelo Google, direto na sua conta.'],
+  ['Como os autos chegam do PROJUDI?', 'Você pede os autos na perícia, a aba do PROJUDI abre com o número e o código de acesso preenchidos e você clica em Consultar. Os arquivos chegam sozinhos, um a um, e nada se repete na próxima vez.'],
+  ['O sistema pede a minha senha do PROJUDI?', 'Nunca. O login no tribunal é sempre seu, com certificado digital ou CPF e senha, no site do próprio tribunal. A extensão só usa a sessão que você abriu.'],
+  ['A IA faz o laudo?', 'Não. A Revisão IA aponta erros e inconsistências e mostra onde conferir. O laudo, a resposta aos quesitos e as conclusões são do perito.'],
+  ['Meus dados ficam seguros?', 'Os dados ficam no Google Cloud, com tráfego cifrado, e cada perícia só é aberta por quem tem acesso a ela, com a verificação feita no servidor. Os detalhes estão em Segurança e na Política de privacidade.'],
+  ['Funciona para outros tribunais?', 'A importação automática é para o PROJUDI do TJGO. Processos de outros tribunais entram por arquivo ZIP ou anexando os documentos.'],
+  ['Posso trabalhar com assistentes e colegas?', 'Sim. Cada perícia pode ser compartilhada por e-mail, com acesso de edição ou só de leitura, e o dono decide quem fica.'],
+];
+
+function lpIcone(k){ return svg(ICONS[k] || ICONS.docs); }
+function lpMarca(cls){ return `<span class="brand-mark ${cls || ''}">${MARCA_SVG}</span>`; }
+
+function renderApresentacao(){
+  const tela = LP_TELAS[0];
+  const zap = SUPORTE_WHATSAPP ? `https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent('Olá! Tenho uma dúvida sobre o Gerenciador de Perícia.')}` : '';
+  return `
+  <div class="lp" id="lpTopo">
+    <header class="lp-cab" id="lpCab">
+      <div class="lp-lim lp-cab-in">
+        <button class="lp-marca" onclick="lpIr('lpTopo')" aria-label="Início">${lpMarca()}<span class="wordmark"><b>Gerenciador</b><i>de Perícia</i></span></button>
+        <nav class="lp-nav" aria-label="Seções">
+          <button onclick="lpIr('lpRecursos')">Recursos</button>
+          <button onclick="lpIr('lpDemo')">Demonstração</button>
+          <button onclick="lpIr('lpIA')">IA</button>
+          <button onclick="lpIr('lpFerramentas')">Ferramentas</button>
+          <button onclick="lpIr('lpSeguranca')">Segurança</button>
+          <button onclick="lpIr('lpSuporte')">Suporte</button>
+        </nav>
+        <div class="lp-cab-acoes">
+          <button class="btn btn-ghost btn-sm" onclick="lpEntrar('entrar')">Entrar</button>
+          <button class="btn btn-primary btn-sm" onclick="lpEntrar('criar')">Criar conta grátis</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="lp-heroi">
+      <div class="lp-lim lp-heroi-in">
+        <div class="lp-heroi-txt lp-rev">
+          <span class="lp-selo">${svg('<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>')} Para peritos contábeis judiciais</span>
+          <h1>Suas perícias em ordem, <em>dos autos ao laudo.</em></h1>
+          <p>Importe os autos do PROJUDI com um clique, acompanhe cada prazo com aviso antes do vencimento, revise os documentos com IA e gere a proposta de honorários já preenchida. Tudo em um lugar, no navegador.</p>
+          <div class="lp-heroi-cta">
+            <button class="btn btn-primary lp-btn-g" onclick="lpEntrar('criar')">Criar conta grátis</button>
+            <button class="btn btn-ghost lp-btn-g" onclick="lpIr('lpDemo')">${svg('<path d="M8 5v14l11-7z"/>')} Ver o sistema funcionando</button>
+          </div>
+          <ul class="lp-heroi-pts">
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Sem cartão para começar</li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Entre com a conta Google</li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Seus dados só seus</li>
+          </ul>
+        </div>
+        <div class="lp-heroi-vis lp-rev">
+          <div class="lp-janela-nav" aria-hidden="true">
+            <div class="lp-janela-barra"><i></i><i></i><i></i><span>gerenciador de perícia</span></div>
+            <div class="lp-heroi-telas" id="lpHeroiTelas">
+              ${LP_TELAS.slice(0, 4).map((t, i) => `<img src="apresentacao/${t.img}.webp" alt="" class="${i === 0 ? 'on' : ''}" loading="${i === 0 ? 'eager' : 'lazy'}" width="1280" height="800">`).join('')}
+            </div>
+          </div>
+          <div class="lp-flut lp-flut-1">${svg(ICONS.prazos)}<span><b>Prazo em 2 dias</b>PER-2026-031 · aviso enviado</span></div>
+          <div class="lp-flut lp-flut-2"><span class="lp-flut-lupa mk-varre">${MARCA_SVG}</span><span><b>Revisão IA</b>2 erros para conferir</span></div>
+          <div class="lp-flut lp-flut-3">${svg(ICONS.importar)}<span><b>38 arquivos do PROJUDI</b>importados, nenhum repetido</span></div>
+        </div>
+      </div>
+      <div class="lp-lim lp-integra lp-rev">
+        <span>Funciona com</span>
+        <b>PROJUDI · TJGO</b><b>Google Agenda</b><b>Gemini, do Google</b><b>Mercado Pago</b><b>Google Cloud</b><b>LGPD</b>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="lpRecursos">
+      <div class="lp-lim">
+        <div class="lp-tit lp-rev"><span>O que muda no seu dia a dia</span><h2>Menos planilha, menos aba aberta, nenhum prazo esquecido.</h2></div>
+        <div class="lp-beneficios">
+          ${[['prazos', 'Nenhum prazo esquecido', 'Avisos antes do vencimento no navegador e agenda pronta para o Google Agenda.'],
+             ['importar', 'Autos sem baixar um por um', 'A extensão traz os PDFs do PROJUDI direto para a perícia certa.'],
+             ['financeiro', 'Honorários à vista', 'Arbitrado, depositado e levantado, com o que falta receber em cada perícia.'],
+             ['ia', 'Revisão com o lugar exato', 'A IA aponta erros nos cálculos e nos documentos e mostra a página e o trecho.']]
+            .map(([k, t, x]) => `<div class="lp-card lp-rev"><span class="lp-ic">${lpIcone(k)}</span><b>${t}</b><p>${x}</p></div>`).join('')}
+        </div>
+
+        <div class="lp-tit lp-rev" style="margin-top:72px;"><span>Como funciona</span><h2>Três passos e você está trabalhando.</h2></div>
+        <ol class="lp-passos">
+          <li class="lp-rev"><i>1</i><b>Crie a sua conta</b><p>Com a conta Google ou e-mail e senha. Grátis e sem cartão.</p></li>
+          <li class="lp-rev"><i>2</i><b>Traga os autos</b><p>Pela extensão PROJUDI PDFs, por arquivo ZIP ou anexando os documentos.</p></li>
+          <li class="lp-rev"><i>3</i><b>Trabalhe com tudo no lugar</b><p>Prazos, tarefas, honorários, revisão por IA e proposta na mesma tela.</p></li>
+        </ol>
+
+        <div class="lp-tit lp-rev" style="margin-top:72px;"><span>${LP_MODULOS.length} módulos</span><h2>Tudo o que a perícia pede, sem ferramenta de fora.</h2></div>
+        <div class="lp-modulos">
+          ${LP_MODULOS.map(([k, t, x]) => `<div class="lp-mod lp-rev"><span class="lp-ic">${lpIcone(k)}</span><div><b>${t}</b><p>${x}</p></div></div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-sec-alt" id="lpDemo">
+      <div class="lp-lim">
+        <div class="lp-tit lp-rev"><span>Demonstração</span><h2>O sistema em ação.</h2><p>Telas reais, com dados de exemplo. Passa sozinho; clique para escolher.</p></div>
+        <div class="lp-demo lp-rev" onmouseenter="LP.pausado = true" onmouseleave="LP.pausado = false">
+          <div class="lp-demo-abas" role="tablist">
+            ${LP_TELAS.map((t, i) => `<button role="tab" class="lp-demo-aba ${i === 0 ? 'on' : ''}" aria-selected="${i === 0}" onclick="lpDemo(${i}, true)"><span>${t.nome}</span><i><s></s></i></button>`).join('')}
+          </div>
+          <div class="lp-janela-nav">
+            <div class="lp-janela-barra" aria-hidden="true"><i></i><i></i><i></i><span id="lpDemoNum">1/${LP_TELAS.length}</span></div>
+            <div class="lp-demo-tela"><img id="lpDemoImg" src="apresentacao/${tela.img}.webp" alt="Tela ${escapeHtml(tela.nome)} do Gerenciador de Perícia" width="1280" height="800" loading="lazy"></div>
+          </div>
+          <p class="lp-demo-txt" id="lpDemoTxt">${escapeHtml(tela.txt)}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="lpIA">
+      <div class="lp-lim lp-ia">
+        <div class="lp-rev">
+          <div class="lp-tit lp-tit-esq"><span>Revisão IA</span><h2>A IA confere. Quem conclui é você.</h2></div>
+          <ul class="lp-lista">
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Erros por categoria:</b> cálculo, valores, índices, datas, documentos, prazos e honorários.</span></li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Onde conferir:</b> cada achado vem com a peça, a página e o trecho dos autos.</span></li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Você decide:</b> confirme o erro, descarte ou deixe para depois.</span></li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>PDF dos erros:</b> relatório para conferir com caneta, com assinatura e data.</span></li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Sempre atual:</b> chegou documento novo, a revisão pode rodar sozinha.</span></li>
+          </ul>
+          <p class="lp-nota">A IA não sugere quesitos nem escreve o laudo. Usa a sua chave do Google, e nada é enviado sem o seu aceite.</p>
+        </div>
+        <div class="lp-ia-vis lp-rev" aria-hidden="true">
+          <div class="lp-achado" id="lpAchado">
+            <div class="lp-achado-top"><i></i><span id="lpAchCat">Cálculo</span><em id="lpAchGrav">Erro</em></div>
+            <b id="lpAchTit">Juros contados antes do termo inicial</b>
+            <p id="lpAchDet">A planilha aplica juros desde o contrato; o acórdão fixou a citação.</p>
+            <div class="lp-achado-onde"><small>Onde conferir</small><code id="lpAchFonte">Planilha do exequente, p. 3</code></div>
+            <div class="lp-achado-bt"><span>Confirmar erro</span><span>Não é erro</span></div>
+          </div>
+          <span class="lp-ia-lupa mk-varre">${MARCA_SVG}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-sec-alt" id="lpFerramentas">
+      <div class="lp-lim">
+        <div class="lp-tit lp-rev"><span>Experimente agora, sem conta</span><h2>Duas ferramentas para usar já.</h2></div>
+        <div class="lp-ferr lp-rev">
+          <div class="lp-ferr-abas" role="tablist">
+            <button role="tab" class="on" id="lpAbaHon" aria-selected="true" onclick="lpFerr('hon')">Simulador de honorários</button>
+            <button role="tab" id="lpAbaPrazo" aria-selected="false" onclick="lpFerr('prazo')">Contador de prazo</button>
+          </div>
+          <div class="lp-ferr-corpo" id="lpFerrHon">
+            <div class="lp-ferr-campos">
+              <label class="lp-campo"><span>Hora técnica (R$)</span><input id="lpHora" type="number" min="0" step="0.01" value="350" oninput="lpSimular()"></label>
+              ${[['Estudo dos autos', 8], ['Diligências e coleta', 4], ['Cálculos e planilhas', 10], ['Redação do laudo', 8], ['Respostas aos quesitos', 4]].map(([t, h], i) => `
+              <label class="lp-faixa"><span>${t}</span><input type="range" min="0" max="40" step="1" value="${h}" id="lpH${i}" oninput="lpSimular()"><b id="lpHv${i}">${h} h</b></label>`).join('')}
+            </div>
+            <div class="lp-ferr-res" aria-live="polite">
+              <small>Total estimado</small>
+              <strong id="lpTotal">R$ 0,00</strong>
+              <span id="lpHoras">0 horas</span>
+              <div class="lp-ferr-linha"><span>Adiantamento de 50%</span><b id="lpAdiant">R$ 0,00</b></div>
+              <button class="btn btn-primary" onclick="lpEntrar('criar')">Gerar a proposta completa</button>
+              <p>Valores de exemplo. No sistema, a proposta sai com os dados da perícia, o seu cadastro e a referência da sua entidade.</p>
+            </div>
+          </div>
+          <div class="lp-ferr-corpo" id="lpFerrPrazo" hidden>
+            <div class="lp-ferr-campos">
+              <label class="lp-campo"><span>Data da intimação</span><input id="lpPzData" type="date" oninput="lpPrazo()"></label>
+              <label class="lp-campo"><span>Prazo (dias)</span><input id="lpPzDias" type="number" min="1" max="365" value="15" oninput="lpPrazo()"></label>
+              <label class="lp-campo"><span>Contagem</span><select id="lpPzTipo" onchange="lpPrazo()"><option value="uteis">Dias úteis (CPC, art. 219)</option><option value="corridos">Dias corridos</option></select></label>
+            </div>
+            <div class="lp-ferr-res" aria-live="polite">
+              <small>Vence em</small>
+              <strong id="lpPzFim">—</strong>
+              <span id="lpPzFalta"></span>
+              <button class="btn btn-primary" onclick="lpEntrar('criar')">Receber aviso antes do prazo</button>
+              <p>Começa no dia útil seguinte à intimação e pula sábados e domingos. Não considera feriados nem suspensões do tribunal: confira no calendário oficial.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="lpSeguranca">
+      <div class="lp-lim">
+        <div class="lp-tit lp-rev"><span>Segurança e LGPD</span><h2>Os dados da perícia tratados como devem ser.</h2></div>
+        <div class="lp-beneficios">
+          ${[['<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/>', 'Cifrado no caminho e guardado', 'HTTPS em tudo e dados cifrados pelo Google Cloud (AES-256).'],
+             ['<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>', 'Acesso conferido no servidor', 'Cada perícia só abre para quem tem acesso. A verificação não depende da tela.'],
+             ['<circle cx="8" cy="15" r="4"/><path d="M10.9 12.1L19.5 3.5M16 7l2.5 2.5"/>', 'Sua senha do PROJUDI fica com você', 'O sistema nunca pede nem guarda senha ou certificado do tribunal.'],
+             ['<path d="M7 3h7l5 5v13H7z"/><path d="M13 3v6h6M10 13h7M10 17h5"/>', 'Termos claros', 'Sem venda de dados, sem publicidade, com os seus direitos pela LGPD por escrito.']]
+            .map(([ic, t, x]) => `<div class="lp-card lp-rev"><span class="lp-ic">${svg(ic)}</span><b>${t}</b><p>${x}</p></div>`).join('')}
+        </div>
+        <div class="lp-seg-links lp-rev">${linksLegais()}</div>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-sec-alt" id="lpDuvidas">
+      <div class="lp-lim lp-duvidas">
+        <div class="lp-tit lp-tit-esq lp-rev"><span>Dúvidas</span><h2>Perguntas frequentes.</h2><p>Não achou a sua? <button class="lg-link" onclick="lpIr('lpSuporte')">Fale com o suporte</button>.</p></div>
+        <div class="lp-faq lp-rev">
+          ${LP_DUVIDAS.map(([q, r]) => `<details><summary>${escapeHtml(q)}${svg('<path d="M6 9l6 6 6-6"/>')}</summary><p>${escapeHtml(r)}</p></details>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="lpSuporte">
+      <div class="lp-lim">
+        <div class="lp-tit lp-rev"><span>Suporte</span><h2>Fale com a gente.</h2><p>Respondemos por e-mail${zap ? ' e pelo WhatsApp' : ''}. Os manuais em PDF tiram a maior parte das dúvidas.</p></div>
+        <div class="lp-suporte">
+          <form class="lp-form lp-rev" onsubmit="event.preventDefault(); lpSuporteEnviar();">
+            <div class="lp-form-linha">
+              <label class="lp-campo"><span>Nome</span><input id="lpSupNome" autocomplete="name" required></label>
+              <label class="lp-campo"><span>E-mail</span><input id="lpSupEmail" type="email" autocomplete="email" required></label>
+            </div>
+            <label class="lp-campo"><span>Assunto</span><select id="lpSupAssunto"><option>Dúvida</option><option>Problema no sistema</option><option>Extensão PROJUDI PDFs</option><option>Assinatura e pagamento</option><option>Privacidade e dados (LGPD)</option><option>Sugestão</option></select></label>
+            <label class="lp-campo"><span>Mensagem</span><textarea id="lpSupMsg" rows="5" required placeholder="Conte o que aconteceu e, se for um problema, o que você estava fazendo."></textarea></label>
+            <button class="btn btn-primary" type="submit">Enviar pelo meu e-mail</button>
+            <small>Abre o seu programa de e-mail com a mensagem pronta, junto com dados do navegador que ajudam a resolver mais rápido.</small>
+          </form>
+          <div class="lp-sup-lado lp-rev">
+            <a class="lp-sup-card" href="mailto:${escapeHtml(SUPORTE_EMAIL)}?subject=${encodeURIComponent('Suporte - Gerenciador de Perícia')}">${svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>')}<span><b>E-mail</b>${escapeHtml(SUPORTE_EMAIL)}</span></a>
+            ${zap ? `<a class="lp-sup-card" href="${escapeHtml(zap)}" target="_blank" rel="noopener">${svg('<path d="M4 20l1.3-3.9A8 8 0 1112 20a8 8 0 01-4-1.1z"/>')}<span><b>WhatsApp</b>resposta no horário comercial</span></a>` : ''}
+            <div class="lp-sup-card lp-sup-man">${svg('<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>')}<span><b>Manuais em PDF</b>
+              <button class="lg-link" onclick="manualBaixar('inicio')">Comece por aqui</button>
+              <button class="lg-link" onclick="manualBaixar('chave-ia')">Chave da IA</button>
+              <button class="lg-link" onclick="manualBaixar('projudi')">Extensão PROJUDI</button>
+              <button class="lg-link" onclick="manualBaixar('todos')">Todos</button></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-final">
+      <div class="lp-lim lp-final-in lp-rev">
+        ${lpMarca('lp-final-marca')}
+        <h2>Comece hoje. Suas perícias em ordem em minutos.</h2>
+        <div class="lp-heroi-cta">
+          <button class="btn btn-primary lp-btn-g" onclick="lpEntrar('criar')">Criar conta grátis</button>
+          <button class="btn btn-ghost lp-btn-g lp-btn-claro" onclick="lpEntrar('entrar')">Já tenho conta</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="lp-rodape">
+      <div class="lp-lim lp-rodape-in">
+        <div class="lp-rodape-marca">
+          <div class="lp-marca">${lpMarca()}<span class="wordmark"><b>Gerenciador</b><i>de Perícia</i></span></div>
+          <p>Gestão de perícias contábeis judiciais.</p>
+        </div>
+        <div><b>Produto</b><button onclick="lpIr('lpRecursos')">Recursos</button><button onclick="lpIr('lpDemo')">Demonstração</button><button onclick="lpIr('lpIA')">Revisão IA</button><button onclick="lpIr('lpFerramentas')">Ferramentas</button></div>
+        <div><b>Suporte</b><button onclick="lpIr('lpSuporte')">Fale conosco</button><button onclick="lpIr('lpDuvidas')">Dúvidas</button><button onclick="manualBaixar('todos')">Manuais</button></div>
+        <div><b>Legal</b>${LEGAL_ORDEM.map(k => `<button onclick="abrirLegal(${jsq(k)})">${escapeHtml(LEGAL[k].aba)}</button>`).join('')}</div>
+      </div>
+      <div class="lp-lim lp-rodape-fim">
+        <span>© ${new Date().getFullYear()} Gerenciador de Perícia</span>
+        <span>O Gerenciador de Perícia e a extensão PROJUDI PDFs não são oficiais nem têm vínculo com o TJGO ou o CNJ.</span>
+      </div>
+    </footer>
+  </div>`;
+}
+
+/* ---------- comportamento ---------- */
+function lpIr(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
+}
+function lpEntrar(modo){
+  loginModo = modo === 'criar' ? 'criar' : 'entrar';
+  lpEntrarAberto = true;
+  renderLogin();
+  setTimeout(() => { const el = document.getElementById(loginModo === 'criar' ? 'loginNome' : 'loginEmail'); if(el) el.focus(); }, 60);
+}
+function lpFecharEntrar(){ lpEntrarAberto = false; renderLogin(); }
+function lpDemo(i, manual){
+  const n = LP_TELAS.length;
+  LP.demo = ((i % n) + n) % n;
+  const t = LP_TELAS[LP.demo];
+  const img = document.getElementById('lpDemoImg');
+  if(!img) return;
+  img.classList.add('troca');
+  setTimeout(() => { img.src = `apresentacao/${t.img}.webp`; img.alt = `Tela ${t.nome} do Gerenciador de Perícia`; img.classList.remove('troca'); }, manual ? 80 : 200);
+  document.getElementById('lpDemoTxt').textContent = t.txt;
+  document.getElementById('lpDemoNum').textContent = `${LP.demo + 1}/${n}`;
+  document.querySelectorAll('.lp-demo-aba').forEach((b, k) => {
+    b.classList.toggle('on', k === LP.demo); b.setAttribute('aria-selected', k === LP.demo);
+    const s = b.querySelector('s'); if(s){ s.style.animation = 'none'; void s.offsetWidth; s.style.animation = ''; }
+  });
+  LP.decorrido = 0;
+}
+const LP_ACHADOS = [
+  ['Cálculo', 'Erro', 'Juros contados antes do termo inicial', 'A planilha aplica juros desde o contrato; o acórdão fixou a citação.', 'Planilha do exequente, p. 3'],
+  ['Índices', 'Atenção', 'Índice trocado no meio do período', 'INPC até dez/2024 e IPCA-E depois, sem previsão na decisão.', 'Planilha do exequente, p. 4'],
+  ['Documentos', 'Verificar', 'Extratos de 2023 ausentes', 'Os pagamentos de 2023 não têm como ser conferidos.', 'Petição dos embargos, anexos 4 a 9'],
+  ['Valores', 'Erro', 'Total não confere com as parcelas', 'O total declarado é maior que a soma das 36 parcelas.', 'Planilha do exequente, p. 5'],
+];
+function lpTrocarAchado(){
+  LP.ach = ((LP.ach || 0) + 1) % LP_ACHADOS.length;
+  const [cat, grav, tit, det, fonte] = LP_ACHADOS[LP.ach];
+  const box = document.getElementById('lpAchado');
+  if(!box) return;
+  box.classList.add('troca');
+  setTimeout(() => {
+    document.getElementById('lpAchCat').textContent = cat;
+    const g = document.getElementById('lpAchGrav'); g.textContent = grav; g.dataset.g = grav;
+    document.getElementById('lpAchTit').textContent = tit;
+    document.getElementById('lpAchDet').textContent = det;
+    document.getElementById('lpAchFonte').textContent = fonte;
+    box.classList.remove('troca');
+  }, 260);
+}
+function lpFerr(qual){
+  const hon = qual !== 'prazo';
+  document.getElementById('lpFerrHon').hidden = !hon;
+  document.getElementById('lpFerrPrazo').hidden = hon;
+  [['lpAbaHon', hon], ['lpAbaPrazo', !hon]].forEach(([id, on]) => { const b = document.getElementById(id); b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+  if(!hon) lpPrazo();
+}
+function lpSimular(){
+  const hora = Math.max(0, Number(document.getElementById('lpHora').value) || 0);
+  let horas = 0;
+  for(let i = 0; i < 5; i++){
+    const v = Number(document.getElementById('lpH' + i).value) || 0;
+    horas += v;
+    document.getElementById('lpHv' + i).textContent = v + ' h';
+  }
+  const total = horas * hora;
+  document.getElementById('lpTotal').textContent = fmtMoney(total);
+  document.getElementById('lpHoras').textContent = `${horas} hora${horas === 1 ? '' : 's'} × ${fmtMoney(hora)}`;
+  document.getElementById('lpAdiant').textContent = fmtMoney(total / 2);
+}
+function lpPrazo(){
+  const ini = document.getElementById('lpPzData');
+  if(!ini.value) ini.value = todayIso();
+  const dias = Math.min(365, Math.max(1, parseInt(document.getElementById('lpPzDias').value, 10) || 1));
+  const uteis = document.getElementById('lpPzTipo').value === 'uteis';
+  const d = new Date(ini.value + 'T12:00:00');
+  let n = 0;
+  while(n < dias){
+    d.setDate(d.getDate() + 1);
+    const w = d.getDay();
+    if(!uteis || (w !== 0 && w !== 6)) n++;
+  }
+  if(!uteis){ while(d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); }
+  const iso = d.toISOString().slice(0, 10);
+  document.getElementById('lpPzFim').textContent = d.toLocaleDateString('pt-BR', {weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'});
+  const falta = diasAte(iso);
+  document.getElementById('lpPzFalta').textContent = falta > 0 ? `faltam ${falta} dia${falta === 1 ? '' : 's'} corridos` : falta === 0 ? 'vence hoje' : `venceu há ${-falta} dia${falta === -1 ? '' : 's'}`;
+}
+function lpSuporteEnviar(){
+  const nome = document.getElementById('lpSupNome').value.trim();
+  const email = document.getElementById('lpSupEmail').value.trim();
+  const assunto = document.getElementById('lpSupAssunto').value;
+  const msg = document.getElementById('lpSupMsg').value.trim();
+  const diag = [`Navegador: ${navigator.userAgent}`, `Extensão PROJUDI PDFs: ${(typeof PJ !== 'undefined' && PJ.versao) ? 'v' + PJ.versao : 'não detectada'}`, `Página: ${location.href.split('#')[0]}`].join('\n');
+  const corpo = `${msg}\n\n— ${nome} <${email}>\n\n---\n${diag}`;
+  location.href = `mailto:${SUPORTE_EMAIL}?subject=${encodeURIComponent(assunto + ' - Gerenciador de Perícia')}&body=${encodeURIComponent(corpo)}`;
+}
+function lpParar(){
+  LP.timers.forEach(t => clearInterval(t)); LP.timers = [];
+  if(LP.obs){ LP.obs.disconnect(); LP.obs = null; }
+}
+function lpIniciar(raiz){
+  lpParar();
+  const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* entra na tela ao rolar */
+  if('IntersectionObserver' in window && !calmo){
+    LP.obs = new IntersectionObserver(ents => ents.forEach(e => { if(e.isIntersecting){ e.target.classList.add('lp-vis'); LP.obs.unobserve(e.target); } }), {root: raiz, rootMargin: '0px 0px -8% 0px'});
+    raiz.querySelectorAll('.lp-rev').forEach(el => LP.obs.observe(el));
+  } else raiz.querySelectorAll('.lp-rev').forEach(el => el.classList.add('lp-vis'));
+  /* cabeçalho ganha fundo ao rolar */
+  raiz.addEventListener('scroll', () => { const c = document.getElementById('lpCab'); if(c) c.classList.toggle('rolou', raiz.scrollTop > 8); }, {passive: true});
+  lpSimular();
+  if(calmo) return;
+  /* telas do topo trocam sozinhas */
+  LP.timers.push(setInterval(() => {
+    const imgs = document.querySelectorAll('#lpHeroiTelas img');
+    if(!imgs.length) return;
+    imgs[LP.heroi].classList.remove('on');
+    LP.heroi = (LP.heroi + 1) % imgs.length;
+    imgs[LP.heroi].classList.add('on');
+  }, 4200));
+  /* demonstração avança a cada 6 s, pausa com o mouse em cima */
+  LP.decorrido = 0;
+  LP.timers.push(setInterval(() => {
+    if(LP.pausado || lpEntrarAberto) return;
+    LP.decorrido += 250;
+    if(LP.decorrido >= 6000) lpDemo(LP.demo + 1, false);
+  }, 250));
+  LP.timers.push(setInterval(lpTrocarAchado, 3600));
+}
+
 function abrirLogin(v){
   loginAberto = !!v;
   renderLogin();
@@ -5008,7 +5752,7 @@ function renderMeuPerfil(){
    Os manuais são gerados aqui mesmo, com o jsPDF já usado na Revisão IA,
    então estão sempre de acordo com a versão publicada do sistema.
    ========================================================================== */
-const MANUAL_DATA = '14/10/2026';
+const MANUAL_DATA = '15/10/2026';
 const ICONE_BAIXAR = '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>';
 const ICONE_CHAVE = '<circle cx="8" cy="15" r="4"/><path d="M10.9 12.1L19.5 3.5M16 7l2.5 2.5M13.8 9.2l2 2"/>';
 
@@ -5016,12 +5760,12 @@ const MANUAIS = [
   {id:'inicio', titulo:'Comece por aqui', icone:'visao',
    resumo:'Entrar, preencher o seu perfil, criar a primeira perícia e achar qualquer coisa em segundos.',
    secoes:[
-    {t:'O que é o PeríciaFlow', b:[
-      ['p','O PeríciaFlow organiza o trabalho do perito contábil: perícias, autos do processo, prazos, tarefas, agenda, cálculos, proposta de honorários e a revisão dos autos com IA. Tudo funciona no navegador, sem instalar programa.'],
+    {t:'O que é o Gerenciador de Perícia', b:[
+      ['p','O Gerenciador de Perícia organiza o trabalho do perito contábil: perícias, autos do processo, prazos, tarefas, agenda, cálculos, proposta de honorários e a revisão dos autos com IA. Tudo funciona no navegador, sem instalar programa.'],
     ]},
     {t:'Entrar na sua conta', b:[
-      ['passos',['Abra o PeríciaFlow no Google Chrome, no computador.',
-                 'No rodapé da barra lateral, clique em "Entrar com Google" e escolha a sua conta.',
+      ['passos',['Abra o Gerenciador de Perícia no Google Chrome, no computador.',
+                 'Na página inicial, clique em "Entrar" (ou "Criar conta grátis") e escolha entrar com a conta Google ou com e-mail e senha.',
                  'Na primeira entrada, leia e aceite os Termos de uso e a Política de privacidade.']],
       ['dica','Sem entrar, o sistema funciona, mas os dados ficam só neste navegador: não aparecem em outro computador e somem se o histórico do navegador for apagado.'],
     ]},
@@ -5050,10 +5794,10 @@ const MANUAIS = [
   ]},
 
   {id:'chave-ia', titulo:'Chave da IA (Gemini)', icone:'chave', destaque:true,
-   resumo:'Criar a sua chave no Google AI Studio, colocar no PeríciaFlow, controlar o custo e proteger os autos.',
+   resumo:'Criar a sua chave no Google AI Studio, colocar no Gerenciador de Perícia, controlar o custo e proteger os autos.',
    secoes:[
     {t:'Para que serve a chave', b:[
-      ['p','A Revisão IA lê os autos com o Gemini, a inteligência artificial do Google. A chave liga o PeríciaFlow à sua conta no Google: o uso é cobrado de você, segue os termos que você aceitou no Google, e o PeríciaFlow não tem chave própria nem acesso à sua cobrança.'],
+      ['p','A Revisão IA lê os autos com o Gemini, a inteligência artificial do Google. A chave liga o Gerenciador de Perícia à sua conta no Google: o uso é cobrado de você, segue os termos que você aceitou no Google, e o Gerenciador de Perícia não tem chave própria nem acesso à sua cobrança.'],
       ['p','Cada perito usa a própria chave. Não empreste a sua a colegas.'],
     ]},
     {t:'Antes de tudo: gratuito ou pago', b:[
@@ -5067,7 +5811,7 @@ const MANUAIS = [
       ['passos',['Acesse aistudio.google.com e entre com a sua conta Google, de preferência a profissional.',
                  'Na primeira vez, aceite os termos de uso e clique em "Continue".',
                  'Clique em "Get API key" (menu da esquerda, embaixo) e depois em "Create API key".',
-                 'Dê um nome à chave, por exemplo "PeríciaFlow", e escolha um projeto do Google Cloud ou crie um novo.',
+                 'Dê um nome à chave, por exemplo "Gerenciador de Perícia", e escolha um projeto do Google Cloud ou crie um novo.',
                  'Clique em "Create key" e depois no ícone de copiar, ao lado da chave criada. A chave é um texto longo, que costuma começar com "AIza".']],
       ['dica','O Google muda o nome dos botões de tempos em tempos. Se não achar, procure por "API key" no menu do AI Studio.'],
     ]},
@@ -5077,7 +5821,7 @@ const MANUAIS = [
                  'Volte à lista de chaves e confira que o projeto deixou de aparecer como gratuito.',
                  'No Google Cloud, em Faturamento > Orçamentos e alertas, crie um orçamento mensal (por exemplo, R$ 50) para receber um e-mail se o gasto subir.']],
     ]},
-    {t:'Colocar a chave no PeríciaFlow', b:[
+    {t:'Colocar a chave no Gerenciador de Perícia', b:[
       ['passos',['Abra Revisão IA, na barra lateral (grupo Produção técnica).',
                  'Abra o painel "Chave e modelo", no fim da tela.',
                  'Cole a chave no campo "Chave da API do Gemini" e clique fora do campo. Ela aparece mascarada, só com o começo e o fim visíveis.',
@@ -5151,14 +5895,14 @@ const MANUAIS = [
    resumo:'Instalar a extensão, baixar os autos do PROJUDI (TJGO) e mandar direto para a perícia.',
    secoes:[
     {t:'O que a extensão faz', b:[
-      ['p','A extensão PROJUDI PDFs, para o Google Chrome, abre o processo no PROJUDI do TJGO, baixa os arquivos um a um, transforma os assinados (.p7s) em PDF e envia tudo para a perícia certa no PeríciaFlow. Também gera um ZIP com os autos.'],
+      ['p','A extensão PROJUDI PDFs, para o Google Chrome, abre o processo no PROJUDI do TJGO, baixa os arquivos um a um, transforma os assinados (.p7s) em PDF e envia tudo para a perícia certa no Gerenciador de Perícia. Também gera um ZIP com os autos.'],
     ]},
     {t:'Instalar', b:[
       ['passos',['No Chrome, abra a Chrome Web Store e procure por "PROJUDI PDFs".',
                  'Clique em "Usar no Chrome" e confirme.',
                  'Fixe a extensão na barra do Chrome: ícone de quebra-cabeça, depois o alfinete.',
-                 'Recarregue o PeríciaFlow. Em Meu perfil > Acesso ao PROJUDI deve aparecer "instalada", com a versão.']],
-      ['dica','Se a extensão ainda não aparecer na loja, peça o pacote ao administrador do PeríciaFlow.'],
+                 'Recarregue o Gerenciador de Perícia. Em Meu perfil > Acesso ao PROJUDI deve aparecer "instalada", com a versão.']],
+      ['dica','Se a extensão ainda não aparecer na loja, peça o pacote ao administrador do Gerenciador de Perícia.'],
     ]},
     {t:'Escolher como buscar', b:[
       ['lista',['Automático (recomendado): usa o código de acesso quando a perícia tiver um; se não tiver, usa o seu login no PROJUDI.',
@@ -5170,17 +5914,17 @@ const MANUAIS = [
       ['passos',['Abra a perícia (ou Importar processo) e peça para baixar os autos do PROJUDI.',
                  'A aba do PROJUDI abre com o número e o código de acesso já preenchidos.',
                  'Marque a verificação de segurança, se aparecer, e clique em "Consultar". Esse clique é sempre seu: o tribunal protege a busca contra robôs.',
-                 'Volte ao PeríciaFlow: os arquivos chegam sozinhos e a tela mostra quantos foram importados.']],
+                 'Volte ao Gerenciador de Perícia: os arquivos chegam sozinhos e a tela mostra quantos foram importados.']],
     ]},
     {t:'Com o seu login', b:[
       ['p','Quando a busca precisar do seu login, a aba do PROJUDI vem para a frente e você entra como sempre: certificado digital (token) ou CPF, senha e o código que chega por e-mail. A extensão só usa a sessão que você abriu.'],
-      ['alerta','A sua senha nunca passa pelo PeríciaFlow','O PeríciaFlow não pede nem guarda senha ou certificado do PROJUDI. Desconfie de qualquer tela que peça isso fora do site do tribunal.'],
+      ['alerta','A sua senha nunca passa pelo Gerenciador de Perícia','O Gerenciador de Perícia não pede nem guarda senha ou certificado do PROJUDI. Desconfie de qualquer tela que peça isso fora do site do tribunal.'],
     ]},
     {t:'Sem duplicar', b:[
       ['p','Cada arquivo leva o identificador fixo do PROJUDI. Se você baixar de novo, só o que for novo entra; o resto é ignorado.'],
     ]},
     {t:'Problemas comuns', b:[
-      ['lista',['"não encontrada" em Acesso ao PROJUDI: a extensão está desligada ou foi instalada depois de abrir a página. Ative em chrome://extensions e recarregue o PeríciaFlow.',
+      ['lista',['"não encontrada" em Acesso ao PROJUDI: a extensão está desligada ou foi instalada depois de abrir a página. Ative em chrome://extensions e recarregue o Gerenciador de Perícia.',
                 'Aviso de versão antiga: a loja atualiza sozinha em algumas horas. Para adiantar, em chrome://extensions ligue o "Modo do desenvolvedor" e clique em "Atualizar".',
                 'Nada acontece depois de "Consultar": confira o número e o código de acesso e veja se o processo aparece na tela do PROJUDI.']],
     ]},
@@ -5209,7 +5953,7 @@ const MANUAIS = [
     {t:'Prazos e alertas', b:[
       ['p','A tela Prazos e alertas ordena as entregas por urgência.'],
       ['lista',['Em "Quando avisar", escolha a antecedência: 15, 7, 3 ou 1 dia, ou no dia. Prazos vencidos são sempre avisados.',
-                'Em "Por onde avisar", ligue as notificações neste navegador. Elas aparecem enquanto o PeríciaFlow estiver aberto.']],
+                'Em "Por onde avisar", ligue as notificações neste navegador. Elas aparecem enquanto o Gerenciador de Perícia estiver aberto.']],
       ['dica','O e-mail diário, que avisa mesmo com o sistema fechado, ainda está em preparação.'],
     ]},
     {t:'Agenda', b:[
@@ -5254,15 +5998,40 @@ async function manualBaixar(id){
   const lista = id === 'todos' ? MANUAIS : MANUAIS.filter(m => m.id === id);
   if(!lista.length) return;
   const ok = await gerarPdfDocs(lista, {
-    arquivo: id === 'todos' ? 'periciaflow-manuais.pdf' : `periciaflow-manual-${id}.pdf`,
-    rotulo: 'PeríciaFlow · manual de uso', data: 'Atualizado em ' + MANUAL_DATA,
+    arquivo: id === 'todos' ? 'gerenciador-pericia-manuais.pdf' : `gerenciador-pericia-manual-${id}.pdf`,
+    rotulo: 'Gerenciador de Perícia · manual de uso', data: 'Atualizado em ' + MANUAL_DATA,
   });
   if(ok) pfAviso(id === 'todos' ? 'Manual completo baixado.' : `Manual "${lista[0].titulo}" baixado.`);
 }
 /* Gera um PDF A4 a partir de documentos no formato {titulo, resumo, secoes:[{t, b:[blocos]}]}.
    Blocos: ['p', texto] · ['lista', [itens]] · ['passos', [itens]] · ['alerta', título, texto] · ['dica', texto].
    Usado pelos manuais e pelos termos, pela política de privacidade e pela página de segurança. */
+/* Ícone nos PDFs: no cabeçalho e como marca-d'água discreta em cada página. */
+let PF_LOGO_PNG = null;
+async function pfLogoPng(){
+  if(PF_LOGO_PNG !== null) return PF_LOGO_PNG;
+  try{
+    const r = await fetch('icones/icone-192.png');
+    const b = await r.blob();
+    if(!r.ok || !/^image\/png/.test(b.type)) throw new Error('sem ícone');
+    PF_LOGO_PNG = await new Promise((ok, falha) => { const f = new FileReader(); f.onload = () => ok(f.result); f.onerror = falha; f.readAsDataURL(b); });
+  }catch(e){ PF_LOGO_PNG = ''; }
+  return PF_LOGO_PNG;
+}
+function pdfMarcaDagua(doc, logo, L, W, H){
+  if(!logo) return;
+  for(let p = 1; p <= doc.getNumberOfPages(); p++){
+    doc.setPage(p);
+    try{
+      doc.saveGraphicsState();
+      doc.setGState(new doc.GState({opacity: 0.045}));
+      doc.addImage(logo, 'PNG', L + W - 140, H - 230, 170, 170);
+      doc.restoreGraphicsState();
+    }catch(e){}
+  }
+}
 async function gerarPdfDocs(lista, op){
+  const logo = await pfLogoPng();
   try{ await iaCarregarJsPdf(); }
   catch(e){ pfAviso('Não foi possível gerar o PDF: ' + e.message + '. Recarregue a página e tente de novo.'); return false; }
   const doc = new window.jspdf.jsPDF({unit:'pt', format:'a4'});
@@ -5302,7 +6071,8 @@ async function gerarPdfDocs(lista, op){
     atual = m.titulo;
     if(i === 0) rodapes.push(atual); else novaPagina();
     /* capa do manual */
-    escrever(op.rotulo, 9.5, 'normal', CINZA); y += 4;
+    if(logo){ try{ doc.addImage(logo, 'PNG', L, y - 2, 18, 18); }catch(e){} }
+    escrever(op.rotulo, 9.5, 'normal', CINZA, logo ? L + 25 : L, logo ? W - 25 : W); y += 6;
     escrever(m.titulo, 24, 'bold', ESCURO, L, W, 1.25); y += 6;
     escrever(m.resumo, 11.5, 'normal', CINZA); y += 6;
     escrever(op.data, 9, 'normal', CINZA); y += 10;
@@ -5335,12 +6105,13 @@ async function gerarPdfDocs(lista, op){
     });
   });
 
+  pdfMarcaDagua(doc, logo, L, W, H);
   const total = doc.getNumberOfPages();
   for(let p = 1; p <= total; p++){
     doc.setPage(p);
     doc.setDrawColor(213, 219, 222); doc.setLineWidth(0.75); doc.line(L, H - 46, L + W, H - 46);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...CINZA);
-    doc.text(T('PeríciaFlow · ' + (rodapes[p - 1] || '')), L, H - 32);
+    doc.text(T('Gerenciador de Perícia · ' + (rodapes[p - 1] || '')), L, H - 32);
     doc.text(`p. ${p} de ${total}`, L + W, H - 32, {align:'right'});
   }
   doc.save(op.arquivo);
@@ -6125,7 +6896,7 @@ function renderIA(){
       ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar(${jsq(c.id)})">Revisar de novo</button>` : ''}
       <label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Rever sozinha quando chegar documento novo</label>
     </div>` : ''}
-    ${msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
+    ${rodando ? marcaCarregando(msg || 'Conferindo os autos…') : msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
 
   const corpo = !c ? `<div class="chart-empty">Nenhuma perícia para revisar ainda.</div>`
     : !pronta ? `<div class="ia-vazio"><b>Falta pouco para a primeira revisão.</b><span>Guarde a sua chave do Gemini e dê o aceite nos painéis acima.</span></div>`
@@ -6183,6 +6954,7 @@ function iaPdfTexto(s){
     .replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF–—‘’“”…•€]/g, '');
 }
 async function iaBaixarPdf(casoId){
+  const logo = await pfLogoPng();
   const c = casos.find(x => x.id === casoId);
   const a = iaAnalise(c);
   if(!a){ pfAviso('Revise a perícia antes de gerar o PDF.'); return; }
@@ -6206,7 +6978,10 @@ async function iaBaixarPdf(casoId){
     doc.text(ls, L, y + tam);
     y += ls.length * tam * 1.4;
   };
-  escrever('PeríciaFlow · documento de trabalho do perito', 9, 'normal', CINZA); y += 2;
+  if(logo){ try{ doc.addImage(logo, 'PNG', L, y - 1, 18, 18); }catch(e){} }
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...CINZA);
+  doc.text(T('Gerenciador de Perícia · documento de trabalho do perito'), logo ? L + 25 : L, y + 12);
+  y += 26;
   escrever('Relatório de verificação dos autos', 20, 'bold'); y += 10;
   [
     ['Perícia', (c.codigo || '') + ' · ' + (c.nome || '')],
@@ -6265,13 +7040,24 @@ async function iaBaixarPdf(casoId){
   escrever('Anotações do perito', 14, 'bold');
   for(let k = 0; k < 3; k++){ y += 22; doc.setDrawColor(185, 194, 199); doc.line(L, y, L + W, y); }
   y += 40;
-  doc.setDrawColor(...ESCURO); doc.line(L, y, L + W * 0.6, y); doc.line(L + W * 0.7, y, L + W, y);
+  doc.setDrawColor(...ESCURO); doc.setLineWidth(0.75); doc.line(L, y, L + W * 0.42, y); doc.line(L + W * 0.47, y, L + W * 0.64, y);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...CINZA);
-  doc.text('Conferido por', L, y + 13); doc.text('Data', L + W * 0.7, y + 13);
+  doc.text('Conferido por', L, y + 13); doc.text('Data', L + W * 0.47, y + 13);
+  /* carimbo de conferência, ao lado da assinatura */
+  const cx = L + W * 0.68, cy = y - 30, cw = W * 0.32;
+  doc.setDrawColor(27, 56, 80); doc.setLineWidth(1.1); doc.roundedRect(cx, cy, cw, 46, 6, 6, 'S');
+  if(logo){ try{ doc.addImage(logo, 'PNG', cx + 8, cy + 11, 24, 24); }catch(e){} }
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...CINZA);
+  doc.text('CONFERIDO NO', cx + 38, cy + 14);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...ESCURO);
+  doc.text(T('Gerenciador de Perícia'), cx + 38, cy + 26);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...CINZA);
+  doc.text(T(`${new Date().toLocaleDateString('pt-BR')} · ${conf.length} confirmado(s)`), cx + 38, cy + 37);
+  pdfMarcaDagua(doc, logo, L, W, H);
   const total = doc.getNumberOfPages();
   for(let p = 1; p <= total; p++){
     doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...CINZA);
-    doc.text(T(`Gerado pelo PeríciaFlow em ${new Date().toLocaleDateString('pt-BR')}. Os achados apontam onde conferir; a conclusão é do perito.`), L, H - 30);
+    doc.text(T(`Gerado pelo Gerenciador de Perícia em ${new Date().toLocaleDateString('pt-BR')}. Os achados apontam onde conferir; a conclusão é do perito.`), L, H - 30);
     doc.text(`p. ${p} de ${total}`, L + W, H - 30, {align:'right'});
   }
   doc.save(`verificacao-${(c.codigo || 'pericia').replace(/[^A-Za-z0-9_-]+/g, '-')}.pdf`);
@@ -6282,6 +7068,7 @@ async function iaBaixarPdf(casoId){
    Render principal
    ========================================================================== */
 function renderAll(){
+  pfFavicon();
   renderPerfil();
   renderSeloRodape();
   renderNav();
@@ -7053,14 +7840,14 @@ function confirmDelete(casoId){
      lê a lista de arquivos e entrega UM arquivo por vez a esta página.
    - Esta página grava cada arquivo no Storage/Firestore da conta, com ID fixo "pj_<id no
      PROJUDI>": repetir o pedido nunca duplica, e a extensão nem baixa o que já existe.
-   O PeríciaFlow nunca pede nem guarda senha ou certificado do PROJUDI.
+   O Gerenciador de Perícia nunca pede nem guarda senha ou certificado do PROJUDI.
    Conversa com a extensão: window.postMessage { __pf:"app" } ⇄ { __pf:"ext" } (periciaflow.js).
    ========================================================================== */
 const PJ = {
   versao: null,          // versão da extensão instalada (null = não detectada)
   status: {},            // casoId -> { etapa, texto, feitos, total, falhas, pedidoId }
   pedidos: {},           // pedidoId -> casoId
-  ofertas: new Map(),    // pedidoId -> pedido vindo de "Enviar ao PeríciaFlow" no PROJUDI
+  ofertas: new Map(),    // pedidoId -> pedido vindo de "Enviar ao Gerenciador de Perícia" no PROJUDI
   respostas: new Map(), ref: 0,
   fila: Promise.resolve(),
 };
@@ -7196,7 +7983,7 @@ async function pjGravarArquivo(d){
   pjPost({tipo:'salvo', pedidoId:d.pedidoId, ok});
 }
 
-/* ---------- envios feitos no PROJUDI ("Enviar ao PeríciaFlow") ---------- */
+/* ---------- envios feitos no PROJUDI ("Enviar ao Gerenciador de Perícia") ---------- */
 function pjCriarPericiaDoProjudi(pedido){
   const dono = meuEmail();
   const capa = pedido.capa || {};
@@ -7287,7 +8074,7 @@ function renderAcessoProjudi(){
       <button class="btn btn-ghost btn-sm" onclick="pjEntrar()" ${PJ.versao ? '' : 'disabled'}>Entrar no PROJUDI</button>
     </div>
     <div class="hint" style="margin-top:12px;">
-      O PeríciaFlow não pede nem guarda a sua senha ou o seu certificado. Quando o pedido precisar do seu login,
+      O Gerenciador de Perícia não pede nem guarda a sua senha ou o seu certificado. Quando o pedido precisar do seu login,
       a aba do PROJUDI vem para a frente e você entra como sempre: certificado digital (token) ou CPF, senha e o código
       que chega por e-mail. A extensão só usa a sessão que você abriu, e a busca continua sozinha depois disso.
     </div>`;
@@ -7512,7 +8299,7 @@ function pfBaixarIcs(){
   const ev = pfEventos().filter(e => diasAte(e.data) >= -1);
   const esc = (s) => String(s || '').replace(/[\\;,]/g, m => '\\' + m).replace(/\n/g, '\\n');
   const carimbo = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-  const linhas = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PericiaFlow//Agenda//PT-BR', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:PeríciaFlow', 'X-WR-TIMEZONE:America/Sao_Paulo'];
+  const linhas = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PericiaFlow//Agenda//PT-BR', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Gerenciador de Perícia', 'X-WR-TIMEZONE:America/Sao_Paulo'];
   ev.forEach(e => {
     const d = e.data.replace(/-/g, '');
     linhas.push('BEGIN:VEVENT', `UID:${e.id}-${e.casoId}@periciaflow`, `DTSTAMP:${carimbo}`);
@@ -7531,7 +8318,7 @@ function pfBaixarIcs(){
   linhas.push('END:VCALENDAR');
   const blob = new Blob([linhas.join('\r\n')], {type:'text/calendar;charset=utf-8'});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'periciaflow-agenda.ics';
+  a.href = URL.createObjectURL(blob); a.download = 'gerenciador-pericia-agenda.ics';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   pfAviso(`${ev.length} compromisso(s) exportado(s).`);
@@ -7704,7 +8491,7 @@ function renderPublicacoes(){
   return `<div class="section-gap">
     <div class="pf-card">
       <div class="pf-linha"><b style="flex:1">Diário de Justiça Eletrônico Nacional (DJEN)</b><span class="pill pill-muted">a conectar</span></div>
-      <p class="hint" style="margin:0;">Quando estiver ligado, o PeríciaFlow vai conferir o DJEN toda manhã pelo seu nome e pelos números das suas perícias. Nomeações novas viram perícias, e intimações viram tarefas com prazo. Isso depende de um servidor que rode mesmo com o app fechado, e ele está na próxima etapa.</p>
+      <p class="hint" style="margin:0;">Quando estiver ligado, o Gerenciador de Perícia vai conferir o DJEN toda manhã pelo seu nome e pelos números das suas perícias. Nomeações novas viram perícias, e intimações viram tarefas com prazo. Isso depende de um servidor que rode mesmo com o app fechado, e ele está na próxima etapa.</p>
       <div class="pf-linha"><a class="btn btn-ghost" href="https://comunica.pje.jus.br/" target="_blank" rel="noopener">Consultar o DJEN agora</a></div>
     </div>
     ${panel('pubMonitorar', 'O que será monitorado', `${numeros.length} processo${numeros.length === 1 ? '' : 's'} em andamento`, numeros.length
@@ -7745,7 +8532,7 @@ function pfVerificarAlertas(forcar){
     if(enviados[chave] === hoje && !forcar) return;
     enviados[chave] = hoje; n++;
     try{
-      const no = new Notification(titulo, {body: corpo, tag: chave});
+      const no = new Notification(titulo, {body: corpo, tag: chave, icon: 'icones/icone-192.png', badge: 'icones/favicon-32.png'});
       no.onclick = () => { window.focus(); if(casoId) openDrawer(casoId); };
     }catch(e){}
   };
@@ -7774,7 +8561,7 @@ function renderAlertasPainel(){
     <div class="pf-card">
       <b>Por onde avisar</b>
       <div class="pf-linha"><button class="pf-toggle" id="pfAlertaNav" aria-pressed="${cfg.navegador}" aria-label="Notificações neste navegador" onclick="pfAlternarNavegador()"></button>
-        <div><b style="font-size:13px;">Notificações neste navegador</b><div class="hint">${perm === 'denied' ? 'bloqueadas nas configurações do site' : 'enquanto o PeríciaFlow estiver aberto'}</div></div></div>
+        <div><b style="font-size:13px;">Notificações neste navegador</b><div class="hint">${perm === 'denied' ? 'bloqueadas nas configurações do site' : 'enquanto o Gerenciador de Perícia estiver aberto'}</div></div></div>
       <div class="pf-linha"><button class="pf-toggle" disabled aria-pressed="false" aria-label="E-mail diário"></button>
         <div><b style="font-size:13px;">E-mail diário às 7h</b> <span class="pill pill-muted">a conectar</span><div class="hint">avisa mesmo com o app fechado</div></div></div>
     </div>

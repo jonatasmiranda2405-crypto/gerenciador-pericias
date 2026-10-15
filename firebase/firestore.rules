@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Regras do Cloud Firestore do PeríciaFlow.
+// Regras do Cloud Firestore do Gerenciador de Perícia.
 // Publicar: Firebase Console > Firestore Database > Regras (cole este arquivo e clique em Publicar)
 // ou `firebase deploy --only firestore:rules`. Testes em firebase/testes/ (rodam no GitHub Actions).
 //

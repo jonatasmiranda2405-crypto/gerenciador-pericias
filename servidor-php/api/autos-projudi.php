@@ -1,6 +1,6 @@
 <?php
 /**
- * API de upload dos autos do PROJUDI — PeríciaFlow (versão PHP/MySQL)
+ * API de upload dos autos do PROJUDI — Gerenciador de Perícia (versão PHP/MySQL)
  *
  * Recebe UM arquivo por vez da página da perícia (pj-receptor.js), que por sua vez recebe da
  * extensão "PROJUDI PDFs". Não duplica: (caso_id, projudi_id) é chave única.
@@ -67,7 +67,7 @@ try {
 } catch (Throwable $e) { erro(500, 'Banco de dados indisponível.'); }
 
 $usuario = ($CFG['usuario_atual'])();
-if ($usuario === null || $usuario === '') erro(401, 'Entre no PeríciaFlow para importar os autos.');
+if ($usuario === null || $usuario === '') erro(401, 'Entre no Gerenciador de Perícia para importar os autos.');
 
 $acao = campo('acao', 20);
 $casoId = campo('caso_id', 64);
@@ -143,7 +143,7 @@ switch ($acao) {
     header('Content-Disposition: inline; filename="' . rawurlencode($r['nome']) . '"');
     header('Cache-Control: private, no-store');
     header('X-Content-Type-Options: nosniff');
-    // HTML vindo do PROJUDI nunca roda script no domínio do PeríciaFlow
+    // HTML vindo do PROJUDI nunca roda script no domínio do Gerenciador de Perícia
     // (só no HTML: o leitor de PDF do Chrome não abre arquivo com "sandbox")
     if ($r['mime'] === 'text/html') header("Content-Security-Policy: sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'");
     echo $dados;

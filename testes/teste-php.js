@@ -1,4 +1,4 @@
-// Teste: extensão → PeríciaFlow PHP (localhost:8080) → API de upload (SQLite, criptografado); e Mercado Pago.
+// Teste: extensão → Gerenciador de Perícia PHP (localhost:8080) → API de upload (SQLite, criptografado); e Mercado Pago.
 const path = require("path");
 const os = require("os");
 let chromium;
@@ -41,7 +41,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const aba = () => ctx.pages().find((p) => p.url().includes("projudi.tjgo.jus.br/BuscaProcesso"));
   const api = (q) => pf.evaluate(async (q) => (await fetch("/api/autos-projudi.php?" + q, { headers: { "X-PF-Autos": "1" } })).json(), q);
 
-  console.log("\n1) Baixar autos para o PeríciaFlow PHP");
+  console.log("\n1) Baixar autos para o Gerenciador de Perícia PHP");
   await pf.click("[data-pf-autos]");
   let t = await esperar(/verificação|clique em Consultar|concluído|erro/, 30000);
   if (/verificação/.test(t)) { await aba().click("#cf-ok"); t = await esperar(/clique em Consultar|concluído|erro/, 30000); }

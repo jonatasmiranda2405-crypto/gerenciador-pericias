@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Regras do Cloud Storage do PeríciaFlow.
+// Regras do Cloud Storage do Gerenciador de Perícia.
 // Publicar: Firebase Console > Storage > Regras (cole este arquivo e clique em Publicar)
 // ou `firebase deploy --only storage`.
 //

@@ -1,7 +1,7 @@
 // Documento offscreen: é o único lugar da extensão que segura arquivos grandes na memória.
 // 1) ZIP para download (botão "Baixar todos os PDFs"): monta e devolve uma URL blob.
-// 2) Autos para o PeríciaFlow: baixa UM arquivo por vez com a sessão do perito no PROJUDI,
-//    tira o PDF de dentro do .p7s quando preciso e entrega em partes à aba do PeríciaFlow.
+// 2) Autos para o Gerenciador de Perícia: baixa UM arquivo por vez com a sessão do perito no PROJUDI,
+//    tira o PDF de dentro do .p7s quando preciso e entrega em partes à aba do Gerenciador de Perícia.
 //    O próximo arquivo só é baixado depois que o site confirma que gravou o anterior.
 const blobUrls = new Set();
 const pedidos = new Map(); // pedidoId -> { arquivos: [...] }
@@ -96,7 +96,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     sendResponse({ remaining: restantes() });
   }
 
-  // O service worker entrega a lista de arquivos de um pedido antes de a aba do PeríciaFlow conectar.
+  // O service worker entrega a lista de arquivos de um pedido antes de a aba do Gerenciador de Perícia conectar.
   if (msg.type === "PREPARAR") {
     pedidos.set(msg.pedidoId, { arquivos: msg.arquivos, tabProjudi: msg.tabProjudi });
     sendResponse({ ok: true });
@@ -108,7 +108,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 });
 
-// Conversa com o periciaflow.js (aba do PeríciaFlow), um arquivo por vez:
+// Conversa com o periciaflow.js (aba do Gerenciador de Perícia), um arquivo por vez:
 //   → { pedidoId }                      começa
 //   ← { arquivo: meta, partes: n }      cabeçalho de um arquivo
 //   ← { i, data }                       uma parte (base64);   → { ack: i }
@@ -124,15 +124,17 @@ chrome.runtime.onConnect.addListener((port) => {
     chrome.runtime.sendMessage({ type: "ZIP_PROGRESS", tabId: ped.tabProjudi, text }).catch(() => {});
 
   async function proximoArquivo() {
+    // número no ícone da extensão: quantos arquivos faltam; no fim, o check
+    chrome.runtime.sendMessage({ type: "PF_BADGE", texto: idx >= ped.arquivos.length ? "✓" : String(ped.arquivos.length - idx) }).catch(() => {});
     if (idx >= ped.arquivos.length) {
       port.postMessage({ fim: true, resumo });
-      status(`Concluído: ${resumo.gravados} arquivo(s) no PeríciaFlow.` + (resumo.falhas.length ? ` ${resumo.falhas.length} falharam.` : ""));
+      status(`Concluído: ${resumo.gravados} arquivo(s) no Gerenciador de Perícia.` + (resumo.falhas.length ? ` ${resumo.falhas.length} falharam.` : ""));
       pedidos.delete(pedidoId);
       return;
     }
     const f = ped.arquivos[idx];
     const meta = { idArquivo: f.idArquivo, nome: f.nome, fase: f.fase, data: f.data, mov: f.mov, tipoMov: f.tipo, ordem: idx + 1, total: ped.arquivos.length };
-    status(`Enviando ao PeríciaFlow ${idx + 1}/${ped.arquivos.length}…`);
+    status(`Enviando ao Gerenciador de Perícia ${idx + 1}/${ped.arquivos.length}…`);
     try {
       const bytes = await obterArquivo(f);
       blob = new Blob([bytes], { type: f.isPdf ? "application/pdf" : "text/html" });

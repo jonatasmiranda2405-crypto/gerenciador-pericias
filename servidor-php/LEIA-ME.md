@@ -1,6 +1,6 @@
-# Autos do PROJUDI no PeríciaFlow PHP
+# Autos do PROJUDI no Gerenciador de Perícia PHP
 
-Peças para o PeríciaFlow em PHP/MySQL (localhost:8080) receber os autos pela extensão
+Peças para o Gerenciador de Perícia em PHP/MySQL (localhost:8080) receber os autos pela extensão
 PROJUDI PDFs v1.7. É o mesmo fluxo do site do GitHub. A diferença está no destino: os arquivos vão
 para o seu servidor, criptografados, e não para o Firebase.
 
@@ -14,7 +14,7 @@ teste/                         servidor de teste usado na verificação (não va
 
 ## Instalação (5 passos)
 
-1. **Tabela:** rode `sql/autos_projudi.sql` no banco do PeríciaFlow.
+1. **Tabela:** rode `sql/autos_projudi.sql` no banco do Gerenciador de Perícia.
 2. **Chave:** gere uma vez com `php -r "echo base64_encode(random_bytes(32)), PHP_EOL;"` e guarde
    na variável de ambiente `PERICIAFLOW_CHAVE_AUTOS`. **Sem essa chave os arquivos não abrem**:
    faça backup dela separado do banco.
@@ -40,12 +40,12 @@ teste/                         servidor de teste usado na verificação (não va
    ```
    Para listar e abrir os arquivos: `GET /api/autos-projudi.php?acao=listar&caso_id=ID` e
    `?acao=abrir&id=N`. As duas chamadas exigem o cabeçalho `X-PF-Autos: 1`.
-5. **Envios feitos no PROJUDI** ("Enviar ao PeríciaFlow"): passe também `casos()`, que lista as perícias
+5. **Envios feitos no PROJUDI** ("Enviar ao Gerenciador de Perícia"): passe também `casos()`, que lista as perícias
    do usuário, e, se quiser, `criarCaso(pedido)`. Sem isso, o perito usa o botão dentro da perícia.
 
 ## Segurança
 
-- A senha e o certificado do PROJUDI nunca passam pelo PeríciaFlow: o login é sempre feito no site
+- A senha e o certificado do PROJUDI nunca passam pelo Gerenciador de Perícia: o login é sempre feito no site
   do tribunal, pelo próprio perito.
 - A API só aceita chamadas da mesma origem, com o cabeçalho `X-PF-Autos: 1` e sessão ativa. Ela confere
   a permissão na perícia a cada chamada.

@@ -248,10 +248,10 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const [man] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click('.cfg-manual[data-manual="chave-ia"]')]);
   const mb = fs.readFileSync(await man.path());
   fs.copyFileSync(await man.path(), path.join(SAIDA, "manual-chave-ia.pdf"));
-  check("manual da chave da IA baixa em PDF", mb.slice(0, 5).toString() === "%PDF-" && man.suggestedFilename() === "periciaflow-manual-chave-ia.pdf", `${mb.length} bytes`);
+  check("manual da chave da IA baixa em PDF", mb.slice(0, 5).toString() === "%PDF-" && man.suggestedFilename() === "gerenciador-pericia-manual-chave-ia.pdf", `${mb.length} bytes`);
   const [tudo] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click(".cfg-todos")]);
   fs.copyFileSync(await tudo.path(), path.join(SAIDA, "manuais-todos.pdf"));
-  check("manual completo baixa em um PDF", tudo.suggestedFilename() === "periciaflow-manuais.pdf");
+  check("manual completo baixa em um PDF", tudo.suggestedFilename() === "gerenciador-pericia-manuais.pdf");
 
   console.log("\n11) Segurança e Termos e privacidade");
   check("página com política de segurança (CSP) e sem scripts de CDN", await pf.evaluate(() =>
@@ -293,7 +293,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.screenshot({ path: path.join(SAIDA, "tela-privacidade.png") });
   const [lgpdf] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click(".lg-pdf")]);
   fs.copyFileSync(await lgpdf.path(), path.join(SAIDA, "politica-privacidade.pdf"));
-  check("política baixa em PDF", lgpdf.suggestedFilename() === "periciaflow-privacidade.pdf");
+  check("política baixa em PDF", lgpdf.suggestedFilename() === "gerenciador-pericia-privacidade.pdf");
   await pf.evaluate(() => abrirLegal("termos"));
   await sleep(200);
   check("janela dos termos abre por cima (login e aceite)", await pf.isVisible("#legalModal .lg-texto"));
@@ -301,6 +301,38 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.keyboard.press("Escape");
   check("Esc fecha a janela", !(await pf.isVisible("#legalModal .lg-texto")));
   check("sem violação da política de segurança no console", cspErros.length === 0, cspErros.slice(0, 2).join(" | "));
+
+  console.log("\n12) Página de apresentação (antes do login)");
+  await pf.evaluate(() => { closeDrawer(); abrirLogin(true); });
+  await sleep(400);
+  check("apresentação aparece com as seções", await pf.isVisible("#login .lp-heroi") && await pf.locator("#login .lp-mod").count() === 11 && await pf.locator("#login .lp-faq details").count() >= 8);
+  check("telas reais carregam na demonstração", await pf.evaluate(() => new Promise((ok) => { const i = document.getElementById("lpDemoImg"); if (i.complete) ok(i.naturalWidth > 0); else { i.onload = () => ok(i.naturalWidth > 0); i.onerror = () => ok(false); } })));
+  await pf.click('#login .lp-demo-aba:has-text("Revisão IA")');
+  await sleep(300);
+  check("escolher a tela da demonstração", /revisao-ia\.webp/.test(await pf.getAttribute("#lpDemoImg", "src")) && (await pf.textContent("#lpDemoNum")).trim() === "3/8");
+  await pf.fill("#lpHora", "200");
+  await pf.evaluate(() => { const r = document.getElementById("lpH0"); r.value = "10"; r.dispatchEvent(new Event("input")); });
+  check("simulador de honorários calcula", /R\$\s?7\.200,00/.test(await pf.textContent("#lpTotal")), await pf.textContent("#lpTotal"));
+  await pf.click("#lpAbaPrazo");
+  await pf.fill("#lpPzData", "2026-10-16");
+  await pf.fill("#lpPzDias", "5");
+  await pf.evaluate(() => lpPrazo());
+  check("contador de prazo pula o fim de semana", /23 de outubro de 2026/.test(await pf.textContent("#lpPzFim")), await pf.textContent("#lpPzFim"));
+  await pf.click('#login .lp-cab-acoes button:has-text("Entrar")');
+  await sleep(200);
+  check("Entrar abre o login em janela", await pf.isVisible("#lpJanela #loginEmail") && await pf.evaluate(() => document.activeElement && document.activeElement.id === "loginEmail"));
+  await pf.click('#lpJanela button:has-text("Não tenho conta")');
+  await sleep(150);
+  check("trocar para criar conta na janela", await pf.isVisible("#lpJanela #loginNome"));
+  await pf.keyboard.press("Escape");
+  await sleep(150);
+  check("Esc fecha a janela e a apresentação continua", !(await pf.isVisible("#lpJanela #loginNome")) && await pf.isVisible("#login .lp-heroi"));
+  await pf.click('#login .lp-rodape button:has-text("Política de privacidade")');
+  await sleep(200);
+  check("rodapé abre a política por cima", await pf.isVisible("#legalModal .lg-texto") && /Política de privacidade/.test(await pf.textContent("#legalModal .lg-texto h1")));
+  await pf.keyboard.press("Escape");
+  await pf.evaluate(() => abrirLogin(false));
+  check("ao entrar, a apresentação some", !(await pf.isVisible("#login .lp")));
 
   console.log("\n9) Barra lateral e paleta de comandos");
   await pf.setViewportSize({ width: 1360, height: 900 });

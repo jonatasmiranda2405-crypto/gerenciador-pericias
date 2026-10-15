@@ -2,7 +2,7 @@
 -- A chave única (caso_id, projudi_id) é o que impede duplicados.
 CREATE TABLE IF NOT EXISTS autos_projudi (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  caso_id       VARCHAR(64)  NOT NULL,              -- id da perícia no PeríciaFlow
+  caso_id       VARCHAR(64)  NOT NULL,              -- id da perícia no Gerenciador de Perícia
   projudi_id    VARCHAR(128) NOT NULL,              -- Id_MovimentacaoArquivo do PROJUDI
   nome          VARCHAR(255) NOT NULL,
   fase          VARCHAR(255) NOT NULL DEFAULT '',   -- movimentação ("003 - Decisão - Nomeação de Perito")

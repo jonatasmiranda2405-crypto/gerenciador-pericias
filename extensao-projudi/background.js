@@ -1,5 +1,5 @@
 // Service worker: coordena downloads, a geração do ZIP, a verificação da assinatura
-// e o envio do ZIP para o PeríciaFlow.
+// e o envio do ZIP para o Gerenciador de Perícia.
 importScripts("config.js");
 
 // ---------- Assinatura ----------
@@ -92,10 +92,10 @@ chrome.downloads.onChanged.addListener(async (d) => {
   } catch (_) {}
 });
 
-// ---------- Pedidos de autos para o PeríciaFlow ----------
-// Um "pedido" liga uma perícia do PeríciaFlow a uma aba do PROJUDI. Ele nasce de dois jeitos:
+// ---------- Pedidos de autos para o Gerenciador de Perícia ----------
+// Um "pedido" liga uma perícia do Gerenciador de Perícia a uma aba do PROJUDI. Ele nasce de dois jeitos:
 //  - no site ("Baixar autos do PROJUDI"): a extensão abre o PROJUDI e busca o processo sozinha;
-//  - no PROJUDI ("Enviar ao PeríciaFlow"): a lista já está pronta e o site escolhe a perícia.
+//  - no PROJUDI ("Enviar ao Gerenciador de Perícia"): a lista já está pronta e o site escolhe a perícia.
 // Etapas: buscando → (login | assistido) → transferindo → fim;  ou  oferta → transferindo → fim.
 // Fica em storage.session: sobrevive ao service worker dormir e some ao fechar o navegador.
 const PED = "pf_ped_";
@@ -122,7 +122,7 @@ async function lerPedido(id) { return (await chrome.storage.session.get(PED + id
 async function gravarPedido(p) { p.atualizado = Date.now(); await chrome.storage.session.set({ [PED + p.id]: p }); return p; }
 async function pedidoDaAba(tabId) { return (await listarPedidos()).find((p) => p.tabProjudi === tabId) || null; }
 
-// Avisa a aba do PeríciaFlow (o periciaflow.js repassa ao site).
+// Avisa a aba do Gerenciador de Perícia (o periciaflow.js repassa ao site).
 function avisarSite(p, dados) {
   if (p.tabPF == null) return;
   chrome.tabs.sendMessage(p.tabPF, { type: "PF_STATUS", pedidoId: p.id, casoId: p.casoId, ...dados }).catch(() => {});
@@ -144,7 +144,7 @@ function filtrarNovos(arquivos, jaTenho) {
   return arquivos.filter((f) => !tem.has(String(f.idArquivo)));
 }
 
-// Entrega a lista ao offscreen e manda a aba do PeríciaFlow puxar os arquivos.
+// Entrega a lista ao offscreen e manda a aba do Gerenciador de Perícia puxar os arquivos.
 async function iniciarTransferencia(p, arquivos, pulados) {
   await ensureOffscreen();
   await chrome.runtime.sendMessage({ target: "offscreen", type: "PREPARAR", pedidoId: p.id, arquivos, tabProjudi: p.tabProjudi });
@@ -160,7 +160,7 @@ const publico = (p) => ({
   capa: p.capa || {}, total: p.total || (p.arquivos ? p.arquivos.length : 0), pulados: p.pulados || 0
 });
 
-// Traz a aba do PeríciaFlow para a frente (ou abre uma nova).
+// Traz a aba do Gerenciador de Perícia para a frente (ou abre uma nova).
 async function abrirPericiaFlow() {
   const abas = await chrome.tabs.query({ url: PERICIAFLOW_URLS.map((u) => u + "*") });
   if (abas.length) {
@@ -191,7 +191,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 
 // ---------- Quem pode pedir o quê ----------
 // Cada tipo de mensagem só é aceito vindo do lugar certo: os pedidos "PF_" só da página do
-// PeríciaFlow, os "PROJUDI_"/"PJ_" só do site do PROJUDI. E só baixamos arquivos do PROJUDI.
+// Gerenciador de Perícia, os "PROJUDI_"/"PJ_" só do site do PROJUDI. E só baixamos arquivos do PROJUDI.
 const ORIGENS_PF = ["https://jonatasmiranda2405-crypto.github.io", "http://localhost:8080"];
 const ORIGEM_PJ = "https://projudi.tjgo.jus.br";
 const TIPOS_PF = new Set(["PF_ACEITAR", "PF_BAIXAR", "PF_CANCELAR", "PF_ENTRAR", "PF_FIM", "PF_LICENCA", "PF_PENDENTES"]);
@@ -217,6 +217,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const origem = origemDe(sender);
   if (TIPOS_PF.has(msg?.type) && !ORIGENS_PF.includes(origem)) { sendResponse({ ok: false, erro: "Origem não permitida." }); return; }
   if (TIPOS_PJ.has(msg?.type) && origem !== ORIGEM_PJ) { sendResponse({ ok: false, error: "Origem não permitida." }); return; }
+
+  // Ícone da extensão mostra o progresso do envio (só o documento offscreen manda isso)
+  if (msg?.type === "PF_BADGE") {
+    if (!String(sender.url || "").startsWith(chrome.runtime.getURL("offscreen.html"))) return;
+    const texto = String(msg.texto || "").slice(0, 4);
+    chrome.action.setBadgeBackgroundColor({ color: texto === "✓" ? "#2E6B4F" : "#1B3850" }).catch(() => {});
+    chrome.action.setBadgeText({ text: texto }).catch(() => {});
+    if (texto === "✓") setTimeout(() => chrome.action.setBadgeText({ text: "" }).catch(() => {}), 8000);
+    return;
+  }
 
   if (msg?.type === "PROJUDI_LICENSE") {
     checkLicense(msg.email).then(sendResponse);
@@ -295,7 +305,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // ----- Vindo do periciaflow.js (aba do PeríciaFlow) -----
+  // ----- Vindo do periciaflow.js (aba do Gerenciador de Perícia) -----
   if (msg?.type === "PF_BAIXAR") {
     (async () => {
       try {

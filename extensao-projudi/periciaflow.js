@@ -1,4 +1,4 @@
-// Content script na aba do PeríciaFlow. É a ponte entre o site e a extensão.
+// Content script na aba do Gerenciador de Perícia. É a ponte entre o site e a extensão.
 // Conversa com a página só por window.postMessage, sempre na própria origem.
 //
 //   site → extensão  { __pf:"app", tipo, ref?, ... }

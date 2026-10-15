@@ -1,7 +1,7 @@
-/* PeríciaFlow (PHP) — receptor dos autos do PROJUDI.
+/* Gerenciador de Perícia (PHP) — receptor dos autos do PROJUDI.
  *
  * Liga a página da perícia à extensão "PROJUDI PDFs" (v1.7+) e envia cada arquivo recebido
- * à API api/autos-projudi.php, um por vez. Mesmo protocolo do PeríciaFlow do GitHub.
+ * à API api/autos-projudi.php, um por vez. Mesmo protocolo do Gerenciador de Perícia do GitHub.
  *
  * Uso mínimo na página da perícia:
  *   <button data-pf-autos data-caso="123" data-numero="5151870-23.2026.8.09.0051" data-codigo="AB12CD34">
@@ -10,7 +10,7 @@
  *   <script src="/js/pj-receptor.js"></script>
  *   <script>PericiaFlowAutos.configurar({ api: "/api/autos-projudi.php" });</script>
  *
- * Opcional, para aceitar envios feitos no PROJUDI ("Enviar ao PeríciaFlow"):
+ * Opcional, para aceitar envios feitos no PROJUDI ("Enviar ao Gerenciador de Perícia"):
  *   casos: () => [{ id, nome, numero }]              perícias que o usuário pode editar
  *   criarCaso: async (pedido) => novoId              cria a perícia com pedido.numero e pedido.capa
  *   aoTerminar: (casoId, resumo) => {}               ex.: recarregar a lista de documentos
