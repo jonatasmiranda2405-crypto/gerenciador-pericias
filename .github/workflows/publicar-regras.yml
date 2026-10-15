@@ -1,0 +1,55 @@
+name: Publicar regras do Firebase
+
+# Toda mudança nas regras que passar nos testes é publicada sozinha no Firebase.
+# Precisa do segredo FIREBASE_SA (Settings > Secrets and variables > Actions); sem ele, só avisa.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firebase/firestore.rules'
+      - 'firebase/storage.rules'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicar-regras
+  cancel-in-progress: false
+
+jobs:
+  testar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: firebase/testes
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+
+  publicar:
+    needs: testar
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: firebase/testes
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+      - name: Publicar e conferir
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: node regras-api.mjs publicar

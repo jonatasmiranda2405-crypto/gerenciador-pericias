@@ -48,3 +48,21 @@ jobs:
           # num push, o site ainda está sendo publicado: compara com o repositório só nas rodadas diárias e manuais
           VIGIA_COMPARAR_SITE: ${{ github.event_name == 'push' && '0' || '1' }}
         run: node ferramentas/vigia.mjs
+
+  regras-publicadas:
+    name: Regras publicadas iguais às do repositório
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: firebase/testes
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+      - name: Conferir
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: node regras-api.mjs conferir

@@ -1430,6 +1430,9 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .adm-ponto.feito{opacity:.55;}
 .adm-ponto.feito b{text-decoration:line-through;}
 .adm-feito{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2); white-space:nowrap; cursor:pointer;}
+.adm-link{display:inline-flex; align-items:center; gap:5px; margin-top:6px; font-size:12.5px; font-weight:600; color:var(--accent-deep); text-decoration:none;}
+.adm-link:hover{text-decoration:underline;}
+.adm-link svg{width:13px; height:13px;}
 .adm-ao-vivo{font-size:11.5px; font-weight:600; color:var(--danger); white-space:nowrap;}
 .adm-sondas{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:8px;}
 .adm-sonda{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:10px;}
@@ -2403,6 +2406,12 @@ async function adminSondas(){
     }
     let errosOk = false;
     try{ await db.collection('erros').limit(1).get(); errosOk = true; }catch(e){}
+    const regras = ['fs-colecao', 'fs-perfis', 'fs-escrita', 'st-html'].map(id => (r.find(x => x.id === id) || {}).ok);
+    const iguais = regras.every(x => x === true) && errosOk;
+    add('regras-iguais', 'Regras publicadas são as do repositório', iguais,
+      iguais ? 'o servidor se comporta exatamente como firebase/firestore.rules e storage.rules'
+             : 'o servidor ainda se comporta como as regras antigas', 'critico',
+      'Copie firebase/firestore.rules e firebase/storage.rules do GitHub para o Firebase Console (Regras > Publicar), ou ligue a publicação automática (item abaixo).');
     add('fs-erros', 'Registro de erros dos usuários ativo', errosOk, errosOk ? 'leitura liberada só para administradores' : 'as regras novas ainda não foram publicadas', 'baixo',
       'Publique firebase/firestore.rules: elas criam a coleção de erros, que só os administradores leem.');
   } else {
@@ -2417,10 +2426,11 @@ async function adminSondas(){
 
 /* Pontos que dependem de configuração fora do código: o administrador marca quando fizer. */
 const ADM_MANUAIS = [
-  {id: '2fa', grav: 'alto', titulo: 'Verificação em duas etapas nas contas Google dos administradores',
+  {id: '2fa', grav: 'alto', link: 'https://myaccount.google.com/signinoptions/twosv', titulo: 'Verificação em duas etapas nas contas Google dos administradores',
    correcao: 'myaccount.google.com > Segurança > Verificação em duas etapas. Administradores entram sempre pelo botão do Google: os erros só abrem nessa forma de entrada, e uma senha avulsa pularia as duas etapas.'},
-  {id: 'regras-iguais', grav: 'alto', titulo: 'Conferir que as regras publicadas são as do repositório',
-   correcao: 'Firebase Console > Firestore > Regras e Storage > Regras: o texto precisa ser igual a firebase/firestore.rules e firebase/storage.rules. Repita sempre que as regras mudarem.'},
+  {id: 'publicacao-auto', grav: 'medio', titulo: 'Ligar a publicação automática das regras pelo GitHub',
+   correcao: 'Google Cloud Console > IAM > Contas de serviço > Criar conta "regras-github" com o papel "Administrador de regras do Firebase" > Chaves > Adicionar chave JSON. No GitHub: Settings > Secrets and variables > Actions > New secret, nome FIREBASE_SA, cole o JSON. A partir daí, toda mudança nas regras é testada e publicada sozinha, e o vigia confere todo dia se o publicado é igual ao repositório.',
+   link: 'https://console.cloud.google.com/iam-admin/serviceaccounts?project=gerenciador-pericias-app'},
   {id: 'chave-firebase', grav: 'medio', titulo: 'Restringir a chave do Firebase ao domínio do site',
    correcao: 'Google Cloud Console > APIs e serviços > Credenciais > chave "Browser key" > Restrições de aplicativo: Referenciadores HTTP com o endereço do site (e o domínio próprio, quando houver).'},
   {id: 'dominios-auth', grav: 'medio', titulo: 'Revisar os domínios autorizados do login',
@@ -2573,7 +2583,7 @@ function renderAdmin(){
           ${pontos.map(p => `
           <div class="adm-ponto ${p.feito ? 'feito' : ''}">
             <span class="pill ${ADM_GRAV[p.grav].pill}">${ADM_GRAV[p.grav].rot}</span>
-            <div class="adm-ponto-txt"><b>${escapeHtml(p.titulo)}</b><span>${escapeHtml(p.correcao || '')}</span></div>
+            <div class="adm-ponto-txt"><b>${escapeHtml(p.titulo)}</b><span>${escapeHtml(p.correcao || '')}</span>${p.link ? `<a class="adm-link" href="${escapeHtml(p.link)}" target="_blank" rel="noopener">Abrir ${p.link.includes('myaccount') ? 'na conta Google' : 'no Google Cloud'} ${svg('<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>')}</a>` : ''}</div>
             ${p.origem === 'manual'
               ? `<label class="adm-feito"><input type="checkbox" ${p.feito ? 'checked' : ''} onchange="admMarcar(${jsq(p.id)}, this.checked)"> Já fiz</label>`
               : `<span class="adm-ao-vivo">detectado agora</span>`}

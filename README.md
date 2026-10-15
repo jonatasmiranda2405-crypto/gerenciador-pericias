@@ -62,6 +62,14 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
   só de servidor), site publicado igual ao repositório, CSP e proteção contra moldura no ar, e busca de
   senhas/chaves no código (`ferramentas/vigia.mjs`). Falhou: o GitHub manda e-mail.
 
+## Publicação automática das regras
+
+`.github/workflows/publicar-regras.yml`: toda mudança em `firebase/*.rules` no `main` roda os testes e,
+passando, publica no Firebase pela API oficial (`firebase/testes/regras-api.mjs`). O vigia diário também
+confere se as regras publicadas são iguais às do repositório. Para ligar: crie uma conta de serviço só com o
+papel **Administrador de regras do Firebase**, gere uma chave JSON e salve no GitHub como segredo
+`FIREBASE_SA` (Settings > Secrets and variables > Actions). Sem o segredo, os workflows só avisam.
+
 ## Página de apresentação
 
 Quem não entrou vê a apresentação (`renderApresentacao`): o que o sistema faz, demonstração com telas
