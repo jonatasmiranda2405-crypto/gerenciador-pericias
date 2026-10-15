@@ -974,6 +974,90 @@ body.rail .pf-rodape{flex-direction:column;}
 .ia-card:focus-visible,.ia-chip:focus-visible,.ia-aba:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 @media (max-width:560px){ .ia-detalhe{padding:18px;} .ia-card{flex-basis:78%;} .ia-auto{margin-left:0;} }
 @media (prefers-reduced-motion:reduce){ .ia-card,.ia-prog > div > i{transition:none;} }
+
+/* ---------- Meu perfil ---------- */
+.pf-perfil-topo{display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:22px 24px; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);}
+.pf-perfil-id{flex:1; min-width:220px;}
+.pf-perfil-id h2{margin:0; font-size:19px; font-weight:600; line-height:1.3; color:var(--ink);}
+.pf-perfil-id .mono{font-size:12px; color:var(--muted); margin-top:3px; overflow-wrap:anywhere;}
+.pf-perfil-selos{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+.pf-perfil-acoes{display:flex; gap:8px;}
+
+/* ---------- Configurações ---------- */
+.cfg-bloco{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px 24px; box-shadow:var(--shadow);}
+.cfg-bloco header h2{margin:0; font-size:15px; font-weight:600; color:var(--ink);}
+.cfg-bloco header p{margin:4px 0 18px; font-size:12.5px; line-height:1.5; color:var(--muted); max-width:62ch;}
+.cfg-check{width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--surface); display:grid; place-items:center; flex-shrink:0; opacity:0; transform:scale(.6); transition:opacity .15s ease, transform .2s cubic-bezier(.3,1.4,.6,1);}
+.cfg-check svg{width:14px; height:14px; stroke-width:2.6;}
+.on > .cfg-check{opacity:1; transform:none;}
+
+.cfg-temas{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px;}
+.cfg-tema{position:relative; display:flex; flex-direction:column; gap:12px; padding:10px 10px 14px; border:1.5px solid var(--line); border-radius:14px; background:var(--surface); color:var(--ink); font:inherit; text-align:left; cursor:pointer; transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;}
+.cfg-tema:hover{border-color:var(--line-strong); transform:translateY(-1px);}
+.cfg-tema.on{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+.cfg-tema > .cfg-check{position:absolute; top:18px; right:18px;}
+.cfg-tema-txt{display:flex; flex-direction:column; gap:2px; padding:0 4px;}
+.cfg-tema-txt b{font-size:13.5px; font-weight:600;}
+.cfg-tema-txt span{font-size:12px; color:var(--muted);}
+.cfg-mini{position:relative; display:block; height:92px; border-radius:9px; overflow:hidden; border:1px solid var(--line);}
+.cfg-mini[data-modo="light"]{background:#F2F5F4; --m-lado:#FFFFFF; --m-linha:#CBD3D0; --m-linha2:#E0E6E4; --m-borda:#E3E8E6;}
+.cfg-mini[data-modo="dark"]{background:#0D1316; --m-lado:#151D21; --m-linha:#3A4950; --m-linha2:#26323A; --m-borda:#222C31;}
+.cfg-mini i{position:absolute; display:block; border-radius:4px;}
+.cfg-mini .m-lado{left:0; top:0; bottom:0; width:27%; border-radius:0; background:var(--m-lado); border-right:1px solid var(--m-borda);}
+.cfg-mini .m-l1{left:35%; top:16px; width:44%; height:8px; background:var(--m-linha);}
+.cfg-mini .m-l2{left:35%; top:31px; width:56%; height:6px; background:var(--m-linha2);}
+.cfg-mini .m-l3{left:35%; top:43px; width:38%; height:6px; background:var(--m-linha2);}
+.cfg-mini .m-bt{left:35%; bottom:14px; width:26%; height:15px; background:var(--accent);}
+.cfg-mini-duo{position:relative; display:block; height:92px;}
+.cfg-mini-duo .cfg-mini{position:absolute; inset:0;}
+.cfg-mini-duo .cfg-mini + .cfg-mini{clip-path:polygon(58% 0,100% 0,100% 100%,42% 100%);}
+
+.cfg-cores{display:grid; grid-template-columns:repeat(6,1fr); gap:10px;}
+.cfg-cor{display:flex; align-items:center; gap:11px; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--surface); color:var(--ink); font:inherit; font-size:13px; text-align:left; cursor:pointer; transition:border-color .15s ease, box-shadow .15s ease;}
+.cfg-cor:hover{border-color:var(--line-strong);}
+.cfg-cor.on{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+.cfg-cor b{font-weight:600; flex:1;}
+.cfg-cor .paleta-amostra{width:28px; height:28px; border-radius:50%;}
+.cfg-previa{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:16px; padding:12px 14px; border-radius:12px; background:var(--surface-2);}
+.cfg-previa-rot{font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-right:4px;}
+.cfg-previa .btn, .cfg-previa .chip{pointer-events:none;}
+.cfg-previa-barra{flex:1; min-width:90px; height:6px; border-radius:6px; background:var(--line); overflow:hidden;}
+.cfg-previa-barra i{display:block; height:100%; background:var(--accent); border-radius:6px;}
+
+.cfg-cab-manuais{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+.cfg-cab-manuais p{margin-bottom:18px;}
+.cfg-todos{display:inline-flex; align-items:center; gap:6px;}
+.cfg-todos svg{width:15px; height:15px;}
+.cfg-manuais{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+.cfg-manual.destaque{grid-column:span 2; order:-1;}
+.cfg-manual-topicos{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;}
+.cfg-manual-topicos span{font-size:11.5px; padding:3px 9px; border-radius:20px; background:var(--surface); border:1px solid var(--line); color:var(--ink-2);}
+.cfg-manual{position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:7px; min-height:184px; padding:18px; border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--ink); font:inherit; text-align:left; cursor:pointer; transition:border-color .15s ease, box-shadow .2s ease, transform .2s ease;}
+.cfg-manual:hover{border-color:var(--accent); transform:translateY(-2px); box-shadow:var(--shadow);}
+.cfg-manual.destaque{border-color:var(--accent); background:linear-gradient(180deg, var(--accent-soft), var(--surface) 62%);}
+.cfg-manual-topo{display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:4px;}
+.cfg-manual-ic{width:38px; height:38px; border-radius:10px; background:var(--accent-soft); color:var(--accent-deep); display:grid; place-items:center;}
+.cfg-manual.destaque .cfg-manual-ic{background:var(--accent); color:var(--surface);}
+.cfg-manual-ic svg{width:19px; height:19px; stroke-width:1.8;}
+.cfg-manual > b{font-size:14.5px; font-weight:600;}
+.cfg-manual-res{flex:1; font-size:12.5px; line-height:1.5; color:var(--muted);}
+.cfg-manual-pe{display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:6px; padding-top:11px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted);}
+.cfg-manual-baixar{display:inline-flex; align-items:center; gap:5px; color:var(--accent-deep); font-size:12.5px; font-weight:600;}
+.cfg-manual-baixar svg{width:15px; height:15px; transition:transform .2s ease;}
+.cfg-manual:hover .cfg-manual-baixar svg{transform:translateY(2px);}
+.cfg-rodape{margin:0; font-size:12.5px; color:var(--muted); text-align:center;}
+.cfg-rodape .link-sutil{display:inline; width:auto; margin:0; padding:0; font-size:inherit;}
+@media (max-width:1180px){
+  .cfg-cores{grid-template-columns:repeat(3,1fr);}
+  .cfg-manuais{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:640px){
+  .cfg-cores{grid-template-columns:repeat(2,1fr);}
+  .cfg-manuais{grid-template-columns:1fr;}
+  .cfg-manual.destaque{grid-column:auto;}
+  .cfg-bloco, .pf-perfil-topo{padding:18px 16px;}
+  .cfg-todos{width:100%; justify-content:center;}
+}
 </style>
 </head>
 <body>
@@ -1441,7 +1525,8 @@ const SECTIONS = [
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'integracoes', titulo:'Integrações', sub:'O que liga o PeríciaFlow aos tribunais e serviços'},
   {id:'privacidade', titulo:'Privacidade', sub:'Como os dados são guardados, quem vê e quais são os seus direitos'},
-  {id:'config',   titulo:'Configurações', sub:'Seu cadastro, aparência e armazenamento'},
+  {id:'config',   titulo:'Configurações', sub:'Tema, cores e manuais de uso'},
+  {id:'perfil',   titulo:'Meu perfil',    sub:'Seu cadastro profissional, conta e acesso ao PROJUDI'},
 ];
 
 const ICONS = {
@@ -1460,6 +1545,7 @@ const ICONS = {
   ia:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/>',
   equipe:'<path d="M16 19v-1.4a3.6 3.6 0 00-3.6-3.6H7.6A3.6 3.6 0 004 17.6V19"/><circle cx="10" cy="7.5" r="3.1"/><path d="M20.5 19v-1.4a3.6 3.6 0 00-2.7-3.5M15.8 4.6a3.1 3.1 0 010 5.9"/>',
   projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
+  perfil:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0115 0"/>',
   privacidade:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>',
   config:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
 };
@@ -3561,7 +3647,7 @@ async function gerarProposta(anexar){
   if(!c || !rascunho){ if(status) status.textContent = 'Escolha a perícia.'; return; }
   const ficha = fichaDe(donoDe(c));
   if(!ficha.nomeCompleto){
-    status.textContent = 'Preencha a ficha do perito em Configurações antes de gerar.';
+    status.textContent = 'Preencha o seu cadastro em Meu perfil (clique no seu nome, no rodapé da barra lateral) antes de gerar.';
     return;
   }
   const d = dadosDoDocumento(c, rascunho, ficha);
@@ -3626,7 +3712,7 @@ function renderProposta(){
   const avisoFicha = ficha.nomeCompleto ? '' : `
       <div class="banner" style="margin-bottom:12px;">
         ${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')}
-        <span>A ficha de ${escapeHtml(membroDe(donoDe(c)).nome)} está incompleta. Preencha nome, CRC e CPF em Configurações.</span>
+        <span>A ficha de ${escapeHtml(membroDe(donoDe(c)).nome)} está incompleta. Preencha nome, CRC e CPF em Meu perfil.</span>
       </div>`;
 
   const corpoModelo = (modeloProposta ? `
@@ -3765,7 +3851,7 @@ function renderPerfilOriginal(){
   const sub = email || 'sem conta conectada';
   el.innerHTML = `
     <button class="perito-btn perfil-card ${activeSection==='equipe'?'active':''}" style="--pcolor:${m.cor}; --pcolor-soft:var(--surface-2);"
-            onclick="setSection('equipe')" title="${escapeHtml(nome)} — ${escapeHtml(sub)}">
+            onclick="setSection('perfil')" title="${escapeHtml(nome)} — ${escapeHtml(sub)}">
       ${avatarMembro(m, 30, foto)}
       <span class="perito-info">
         <span class="perito-name">${escapeHtml(nome)}</span>
@@ -4024,27 +4110,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
   if(prefTema === 'auto') aplicarAparencia();
 });
 
-function renderAparencia(){
-  return `
-      <div class="field" style="margin-bottom:16px;">
-        <label>Tema</label>
-        <div class="chips">
-          ${TEMAS.map(t => `<button class="chip ${prefTema===t.id?'active':''}" onclick="definirTema('${t.id}')">${t.nome}</button>`).join('')}
-        </div>
-        <span class="dica">No automático o app acompanha o claro ou escuro do seu sistema.</span>
-      </div>
-      <div class="field">
-        <label>Paleta</label>
-        <div class="paletas">
-          ${PALETAS.map(p => `
-            <button class="paleta-op ${prefPaleta===p.id?'active':''}" onclick="definirPaleta('${p.id}')" title="${p.nome}">
-              <span class="paleta-amostra" data-palette="${p.id}"></span>
-              <span class="paleta-nome">${p.nome}</span>
-            </button>`).join('')}
-        </div>
-        <span class="dica">Todas foram conferidas para manter o contraste de texto e gráficos nos dois temas.</span>
-      </div>`;
-}
 
 /* ==========================================================================
    Privacidade
@@ -4084,7 +4149,7 @@ function selo(pequeno){
 
 const TOPICOS_PRIVACIDADE = [
   ['Quem é o responsável',
-   'O controlador dos dados é o perito ou o escritório que mantém esta conta. Os dados de contato para exercer os direitos abaixo são os que constam em Configurações, no cadastro do perito responsável pela perícia.'],
+   'O controlador dos dados é o perito ou o escritório que mantém esta conta. Os dados de contato para exercer os direitos abaixo são os que constam em Meu perfil, no cadastro do perito responsável pela perícia.'],
   ['Que dados o sistema guarda',
    'Dados do processo (número, vara, comarca, partes, prazos e valores de honorários), os documentos que você anexa, os comentários que escreve, e o cadastro profissional de cada perito: nome, registro no CRC, CPF, telefone e endereço. Da conta de acesso, o sistema guarda o e-mail e, quando a entrada é pelo Google, o nome e a foto do perfil. Se você usar a Análise IA, o perfil guarda também a sua chave da API do Gemini e o texto das análises geradas.'],
   ['Onde os dados ficam',
@@ -4100,7 +4165,7 @@ const TOPICOS_PRIVACIDADE = [
   ['Por quanto tempo',
    'Os dados de uma perícia permanecem enquanto ela existir no sistema. Excluir a perícia remove o registro, os comentários e os documentos, inclusive os arquivos no Storage. A remoção é definitiva e não há backup automático acessível pelo app.'],
   ['Seus direitos',
-   'A Lei Geral de Proteção de Dados assegura confirmação de tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamento e eliminação dos dados. Dentro do sistema, o acesso e a correção são diretos: cada perito edita o próprio cadastro em Configurações, e o dono de cada perícia edita ou exclui os dados dela. Para os demais pedidos, procure o controlador indicado no primeiro item.'],
+   'A Lei Geral de Proteção de Dados assegura confirmação de tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamento e eliminação dos dados. Dentro do sistema, o acesso e a correção são diretos: cada perito edita o próprio cadastro em Meu perfil, e o dono de cada perícia edita ou exclui os dados dela. Para os demais pedidos, procure o controlador indicado no primeiro item.'],
   ['Análise por IA, quando você liga',
    'A aba Análise IA é opcional e só funciona depois que você guarda a sua própria chave do Google AI Studio e dá um aceite específico. Ligada, ela envia para a API do Gemini, do Google, a ficha da perícia, as suas anotações, o rascunho da proposta e o texto extraído dos PDFs anexados — ou seja, conteúdo do processo sai do seu controle nesse momento, e esse envio passa a ser regido pelos termos da API do Google, não por este app. Em processo sob segredo de justiça, pense duas vezes antes de usar. Sem chave guardada, nada é enviado; com a chave guardada, só é enviado quando você clica em Analisar, ou automaticamente após anexar documentos se você tiver ligado essa opção. A chave fica no seu perfil, que só a sua conta lê, e pode ser removida a qualquer momento. O resultado é rascunho de leitura, não laudo: o modelo erra e pode afirmar com segurança algo que não está nos autos, por isso cada item vem com a fonte para você conferir.'],
   ['Dados de terceiros nos autos',
@@ -4391,7 +4456,7 @@ function abrirLogin(v){
 /* ==========================================================================
    Seção: configurações
    ========================================================================== */
-function renderConfig(){
+function renderMeuPerfil(){
   const totalDocs = casos.reduce((s,c) => s + (c.documentos||[]).length, 0);
   const comArquivo = casos.reduce((s,c) => s + (c.documentos||[]).filter(d => d.arquivo).length, 0);
   const bytes = casos.reduce((s,c) => s + (c.documentos||[]).reduce((t,d) => t + (d.tamanho||0), 0), 0);
@@ -4467,14 +4532,437 @@ function renderConfig(){
     : `<div class="chart-empty">Entre com a sua conta para preencher o cadastro profissional.</div>`;
 
 
+  const campos = ['nomeCompleto','crcEstado','crcRegistro','cpf','telefone','cidadeUf','horaTecnica','endereco','referenciaHora'];
+  const feitos = meuCad ? campos.filter(k => f[k] != null && String(f[k]).trim() !== '' && f[k] !== 0).length : 0;
+  const nomeTopo = meuCad ? (f.nomeCompleto || eu.nome) : 'Sem conta conectada';
+  const topo = `
+    <div class="pf-perfil-topo">
+      ${avatarMembro(eu, 60, currentUser && currentUser.photoURL)}
+      <div class="pf-perfil-id">
+        <h2>${escapeHtml(nomeTopo)}</h2>
+        <div class="mono">${escapeHtml(meuCad || 'Os dados ficam só neste navegador')}</div>
+        <div class="pf-perfil-selos">
+          <span class="pill ${currentUser ? 'pill-success' : 'pill-muted'}">${currentUser ? 'Sincronizado na nuvem' : 'Somente neste navegador'}</span>
+          ${meuCad ? `<span class="pill ${feitos === campos.length ? 'pill-success' : 'pill-warning'}">Cadastro ${feitos} de ${campos.length}</span>` : ''}
+          ${f.crcRegistro ? `<span class="pill pill-muted">CRC ${escapeHtml(f.crcRegistro)}</span>` : ''}
+        </div>
+      </div>
+      <div class="pf-perfil-acoes">
+        ${currentUser
+          ? `<button class="btn btn-ghost btn-sm" onclick="signOutGoogle()">Sair da conta</button>`
+          : `<button class="btn btn-primary btn-sm" onclick="signInGoogle()">Entrar com Google</button>`}
+      </div>
+    </div>`;
   return `
     <div class="section-gap">
+      ${topo}
       ${panel('meuCadastro', 'Meu cadastro', 'usado na proposta de honorários', corpoMeuCadastro)}
-      ${panel('aparencia', 'Aparência', (PALETAS.find(p => p.id === prefPaleta)||{}).nome + ' · ' + (TEMAS.find(t => t.id === prefTema)||{}).nome, renderAparencia())}
       ${panel('projudiAcesso', 'Acesso ao PROJUDI', 'extensão PROJUDI PDFs', renderAcessoProjudi())}
       ${panel('conta', 'Conta e sincronização', '', corpoConta)}
       ${panel('contas', 'Acesso ao sistema', 'cadastro aberto, com confirmação', corpoContas)}
       ${panel('armazenamento', 'Documentos armazenados', '', corpoArmazenamento)}
+    </div>`;
+}
+/* ==========================================================================
+   Configurações: tela (claro/escuro), cores e manuais de uso em PDF.
+   O cadastro, a conta e o acesso ao PROJUDI ficam em Meu perfil.
+   Os manuais são gerados aqui mesmo, com o jsPDF já usado na Revisão IA,
+   então estão sempre de acordo com a versão publicada do sistema.
+   ========================================================================== */
+const MANUAL_DATA = '14/10/2026';
+const ICONE_BAIXAR = '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>';
+const ICONE_CHAVE = '<circle cx="8" cy="15" r="4"/><path d="M10.9 12.1L19.5 3.5M16 7l2.5 2.5M13.8 9.2l2 2"/>';
+
+const MANUAIS = [
+  {id:'inicio', titulo:'Comece por aqui', icone:'visao',
+   resumo:'Entrar, preencher o seu perfil, criar a primeira perícia e achar qualquer coisa em segundos.',
+   secoes:[
+    {t:'O que é o PeríciaFlow', b:[
+      ['p','O PeríciaFlow organiza o trabalho do perito contábil: perícias, autos do processo, prazos, tarefas, agenda, cálculos, proposta de honorários e a revisão dos autos com IA. Tudo funciona no navegador, sem instalar programa.'],
+    ]},
+    {t:'Entrar na sua conta', b:[
+      ['passos',['Abra o PeríciaFlow no Google Chrome, no computador.',
+                 'No rodapé da barra lateral, clique em "Entrar com Google" e escolha a sua conta.',
+                 'Na primeira entrada, leia e aceite o aviso de privacidade.']],
+      ['dica','Sem entrar, o sistema funciona, mas os dados ficam só neste navegador: não aparecem em outro computador e somem se o histórico do navegador for apagado.'],
+    ]},
+    {t:'Preencher o seu perfil', b:[
+      ['p','O cadastro profissional fica no seu perfil. Para abrir, clique no seu nome ou na sua foto, no rodapé da barra lateral.'],
+      ['lista',['Nome completo: como você assina o laudo.',
+                'CRC (estado e registro) e CPF: entram na qualificação do perito.',
+                'Telefone e endereço profissional: vão para o rodapé da proposta.',
+                'Cidade e UF: usadas na linha da data.',
+                'Hora técnica e entidade de referência: valor sugerido em cada proposta.']],
+      ['p','O selo "Cadastro x de 9", no topo do perfil, mostra quanto falta. Os dados são salvos enquanto você digita.'],
+      ['dica','O cadastro é só seu: nenhum colega edita, nem quem recebe uma perícia compartilhada por você.'],
+    ]},
+    {t:'Criar a primeira perícia', b:[
+      ['passos',['Abra Perícias, na barra lateral.',
+                 'Clique em "Nova perícia" e preencha o número do processo, a vara, as partes e o prazo de entrega.',
+                 'Para trazer os autos, use Importar processo: pela extensão PROJUDI PDFs ou por um arquivo ZIP.']],
+    ]},
+    {t:'Achar qualquer coisa', b:[
+      ['p','Aperte Ctrl K (no Mac, Command K) ou a tecla / em qualquer tela. Digite o número do processo, o nome de uma parte ou o nome de uma tela e aperte Enter.'],
+      ['lista',['As setas para cima e para baixo escolhem o resultado.','Esc fecha a busca.']],
+    ]},
+    {t:'Deixar do seu jeito', b:[
+      ['p','Em Configurações você escolhe a tela clara, escura ou automática e a cor do sistema. Com a conta conectada, a escolha acompanha você em qualquer computador.'],
+    ]},
+  ]},
+
+  {id:'chave-ia', titulo:'Chave da IA (Gemini)', icone:'chave', destaque:true,
+   resumo:'Criar a sua chave no Google AI Studio, colocar no PeríciaFlow, controlar o custo e proteger os autos.',
+   secoes:[
+    {t:'Para que serve a chave', b:[
+      ['p','A Revisão IA lê os autos com o Gemini, a inteligência artificial do Google. A chave liga o PeríciaFlow à sua conta no Google: o uso é cobrado de você, segue os termos que você aceitou no Google, e o PeríciaFlow não tem chave própria nem acesso à sua cobrança.'],
+      ['p','Cada perito usa a própria chave. Não empreste a sua a colegas.'],
+    ]},
+    {t:'Antes de tudo: gratuito ou pago', b:[
+      ['alerta','Autos sob sigilo: use o nível pago','Pelos termos da API do Gemini (versão em vigor desde 23/03/2026), no uso gratuito o Google pode usar o que você envia para melhorar os produtos dele, e pessoas podem ler esse conteúdo. O próprio Google orienta a não enviar informação sigilosa, confidencial ou pessoal no nível gratuito.'],
+      ['p','No nível pago, o Google informa que não usa o que você envia para melhorar os produtos e que guarda os pedidos só por tempo limitado, para detectar abuso e cumprir a lei.'],
+      ['lista',['Para autos reais, ative o faturamento (tópico 4) antes da primeira revisão.',
+                'Use o gratuito apenas para testar, com documento público ou inventado.',
+                'Os termos mudam. Confira a versão atual em ai.google.dev/gemini-api/terms, sobretudo em processo que corra em segredo de justiça.']],
+    ]},
+    {t:'Criar a chave no Google AI Studio', b:[
+      ['passos',['Acesse aistudio.google.com e entre com a sua conta Google, de preferência a profissional.',
+                 'Na primeira vez, aceite os termos de uso e clique em "Continue".',
+                 'Clique em "Get API key" (menu da esquerda, embaixo) e depois em "Create API key".',
+                 'Dê um nome à chave, por exemplo "PeríciaFlow", e escolha um projeto do Google Cloud ou crie um novo.',
+                 'Clique em "Create key" e depois no ícone de copiar, ao lado da chave criada. A chave é um texto longo, que costuma começar com "AIza".']],
+      ['dica','O Google muda o nome dos botões de tempos em tempos. Se não achar, procure por "API key" no menu do AI Studio.'],
+    ]},
+    {t:'Ativar o faturamento (nível pago)', b:[
+      ['passos',['No AI Studio, abra a lista de chaves (API keys). Ao lado de cada uma aparece o plano do projeto, por exemplo "Free tier".',
+                 'Clique na indicação do plano (ou no link para configurar o faturamento) e siga as telas do Google Cloud para cadastrar um cartão.',
+                 'Volte à lista de chaves e confira que o projeto deixou de aparecer como gratuito.',
+                 'No Google Cloud, em Faturamento > Orçamentos e alertas, crie um orçamento mensal (por exemplo, R$ 50) para receber um e-mail se o gasto subir.']],
+    ]},
+    {t:'Colocar a chave no PeríciaFlow', b:[
+      ['passos',['Abra Revisão IA, na barra lateral (grupo Produção técnica).',
+                 'Abra o painel "Chave e modelo", no fim da tela.',
+                 'Cole a chave no campo "Chave da API do Gemini" e clique fora do campo. Ela aparece mascarada, só com o começo e o fim visíveis.',
+                 'Em Modelo, deixe "Flash (versão atual)". Use "Pro (versão atual)" em processos longos ou difíceis; ele custa mais.',
+                 'Leia o aviso de ciência e clique em "Li e estou ciente — liberar a análise".',
+                 'Escolha a perícia no alto da tela e clique em "Revisar esta perícia".']],
+    ]},
+    {t:'Quanto custa', b:[
+      ['p','O Google cobra pelo volume de texto lido e escrito (medido em tokens). Uma revisão envia o cadastro da perícia e o texto dos documentos, até cerca de 180 mil caracteres e 40 páginas por PDF.'],
+      ['lista',['O Flash custa bem menos que o Pro e resolve a maioria das perícias.',
+                'Cada clique em "Revisar de novo" é uma nova cobrança.',
+                'A opção "Rever sozinha quando chegar documento novo" roda uma revisão depois de cada importação. Deixe desligada se quiser controlar o gasto.',
+                'Os preços atuais estão em ai.google.dev/pricing. O consumo do mês aparece no AI Studio e no faturamento do Google Cloud.']],
+    ]},
+    {t:'Proteger a chave', b:[
+      ['lista',['A chave fica no seu perfil, que só a sua conta lê. Ainda assim, trate-a como senha: quem entrar na sua conta alcança a chave.',
+                'Não mande a chave por WhatsApp, e-mail ou print de tela.',
+                'Se desconfiar de vazamento: apague a chave no AI Studio, crie outra, clique em "Remover" no painel "Chave e modelo" e cole a nova.',
+                'Em computador compartilhado, use "Sair da conta" em Meu perfil ao terminar.']],
+    ]},
+    {t:'Problemas comuns', b:[
+      ['lista',['"API key not valid": a chave foi copiada pela metade ou apagada no AI Studio. Copie de novo e cole.',
+                '"Quota exceeded" ou erro 429: acabou o limite do gratuito ou foram muitos pedidos seguidos. Espere alguns minutos ou ative o faturamento.',
+                '"Model not found": o Google aposentou aquele modelo. Escolha "Flash (versão atual)".',
+                'O Google não respondeu: falha de internet ou instabilidade do serviço. Tente de novo em instantes.',
+                'Revisão vazia ou fraca: PDF escaneado como imagem não tem texto para ler. Em "Mais da revisão" > "Fontes lidas" você vê o que entrou.']],
+    ]},
+  ]},
+
+  {id:'revisao', titulo:'Revisão IA', icone:'ia',
+   resumo:'Como ler os cartões, decidir cada achado e baixar o PDF dos erros para conferir nos autos.',
+   secoes:[
+    {t:'O que a revisão faz', b:[
+      ['p','A Revisão IA lê os autos e aponta erros e inconsistências: cálculos que não fecham, valores divergentes, índices e datas trocados, documentos que faltam, prazos e honorários. Cada achado traz o lugar exato para conferir.'],
+      ['p','Ela não sugere quesitos nem conclui nada: quem responde aos quesitos das partes e conclui é o perito.'],
+      ['alerta','É rascunho de leitura','O modelo erra e às vezes inventa com cara de certeza. Confira cada achado nos autos antes de usar qualquer linha no laudo.'],
+    ]},
+    {t:'Rodar a revisão', b:[
+      ['passos',['Configure a chave antes (manual "Chave da IA (Gemini)").',
+                 'Abra Revisão IA e escolha a perícia no alto da tela.',
+                 'Clique em "Revisar esta perícia" ou, se já houver revisão, em "Revisar de novo".',
+                 'Aguarde: processos grandes podem levar alguns minutos.']],
+    ]},
+    {t:'Ler os cartões', b:[
+      ['lista',['A faixa do alto mostra quantos erros, pontos de atenção e itens para verificar existem, e quantos você já revisou.',
+                'Os botões de categoria (Cálculo, Valores, Documentos...) filtram os cartões.',
+                'Passe os cartões arrastando para o lado, com as setas do teclado ou com os botões de seta.',
+                'O cartão aberto mostra o detalhe, o efeito no valor e o quadro "Onde conferir", com a peça, a página e o trecho.']],
+    ]},
+    {t:'Decidir cada achado', b:[
+      ['lista',['Confirmar erro: você conferiu nos autos e o erro existe.',
+                'Não é erro: você conferiu e descartou. O achado sai do PDF.',
+                'Ver depois: fica pendente e aparece no PDF como ponto a conferir.']],
+      ['p','Depois de decidir, a tela passa sozinha para o próximo cartão. Clicar de novo no mesmo botão desfaz a decisão. As decisões ficam salvas na perícia.'],
+    ]},
+    {t:'Baixar o PDF dos erros', b:[
+      ['p','O botão "Baixar PDF dos erros" gera um relatório A4 com os erros confirmados e os pontos a conferir, cada um com o lugar nos autos e um quadrado para marcar à mão. No fim há espaço para anotações, assinatura e data.'],
+      ['dica','O PDF é documento de trabalho, não laudo. Os itens marcados como "Não é erro" ficam de fora.'],
+    ]},
+    {t:'Manter a revisão em dia', b:[
+      ['lista',['O selo "Em dia" indica que nada mudou na perícia desde a última revisão.',
+                'Quando chega documento novo, o selo avisa que a perícia mudou. Clique em "Revisar de novo".',
+                'Com "Rever sozinha quando chegar documento novo" ligada, o sistema revisa sozinho cerca de 25 segundos depois da importação. Cada rodada é cobrada na sua chave.']],
+    ]},
+    {t:'Mais da revisão', b:[
+      ['p','No painel "Mais da revisão" ficam o resumo do processo, a linha do tempo, os documentos a pedir, os prazos encontrados, o que faltou para uma leitura completa e as fontes lidas.'],
+    ]},
+  ]},
+
+  {id:'projudi', titulo:'Extensão PROJUDI PDFs', icone:'importar',
+   resumo:'Instalar a extensão, baixar os autos do PROJUDI (TJGO) e mandar direto para a perícia.',
+   secoes:[
+    {t:'O que a extensão faz', b:[
+      ['p','A extensão PROJUDI PDFs, para o Google Chrome, abre o processo no PROJUDI do TJGO, baixa os arquivos um a um, transforma os assinados (.p7s) em PDF e envia tudo para a perícia certa no PeríciaFlow. Também gera um ZIP com os autos.'],
+    ]},
+    {t:'Instalar', b:[
+      ['passos',['No Chrome, abra a Chrome Web Store e procure por "PROJUDI PDFs".',
+                 'Clique em "Usar no Chrome" e confirme.',
+                 'Fixe a extensão na barra do Chrome: ícone de quebra-cabeça, depois o alfinete.',
+                 'Recarregue o PeríciaFlow. Em Meu perfil > Acesso ao PROJUDI deve aparecer "instalada", com a versão.']],
+      ['dica','Se a extensão ainda não aparecer na loja, peça o pacote ao administrador do PeríciaFlow.'],
+    ]},
+    {t:'Escolher como buscar', b:[
+      ['lista',['Automático (recomendado): usa o código de acesso quando a perícia tiver um; se não tiver, usa o seu login no PROJUDI.',
+                'Sempre o meu login: busca com a sua sessão no PROJUDI (certificado digital ou CPF e senha).',
+                'Só código de acesso: consulta pública "Processo por Código", sem login. A perícia precisa ter o código cadastrado.']],
+      ['p','A escolha fica em Meu perfil > Acesso ao PROJUDI.'],
+    ]},
+    {t:'Baixar os autos de uma perícia', b:[
+      ['passos',['Abra a perícia (ou Importar processo) e peça para baixar os autos do PROJUDI.',
+                 'A aba do PROJUDI abre com o número e o código de acesso já preenchidos.',
+                 'Marque a verificação de segurança, se aparecer, e clique em "Consultar". Esse clique é sempre seu: o tribunal protege a busca contra robôs.',
+                 'Volte ao PeríciaFlow: os arquivos chegam sozinhos e a tela mostra quantos foram importados.']],
+    ]},
+    {t:'Com o seu login', b:[
+      ['p','Quando a busca precisar do seu login, a aba do PROJUDI vem para a frente e você entra como sempre: certificado digital (token) ou CPF, senha e o código que chega por e-mail. A extensão só usa a sessão que você abriu.'],
+      ['alerta','A sua senha nunca passa pelo PeríciaFlow','O PeríciaFlow não pede nem guarda senha ou certificado do PROJUDI. Desconfie de qualquer tela que peça isso fora do site do tribunal.'],
+    ]},
+    {t:'Sem duplicar', b:[
+      ['p','Cada arquivo leva o identificador fixo do PROJUDI. Se você baixar de novo, só o que for novo entra; o resto é ignorado.'],
+    ]},
+    {t:'Problemas comuns', b:[
+      ['lista',['"não encontrada" em Acesso ao PROJUDI: a extensão está desligada ou foi instalada depois de abrir a página. Ative em chrome://extensions e recarregue o PeríciaFlow.',
+                'Aviso de versão antiga: a loja atualiza sozinha em algumas horas. Para adiantar, em chrome://extensions ligue o "Modo do desenvolvedor" e clique em "Atualizar".',
+                'Nada acontece depois de "Consultar": confira o número e o código de acesso e veja se o processo aparece na tela do PROJUDI.']],
+    ]},
+  ]},
+
+  {id:'proposta', titulo:'Proposta de honorários', icone:'proposta',
+   resumo:'Do cadastro no perfil ao documento pronto, com a sua hora técnica e a referência da sua entidade.',
+   secoes:[
+    {t:'Antes de gerar', b:[
+      ['p','A proposta sai com os seus dados: nome, CRC, CPF, telefone, endereço, cidade e hora técnica. Preencha tudo em Meu perfil (clique no seu nome, no rodapé da barra lateral).'],
+    ]},
+    {t:'Gerar a proposta', b:[
+      ['passos',['Abra Proposta de honorários, no grupo Produção técnica.',
+                 'Escolha a perícia.',
+                 'Confira os itens, as horas estimadas e o valor da hora técnica.',
+                 'Clique em "Gerar documento" para baixar, ou em "Gerar e anexar à perícia" para baixar e guardar uma cópia nos documentos da perícia.']],
+    ]},
+    {t:'Perícia de outro perito', b:[
+      ['p','Em perícia compartilhada com você, a proposta é gerada pelo perito responsável, na conta dele, porque sai assinada com o CRC e o CPF dele.'],
+    ]},
+  ]},
+
+  {id:'rotina', titulo:'Prazos, agenda e tarefas', icone:'prazos',
+   resumo:'Avisos antes do vencimento, compromissos no calendário e o quadro de tarefas de cada perícia.',
+   secoes:[
+    {t:'Prazos e alertas', b:[
+      ['p','A tela Prazos e alertas ordena as entregas por urgência.'],
+      ['lista',['Em "Quando avisar", escolha a antecedência: 15, 7, 3 ou 1 dia, ou no dia. Prazos vencidos são sempre avisados.',
+                'Em "Por onde avisar", ligue as notificações neste navegador. Elas aparecem enquanto o PeríciaFlow estiver aberto.']],
+      ['dica','O e-mail diário, que avisa mesmo com o sistema fechado, ainda está em preparação.'],
+    ]},
+    {t:'Agenda', b:[
+      ['p','Cadastre diligências, vistorias, audiências e reuniões ligadas a cada perícia.'],
+      ['p','O botão "Baixar agenda (.ics)" gera um arquivo com os compromissos e os prazos de entrega. Abra no Google Agenda (Configurações > Importar), no Outlook ou no celular.'],
+    ]},
+    {t:'Tarefas', b:[
+      ['p','O quadro de tarefas separa o trabalho por etapa e liga cada tarefa a uma perícia. Tarefas com data entram nos avisos do dia e da véspera.'],
+    ]},
+  ]},
+
+  {id:'conta', titulo:'Conta, equipe e privacidade', icone:'equipe',
+   resumo:'Sincronização entre computadores, compartilhamento de perícias e o que acontece com os dados.',
+   secoes:[
+    {t:'Sincronização', b:[
+      ['p','Com a conta conectada, tudo é salvo na nuvem e aparece em qualquer computador em que você entrar. Sem conta, os dados ficam só no navegador em uso.'],
+      ['lista',['O estado aparece no rodapé da barra lateral e em Meu perfil > Conta e sincronização.',
+                'Com a conta conectada, cada arquivo anexado aceita até 50 MB; sem ela, até 5 MB.']],
+    ]},
+    {t:'Compartilhar uma perícia', b:[
+      ['passos',['Abra a perícia.',
+                 'Em "Compartilhar com", informe o e-mail do colega e escolha "Pode editar" ou "Somente leitura".',
+                 'Use "Enviar convite" ou "Copiar" para avisar o colega.']],
+      ['p','O colega vê a perícia em "recebidas". O seu cadastro profissional e a sua chave da IA continuam só seus.'],
+    ]},
+    {t:'Equipe', b:[
+      ['p','A tela Equipe mostra quem tem acesso ao sistema e o que foi compartilhado com cada pessoa.'],
+    ]},
+    {t:'Privacidade', b:[
+      ['p','A tela Privacidade explica como os dados são guardados, quem vê e quais são os seus direitos pela LGPD. O seu aceite fica registrado na sua conta.'],
+      ['alerta','A Revisão IA envia texto ao Google','Ao rodar a Revisão IA, o texto da perícia sai do navegador e vai para o Google, com a sua chave. Leia o manual "Chave da IA (Gemini)" antes de usar em autos reais.'],
+    ]},
+    {t:'Computador compartilhado', b:[
+      ['lista',['Use "Sair da conta" em Meu perfil ao terminar.','Não salve a senha do Google em computador de terceiros.']],
+    ]},
+  ]},
+];
+function manualIcone(m){ return m.icone === 'chave' ? ICONE_CHAVE : (ICONS[m.icone] || ICONS.docs); }
+
+/* ---------- PDF do manual ---------- */
+async function manualBaixar(id){
+  const lista = id === 'todos' ? MANUAIS : MANUAIS.filter(m => m.id === id);
+  if(!lista.length) return;
+  try{ await iaCarregarJsPdf(); }
+  catch(e){ pfAviso('Não foi possível gerar o PDF: ' + e.message + '. Recarregue a página e tente de novo.'); return; }
+  const doc = new window.jspdf.jsPDF({unit:'pt', format:'a4'});
+  const T = iaPdfTexto;
+  const L = 60, W = doc.internal.pageSize.getWidth() - 2 * L, H = doc.internal.pageSize.getHeight(), FIM = H - 66;
+  const ESCURO = [26, 34, 38], CINZA = [85, 99, 106], AZUL = [51, 89, 114], AZUL_CLARO = [232, 241, 248], VERM = [163, 61, 51], VERM_CLARO = [250, 236, 232];
+  const rodapes = [];   /* título do manual de cada página, para o rodapé */
+  let y = 64, atual = null;
+  const novaPagina = () => { doc.addPage(); y = 64; rodapes.push(atual); };
+  const quebra = h => { if(y + h > FIM) novaPagina(); };
+  const linhas = (txt, tam, estilo, larg) => { doc.setFont('helvetica', estilo || 'normal'); doc.setFontSize(tam); return doc.splitTextToSize(T(txt), larg); };
+  const escrever = (txt, tam, estilo, cor, x, larg, entre) => {
+    const ls = linhas(txt, tam, estilo, larg || W);
+    const lh = tam * (entre || 1.45);
+    ls.forEach(l => {
+      quebra(lh);
+      doc.setFont('helvetica', estilo || 'normal'); doc.setFontSize(tam); doc.setTextColor(...cor);
+      doc.text(l, x || L, y + tam);
+      y += lh;
+    });
+  };
+  const caixa = (titulo, texto, fundo, barra) => {
+    const larg = W - 30;
+    const lt = titulo ? linhas(titulo, 10.5, 'bold', larg) : [];
+    const lx = linhas(texto, 10, 'normal', larg);
+    const h = 22 + lt.length * 15 + (lt.length ? 3 : 0) + lx.length * 14.5;
+    quebra(h + 4);
+    doc.setFillColor(...fundo); doc.rect(L, y, W, h, 'F');
+    doc.setFillColor(...barra); doc.rect(L, y, 3, h, 'F');
+    let yy = y + 11;
+    if(lt.length){ doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(...barra); doc.text(lt, L + 16, yy + 10.5); yy += lt.length * 15 + 3; }
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...ESCURO); doc.text(lx, L + 16, yy + 10, {lineHeightFactor:1.45});
+    y += h + 10;
+  };
+
+  lista.forEach((m, i) => {
+    atual = m.titulo;
+    if(i === 0) rodapes.push(atual); else novaPagina();
+    /* capa do manual */
+    escrever('PeríciaFlow · manual de uso', 9.5, 'normal', CINZA); y += 4;
+    escrever(m.titulo, 24, 'bold', ESCURO, L, W, 1.25); y += 6;
+    escrever(m.resumo, 11.5, 'normal', CINZA); y += 6;
+    escrever('Atualizado em ' + MANUAL_DATA, 9, 'normal', CINZA); y += 10;
+    doc.setDrawColor(...AZUL); doc.setLineWidth(1.5); doc.line(L, y, L + 44, y);
+    y += 20;
+    escrever('Neste manual', 10, 'bold', AZUL); y += 2;
+    m.secoes.forEach((s, k) => escrever(`${k + 1}.  ${s.t}`, 10, 'normal', ESCURO, L + 4, W - 4, 1.6));
+    y += 16;
+    m.secoes.forEach((s, k) => {
+      quebra(70);
+      escrever(`${k + 1}. ${s.t}`, 14, 'bold', AZUL, L, W, 1.3); y += 4;
+      s.b.forEach(bl => {
+        const tipo = bl[0];
+        if(tipo === 'p'){ escrever(bl[1], 10.5, 'normal', ESCURO); y += 7; }
+        else if(tipo === 'passos' || tipo === 'lista'){
+          bl[1].forEach((item, n) => {
+            const ls = linhas(item, 10.5, 'normal', W - 26);
+            quebra(Math.min(ls.length, 2) * 15.2);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(...AZUL);
+            doc.text(tipo === 'passos' ? `${n + 1}.` : '•', L + (tipo === 'passos' ? 0 : 4), y + 10.5);
+            escrever(item, 10.5, 'normal', ESCURO, L + 20, W - 26);
+            y += 4;
+          });
+          y += 5;
+        }
+        else if(tipo === 'alerta') caixa(bl[1], bl[2], VERM_CLARO, VERM);
+        else if(tipo === 'dica') caixa('Dica', bl[1], AZUL_CLARO, AZUL);
+      });
+      y += 10;
+    });
+  });
+
+  const total = doc.getNumberOfPages();
+  for(let p = 1; p <= total; p++){
+    doc.setPage(p);
+    doc.setDrawColor(213, 219, 222); doc.setLineWidth(0.75); doc.line(L, H - 46, L + W, H - 46);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...CINZA);
+    doc.text(T('PeríciaFlow · ' + (rodapes[p - 1] || '')), L, H - 32);
+    doc.text(`p. ${p} de ${total}`, L + W, H - 32, {align:'right'});
+  }
+  doc.save(id === 'todos' ? 'periciaflow-manuais.pdf' : `periciaflow-manual-${id}.pdf`);
+  pfAviso(id === 'todos' ? 'Manual completo baixado.' : `Manual "${lista[0].titulo}" baixado.`);
+}
+
+/* ---------- tela ---------- */
+function cfgMini(modo){
+  return `<span class="cfg-mini" data-modo="${modo}" aria-hidden="true"><i class="m-lado"></i><i class="m-l1"></i><i class="m-l2"></i><i class="m-l3"></i><i class="m-bt"></i></span>`;
+}
+function renderConfig(){
+  const temas = [
+    {id:'light', nome:'Claro',      dica:'Fundo branco, para o dia'},
+    {id:'dark',  nome:'Escuro',     dica:'Fundo preto, descansa a vista'},
+    {id:'auto',  nome:'Automático', dica:'Acompanha o claro ou escuro do sistema'},
+  ];
+  const marca = `<span class="cfg-check" aria-hidden="true">${svg('<path d="M5.5 12.5l4 4L18.5 7.5"/>')}</span>`;
+  return `
+    <div class="section-gap cfg">
+      <section class="cfg-bloco" aria-labelledby="cfgTelaTit">
+        <header><h2 id="cfgTelaTit">Tela</h2><p>Clara ou escura. Com a conta conectada, a escolha vale em qualquer computador.</p></header>
+        <div class="cfg-temas" role="radiogroup" aria-labelledby="cfgTelaTit">
+          ${temas.map(t => `
+          <button class="cfg-tema ${prefTema === t.id ? 'on' : ''}" role="radio" aria-checked="${prefTema === t.id}" data-tema="${t.id}" onclick="definirTema('${t.id}')">
+            ${t.id === 'auto' ? `<span class="cfg-mini-duo">${cfgMini('light')}${cfgMini('dark')}</span>` : cfgMini(t.id)}
+            <span class="cfg-tema-txt"><b>${t.nome}</b><span>${t.dica}</span></span>
+            ${marca}
+          </button>`).join('')}
+        </div>
+      </section>
+
+      <section class="cfg-bloco" aria-labelledby="cfgCorTit">
+        <header><h2 id="cfgCorTit">Cores</h2><p>A cor de destaque dos botões, seleções e gráficos. Todas mantêm a leitura confortável nas telas clara e escura.</p></header>
+        <div class="cfg-cores" role="radiogroup" aria-labelledby="cfgCorTit">
+          ${PALETAS.map(p => `
+          <button class="cfg-cor ${prefPaleta === p.id ? 'on' : ''}" role="radio" aria-checked="${prefPaleta === p.id}" data-paleta="${p.id}" onclick="definirPaleta('${p.id}')">
+            <span class="paleta-amostra" data-palette="${p.id}"></span>
+            <b>${p.nome}</b>
+            ${marca}
+          </button>`).join('')}
+        </div>
+        <div class="cfg-previa" aria-label="Prévia da cor escolhida">
+          <span class="cfg-previa-rot">Prévia</span>
+          <span class="btn btn-primary btn-sm" aria-hidden="true">Botão principal</span>
+          <span class="chip active" aria-hidden="true">Selecionado</span>
+          <span class="pill pill-accent">Etiqueta</span>
+          <span class="cfg-previa-barra" aria-hidden="true"><i style="width:72%"></i></span>
+        </div>
+      </section>
+
+      <section class="cfg-bloco" aria-labelledby="cfgManTit">
+        <header class="cfg-cab-manuais">
+          <div><h2 id="cfgManTit">Manuais de uso</h2><p>Clique em um tópico para baixar o PDF. Vai usar a Revisão IA? Comece pela chave.</p></div>
+          <button class="btn btn-ghost btn-sm cfg-todos" onclick="manualBaixar('todos')">${svg(ICONE_BAIXAR)} Baixar todos em um PDF</button>
+        </header>
+        <div class="cfg-manuais">
+          ${MANUAIS.map(m => `
+          <button class="cfg-manual ${m.destaque ? 'destaque' : ''}" data-manual="${m.id}" onclick="manualBaixar('${m.id}')" aria-label="Baixar o manual ${escapeHtml(m.titulo)} em PDF">
+            <span class="cfg-manual-topo">
+              <span class="cfg-manual-ic">${svg(manualIcone(m))}</span>
+              ${m.destaque ? '<span class="pill pill-accent">Essencial para a IA</span>' : ''}
+            </span>
+            <b>${escapeHtml(m.titulo)}</b>
+            <span class="cfg-manual-res">${escapeHtml(m.resumo)}</span>
+            ${m.destaque ? `<span class="cfg-manual-topicos">${m.secoes.slice(1, 6).map(x => `<span>${escapeHtml(x.t)}</span>`).join('')}</span>` : ''}
+            <span class="cfg-manual-pe"><span>${m.secoes.length} tópicos · PDF</span><span class="cfg-manual-baixar">${svg(ICONE_BAIXAR)} Baixar</span></span>
+          </button>`).join('')}
+        </div>
+      </section>
+
+      <p class="cfg-rodape">Cadastro profissional, conta e acesso ao PROJUDI ficam em <button class="link-sutil" onclick="setSection('perfil')">Meu perfil</button>, que também abre ao clicar no seu nome, no rodapé da barra lateral.</p>
     </div>`;
 }
 
@@ -4921,7 +5409,7 @@ function iaCorpoChave(){
         <label for="iaChave">Chave da API do Gemini</label>
         <input id="iaChave" type="password" autocomplete="off" spellcheck="false" placeholder="cole aqui a chave do Google AI Studio"
                onchange="iaDefinirChave(this.value).then(renderAll)">
-        <span class="dica">Pegue em aistudio.google.com, em “Get API key”. É gratuita até um limite diário e depois cobra por uso — a conta é sua.</span>
+        <span class="dica">Pegue em aistudio.google.com, em “Get API key”. Para autos reais, ative o faturamento: no nível gratuito o Google pode usar o que for enviado. Passo a passo no manual “Chave da IA”, em <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="setSection('config')">Configurações</button>.</span>
       </div>`}
 
       <div class="field" style="margin-top:12px;">
@@ -4958,7 +5446,7 @@ function iaCorpoCiencia(){
         <p style="margin:0 0 10px;">Antes da primeira análise, o que precisa estar claro:</p>
         <ul style="margin:0 0 14px; padding-left:18px;">
           <li style="margin-bottom:7px;">O texto da perícia e dos documentos selecionados <b>sai deste navegador</b> e vai para a API do Google, com a sua chave. Documento sob sigilo processual deixa de estar apenas com você nesse momento.</li>
-          <li style="margin-bottom:7px;">O Google trata esse envio pelos termos da API dele, não por este app. Vale ler os termos antes, sobretudo em processo que corra em segredo de justiça.</li>
+          <li style="margin-bottom:7px;">O Google trata esse envio pelos termos da API dele, não por este app. <b>No nível gratuito</b>, os termos permitem que o Google use o conteúdo para melhorar os produtos dele e que pessoas o leiam; para autos reais, use uma chave com faturamento ativo. Detalhes no manual “Chave da IA”, em Configurações.</li>
           <li style="margin-bottom:7px;">O resultado é <b>rascunho de leitura</b>. O modelo erra e às vezes inventa com cara de certeza. Cada item vem com a fonte justamente para você conferir nos autos.</li>
           <li>Nada é enviado sem clique seu — a não ser que você ligue a análise automática ali em cima, e aí o clique é esse.</li>
         </ul>
@@ -5383,9 +5871,10 @@ function renderAll(){
   else if(activeSection === 'publicacoes') view.innerHTML = renderPublicacoes();
   else if(activeSection === 'integracoes') view.innerHTML = renderIntegracoes();
   else if(activeSection === 'privacidade') view.innerHTML = renderPrivacidade();
-  else if(activeSection === 'config'){
+  else if(activeSection === 'config') view.innerHTML = renderConfig();
+  else if(activeSection === 'perfil'){
     const foco = document.activeElement;
-    if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderConfig();
+    if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderMeuPerfil();
   }
   if(drawerCasoId) renderDrawer();
   renderConfirmacao();
@@ -6321,7 +6810,7 @@ function pjDescartarOferta(pedidoId){
   pjMostrarOfertas();
 }
 
-/* ---------- bloco "Acesso ao PROJUDI" (Configurações e seção Projudi) ---------- */
+/* ---------- bloco "Acesso ao PROJUDI" (Meu perfil e seção Projudi) ---------- */
 async function pjEntrar(){
   const r = await pjPedir({tipo:'entrar'});
   if(!r.ok) cloudSetBanner(bannerAviso(r.erro || 'Não foi possível abrir o PROJUDI.'));
@@ -6359,7 +6848,7 @@ window.addEventListener('message', (ev) => {
   switch(d.tipo){
     case 'pronta': {
       const antes = PJ.versao; PJ.versao = d.versao || '0';
-      if(antes !== PJ.versao && ['config','projudi'].includes(activeSection)) renderAll();
+      if(antes !== PJ.versao && ['perfil','projudi'].includes(activeSection)) renderAll();
       break;
     }
     case 'resposta': { const r = PJ.respostas.get(d.ref); if(r){ PJ.respostas.delete(d.ref); r(d); } break; }
@@ -6974,7 +7463,7 @@ function renderPerfil(){
   const m = membroDe(email);
   const foto = currentUser && currentUser.photoURL;
   const nome = email ? m.nome : 'Sem conta conectada';
-  el.innerHTML = `<button class="pf-quem ${activeSection === 'equipe' ? 'active' : ''}" onclick="setSection('equipe')" title="${escapeHtml(email || 'Sem conta conectada')}">
+  el.innerHTML = `<button class="pf-quem ${activeSection === 'perfil' ? 'active' : ''}" onclick="setSection('perfil')" title="Meu perfil · ${escapeHtml(email || 'sem conta conectada')}">
       ${avatarMembro(m, 30, foto)}
       <span class="pf-quem-txt"><b>${escapeHtml(nome)}</b><span><i class="account-dot ${currentUser ? 'on' : ''}"></i>${currentUser ? 'Sincronizado' : 'Dados só neste navegador'}</span></span>
     </button>`;

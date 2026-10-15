@@ -135,9 +135,9 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   check("ZIP gerado", /Pronto: PROJUDI_.*4 arquivo/.test(await pj.textContent("#projudi-pdf-status")), await pj.textContent("#projudi-pdf-status"));
 
   // ---------- 6) telas ----------
-  await pf.evaluate(() => { closeDrawer(); setSection("config"); });
+  await pf.evaluate(() => { closeDrawer(); setSection("perfil"); });
   await sleep(400);
-  check("Configurações mostram 'Acesso ao PROJUDI'", await pf.locator("text=Acesso ao PROJUDI").count() > 0);
+  check("Meu perfil mostra 'Acesso ao PROJUDI'", await pf.locator("text=Acesso ao PROJUDI").count() > 0);
   await pf.screenshot({ path: path.join(SAIDA, "config.png"), fullPage: false });
   await pf.evaluate((id) => openDrawer(id), c1);
   await sleep(400);

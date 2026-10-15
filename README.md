@@ -7,13 +7,13 @@ Gerenciador de perícias judiciais. O site é publicado pelo GitHub Pages a part
 
 | Pasta / arquivo | O que é |
 |---|---|
-| `index.html` | O PeríciaFlow publicado (app de uma página): perícias, importação de processos, publicações, prazos e alertas, tarefas, agenda, financeiro, cálculos, proposta, documentos, Revisão IA, equipe e integrações, com barra lateral em grupos e paleta Ctrl K. **É a única fonte: edite aqui.** |
+| `index.html` | O PeríciaFlow publicado (app de uma página): perícias, importação de processos, publicações, prazos e alertas, tarefas, agenda, financeiro, cálculos, proposta, documentos, Revisão IA, equipe e integrações, com barra lateral em grupos e paleta Ctrl K. O cadastro do perito fica em **Meu perfil** (clique no nome, no rodapé da barra lateral); **Configurações** tem tema claro/escuro, cores e os manuais de uso em PDF. **É a única fonte: edite aqui.** |
 | `anterior/index.html` | O site como estava antes da troca de 13/10/2026, para voltar rápido se precisar (`…/gerenciador-pericias/anterior/`). |
 | `novo/` | Endereço antigo da prévia; agora só redireciona para o site principal. |
 | `ferramentas/` | Referência das partes acrescentadas na prévia (telas novas, barra lateral, paleta). O `montar-novo.py` está aposentado. |
 | `extensao-projudi/` | Extensão do Chrome **PROJUDI PDFs** (v1.7): ZIP dos autos, envio ao PeríciaFlow, busca pelo código de acesso ou com o login do perito, assinatura pelo Mercado Pago. Arquitetura em `extensao-projudi/LEIA-ME-ARQUITETURA.md`. |
 | `servidor-php/` | Peças para o PeríciaFlow em PHP/MySQL (`localhost:8080`): API de upload dos autos (criptografada, sem duplicados), tabela e receptor. Instalação em `servidor-php/LEIA-ME.md`. |
-| `vendor/` | Bibliotecas carregadas sob demanda: jsPDF 2.5.1 (licença MIT em `vendor/jspdf-LICENSE.txt`), usada no PDF dos erros da Revisão IA. |
+| `vendor/` | Bibliotecas carregadas sob demanda: jsPDF 2.5.1 (licença MIT em `vendor/jspdf-LICENSE.txt`), usada no PDF dos erros da Revisão IA e nos manuais de Configurações. |
 | `testes/` | Testes de ponta a ponta com Chromium, a extensão real e um PROJUDI simulado. |
 
 ## Como os autos chegam
@@ -47,6 +47,12 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
 - Se a perícia mudar (documento novo), aparece o aviso; com a opção ligada, a revisão roda de novo sozinha
   depois de uma importação.
 
+## Manuais de uso
+
+Os manuais (Comece por aqui, Chave da IA, Revisão IA, Extensão PROJUDI PDFs, Proposta, Prazos/agenda/tarefas,
+Conta/equipe/privacidade) estão no `index.html`, na constante `MANUAIS`, e viram PDF no navegador com o jsPDF.
+Mudou uma tela? Ajuste o texto ali e a data em `MANUAL_DATA`.
+
 ## Voltar para a versão anterior
 
 Se algo der errado, copie `anterior/index.html` por cima do `index.html` e publique. O site
@@ -60,7 +66,7 @@ volta a ser o de antes; os dados não mudam.
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
 sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as três suítes:
-o fluxo dos autos no site (24), as telas, a barra lateral, a paleta e a Revisão IA (46) e o PHP com o Mercado Pago (13).
+o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil e Configurações (53) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
 

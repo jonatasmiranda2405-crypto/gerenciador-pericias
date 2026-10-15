@@ -222,6 +222,35 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await ir("ia");
   check("análise antiga continua abrindo, sem os quesitos", await pf.locator(".ia-card").count() === 1 && !/Q antiga/.test(await pf.textContent("#view")));
 
+  console.log("\n10) Meu perfil e Configurações");
+  await pf.evaluate(() => { closeDrawer(); setSection("visao"); });
+  await pf.click("#perfil .pf-quem");
+  await sleep(250);
+  check("clicar no perfil abre Meu perfil com o cadastro", await pf.evaluate(() => activeSection) === "perfil" && /Meu cadastro/i.test(await pf.textContent("#view")) && /Acesso ao PROJUDI/i.test(await pf.textContent("#view")));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-perfil.png") });
+  await ir("config");
+  const cfgTxt = await pf.textContent("#view");
+  check("Configurações sem cadastro: só tela, cores e manuais", !/Meu cadastro|CRC/i.test(cfgTxt) && /Tela/.test(cfgTxt) && /Cores/.test(cfgTxt) && /Manuais de uso/.test(cfgTxt));
+  await pf.click('.cfg-tema[data-tema="dark"]');
+  await sleep(200);
+  check("tema escuro aplica na hora", await pf.evaluate(() => document.documentElement.getAttribute("data-theme")) === "dark" && await pf.locator('.cfg-tema.on[data-tema="dark"]').count() === 1);
+  await pf.click('.cfg-cor[data-paleta="jade"]');
+  await sleep(200);
+  check("cor escolhida aplica e fica lembrada", await pf.evaluate(() => document.documentElement.getAttribute("data-palette") + "|" + JSON.parse(localStorage.getItem("pericias.aparencia")).paleta) === "jade|jade");
+  await pf.screenshot({ path: path.join(SAIDA, "tela-config-escuro.png"), fullPage: true });
+  await pf.click('.cfg-tema[data-tema="light"]');
+  await pf.click('.cfg-cor[data-paleta="flow"]');
+  await sleep(200);
+  await pf.screenshot({ path: path.join(SAIDA, "tela-config.png"), fullPage: true });
+  check("um cartão por manual, com a chave da IA em destaque", await pf.locator(".cfg-manual").count() >= 6 && await pf.locator('.cfg-manual.destaque[data-manual="chave-ia"]').count() === 1);
+  const [man] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click('.cfg-manual[data-manual="chave-ia"]')]);
+  const mb = fs.readFileSync(await man.path());
+  fs.copyFileSync(await man.path(), path.join(SAIDA, "manual-chave-ia.pdf"));
+  check("manual da chave da IA baixa em PDF", mb.slice(0, 5).toString() === "%PDF-" && man.suggestedFilename() === "periciaflow-manual-chave-ia.pdf", `${mb.length} bytes`);
+  const [tudo] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click(".cfg-todos")]);
+  fs.copyFileSync(await tudo.path(), path.join(SAIDA, "manuais-todos.pdf"));
+  check("manual completo baixa em um PDF", tudo.suggestedFilename() === "periciaflow-manuais.pdf");
+
   console.log("\n9) Barra lateral e paleta de comandos");
   await pf.setViewportSize({ width: 1360, height: 900 });
   await pf.evaluate(() => { document.documentElement.setAttribute("data-theme", "light"); setSection("visao"); });
