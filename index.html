@@ -5349,7 +5349,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
    A página descreve o que o sistema realmente faz com os dados — inclusive o
    que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
-const VERSAO_PRIVACIDADE = '2.2';
+const VERSAO_PRIVACIDADE = '2.3';
 const DATA_PRIVACIDADE = '15/10/2026';
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
@@ -5487,7 +5487,7 @@ const LEGAL = {
                   'Perícias: número do processo, vara, comarca, partes, prazos, honorários, tarefas, compromissos, comentários e os documentos que você anexa ou importa do PROJUDI.',
                   'Revisão IA, se usada: a sua chave do Google AI Studio e o resultado das revisões.',
                   'Assinatura da extensão: e-mail, plano e situação do pagamento informada pelo Mercado Pago.',
-                  'Dados técnicos: o GitHub, que hospeda o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.',
+                  'Dados técnicos: o GitHub, que hospeda o site, a Cloudflare, que protege e entrega o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.',
                   'Registros de erro: quando algo falha na tela, o sistema guarda a mensagem técnica e o rastro do erro (que pode trazer um trecho do que estava na tela), a tela, o navegador e o e-mail da conta. Só os administradores veem, para corrigir o problema. Registros com mais de 90 dias são apagados na verificação seguinte dos administradores.',
                   'Convites: quando um administrador convida um perito por e-mail, guardamos o e-mail, o nome e a cidade informados, a situação do convite e um código de convite. Se você criou a conta por um link de convite, guardamos esse código com o seu e-mail, para saber de qual convite veio.']],
         ['p','Os autos podem conter dados sensíveis e dados de terceiros (partes, testemunhas). Anexe só o que a perícia exigir.'],
@@ -5512,12 +5512,13 @@ const LEGAL = {
                   'Google (Gemini API): só quando você usa a Revisão IA, com a sua própria chave;',
                   'Google Fonts: as fontes da interface;',
                   'GitHub (GitHub Pages): hospedagem do site;',
+                  'Cloudflare: endereço (DNS), conexão segura e proteção do site contra ataques; vê o endereço IP e os dados do navegador de quem acessa, nunca o conteúdo das perícias, que vai direto ao Google;',
                   'Mercado Pago: pagamento da assinatura da extensão;',
                   'Banco Central do Brasil: consulta de índices de correção, sem nenhum dado do processo;',
                   'autoridades, quando houver ordem judicial ou obrigação legal.']],
       ]},
       {t:'Transferência internacional', b:[
-        ['p','Os serviços do Google e do GitHub podem guardar ou processar dados em servidores fora do Brasil. Essa transferência se apoia nas garantias contratuais desses fornecedores, nos termos do art. 33 da LGPD.'],
+        ['p','Os serviços do Google, do GitHub e da Cloudflare podem guardar ou processar dados em servidores fora do Brasil. Essa transferência se apoia nas garantias contratuais desses fornecedores, nos termos do art. 33 da LGPD.'],
       ]},
       {t:'Armazenamento no navegador', b:[
         ['p','O sistema não usa cookies de publicidade nem de rastreamento. Ele guarda no seu navegador: a sessão de login (Firebase), as preferências de tela e cor, a última seção aberta e uma cópia das perícias para funcionar sem internet. Limpar os dados do site apaga essa cópia local.'],

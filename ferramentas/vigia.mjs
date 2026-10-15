@@ -9,7 +9,7 @@ import { join, relative } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const RAIZ = new URL('..', import.meta.url).pathname;
-const SITE = process.env.VIGIA_SITE || 'https://jonatasmiranda2405-crypto.github.io/gerenciador-pericias/';
+const SITE = process.env.VIGIA_SITE || 'https://gerenciadorpericias.com.br/';
 const COMPARAR_SITE = process.env.VIGIA_COMPARAR_SITE !== '0';
 const PROJETO = 'gerenciador-pericias-app';
 const BUCKET = 'gerenciador-pericias-app.firebasestorage.app';

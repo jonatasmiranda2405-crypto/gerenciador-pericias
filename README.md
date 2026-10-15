@@ -64,7 +64,7 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
 
 ## Domínio próprio: gerenciadorpericias.com.br
 
-- Registro: Registro.br. DNS: Cloudflare (plano grátis). Hospedagem: GitHub Pages (arquivo `CNAME`).
+- No ar desde 15/10/2026 (o endereço antigo do github.io redireciona). Registro: Registro.br. DNS: Cloudflare (plano grátis). Hospedagem: GitHub Pages (arquivo `CNAME`).
 - DNS no Cloudflare: `@` A 185.199.108.153 / 185.199.109.153 / 185.199.110.153 / 185.199.111.153 e
   `www` CNAME jonatasmiranda2405-crypto.github.io. Primeiro "Somente DNS" (nuvem cinza) até o GitHub
   emitir o certificado; depois "Com proxy" (nuvem laranja), SSL/TLS "Completo (estrito)", HSTS e
