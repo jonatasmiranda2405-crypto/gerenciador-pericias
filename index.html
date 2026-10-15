@@ -5268,6 +5268,7 @@ function loginCaixaHtml(){
    prazo), dúvidas, suporte e o login numa janela por cima.
    Nada aqui inventa número, depoimento ou cliente: só o que o sistema faz.
    ========================================================================== */
+const LP_VERSAO = '3';   /* suba quando trocar as imagens de apresentacao/ (o navegador busca as novas) */
 const SUPORTE_EMAIL = LEGAL_CONTATO;
 const SUPORTE_WHATSAPP = '';   /* só dígitos com DDI e DDD, ex.: '5562999999999'. Vazio esconde o botão. */
 let lpEntrarAberto = false;
@@ -5353,7 +5354,7 @@ function renderApresentacao(){
           <div class="lp-janela-nav" aria-hidden="true">
             <div class="lp-janela-barra"><i></i><i></i><i></i><span>gerenciador de perícia</span></div>
             <div class="lp-heroi-telas" id="lpHeroiTelas">
-              ${LP_TELAS.slice(0, 4).map((t, i) => `<img src="apresentacao/${t.img}.webp" alt="" class="${i === 0 ? 'on' : ''}" loading="${i === 0 ? 'eager' : 'lazy'}" width="1280" height="800">`).join('')}
+              ${LP_TELAS.slice(0, 4).map((t, i) => `<img src="apresentacao/${t.img}.webp?v=${LP_VERSAO}" alt="" class="${i === 0 ? 'on' : ''}" loading="${i === 0 ? 'eager' : 'lazy'}" width="1280" height="800">`).join('')}
             </div>
           </div>
           <div class="lp-flut lp-flut-1">${svg(ICONS.prazos)}<span><b>Prazo em 2 dias</b>PER-2026-031 · aviso enviado</span></div>
@@ -5401,7 +5402,7 @@ function renderApresentacao(){
           </div>
           <div class="lp-janela-nav">
             <div class="lp-janela-barra" aria-hidden="true"><i></i><i></i><i></i><span id="lpDemoNum">1/${LP_TELAS.length}</span></div>
-            <div class="lp-demo-tela"><img id="lpDemoImg" src="apresentacao/${tela.img}.webp" alt="Tela ${escapeHtml(tela.nome)} do Gerenciador de Perícia" width="1280" height="800" loading="lazy"></div>
+            <div class="lp-demo-tela"><img id="lpDemoImg" src="apresentacao/${tela.img}.webp?v=${LP_VERSAO}" alt="Tela ${escapeHtml(tela.nome)} do Gerenciador de Perícia" width="1280" height="800" loading="lazy"></div>
           </div>
           <p class="lp-demo-txt" id="lpDemoTxt">${escapeHtml(tela.txt)}</p>
         </div>
@@ -5573,7 +5574,7 @@ function lpDemo(i, manual){
   const img = document.getElementById('lpDemoImg');
   if(!img) return;
   img.classList.add('troca');
-  setTimeout(() => { img.src = `apresentacao/${t.img}.webp`; img.alt = `Tela ${t.nome} do Gerenciador de Perícia`; img.classList.remove('troca'); }, manual ? 80 : 200);
+  setTimeout(() => { img.src = `apresentacao/${t.img}.webp?v=${LP_VERSAO}`; img.alt = `Tela ${t.nome} do Gerenciador de Perícia`; img.classList.remove('troca'); }, manual ? 80 : 200);
   document.getElementById('lpDemoTxt').textContent = t.txt;
   document.getElementById('lpDemoNum').textContent = `${LP.demo + 1}/${n}`;
   document.querySelectorAll('.lp-demo-aba').forEach((b, k) => {

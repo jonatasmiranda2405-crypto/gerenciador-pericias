@@ -196,6 +196,14 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.setViewportSize({ width: 1360, height: 900 });
   await ir("ia");
   check("revisão mostra um cartão por achado, erros primeiro", await pf.locator(".ia-card").count() === 4 && /Erro/.test(await pf.textContent("#iaDetalhe")), await pf.textContent(".ia-nav"));
+  const c2 = await pf.evaluate(async () => criarCaso({ dono: "", emails: [""], editores: [""], compartilhamentos: [], codigo: nextCodigo(), nome: "Outra perícia", numeroProcesso: "0000009-00.2026.8.00.0000", statusCaso: "em_andamento", observacoes: [] }));
+  await ir("ia");
+  await pf.selectOption("#iaPericia", c2);
+  await sleep(250);
+  const numOutra = (await pf.textContent(".ia-num")).trim();
+  await pf.selectOption("#iaPericia", c1);
+  await sleep(250);
+  check("número do processo na Revisão IA acompanha a perícia escolhida", numOutra === "0000009-00.2026.8.00.0000" && (await pf.textContent(".ia-num")).trim() === NUM, numOutra);
   check("sem quesitos sugeridos na tela", !/Quesitos sugeridos/i.test(await pf.textContent("#view")));
   check("selo de revisão em dia", /Em dia/.test(await pf.textContent(".ia-fresco")));
   await pf.click('.ia-chip:has-text("Documentos")');
