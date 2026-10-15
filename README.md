@@ -62,6 +62,17 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
   só de servidor), site publicado igual ao repositório, CSP e proteção contra moldura no ar, e busca de
   senhas/chaves no código (`ferramentas/vigia.mjs`). Falhou: o GitHub manda e-mail.
 
+## Agente comercial
+
+- **Escritório > Agente comercial** (só administradores, entrando pelo Google): cole uma lista
+  `email; nome; cidade`, escolha a mensagem (Convite, Lembrete, Colega próximo; dá para variar com a IA)
+  e clique em **Abrir o próximo no Gmail**. Abre uma mensagem pronta por pessoa, sem cópia oculta, até o
+  limite do dia (20 por padrão). Quem foi convidado há mais de 7 dias sem criar conta volta para a fila
+  com o lembrete.
+- Cada contato tem um link `?convite=código`. Quem cria conta por ele grava `conversoes/{uid}` e aparece
+  sozinho como **Criou conta**. Quem responder "remover" vai para **Não quer** e não entra mais na fila.
+- Coleções `comercial` e `conversoes` no Firestore, só administradores leem (testes em `firebase/testes`).
+
 ## Publicação automática das regras
 
 `.github/workflows/publicar-regras.yml`: toda mudança em `firebase/*.rules` no `main` roda os testes e,
@@ -103,7 +114,7 @@ volta a ser o de antes; os dados não mudam.
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
 sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as três suítes:
-o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil, Configurações, segurança, termos, apresentação e Central do administrador (85) e o PHP com o Mercado Pago (13).
+o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil, Configurações, segurança, termos, apresentação e Central do administrador e agente comercial (94) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
 

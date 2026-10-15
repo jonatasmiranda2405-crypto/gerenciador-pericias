@@ -11,6 +11,9 @@ rules_version = '2';
 //   casos/{id}/documentos  lê quem lê a perícia; grava quem edita a perícia
 //   config/*               só leitura, só para as três contas antigas (migração do cadastro)
 //   erros/*                cada conta registra o próprio erro; só os administradores leem
+//   comercial/*            contatos do agente comercial; só os administradores
+//   conversoes/{uid}       quem criou conta pelo link de um convite; a própria conta grava uma vez,
+//                          só os administradores leem
 //   todo o resto           fechado
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -147,6 +150,35 @@ service cloud.firestore {
         && textoAte(request.resource.data.get('pilha', ''), 3000)
         && textoAte(request.resource.data.get('navegador', ''), 240)
         && request.resource.data.email == email();
+      allow read, delete: if admin();
+      allow update: if false;
+    }
+
+    // ---------- agente comercial (só administradores) ----------
+    match /comercial/{id} {
+      allow read, delete: if admin();
+      allow create, update: if admin()
+        && id.matches('^r[0-9a-z]{1,12}$')
+        && request.resource.data.keys().hasOnly(['email', 'nome', 'cidade', 'origem', 'status', 'convite', 'criadoEm', 'notas', 'enviadoEm', 'lembradoEm', 'contaEm'])
+        && request.resource.data.email is string && request.resource.data.email.matches('^[^@ ]{1,120}@[^@ ]{1,120}$')
+        && request.resource.data.status in ['novo', 'convidado', 'lembrado', 'conta', 'cliente', 'nao']
+        && request.resource.data.convite is string && request.resource.data.convite.matches('^[a-z0-9]{4,16}$')
+        && textoAte(request.resource.data.get('nome', ''), 80)
+        && textoAte(request.resource.data.get('cidade', ''), 60)
+        && textoAte(request.resource.data.get('origem', ''), 60)
+        && textoAte(request.resource.data.get('notas', ''), 1000);
+    }
+
+    // ---------- quem chegou pelo link de convite ----------
+    // A própria conta (confirmada) grava uma única vez, com o próprio e-mail e o horário do servidor.
+    match /conversoes/{uid} {
+      allow create: if verificado()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['convite', 'email', 'quando'])
+        && request.resource.data.keys().hasAll(['convite', 'email', 'quando'])
+        && request.resource.data.convite is string && request.resource.data.convite.matches('^[a-z0-9]{4,16}$')
+        && request.resource.data.email == email()
+        && request.resource.data.quando == request.time;
       allow read, delete: if admin();
       allow update: if false;
     }

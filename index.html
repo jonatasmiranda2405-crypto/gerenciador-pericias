@@ -1453,6 +1453,30 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .adm-chev{width:16px; height:16px; color:var(--muted);}
 .adm-erro-det{padding:12px 14px; border-top:1px solid var(--line); background:var(--surface-2);}
 .adm-pilha{white-space:pre-wrap; font-size:11.5px; line-height:1.5; max-height:220px; overflow:auto; color:var(--ink-2); overflow-wrap:anywhere;}
+/* ---------- agente comercial ---------- */
+.com-kpis{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px;}
+.com-grade{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; align-items:start;}
+.com-passo{display:flex; flex-direction:column; gap:10px; padding:18px; min-width:0;}
+.com-passo textarea, .com-passo input:not([type=number]){width:100%;}
+.com-passo-tit{display:flex; align-items:center; gap:10px; font-size:15px;}
+.com-passo-tit i{font-style:normal; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-deep); font-weight:700; font-size:13px;}
+.com-acoes{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+.com-fila{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px;}
+.com-fila div{border:1px solid var(--line); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:2px;}
+.com-fila b{font-size:20px;}
+.com-fila span{font-size:11.5px; color:var(--muted); line-height:1.3;}
+.com-proximo{justify-content:center;}
+.com-previa{border:1px dashed var(--line); border-radius:12px; padding:12px; font-size:12.5px; max-height:260px; overflow:auto; background:var(--surface-2);}
+.com-previa-de{color:var(--muted); font-size:11.5px; margin-bottom:4px; overflow-wrap:anywhere;}
+.com-previa-corpo{white-space:pre-wrap; margin-top:8px; line-height:1.5; color:var(--ink-2); overflow-wrap:anywhere;}
+.com-filtros{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:12px;}
+.com-busca{flex:0 1 320px;}
+.com-limite input{width:110px;}
+.com-status{padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; font-size:12.5px;}
+.com-contato-acoes{display:flex; gap:6px; align-items:center; flex-wrap:wrap;}
+.com-contato-acoes select{width:auto;}
+@media (max-width:1100px){ .com-grade{grid-template-columns:1fr;} }
+@media (max-width:700px){ .com-kpis{grid-template-columns:repeat(2, minmax(0, 1fr));} .com-contato{flex-wrap:wrap;} .com-busca{flex:1 1 100%; max-width:none;} }
 .adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
 .mk-parado .mk-lupa{animation:none;}
 </style>
@@ -1922,6 +1946,7 @@ const SECTIONS = [
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'integracoes', titulo:'Integrações', sub:'O que liga o Gerenciador de Perícia aos tribunais e serviços'},
   {id:'privacidade', titulo:'Termos e privacidade', sub:'Termos de uso, política de privacidade e segurança'},
+  {id:'comercial', titulo:'Agente comercial', sub:'Convide peritos por e-mail, acompanhe quem abriu conta e não insista com quem não quer'},
   {id:'admin',    titulo:'Central do administrador', sub:'Vigia de segurança, erros dos usuários e pontos frágeis para corrigir'},
   {id:'config',   titulo:'Configurações', sub:'Tema, cores e manuais de uso'},
   {id:'perfil',   titulo:'Meu perfil',    sub:'Seu cadastro profissional, conta e acesso ao PROJUDI'},
@@ -1943,6 +1968,7 @@ const ICONS = {
   ia:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/>',
   equipe:'<path d="M16 19v-1.4a3.6 3.6 0 00-3.6-3.6H7.6A3.6 3.6 0 004 17.6V19"/><circle cx="10" cy="7.5" r="3.1"/><path d="M20.5 19v-1.4a3.6 3.6 0 00-2.7-3.5M15.8 4.6a3.1 3.1 0 010 5.9"/>',
   projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
+  comercial:'<path d="M3 7l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M16 16l2 2 3-4"/>',
   admin:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><circle cx="12" cy="11" r="2.6"/><path d="M14 13l2 2"/>',
   perfil:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0115 0"/>',
   privacidade:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>',
@@ -2655,6 +2681,351 @@ async function adminRelatorio(){
   };
   const ok = await gerarPdfDocs([doc], {arquivo: `gerenciador-pericia-seguranca-${todayIso()}.pdf`, rotulo: 'Gerenciador de Perícia · uso interno', data: `Gerado em ${iaQuando(new Date().toISOString())}`, indice: 'Neste relatório'});
   if(ok) pfAviso('Relatório de segurança baixado.');
+}
+
+/* ==========================================================================
+   Agente comercial (só administradores)
+   Lista de contatos (peritos a convidar), mensagens prontas com o nome de
+   quem envia, fila de envio pelo Gmail de quem está logado (um e-mail por
+   pessoa, sem cópia oculta), lembrete depois de 7 dias, descadastro
+   respeitado e acompanhamento de quem criou conta pelo link do convite.
+   Os contatos ficam na coleção `comercial` e as contas criadas por convite
+   em `conversoes`; as duas só os administradores leem (regras do Firestore).
+   ========================================================================== */
+const COM_STATUS = {
+  novo:      {rot: 'Novo',          pill: 'pill-muted'},
+  convidado: {rot: 'Convidado',     pill: 'pill-accent'},
+  lembrado:  {rot: 'Lembrado',      pill: 'pill-accent'},
+  conta:     {rot: 'Criou conta',   pill: 'pill-success'},
+  cliente:   {rot: 'Cliente',       pill: 'pill-success'},
+  nao:       {rot: 'Não quer',      pill: 'pill-danger'},
+};
+const COM_MODELOS = {
+  convite: {nome: 'Convite', assunto: 'Uma ferramenta para organizar as suas perícias',
+    corpo: `Olá, {nome}!
+
+Sou {remetente}, perito contábil. Criei o Gerenciador de Perícia para organizar o trabalho de perícia judicial em um só lugar:
+
+• autos do PROJUDI direto na perícia, com um clique;
+• prazos com aviso antes do vencimento;
+• revisão dos autos com IA, mostrando a página para conferir;
+• proposta de honorários já preenchida.
+
+É grátis para começar: {link}
+
+Se quiser, mostro em 10 minutos por vídeo.
+
+Abraço,
+{remetente}
+
+—
+Recebeu por engano ou não quer mais mensagens? Responda com "remover".`},
+  lembrete: {nome: 'Lembrete', assunto: 'Conseguiu dar uma olhada?',
+    corpo: `Olá, {nome}!
+
+Passando para saber se conseguiu conhecer o Gerenciador de Perícia. Ele importa os autos do PROJUDI, avisa dos prazos e revisa os documentos com IA.
+
+O acesso continua aqui, grátis: {link}
+
+Qualquer dúvida, é só responder este e-mail.
+
+{remetente}
+
+—
+Não quer mais mensagens? Responda com "remover".`},
+  colega: {nome: 'Colega próximo', assunto: 'Te mostrar uma coisa que estou usando',
+    corpo: `Oi, {nome}, tudo bem?
+
+Estou usando um sistema que montei para as perícias: puxa os autos do PROJUDI, avisa dos prazos e confere os cálculos com IA. Achei que pode te ajudar também.
+
+Dá uma olhada: {link}
+
+Me fala o que achou.
+
+{remetente}`},
+};
+const COM = {contatos: null, conversoes: [], carregando: false, falha: '', filtro: 'todos', busca: '', modelo: 'convite', assunto: '', corpo: '', porDia: 20, iaRodando: false, importAviso: '', previa: null};
+const comEmailOk = e => /^[^\s@'"<>\\`,;]+@[^\s@'"<>\\`,;]+\.[^\s@'"<>\\`,;]{2,}$/.test(e);
+function comId(email){ return iaHash('com|' + email); }
+function comConvite(email){ return iaHash('conv|' + email).slice(1).padStart(6, '0'); }
+function comLinkBase(){ return location.origin + location.pathname.replace(/index\.html$/, ''); }
+function comLink(c){ return comLinkBase() + '?convite=' + c.convite; }
+function comRemetente(){
+  const f = fichaDe(meuEmail()) || {};
+  return {nome: f.nomeCompleto || membroDe(meuEmail()).nome || 'Equipe do Gerenciador de Perícia', cidade: f.cidadeUf || ''};
+}
+function comPreencher(texto, c){
+  const r = comRemetente();
+  const primeiro = String(c.nome || '').trim().split(/\s+/)[0] || 'colega';
+  return String(texto)
+    .replace(/\{nome\}/g, primeiro)
+    .replace(/\{cidade\}/g, c.cidade || '')
+    .replace(/\{remetente\}/g, r.nome)
+    .replace(/\{link\}/g, comLink(c));
+}
+function comMensagemAtual(){
+  const m = COM_MODELOS[COM.modelo] || COM_MODELOS.convite;
+  return {assunto: COM.assunto || m.assunto, corpo: COM.corpo || m.corpo};
+}
+function comEscolherModelo(id){ COM.modelo = COM_MODELOS[id] ? id : 'convite'; COM.assunto = ''; COM.corpo = ''; renderAll(); }
+
+/* ---------- dados ---------- */
+async function comCarregar(){
+  if(COM.carregando || !souAdmin()) return;
+  COM.carregando = true; COM.falha = '';
+  try{
+    if(usingDb && db){
+      const [cs, cv] = await Promise.all([db.collection('comercial').get(), db.collection('conversoes').get().catch(() => ({docs: []}))]);
+      COM.contatos = cs.docs.map(d => ({...d.data(), id: d.id}));
+      COM.conversoes = cv.docs.map(d => ({...d.data(), uid: d.id}));
+      /* quem criou conta pelo link (ou com o mesmo e-mail) vira "Criou conta" sozinho */
+      const porConvite = new Map(COM.conversoes.map(x => [String(x.convite), x]));
+      const porEmail = new Map(COM.conversoes.map(x => [String(x.email || '').toLowerCase(), x]));
+      for(const c of COM.contatos){
+        if(['conta', 'cliente', 'nao'].includes(c.status)) continue;
+        if(porConvite.has(c.convite) || porEmail.has(c.email)) await comSalvar(c, {status: 'conta', contaEm: new Date().toISOString()}, true);
+      }
+    } else {
+      COM.contatos = JSON.parse(localStorage.getItem('pf_comercial') || '[]');
+    }
+  }catch(e){
+    COM.contatos = COM.contatos || [];
+    COM.falha = 'A lista de contatos fica na nuvem e abre quando as regras novas do Firestore estiverem publicadas e você tiver entrado com a conta Google.';
+  }finally{
+    COM.carregando = false;
+    renderAll();
+  }
+}
+async function comSalvar(c, patch, semRender){
+  Object.assign(c, patch);
+  if(usingDb && db){
+    const {id, ...dados} = c;
+    try{ await db.collection('comercial').doc(id).set(dados, {merge: true}); }
+    catch(e){ pfAviso('Não foi possível salvar o contato agora.'); }
+  } else {
+    try{ localStorage.setItem('pf_comercial', JSON.stringify(COM.contatos)); }catch(e){}
+  }
+  if(!semRender) renderAll();
+}
+async function comImportar(){
+  const caixa = document.getElementById('comImport');
+  const texto = (caixa && caixa.value) || '';
+  const existentes = new Set((COM.contatos || []).map(c => c.email));
+  let novos = 0, repetidos = 0, invalidos = 0;
+  for(const linha of texto.split(/\r?\n/)){
+    const t = linha.trim();
+    if(!t) continue;
+    const m = t.match(/[^\s@<>;,"']+@[^\s@<>;,"']+\.[^\s@<>;,"']{2,}/);
+    if(!m){ invalidos++; continue; }
+    const email = m[0].toLowerCase();
+    if(!comEmailOk(email)){ invalidos++; continue; }
+    if(existentes.has(email)){ repetidos++; continue; }
+    const resto = t.replace(m[0], '').split(/[;,\t]/).map(x => x.replace(/[<>"]/g, '').trim()).filter(Boolean);
+    const c = {id: comId(email), email, nome: (resto[0] || '').slice(0, 80), cidade: (resto[1] || '').slice(0, 60), origem: (resto[2] || 'lista').slice(0, 60),
+      status: 'novo', convite: comConvite(email), criadoEm: new Date().toISOString(), notas: ''};
+    COM.contatos = [...(COM.contatos || []), c];
+    existentes.add(email);
+    await comSalvar(c, {}, true);
+    novos++;
+  }
+  COM.importAviso = `${novos} contato${novos === 1 ? '' : 's'} novo${novos === 1 ? '' : 's'}` + (repetidos ? ` · ${repetidos} já estava${repetidos === 1 ? '' : 'm'} na lista` : '') + (invalidos ? ` · ${invalidos} linha${invalidos === 1 ? '' : 's'} sem e-mail válido` : '');
+  if(caixa) caixa.value = '';
+  renderAll();
+}
+async function comMudarStatus(id, status){
+  const c = (COM.contatos || []).find(x => x.id === id);
+  if(!c || !COM_STATUS[status]) return;
+  await comSalvar(c, {status});
+}
+async function comRemover(id){
+  const c = (COM.contatos || []).find(x => x.id === id);
+  if(!c) return;
+  COM.contatos = COM.contatos.filter(x => x.id !== id);
+  if(usingDb && db){ try{ await db.collection('comercial').doc(id).delete(); }catch(e){} }
+  else { try{ localStorage.setItem('pf_comercial', JSON.stringify(COM.contatos)); }catch(e){} }
+  renderAll();
+}
+function comFila(){
+  const hoje = Date.now();
+  const lista = (COM.contatos || []);
+  const novos = lista.filter(c => c.status === 'novo');
+  const lembrar = lista.filter(c => c.status === 'convidado' && c.enviadoEm && hoje - new Date(c.enviadoEm).getTime() > 7 * 864e5);
+  return {novos, lembrar};
+}
+function comEnviadosHoje(){
+  const hoje = todayIso();
+  return (COM.contatos || []).filter(c => String(c.enviadoEm || '').slice(0, 10) === hoje || String(c.lembradoEm || '').slice(0, 10) === hoje).length;
+}
+/* Abre o Gmail com a mensagem pronta para UMA pessoa; quem envia é o administrador. */
+async function comEnviar(id, via){
+  const c = (COM.contatos || []).find(x => x.id === id);
+  if(!c || c.status === 'nao') return;
+  const lembrete = c.status === 'convidado';
+  const base = lembrete ? COM_MODELOS.lembrete : null;
+  const msg = base ? {assunto: base.assunto, corpo: base.corpo} : comMensagemAtual();
+  const assunto = comPreencher(msg.assunto, c);
+  const corpo = comPreencher(msg.corpo, c);
+  const url = via === 'mailto'
+    ? `mailto:${encodeURIComponent(c.email)}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`
+    : `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(c.email)}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+  if(via === 'mailto') location.href = url; else window.open(url, '_blank', 'noopener');
+  await comSalvar(c, lembrete ? {status: 'lembrado', lembradoEm: new Date().toISOString()} : {status: 'convidado', enviadoEm: new Date().toISOString()});
+}
+function comProximo(){
+  const {novos, lembrar} = comFila();
+  if(comEnviadosHoje() >= COM.porDia){ pfAviso(`Limite de ${COM.porDia} por dia atingido. Amanhã a fila continua.`); return; }
+  const c = lembrar[0] || novos[0];
+  if(!c){ pfAviso('Ninguém na fila agora.'); return; }
+  comEnviar(c.id, 'gmail');
+}
+function comExportar(){
+  const linhas = [['email', 'nome', 'cidade', 'status', 'convite', 'link', 'enviado_em'].join(';')];
+  (COM.contatos || []).forEach(c => linhas.push([c.email, c.nome, c.cidade, (COM_STATUS[c.status] || {}).rot || c.status, c.convite, comLink(c), c.enviadoEm || ''].map(v => String(v || '').replace(/[;\r\n]/g, ' ')).join(';')));
+  const blob = new Blob(['﻿' + linhas.join('\n')], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `contatos-comerciais-${todayIso()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+/* Reescreve a mensagem com a IA (chave do próprio administrador). */
+async function comVariarComIA(tom){
+  if(!iaChave()){ pfAviso('Guarde a sua chave do Gemini na Revisão IA para usar este botão.'); return; }
+  const atual = comMensagemAtual();
+  COM.iaRodando = true; renderAll();
+  try{
+    const prompt = `Reescreva o e-mail comercial abaixo, em português do Brasil, com tom ${tom}. Público: peritos judiciais contábeis. Regras: no máximo 140 palavras; não invente números, clientes, depoimentos nem promessas; mantenha exatamente as marcações {nome}, {link} e {remetente}; mantenha a última linha sobre responder "remover" quando ela existir. Responda só em JSON com os campos "assunto" e "corpo".\n\nASSUNTO: ${atual.assunto}\n\nCORPO:\n${atual.corpo}`;
+    const res = await fetch(IA_ENDPOINT + encodeURIComponent(iaModelo()) + ':generateContent', {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'x-goog-api-key': iaChave()},
+      body: JSON.stringify({contents: [{role: 'user', parts: [{text: prompt}]}], generationConfig: {temperature: 0.8, responseMimeType: 'application/json'}}),
+    });
+    const j = await res.json();
+    if(!res.ok) throw new Error((j.error && j.error.message) || ('erro ' + res.status));
+    const txt = (((j.candidates || [])[0] || {}).content || {}).parts?.map(p => p.text).join('') || '';
+    const out = JSON.parse(txt);
+    if(!out.corpo || !String(out.corpo).includes('{link}')) throw new Error('a resposta veio sem o link do convite');
+    COM.assunto = String(out.assunto || atual.assunto).slice(0, 160);
+    COM.corpo = String(out.corpo).slice(0, 3000);
+  }catch(e){ pfAviso('A IA não conseguiu reescrever agora: ' + e.message); }
+  finally{ COM.iaRodando = false; renderAll(); }
+}
+function comCampo(qual, v){ COM[qual] = v; const p = document.getElementById('comPrevia'); if(p) p.innerHTML = comPreviaHtml(); }
+function comPreviaHtml(){
+  const ex = (COM.contatos || []).find(c => c.status === 'novo') || {nome: 'Maria Souza', cidade: 'Goiânia', convite: 'exemplo123', email: 'maria@exemplo.com'};
+  const m = comMensagemAtual();
+  return `<div class="com-previa-de">Para: ${escapeHtml(ex.email)}</div><b>${escapeHtml(comPreencher(m.assunto, ex))}</b><div class="com-previa-corpo">${escapeHtml(comPreencher(m.corpo, ex))}</div>`;
+}
+
+/* ---------- convite: quem chega pelo link e cria conta ---------- */
+(function guardarConvite(){
+  try{
+    const u = new URL(location.href);
+    const cv = u.searchParams.get('convite');
+    if(cv && /^[a-z0-9]{4,16}$/.test(cv)){
+      localStorage.setItem('pf_convite', cv);
+      u.searchParams.delete('convite');
+      history.replaceState(null, '', u.pathname + (u.search ? u.search : '') + u.hash);
+    }
+  }catch(e){}
+})();
+async function comRegistrarConversao(){
+  let cv = '';
+  try{ cv = localStorage.getItem('pf_convite') || ''; }catch(e){}
+  if(!cv || !(usingDb && db && currentUser && contaVerificada())) return;
+  try{
+    await db.collection('conversoes').doc(currentUser.uid).set({convite: cv, email: meuEmail(), quando: firebase.firestore.FieldValue.serverTimestamp()});
+  }catch(e){ /* já registrado, ou regras antigas: não insiste */ }
+  try{ localStorage.removeItem('pf_convite'); }catch(e){}
+}
+function veioPorConvite(){ try{ return !!localStorage.getItem('pf_convite'); }catch(e){ return false; } }
+
+/* ---------- tela ---------- */
+function renderComercial(){
+  if(!souAdmin()) return `<div class="empty-state"><h3>Área restrita</h3><p>Esta tela é só para os administradores do sistema.</p></div>`;
+  if(COM.contatos === null && !COM.carregando) setTimeout(comCarregar, 0);
+  const lista = COM.contatos || [];
+  const cont = s => lista.filter(c => c.status === s).length;
+  const {novos, lembrar} = comFila();
+  const enviadosHoje = comEnviadosHoje();
+  const q = normalizeText(COM.busca);
+  const filtrada = lista.filter(c => (COM.filtro === 'todos' || c.status === COM.filtro) && (!q || normalizeText(`${c.email} ${c.nome} ${c.cidade}`).includes(q)))
+    .sort((a, b) => String(b.criadoEm || '').localeCompare(String(a.criadoEm || '')));
+  const m = comMensagemAtual();
+  const conversao = lista.length ? Math.round(100 * (cont('conta') + cont('cliente')) / Math.max(1, lista.filter(c => c.status !== 'novo').length)) : 0;
+
+  return `
+    <div class="section-gap com">
+      ${COM.falha ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(COM.falha)}</span></div>` : ''}
+      <div class="kpis com-kpis">
+        <div class="kpi"><div class="k">Contatos</div><div class="v">${lista.length}</div><div class="sub">${cont('novo')} ainda não convidados</div></div>
+        <div class="kpi"><div class="k">Convidados</div><div class="v">${cont('convidado') + cont('lembrado')}</div><div class="sub">${lembrar.length} para lembrar</div></div>
+        <div class="kpi tone-accent"><div class="k">Criaram conta</div><div class="v">${cont('conta') + cont('cliente')}</div><div class="sub">${conversao}% dos convidados</div></div>
+        <div class="kpi"><div class="k">Não querem</div><div class="v">${cont('nao')}</div><div class="sub">nunca mais entram na fila</div></div>
+      </div>
+
+      <div class="com-grade">
+        <div class="pf-card com-passo">
+          <div class="com-passo-tit"><i>1</i><b>Contatos</b></div>
+          <div class="field"><label for="comImport">Lista de e-mails</label>
+            <textarea id="comImport" rows="5" placeholder="maria.souza@exemplo.com; Maria Souza; Goiânia&#10;joao@exemplo.com; João Lima; Anápolis"></textarea>
+            <span class="dica">Um por linha: email; nome; cidade (nome e cidade são opcionais). Repetidos e e-mails inválidos são ignorados.</span></div>
+          <div class="com-acoes"><button class="btn btn-primary btn-sm" onclick="comImportar()">Adicionar à lista</button><button class="btn btn-ghost btn-sm" onclick="comExportar()" ${lista.length ? '' : 'disabled'}>${svg(ICONE_BAIXAR)} Exportar CSV</button></div>
+          ${COM.importAviso ? `<div class="hint" style="color:var(--accent-deep);">${escapeHtml(COM.importAviso)}</div>` : ''}
+          <div class="hint">Convide quem você conhece ou quem divulga o e-mail profissional (listas de peritos dos tribunais, associações). Não use listas compradas.</div>
+        </div>
+
+        <div class="pf-card com-passo">
+          <div class="com-passo-tit"><i>2</i><b>Mensagem</b></div>
+          <div class="chips">${Object.entries(COM_MODELOS).map(([k, v]) => `<button class="chip ${COM.modelo === k ? 'active' : ''}" onclick="comEscolherModelo(${jsq(k)})">${escapeHtml(v.nome)}</button>`).join('')}</div>
+          <div class="field"><label for="comAssunto">Assunto</label><input id="comAssunto" value="${escapeHtml(m.assunto)}" oninput="comCampo('assunto', this.value)"></div>
+          <div class="field"><label for="comCorpo">Texto</label><textarea id="comCorpo" rows="9" oninput="comCampo('corpo', this.value)">${escapeHtml(m.corpo)}</textarea>
+            <span class="dica">Marcações: {nome}, {cidade}, {remetente}, {link}. O link é único por contato e mostra quem criou conta.</span></div>
+          <div class="com-acoes">
+            <span class="dica">Variar com IA:</span>
+            ${['mais direto', 'mais cordial', 'mais formal'].map(t => `<button class="btn btn-ghost btn-sm" onclick="comVariarComIA(${jsq(t)})" ${COM.iaRodando ? 'disabled' : ''}>${t}</button>`).join('')}
+            ${COM.iaRodando ? '<span class="dica">Escrevendo…</span>' : ''}
+          </div>
+        </div>
+
+        <div class="pf-card com-passo">
+          <div class="com-passo-tit"><i>3</i><b>Enviar</b></div>
+          <div class="com-fila">
+            <div><b>${novos.length}</b><span>na fila de convite</span></div>
+            <div><b>${lembrar.length}</b><span>para lembrar (7 dias sem conta)</span></div>
+            <div><b>${enviadosHoje}/${COM.porDia}</b><span>enviados hoje</span></div>
+          </div>
+          <button class="btn btn-primary com-proximo" onclick="comProximo()" ${novos.length + lembrar.length && enviadosHoje < COM.porDia ? '' : 'disabled'}>${svg('<path d="M4 12l16-8-6 16-3-7z"/>')} Abrir o próximo no Gmail</button>
+          <div class="hint">Abre o Gmail com a mensagem pronta para uma pessoa por vez. Você confere e clica em Enviar. Um e-mail por pessoa, sem cópia oculta, até ${COM.porDia} por dia: assim as mensagens não caem no spam.</div>
+          <div class="field com-limite"><label for="comPorDia">Limite por dia</label>
+            <input id="comPorDia" type="number" min="1" max="80" value="${COM.porDia}" onchange="COM.porDia = Math.min(80, Math.max(1, parseInt(this.value, 10) || 20)); renderAll();"></div>
+          ${(fichaDe(meuEmail()) || {}).nomeCompleto ? '' : `<div class="hint">As mensagens saem assinadas com o nome de <b>Meu perfil</b>. <a href="#" onclick="setSection('perfil'); return false;">Preencher o nome completo</a></div>`}
+          <div class="com-previa" id="comPrevia">${comPreviaHtml()}</div>
+        </div>
+      </div>
+
+      ${panel('comLista', 'Contatos', `${filtrada.length} de ${lista.length}`, `
+        <div class="com-filtros">
+          <div class="chips">
+            <button class="chip ${COM.filtro === 'todos' ? 'active' : ''}" onclick="COM.filtro='todos'; renderAll();">Todos</button>
+            ${Object.entries(COM_STATUS).map(([k, v]) => `<button class="chip ${COM.filtro === k ? 'active' : ''}" onclick="COM.filtro=${jsq(k)}; renderAll();">${v.rot} ${cont(k)}</button>`).join('')}
+          </div>
+          <div class="search com-busca">${svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>')}<input type="search" placeholder="Buscar por e-mail, nome ou cidade" aria-label="Buscar contatos" value="${escapeHtml(COM.busca)}" oninput="COM.busca = this.value; clearTimeout(window.__comBusca); window.__comBusca = setTimeout(() => { const f = document.activeElement; if(f) f.blur(); renderAll(); const n = document.querySelector('.com-busca input'); if(n){ n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 400);"></div>
+        </div>
+        ${COM.carregando && !lista.length ? marcaCarregando('Carregando os contatos…')
+          : filtrada.length ? `<div class="rows com-lista">${filtrada.slice(0, 300).map(c => `
+          <div class="row-item com-contato" style="cursor:default;">
+            <div class="row-main">
+              <div class="row-title">${escapeHtml(c.nome || c.email)} <span class="pill ${(COM_STATUS[c.status] || COM_STATUS.novo).pill}">${(COM_STATUS[c.status] || COM_STATUS.novo).rot}</span></div>
+              <div class="row-sub"><span class="mono">${escapeHtml(c.email)}</span>${c.cidade ? ' · ' + escapeHtml(c.cidade) : ''}${c.enviadoEm ? ' · convidado ' + escapeHtml(fmtDate(String(c.enviadoEm).slice(0, 10))) : ''}${c.lembradoEm ? ' · lembrado ' + escapeHtml(fmtDate(String(c.lembradoEm).slice(0, 10))) : ''}</div>
+            </div>
+            <div class="row-side com-contato-acoes">
+              ${c.status !== 'nao' && c.status !== 'conta' && c.status !== 'cliente' ? `<button class="btn btn-ghost btn-sm" onclick="comEnviar(${jsq(c.id)}, 'gmail')">${c.status === 'novo' ? 'Convidar' : 'Lembrar'}</button>` : ''}
+              <select class="com-status" onchange="comMudarStatus(${jsq(c.id)}, this.value)" aria-label="Situação de ${escapeHtml(c.email)}">${Object.entries(COM_STATUS).map(([k, v]) => `<option value="${k}" ${c.status === k ? 'selected' : ''}>${v.rot}</option>`).join('')}</select>
+              <button class="icon-btn" title="Apagar contato" aria-label="Apagar ${escapeHtml(c.email)}" onclick="comRemover(${jsq(c.id)})">${svg('<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/>')}</button>
+            </div>
+          </div>`).join('')}</div>`
+          : '<div class="chart-empty">Nenhum contato aqui. Cole a lista no passo 1.</div>'}
+        <div class="hint" style="margin-top:12px;">Quem responder "remover" vai para <b>Não quer</b> e nunca mais entra na fila. Quem criar conta pelo link aparece sozinho como <b>Criou conta</b>.</div>`)}
+    </div>`;
 }
 
 function setSection(id){
@@ -4963,7 +5334,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
    A página descreve o que o sistema realmente faz com os dados — inclusive o
    que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
-const VERSAO_PRIVACIDADE = '2.1';
+const VERSAO_PRIVACIDADE = '2.2';
 const DATA_PRIVACIDADE = '15/10/2026';
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
@@ -5102,7 +5473,8 @@ const LEGAL = {
                   'Revisão IA, se usada: a sua chave do Google AI Studio e o resultado das revisões.',
                   'Assinatura da extensão: e-mail, plano e situação do pagamento informada pelo Mercado Pago.',
                   'Dados técnicos: o GitHub, que hospeda o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.',
-                  'Registros de erro: quando algo falha na tela, o sistema guarda a mensagem técnica e o rastro do erro (que pode trazer um trecho do que estava na tela), a tela, o navegador e o e-mail da conta. Só os administradores veem, para corrigir o problema. Registros com mais de 90 dias são apagados na verificação seguinte dos administradores.']],
+                  'Registros de erro: quando algo falha na tela, o sistema guarda a mensagem técnica e o rastro do erro (que pode trazer um trecho do que estava na tela), a tela, o navegador e o e-mail da conta. Só os administradores veem, para corrigir o problema. Registros com mais de 90 dias são apagados na verificação seguinte dos administradores.',
+                  'Convites: quando um administrador convida um perito por e-mail, guardamos o e-mail, o nome e a cidade informados, a situação do convite e um código de convite. Se você criou a conta por um link de convite, guardamos esse código com o seu e-mail, para saber de qual convite veio.']],
         ['p','Os autos podem conter dados sensíveis e dados de terceiros (partes, testemunhas). Anexe só o que a perícia exigir.'],
       ]},
       {t:'Para que usamos', b:[
@@ -5117,7 +5489,7 @@ const LEGAL = {
         ['lista',['execução do contrato com você (art. 7º, V, da LGPD) para a conta, o cadastro e as funções do sistema;',
                   'exercício regular de direitos em processo judicial (art. 7º, VI, e art. 11, II, "d") para os dados dos autos tratados na perícia;',
                   'cumprimento de obrigação legal (art. 7º, II) quando a lei exigir guardar ou informar dados;',
-                  'legítimo interesse (art. 7º, IX) para segurança e prevenção de fraude.']],
+                  'legítimo interesse (art. 7º, IX) para segurança e prevenção de fraude e para convidar profissionais da área por e-mail, sempre com a opção de não receber mais.']],
       ]},
       {t:'Com quem compartilhamos', b:[
         ['p','Não vendemos, alugamos nem cedemos dados, e não usamos dados para publicidade. Os serviços que participam do funcionamento são:'],
@@ -5147,6 +5519,7 @@ const LEGAL = {
         ['lista',['Acesso e correção do cadastro: direto em Meu perfil.',
                   'Correção e exclusão de perícias: direto na perícia, pelo dono.',
                   `Demais pedidos, inclusive a exclusão da conta: ${LEGAL_CONTATO}. Respondemos em até 15 dias.`,
+                  'Recebeu um convite e não quer mais mensagens: responda com "remover" e o seu e-mail sai da lista de envio para sempre.',
                   'Se não ficar satisfeito, você pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).']],
       ]},
       {t:'Menores de idade', b:[
@@ -5732,7 +6105,9 @@ function renderApresentacao(){
     <section class="lp-heroi">
       <div class="lp-lim lp-heroi-in">
         <div class="lp-heroi-txt lp-rev">
-          <span class="lp-selo">${svg('<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>')} Para peritos contábeis judiciais</span>
+          <span class="lp-selo">${veioPorConvite()
+            ? svg('<path d="M3 7l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/>') + ' Você veio pelo convite de um colega perito'
+            : svg('<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>') + ' Para peritos contábeis judiciais'}</span>
           <h1>Suas perícias em ordem, <em>dos autos ao laudo.</em></h1>
           <p>Importe os autos do PROJUDI com um clique, acompanhe cada prazo com aviso antes do vencimento, revise os documentos com IA e gere a proposta de honorários já preenchida. Tudo em um lugar, no navegador.</p>
           <div class="lp-heroi-cta">
@@ -7562,6 +7937,10 @@ function renderAll(){
   else if(activeSection === 'privacidade') view.innerHTML = renderPrivacidade();
   else if(activeSection === 'config') view.innerHTML = renderConfig();
   else if(activeSection === 'admin') view.innerHTML = renderAdmin();
+  else if(activeSection === 'comercial'){
+    const foco = document.activeElement;
+    if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderComercial();
+  }
   else if(activeSection === 'perfil'){
     const foco = document.activeElement;
     if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderMeuPerfil();
@@ -7642,8 +8021,10 @@ async function applyAuthState(){
     db = firebase.firestore();
     usingDb = true;
     usingLocalStorage = false;
+    COM.contatos = null;
     await startDbSync();
     cloudSetBanner('');   /* conta e sincronização já aparecem no rodapé da barra lateral */
+    comRegistrarConversao();
   } else {
     usingDb = false;
     db = null;
@@ -9070,7 +9451,7 @@ const PF_NAV = [
   {id:null,        itens:['visao','pericias','prazos','tarefas','agenda']},
   {id:'processos', titulo:'Processos',        itens:['importar','publicacoes','docs']},
   {id:'producao',  titulo:'Produção técnica', itens:['calculos','proposta','ia']},
-  {id:'escritorio',titulo:'Escritório',       itens:['financeiro','equipe']},
+  {id:'escritorio',titulo:'Escritório',       itens:['financeiro','equipe','comercial']},
   {id:'sistema',   titulo:'Sistema',          itens:['admin','integracoes','projudi','privacidade','config'], fechado:true},
 ];
 function pfGruposAbertos(){
@@ -9100,7 +9481,7 @@ function renderNav(){
   if(souAdmin() && ADM.sondas.some(x => x.ok === false && (x.grav === 'critico' || x.grav === 'alto'))) selos.admin = '<span class="nav-badge alert" title="pontos de segurança para corrigir">!</span>';
   const item = (id) => {
     const s = SECTIONS.find(x => x.id === id);
-    if(!s || (id === 'admin' && !souAdmin())) return '';
+    if(!s || ((id === 'admin' || id === 'comercial') && !souAdmin())) return '';
     return `<button class="nav-item ${activeSection === id ? 'active' : ''}" data-sec="${id}" onclick="setSection(${jsq(id)})" title="${escapeHtml(s.titulo)}" ${activeSection === id ? 'aria-current="page"' : ''}>
       ${svg(ICONS[id] || ICONS.docs)}<span>${escapeHtml(s.titulo)}</span>${selos[id] || ''}</button>`;
   };
@@ -9197,7 +9578,7 @@ function pfFecharPaleta(){
   document.body.classList.remove('pf-paleta-on');
 }
 function pfOpcoesPaleta(){
-  const telas = SECTIONS.filter(s => s.id !== 'admin' || souAdmin()).map(s => ({grupo:'Ir para', titulo:s.titulo, sub:s.sub, icone:ICONS[s.id] || ICONS.docs, busca:s.titulo + ' ' + s.sub, fazer:() => setSection(s.id)}));
+  const telas = SECTIONS.filter(s => (s.id !== 'admin' && s.id !== 'comercial') || souAdmin()).map(s => ({grupo:'Ir para', titulo:s.titulo, sub:s.sub, icone:ICONS[s.id] || ICONS.docs, busca:s.titulo + ' ' + s.sub, fazer:() => setSection(s.id)}));
   const pericias = casosVisiveis('todas').map(c => ({grupo:'Perícias', titulo:c.nome, sub:[c.codigo, c.numeroProcesso, c.vara].filter(Boolean).join(' · '),
     icone:ICONS.pericias, busca:[c.codigo, c.nome, c.numeroProcesso, (c.numeroProcesso || '').replace(/\D/g, ''), c.partes, c.vara].join(' '), fazer:() => openDrawer(c.id)}));
   const acoes = [

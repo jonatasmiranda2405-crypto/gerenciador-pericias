@@ -155,6 +155,34 @@ test('erros: só administradores pelo Google leem e apagam', async () => {
   await assertSucceeds(getDocs(collection(google('u-j', ANTIGA), 'erros')));
   await assertSucceeds(deleteDoc(doc(google('u-adm', ADM), 'erros/u-x_r9')));
 });
+const contato = (extra = {}) => ({ email: 'maria@exemplo.com', nome: 'Maria', cidade: 'Goiânia', origem: 'lista', status: 'novo', convite: 'abc123', criadoEm: '2026-10-15T10:00:00Z', notas: '', ...extra });
+test('comercial: só administradores pelo Google leem e gravam contatos', async () => {
+  const adm = google('u-adm', ADM);
+  await assertSucceeds(setDoc(doc(adm, 'comercial/r1abc'), contato()));
+  await assertSucceeds(getDocs(collection(adm, 'comercial')));
+  await assertSucceeds(updateDoc(doc(adm, 'comercial/r1abc'), { status: 'convidado', enviadoEm: '2026-10-15T11:00:00Z' }));
+  await assertFails(setDoc(doc(adm, 'comercial/r2abc'), contato({ status: 'vip' })));
+  await assertFails(setDoc(doc(adm, 'comercial/r3abc'), contato({ convite: 'A/B' })));
+  await assertFails(setDoc(doc(adm, 'comercial/r4abc'), contato({ extra: 1 })));
+  await assertFails(setDoc(doc(adm, 'comercial/__proto__'), contato()));
+  await assertFails(getDocs(collection(senha('u-adm', ADM), 'comercial')));
+  await assertFails(getDocs(collection(db('u-x', ESTRANHO), 'comercial')));
+  await assertFails(setDoc(doc(db('u-x', ESTRANHO), 'comercial/r5abc'), contato()));
+  await assertSucceeds(deleteDoc(doc(adm, 'comercial/r1abc')));
+});
+test('conversoes: a própria conta registra uma vez; só administradores leem', async () => {
+  const f = db('u-x', ESTRANHO);
+  const conv = (extra = {}) => ({ convite: 'abc123', email: ESTRANHO, quando: serverTimestamp(), ...extra });
+  await assertFails(setDoc(doc(f, 'conversoes/outro'), conv()));
+  await assertFails(setDoc(doc(f, 'conversoes/u-x'), conv({ email: DONO })));
+  await assertFails(setDoc(doc(f, 'conversoes/u-x'), conv({ quando: '2020-01-01' })));
+  await assertFails(setDoc(doc(f, 'conversoes/u-x'), conv({ convite: '<b>' })));
+  await assertFails(setDoc(doc(db('u-y', 'naoconfirmado@exemplo.com', false), 'conversoes/u-y'), conv({ email: 'naoconfirmado@exemplo.com' })));
+  await assertSucceeds(setDoc(doc(f, 'conversoes/u-x'), conv()));
+  await assertFails(setDoc(doc(f, 'conversoes/u-x'), conv({ convite: 'outro12' })));
+  await assertFails(getDoc(doc(f, 'conversoes/u-x')));
+  await assertSucceeds(getDocs(collection(google('u-adm', ADM), 'conversoes')));
+});
 test('coleções não previstas ficam fechadas', async () => {
   await assertFails(setDoc(doc(db('u-x', ESTRANHO), 'qualquer/coisa'), { a: 1 }));
   await assertFails(getDoc(doc(db('u-dona', DONO), 'qualquer/coisa')));

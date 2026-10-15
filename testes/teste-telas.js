@@ -369,6 +369,40 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const [rel] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click('button:has-text("Relatório em PDF")')]);
   fs.copyFileSync(await rel.path(), path.join(SAIDA, "relatorio-seguranca.pdf"));
   check("relatório de segurança em PDF", /gerenciador-pericia-seguranca-/.test(rel.suggestedFilename()));
+
+  console.log("\n14) Agente comercial");
+  check("administrador vê o Agente comercial no menu", await pf.locator('#nav .nav-item[data-sec="comercial"]').count() === 1);
+  await pf.evaluate(() => { window.__abertos = []; window.open = (u) => { window.__abertos.push(String(u)); return null; }; setSection("comercial"); });
+  await sleep(300);
+  await pf.fill("#comImport", "maria.souza@exemplo.com; Maria Souza; Goiânia\nMARIA.SOUZA@exemplo.com; repetida\nlinha sem email\njoao@exemplo.com; João Lima\n<script>@x.com");
+  await pf.click('button:has-text("Adicionar à lista")');
+  await sleep(300);
+  const comTxt = await pf.textContent("#view");
+  check("importa, ignora repetido e linha sem e-mail", await pf.evaluate(() => COM.contatos.length) === 2 && /2 contatos novos/.test(comTxt) && /1 já estava/.test(comTxt) && /2 linhas sem e-mail válido/.test(comTxt), comTxt.match(/\d+ contatos? nov[^·]*(·[^·]*){0,2}/)?.[0]);
+  check("prévia preenche nome e link de convite único", await pf.evaluate(() => { const p = document.getElementById("comPrevia").textContent; return /Olá, (Maria|João)!/.test(p) && /\?convite=[a-z0-9]{6,}/.test(p) && /remover/.test(p); }));
+  await pf.click('button:has-text("Abrir o próximo no Gmail")');
+  await sleep(300);
+  const aberto = await pf.evaluate(() => window.__abertos[0] || "");
+  check("abre o Gmail para uma pessoa só, com assunto e texto", /^https:\/\/mail\.google\.com\/mail\/\?view=cm/.test(aberto) && /&to=[^&,%]+%40exemplo\.com&su=/.test(aberto) && /convite%3D/.test(aberto), aberto.slice(0, 120));
+  check("contato vira 'Convidado' e conta no limite do dia", await pf.evaluate(() => COM.contatos.filter((c) => c.status === "convidado").length === 1 && comEnviadosHoje() === 1));
+  await pf.evaluate(() => { const c = COM.contatos.find((x) => x.status === "convidado"); c.enviadoEm = new Date(Date.now() - 8 * 864e5).toISOString(); renderAll(); });
+  check("depois de 7 dias sem conta, entra na fila de lembrete", await pf.evaluate(() => comFila().lembrar.length === 1));
+  await pf.evaluate(() => { const c = COM.contatos.find((x) => x.status === "novo"); comMudarStatus(c.id, "nao"); });
+  await sleep(200);
+  check("quem não quer sai da fila", await pf.evaluate(() => comFila().novos.length === 0));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-comercial.png"), fullPage: true });
+  {
+    const pc = await ctx.newPage();
+    await pc.goto(PF + (PF.includes("?") ? "&" : "?") + "convite=abc123", { waitUntil: "domcontentloaded" });
+    await sleep(500);
+    const r = await pc.evaluate(() => ({ cv: localStorage.getItem("pf_convite"), url: location.href, selo: document.body.textContent.includes("convite de um colega") }));
+    check("link de convite: código guardado, some do endereço e a apresentação avisa", r.cv === "abc123" && !/convite=/.test(r.url), JSON.stringify(r));
+    await pc.evaluate(() => localStorage.removeItem("pf_convite"));
+    await pc.close();
+  }
+  await pf.evaluate(() => { currentUser = { email: "estranho@exemplo.com", emailVerified: true, providerData: [] }; renderAll(); setSection("comercial"); });
+  await sleep(200);
+  check("conta comum não vê o Agente comercial", /Área restrita/.test(await pf.textContent("#view")) && await pf.locator('#nav .nav-item[data-sec="comercial"]').count() === 0);
   await pf.evaluate(() => { currentUser = null; perfil.adminFeitos = {}; setSection("visao"); });
 
   console.log("\n9) Barra lateral e paleta de comandos");
