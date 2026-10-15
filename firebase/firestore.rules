@@ -1,0 +1,125 @@
+rules_version = '2';
+
+// Regras do Cloud Firestore do PeríciaFlow.
+// Publicar: Firebase Console > Firestore Database > Regras (cole este arquivo e clique em Publicar)
+// ou `firebase deploy --only firestore:rules`. Testes em firebase/testes/ (rodam no GitHub Actions).
+//
+// Modelo de acesso:
+//   usuarios/{uid}         só o próprio usuário (cadastro, preferências, chave da IA)
+//   casos/{casoId}         lê quem está em `emails`; altera quem está em `editores` (só o `dono`
+//                          tira ou rebaixa alguém); apaga só o `dono`
+//   casos/{id}/documentos  lê quem lê a perícia; grava quem edita a perícia
+//   config/*               só leitura, só para as três contas antigas (migração do cadastro)
+//   todo o resto           fechado
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() {
+      return request.auth != null;
+    }
+    function verificado() {
+      return logado()
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function email() {
+      return request.auth.token.email.lower();
+    }
+    function legado() {
+      return verificado() && email() in [
+        'jonatasmiranda2405@gmail.com',
+        'rodrigodosantosmiranda@gmail.com',
+        'periciamiranda@gmail.com'
+      ];
+    }
+    function idValido(id) {
+      return id.matches('^[A-Za-z0-9_-]{1,150}$');
+    }
+
+    // ---------- perfil pessoal ----------
+    match /usuarios/{uid} {
+      allow read, delete: if logado() && request.auth.uid == uid;
+      // o e-mail gravado no perfil, quando existe, é sempre o da própria conta
+      allow create, update: if logado() && request.auth.uid == uid
+        && (!('email' in request.resource.data)
+            || request.resource.data.email == ''
+            || request.resource.data.email.lower() == request.auth.token.email.lower());
+    }
+
+    // ---------- legado (só leitura, contas antigas) ----------
+    match /config/{doc} {
+      allow read: if legado();
+      allow write: if false;
+    }
+
+    // ---------- perícias ----------
+    // Escrito como `email() in d.emails` para o Firestore conseguir provar a consulta
+    // where('emails', 'array-contains', email) sem ler documento por documento.
+    function ehMembro(d) {
+      return email() in d.emails;
+    }
+    function ehEditor(d) {
+      return email() in d.editores;
+    }
+    function semAcessos(d) {
+      return !('dono' in d) || !('emails' in d) || !('editores' in d);
+    }
+    // Estrutura de acesso que toda perícia gravada precisa manter.
+    function acessosCoerentes(d) {
+      return d.dono is string
+        && d.emails is list && d.editores is list
+        && d.emails.size() >= 1 && d.emails.size() <= 50
+        && d.editores.size() >= 1
+        && d.dono in d.emails
+        && d.dono in d.editores
+        && d.emails.hasAll(d.editores)
+        && (!('compartilhamentos' in d) || (d.compartilhamentos is list && d.compartilhamentos.size() <= 50));
+    }
+
+    match /casos/{casoId} {
+      allow read: if verificado()
+        && (ehMembro(resource.data) || (semAcessos(resource.data) && legado()));
+
+      allow create: if verificado()
+        && idValido(casoId)
+        && acessosCoerentes(request.resource.data)
+        && request.resource.data.dono == email();
+
+      allow update: if verificado()
+        && acessosCoerentes(request.resource.data)
+        && (
+          // dono: altera tudo, menos a própria posição de dono
+          ('dono' in resource.data && resource.data.dono == email() && request.resource.data.dono == resource.data.dono)
+          // editor: altera a perícia e pode convidar, mas não tira nem rebaixa ninguém
+          || (ehEditor(resource.data)
+              && request.resource.data.dono == resource.data.dono
+              && request.resource.data.emails.hasAll(resource.data.emails)
+              && request.resource.data.editores.hasAll(resource.data.editores))
+          // migração das perícias antigas, feita por uma das contas antigas
+          || (semAcessos(resource.data) && legado())
+        );
+
+      allow delete: if verificado()
+        && (('dono' in resource.data && resource.data.dono == email())
+            || (semAcessos(resource.data) && legado()));
+
+      match /documentos/{docId} {
+        function caso() {
+          return get(/databases/$(database)/documents/casos/$(casoId)).data;
+        }
+        allow read: if verificado()
+          && (ehMembro(caso()) || (semAcessos(caso()) && legado()));
+        allow create, update: if verificado()
+          && idValido(docId)
+          && (ehEditor(caso()) || (semAcessos(caso()) && legado()));
+        allow delete: if verificado()
+          && (ehEditor(caso()) || (semAcessos(caso()) && legado()));
+      }
+    }
+
+    // Qualquer outro caminho: fechado.
+    match /{caminho=**} {
+      allow read, write: if false;
+    }
+  }
+}

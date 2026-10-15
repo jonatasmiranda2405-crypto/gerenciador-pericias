@@ -1,0 +1,13 @@
+{
+  "name": "periciaflow-regras-testes",
+  "private": true,
+  "description": "Testes das regras do Firestore e do Storage do PeríciaFlow (rodam no emulador do Firebase).",
+  "scripts": {
+    "test": "firebase emulators:exec --config ../firebase.json --only firestore,storage --project demo-periciaflow \"node --test --test-reporter=./anotar.mjs regras.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.13.2",
+    "firebase-tools": "^13.35.1"
+  }
+}
