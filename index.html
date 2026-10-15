@@ -3,16 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Segurança: de onde a página aceita carregar e para onde pode mandar dados. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<script>
+  /* Anti-clickjacking: o PeríciaFlow nunca roda dentro de moldura de outro site. */
+  if(window.top !== window.self){
+    try{ window.top.location.replace(window.self.location.href); }
+    catch(e){ document.documentElement.style.display = 'none'; }
+  }
+</script>
 <title>PeríciaFlow — Perícia contábil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Montserrat:wght@600;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+<!-- Bibliotecas servidas pelo próprio site (pasta vendor/): nenhum script de terceiros no carregamento. -->
+<script src="vendor/jszip-3.10.1.min.js"></script>
+<script src="vendor/pdfjs-2.16.105/pdf.min.js"></script>
+<script src="vendor/firebase-10.13.2/firebase-app-compat.js"></script>
+<script src="vendor/firebase-10.13.2/firebase-auth-compat.js"></script>
+<script src="vendor/firebase-10.13.2/firebase-firestore-compat.js"></script>
+<script src="vendor/firebase-10.13.2/firebase-storage-compat.js"></script>
 <style>
 :root{
   color-scheme: light;
@@ -1058,6 +1069,70 @@ body.rail .pf-rodape{flex-direction:column;}
   .cfg-bloco, .pf-perfil-topo{padding:18px 16px;}
   .cfg-todos{width:100%; justify-content:center;}
 }
+
+/* ---------- Termos, privacidade e segurança ---------- */
+.lg{display:flex; flex-direction:column; gap:18px;}
+.lg-topo{display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--line);}
+.lg-abas{display:flex; gap:4px; overflow-x:auto; scrollbar-width:none;}
+.lg-aba{position:relative; padding:10px 14px 12px; background:none; border:0; font:inherit; font-size:13.5px; font-weight:500; color:var(--muted); cursor:pointer; white-space:nowrap;}
+.lg-aba:hover{color:var(--ink);}
+.lg-aba.on{color:var(--ink); font-weight:600;}
+.lg-aba.on::after{content:''; position:absolute; left:10px; right:10px; bottom:-1px; height:2px; border-radius:2px; background:var(--accent);}
+.lg-meta{display:flex; align-items:center; gap:12px; padding-bottom:8px; font-size:12px; color:var(--muted);}
+.lg-pdf{display:inline-flex; align-items:center; gap:6px;}
+.lg-pdf svg{width:15px; height:15px;}
+.lg-pendente{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 14px; border:1px solid var(--warn); background:var(--warn-soft); color:var(--warn); border-radius:12px; font-size:13px;}
+.lg-pendente svg{width:18px; height:18px; flex-shrink:0;}
+.lg-pendente span{flex:1; min-width:200px;}
+.lg-corpo{display:grid; grid-template-columns:220px minmax(0, 1fr); gap:40px; align-items:start;}
+.lg-indice{position:sticky; top:18px; display:flex; flex-direction:column; gap:1px; max-height:calc(100vh - 40px); overflow:auto; padding-right:4px;}
+.lg-indice-tit{font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:0 10px 8px;}
+.lg-indice-item{display:flex; gap:8px; align-items:baseline; text-align:left; padding:6px 10px; border:0; border-left:2px solid transparent; background:none; font:inherit; font-size:12.5px; line-height:1.4; color:var(--muted); cursor:pointer; border-radius:0 6px 6px 0;}
+.lg-indice-item span{font-variant-numeric:tabular-nums; min-width:16px; color:var(--muted);}
+.lg-indice-item:hover{color:var(--ink); background:var(--surface-2);}
+.lg-indice-item.on{color:var(--accent-deep); border-left-color:var(--accent); font-weight:600;}
+.lg-texto{max-width:720px; color:var(--ink-2); font-size:14.5px; line-height:1.72;}
+.lg-texto h1{margin:0; font-size:28px; line-height:1.2; font-weight:600; color:var(--ink); letter-spacing:-.01em;}
+.lg-resumo{margin:8px 0 22px; font-size:15.5px; color:var(--muted);}
+.lg-curto{padding:16px 20px; border-radius:14px; background:var(--accent-soft); color:var(--ink); margin-bottom:12px;}
+.lg-curto b{display:block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-deep); margin-bottom:6px;}
+.lg-curto ul{margin:0; padding-left:18px;}
+.lg-curto li{margin:3px 0; font-size:14px; line-height:1.6;}
+.lg-sec{scroll-margin-top:20px; padding-top:22px;}
+.lg-sec h2{margin:0 0 8px; font-size:17px; font-weight:600; color:var(--ink); line-height:1.35;}
+.lg-sec h2 span{color:var(--accent-deep); font-variant-numeric:tabular-nums; margin-right:2px;}
+.lg-sec p{margin:0 0 10px;}
+.lg-sec ul, .lg-sec ol{margin:0 0 10px; padding-left:20px;}
+.lg-sec li{margin:4px 0;}
+.lg-aviso{margin:6px 0 12px; padding:12px 16px; border-left:3px solid var(--danger); background:var(--danger-soft); border-radius:0 10px 10px 0; color:var(--ink);}
+.lg-aviso b{display:block; color:var(--danger); font-size:13.5px; margin-bottom:2px;}
+.lg-aviso p{margin:0; font-size:14px;}
+.lg-dica{border-left-color:var(--accent); background:var(--accent-soft);}
+.lg-pe{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted);}
+.lg-link{display:inline; padding:0; margin:0; border:0; background:none; font:inherit; color:var(--accent-deep); text-decoration:underline; text-underline-offset:2px; cursor:pointer;}
+.lg-link:hover{color:var(--accent);}
+.lg-links{display:inline-flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:11.5px; color:var(--muted);}
+.lg-aceite-login{margin-top:10px !important; font-size:12px !important;}
+.aceite-pontos{margin:0 0 12px; padding-left:18px; font-size:13.5px; line-height:1.6; color:var(--ink-2); text-align:left;}
+.aceite-pontos li{margin:4px 0;}
+.lg-modal{position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(10,16,20,.55); backdrop-filter:blur(2px);}
+.lg-modal.aberto{display:flex;}
+.lg-modal-caixa{position:relative; width:min(1060px, 100%); height:min(88vh, 900px); background:var(--ground); border:1px solid var(--line); border-radius:16px; box-shadow:0 30px 80px -20px rgba(0,0,0,.45); overflow:hidden;}
+.lg-modal-rolagem{height:100%; overflow:auto; padding:22px 28px 30px;}
+.lg-modal-fechar{position:absolute; top:12px; right:12px; z-index:2; background:var(--surface);}
+.lg-modal-corpo .lg-topo{padding-right:44px;}
+.lg-modal-corpo .lg-indice{top:0;}
+@media (max-width:900px){
+  .lg-corpo{grid-template-columns:1fr; gap:10px;}
+  .lg-indice{position:static; max-height:none; flex-direction:row; flex-wrap:wrap; gap:6px; padding:0;}
+  .lg-indice-tit{display:none;}
+  .lg-indice-item{border:1px solid var(--line); border-radius:20px; padding:5px 11px;}
+  .lg-indice-item.on{border-color:var(--accent);}
+  .lg-texto h1{font-size:23px;}
+  .lg-modal{padding:0;}
+  .lg-modal-caixa{height:100%; border-radius:0;}
+  .lg-modal-rolagem{padding:18px 16px 26px;}
+}
 </style>
 </head>
 <body>
@@ -1524,7 +1599,7 @@ const SECTIONS = [
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'integracoes', titulo:'Integrações', sub:'O que liga o PeríciaFlow aos tribunais e serviços'},
-  {id:'privacidade', titulo:'Privacidade', sub:'Como os dados são guardados, quem vê e quais são os seus direitos'},
+  {id:'privacidade', titulo:'Termos e privacidade', sub:'Termos de uso, política de privacidade e segurança'},
   {id:'config',   titulo:'Configurações', sub:'Tema, cores e manuais de uso'},
   {id:'perfil',   titulo:'Meu perfil',    sub:'Seu cadastro profissional, conta e acesso ao PROJUDI'},
 ];
@@ -1602,6 +1677,31 @@ const fmtMoney = v => (v||0).toLocaleString('pt-BR', {style:'currency', currency
 const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-BR') : '—';
 const todayIso = () => new Date().toISOString().slice(0,10);
 
+/* Argumento de texto para atributos on*="...": vira um literal JS entre aspas simples em que
+   aspas, barra, <, >, & e quebras de linha saem como \uXXXX. Assim nenhum dado (id, e-mail,
+   nome vindo de perícia compartilhada ou da IA) consegue fechar a string nem o atributo. */
+function jsq(v){
+  return "'" + String(v ?? '').replace(/[\\'"<>&\n\r\u2028\u2029`$]/g, c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0')) + "'";
+}
+/* Dados que chegam da nuvem passam por aqui antes de virar tela: ids fora do padrão e
+   e-mails malformados não entram (eles iriam para atributos e chamadas de função). */
+const ID_SEGURO = /^[A-Za-z0-9_-]{1,150}$/;
+const EMAIL_SEGURO = /^[^\s@'"<>\\`]+@[^\s@'"<>\\`]+\.[^\s@'"<>\\`]{2,}$/;
+function idLimpo(v){
+  const s = String(v ?? '');
+  return ID_SEGURO.test(s) ? s : (s.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 150) || 'x');
+}
+function limparCaso(c){
+  const o = {...c};
+  ['tarefas', 'compromissos', 'observacoes'].forEach(k => {
+    if(Array.isArray(o[k])) o[k] = o[k].filter(x => x && typeof x === 'object').map(x => ({...x, id: idLimpo(x.id)}));
+  });
+  ['emails', 'editores'].forEach(k => {
+    if(Array.isArray(o[k])) o[k] = o[k].map(e => String(e || '').toLowerCase()).filter(e => EMAIL_SEGURO.test(e));
+  });
+  if(Array.isArray(o.compartilhamentos)) o.compartilhamentos = o.compartilhamentos.filter(x => x && EMAIL_SEGURO.test(String(x.email || '')));
+  return o;
+}
 function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
@@ -1666,7 +1766,15 @@ function mimeFromDataUrl(dataUrl){
   const m = dataUrl && dataUrl.match(/^data:([^;]+);/);
   return m ? m[1] : 'application/octet-stream';
 }
-function arquivoSrc(arquivo){ return arquivo.url || arquivo.dataUrl; }
+/* Só dois tipos de endereço são aceitos para um arquivo anexado: o do Firebase Storage e um
+   data: de tipo inofensivo. Qualquer outro (javascript:, http:, data:text/html...) vira vazio,
+   para que um dado adulterado numa perícia compartilhada não vire código rodando aqui. */
+function arquivoSrc(arquivo){
+  const u = String((arquivo && (arquivo.url || arquivo.dataUrl)) || '');
+  if(/^https:\/\/firebasestorage\.googleapis\.com\//.test(u)) return u;
+  if(/^data:(application\/(pdf|zip|octet-stream|msword|vnd\.[a-z0-9.+-]+)|image\/(png|jpe?g|gif|webp)|text\/(plain|csv));base64,/i.test(u.slice(0, 120))) return u;
+  return '';
+}
 function arquivoMime(arquivo){ return arquivo.mime || mimeFromDataUrl(arquivo.dataUrl); }
 function guessCodigoAcessoFromText(text){
   // O PROJUDI diferencia maiúsculas de minúsculas no código: guardar exatamente como veio.
@@ -1699,7 +1807,7 @@ function ensurePdfJs(){
   if(typeof pdfjsLib === 'undefined') return false;
   if(!pdfJsReady){
     try{
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs-2.16.105/pdf.worker.min.js';
       pdfJsReady = true;
     }catch(e){ return false; }
   }
@@ -1803,7 +1911,7 @@ function panel(id, titulo, nota, corpo){
   const fechado = panelsFechados.has(id);
   return `
     <section class="panel ${fechado ? 'collapsed' : ''}" data-panel="${id}">
-      <button class="panel-head" onclick="togglePanel('${id}')" aria-expanded="${!fechado}" aria-controls="pb-${id}">
+      <button class="panel-head" onclick="togglePanel(${jsq(id)})" aria-expanded="${!fechado}" aria-controls="pb-${id}">
         <span class="panel-caret">${svg('<path d="M6 9l6 6 6-6"/>')}</span>
         <h3>${titulo}</h3>
         ${nota ? `<span class="note">${nota}</span>` : ''}
@@ -1856,7 +1964,7 @@ function renderNavOriginal(){
     tarefas: (() => { const n = pfTarefasAbertas().length; return n ? `<span class="nav-badge">${n}</span>` : ''; })(),
   };
   document.getElementById('nav').innerHTML = SECTIONS.map(s => `
-    <button class="nav-item ${activeSection===s.id?'active':''}" onclick="setSection('${s.id}')" title="${s.titulo}">
+    <button class="nav-item ${activeSection===s.id?'active':''}" onclick="setSection(${jsq(s.id)})" title="${s.titulo}">
       ${svg(ICONS[s.id])}
       <span>${s.titulo}</span>
       ${badges[s.id] || ''}
@@ -2043,7 +2151,7 @@ function renderPericias(){
   return `
     <div class="section-gap">
       <div class="chips visoes">
-        ${VISOES.map(v => `<button class="chip ${activeVisao===v.id?'active':''}" onclick="setVisao('${v.id}')">${v.label}<span class="chip-num">${contarVisao(v.id)}</span></button>`).join('')}
+        ${VISOES.map(v => `<button class="chip ${activeVisao===v.id?'active':''}" onclick="setVisao(${jsq(v.id)})">${v.label}<span class="chip-num">${contarVisao(v.id)}</span></button>`).join('')}
       </div>
       <div class="topbar-tools" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
         <div class="search">
@@ -2051,7 +2159,7 @@ function renderPericias(){
           <input id="searchInput" type="text" value="${escapeHtml(searchQuery)}" placeholder="Buscar por código, nome, processo, comarca ou partes" oninput="onSearch()">
         </div>
         <div class="chips">
-          ${chips.map(([k,label]) => `<button class="chip ${activeFilter===k?'active':''}" onclick="setFilter('${k}')">${label}</button>`).join('')}
+          ${chips.map(([k,label]) => `<button class="chip ${activeFilter===k?'active':''}" onclick="setFilter(${jsq(k)})">${label}</button>`).join('')}
         </div>
       </div>
       ${resumo}
@@ -2083,7 +2191,7 @@ function cardCaso(c){
   const st = prazoState(c);
   const saldo = Math.max(0,(c.honorarios||0)-(c.valorRecebido||0));
   return `
-    <div class="case" onclick="openDrawer('${c.id}')">
+    <div class="case" onclick="openDrawer(${jsq(c.id)})">
       <span class="case-code">${escapeHtml(c.codigo)}</span>
       <div class="case-title">
         <div class="case-name">${escapeHtml(c.nome)}</div>
@@ -2123,7 +2231,7 @@ function rowPrazo(c){
   else if(dias === 0) quando = 'vence hoje';
   else quando = `em ${dias} dia${dias===1?'':'s'}`;
   return `
-    <div class="row-item" onclick="openDrawer('${c.id}')">
+    <div class="row-item" onclick="openDrawer(${jsq(c.id)})">
       <div class="row-main">
         <div class="row-title">${escapeHtml(c.nome)}</div>
         <div class="row-sub"><span class="mono">${escapeHtml(c.codigo)}</span> · ${escapeHtml(c.partes)} · ${escapeHtml(c.vara||'vara não informada')}</div>
@@ -2190,7 +2298,7 @@ function renderDocs(){
         </div>
         <div class="chips">
           <button class="chip ${docFiltroTipo==='todos'?'active':''}" onclick="setDocTipo('todos')">Todos</button>
-          ${tiposPresentes.map(t => `<button class="chip ${docFiltroTipo===t?'active':''}" onclick="setDocTipo('${escapeHtml(t).replace(/'/g,"\\'")}')">${escapeHtml(t)}</button>`).join('')}
+          ${tiposPresentes.map(t => `<button class="chip ${docFiltroTipo===t?'active':''}" onclick="setDocTipo(${jsq(t)})">${escapeHtml(t)}</button>`).join('')}
         </div>
       </div>
 
@@ -2200,7 +2308,7 @@ function renderDocs(){
             panel('doc'+i, escapeHtml(fase), `${items.length} documento${items.length===1?'':'s'}`, `
                 <div class="rows">
                   ${items.map(d => `
-                    <div class="row-item" onclick="abrirDocumento('${d.caso.id}','${d.id}')">
+                    <div class="row-item" onclick="abrirDocumento(${jsq(d.caso.id)},${jsq(d.id)})">
                       <div class="row-main">
                         <div class="row-title">${escapeHtml(d.nome)}</div>
                         <div class="row-sub"><span class="mono">${escapeHtml(d.caso.codigo)}</span> · ${escapeHtml(d.caso.nome)}${d.tamanho ? ' · '+fmtBytes(d.tamanho) : ''}</div>
@@ -2514,13 +2622,13 @@ function blocoAcoes(aba){
   const lista = casosVisiveis();
   return `
     <div class="acoes" style="margin-top:16px;">
-      <button class="btn btn-ghost btn-sm" onclick="exportarCSV('${aba}')">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')} Exportar planilha</button>
-      <button class="btn btn-ghost btn-sm" onclick="copiarLaudo('${aba}')">${svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>')} Copiar para o laudo</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportarCSV(${jsq(aba)})">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')} Exportar planilha</button>
+      <button class="btn btn-ghost btn-sm" onclick="copiarLaudo(${jsq(aba)})">${svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>')} Copiar para o laudo</button>
       ${lista.length ? `
         <select id="calcCaso" style="border:1px solid var(--line); border-radius:7px; padding:7px 9px; font-size:12.5px; background:var(--ground); color:var(--ink); font-family:inherit; max-width:230px;">
           ${lista.map(c => `<option value="${c.id}">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</option>`).join('')}
         </select>
-        <button class="btn btn-primary btn-sm" onclick="anexarCalculo('${aba}')">Anexar à perícia</button>
+        <button class="btn btn-primary btn-sm" onclick="anexarCalculo(${jsq(aba)})">Anexar à perícia</button>
       ` : `<span class="dica" style="font-size:11.5px; color:var(--muted);">Cadastre uma perícia para poder anexar o cálculo.</span>`}
       <span id="calcAviso" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
     </div>`;
@@ -3041,7 +3149,7 @@ function renderCalculos(){
   return `
     <div class="section-gap">
       <div class="chips">
-        ${CALC_ABAS.map(a => `<button class="chip ${calcAba===a.id?'active':''}" onclick="setCalcAba('${a.id}')">${a.nome}</button>`).join('')}
+        ${CALC_ABAS.map(a => `<button class="chip ${calcAba===a.id?'active':''}" onclick="setCalcAba(${jsq(a.id)})">${a.nome}</button>`).join('')}
       </div>
       ${panel('calcForm', aba.nome, aba.sub, aba.form())}
       <div id="calcSaidaBox">${calcSaida[calcAba] || ''}</div>
@@ -3891,13 +3999,13 @@ function linhaCompartilhamento(c, email, editavel){
       <div class="row-side" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
         ${dono
           ? '<span class="pill pill-accent">Dono</span>'
-          : `<select onchange="mudarNivel('${c.id}','${escapeHtml(email)}',this.value)" ${editavel?'':'disabled'} style="padding:4px 8px; font-size:12px;">
+          : `<select onchange="mudarNivel(${jsq(c.id)},${jsq(email)},this.value)" ${editavel?'':'disabled'} style="padding:4px 8px; font-size:12px;">
                <option value="editar" ${nivel==='editar'?'selected':''}>Pode editar</option>
                <option value="leitura" ${nivel==='leitura'?'selected':''}>Somente leitura</option>
              </select>
-             <button class="btn btn-ghost btn-sm" onclick="abrirConvite('${c.id}','${escapeHtml(email)}')" title="Abrir no seu programa de e-mail">Enviar convite</button>
-             <button class="btn btn-ghost btn-sm" onclick="copiarConvite('${c.id}','${escapeHtml(email)}','${avisoId}')" title="Copiar o texto do convite">Copiar</button>
-             ${editavel ? `<button class="btn btn-ghost btn-sm" onclick="descompartilhar('${c.id}','${escapeHtml(email)}')">Remover</button>` : ''}`}
+             <button class="btn btn-ghost btn-sm" onclick="abrirConvite(${jsq(c.id)},${jsq(email)})" title="Abrir no seu programa de e-mail">Enviar convite</button>
+             <button class="btn btn-ghost btn-sm" onclick="copiarConvite(${jsq(c.id)},${jsq(email)},${jsq(avisoId)})" title="Copiar o texto do convite">Copiar</button>
+             ${editavel ? `<button class="btn btn-ghost btn-sm" onclick="descompartilhar(${jsq(c.id)},${jsq(email)})">Remover</button>` : ''}`}
       </div>
       <span id="${avisoId}" class="row-full dica" style="text-align:right; color:var(--accent-deep);"></span>
     </div>`;
@@ -3915,7 +4023,7 @@ function renderCompartilhamento(c){
       <div class="form-grid" style="margin:14px 0 0;">
         <div class="field" style="grid-column:1/-1;"><label for="shareEmail-${c.id}">Compartilhar com</label>
           <input id="shareEmail-${c.id}" type="email" placeholder="email@exemplo.com"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();enviarCompartilhamento('${c.id}')}">
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();enviarCompartilhamento(${jsq(c.id)})}">
           <span class="dica">A pessoa entra com a conta Google desse e-mail. Se ainda não estiver na equipe, entra como convidada.</span></div>
         <div class="field"><label for="shareNivel-${c.id}">Acesso</label>
           <select id="shareNivel-${c.id}">
@@ -3924,7 +4032,7 @@ function renderCompartilhamento(c){
           </select></div>
       </div>
       <div class="acoes" style="margin-top:10px;">
-        <button class="btn btn-primary btn-sm" onclick="enviarCompartilhamento('${c.id}')">Compartilhar</button>
+        <button class="btn btn-primary btn-sm" onclick="enviarCompartilhamento(${jsq(c.id)})">Compartilhar</button>
         <span id="shareAviso-${c.id}" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
       </div>`
       : `<div class="hint">Você tem acesso somente de leitura nesta perícia, então não pode alterar quem mais a enxerga.</div>`}`;
@@ -3985,7 +4093,7 @@ function renderEquipe(){
             ${avatarMembro(m, 30)}
             <div class="row-main">
               <input value="${escapeHtml(naAgenda ? m.nome : '')}" placeholder="${escapeHtml(m.nome)}"
-                     onchange="definirContato('${escapeHtml(m.email)}', this.value)"
+                     onchange="definirContato(${jsq(m.email)}, this.value)"
                      style="font-size:13.5px; font-weight:500; padding:4px 7px; border:1px solid transparent; border-radius:6px; background:transparent; color:var(--ink); width:100%;"
                      onfocus="this.style.borderColor='var(--line-strong)'; this.style.background='var(--ground)'"
                      onblur="this.style.borderColor='transparent'; this.style.background='transparent'">
@@ -4007,7 +4115,7 @@ function renderEquipe(){
     : `<div class="rows">${recebidas.map(c => {
         const d = membroDe(donoDe(c));
         return `
-        <div class="row-item com-avatar" onclick="openDrawer('${c.id}')">
+        <div class="row-item com-avatar" onclick="openDrawer(${jsq(c.id)})">
           ${avatarMembro(d, 28)}
           <div class="row-main">
             <div class="row-title">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</div>
@@ -4025,7 +4133,7 @@ function renderEquipe(){
     : `<div class="rows">${enviadas.map(c => {
         const outros = acessosDe(c).filter(e => e !== donoDe(c));
         return `
-        <div class="row-item" onclick="openDrawer('${c.id}')">
+        <div class="row-item" onclick="openDrawer(${jsq(c.id)})">
           <div class="row-main">
             <div class="row-title">${escapeHtml(c.codigo)} — ${escapeHtml(c.nome)}</div>
             <div class="row-sub">${outros.map(e => escapeHtml(membroDe(e).nome) + (editoresDe(c).includes(e) ? '' : ' (leitura)')).join(' · ')}</div>
@@ -4116,8 +4224,8 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
    A página descreve o que o sistema realmente faz com os dados — inclusive o
    que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
-const VERSAO_PRIVACIDADE = '1.1';
-const DATA_PRIVACIDADE = '01/10/2026';
+const VERSAO_PRIVACIDADE = '2.0';
+const DATA_PRIVACIDADE = '15/10/2026';
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
 function meuAceite(){
@@ -4141,84 +4249,381 @@ async function registrarAceite(){
 
 function selo(pequeno){
   return `
-    <button class="selo ${pequeno ? 'selo-sm' : ''}" onclick="setSection('privacidade')" title="Ver como os dados são tratados">
+    <button class="selo ${pequeno ? 'selo-sm' : ''}" onclick="verLegal('privacidade')" title="Ver como os dados são tratados">
       ${svg('<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>')}
       <span>Dados protegidos<b>LGPD · v${VERSAO_PRIVACIDADE}</b></span>
     </button>`;
 }
 
-const TOPICOS_PRIVACIDADE = [
-  ['Quem é o responsável',
-   'O controlador dos dados é o perito ou o escritório que mantém esta conta. Os dados de contato para exercer os direitos abaixo são os que constam em Meu perfil, no cadastro do perito responsável pela perícia.'],
-  ['Que dados o sistema guarda',
-   'Dados do processo (número, vara, comarca, partes, prazos e valores de honorários), os documentos que você anexa, os comentários que escreve, e o cadastro profissional de cada perito: nome, registro no CRC, CPF, telefone e endereço. Da conta de acesso, o sistema guarda o e-mail e, quando a entrada é pelo Google, o nome e a foto do perfil. Se você usar a Análise IA, o perfil guarda também a sua chave da API do Gemini e o texto das análises geradas.'],
-  ['Onde os dados ficam',
-   'Em serviços do Google Cloud contratados por meio do Firebase: o cadastro das perícias no Cloud Firestore e os arquivos no Cloud Storage. O tráfego entre o seu navegador e esses serviços é cifrado por HTTPS. Não há servidor próprio nem cópia em outro provedor.'],
-  ['Quem consegue ver',
-   'Somente as contas cadastradas em Equipe conseguem entrar. Dentro do sistema, cada perícia é visível apenas para quem a criou e para quem recebeu acesso dela — e isso é verificado no servidor, documento a documento, não só na tela. Um titular pode incluir e remover pessoas da equipe a qualquer momento.'],
-  ['O que o sistema não protege',
-   'O link de download de um arquivo anexado é gerado pelo Firebase Storage e funciona para quem tiver o endereço completo, mesmo sem login. Esse link só aparece para quem já tem acesso à perícia, mas se ele for repassado por fora, quem o receber consegue abrir o arquivo. Trate esses endereços como o próprio documento.'],
-  ['Compartilhamento com terceiros',
-   'Os dados não são vendidos, cedidos nem usados para publicidade. O sistema não tem rastreadores, pixels de anúncio nem ferramentas de análise de comportamento. Os serviços externos acionados são o Firebase, para autenticação e armazenamento, o Google Fonts, para as fontes da interface, a API pública do Banco Central, usada apenas para buscar índices de correção quando você roda um cálculo — nessa consulta não vai nenhum dado do processo — e, se você ligar a Análise IA, a API do Gemini, do Google, que é o único caso em que conteúdo do processo sai para fora. O item seguinte trata disso em detalhe.'],
-  ['Armazenamento no navegador',
-   'O app guarda no seu navegador as preferências de tema e paleta, a última seção aberta, o modelo de proposta importado e uma cópia local das perícias para funcionar quando você está sem conexão. Nada disso é enviado a terceiros. Limpar os dados do site apaga essa cópia local.'],
-  ['Por quanto tempo',
-   'Os dados de uma perícia permanecem enquanto ela existir no sistema. Excluir a perícia remove o registro, os comentários e os documentos, inclusive os arquivos no Storage. A remoção é definitiva e não há backup automático acessível pelo app.'],
-  ['Seus direitos',
-   'A Lei Geral de Proteção de Dados assegura confirmação de tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamento e eliminação dos dados. Dentro do sistema, o acesso e a correção são diretos: cada perito edita o próprio cadastro em Meu perfil, e o dono de cada perícia edita ou exclui os dados dela. Para os demais pedidos, procure o controlador indicado no primeiro item.'],
-  ['Análise por IA, quando você liga',
-   'A aba Análise IA é opcional e só funciona depois que você guarda a sua própria chave do Google AI Studio e dá um aceite específico. Ligada, ela envia para a API do Gemini, do Google, a ficha da perícia, as suas anotações, o rascunho da proposta e o texto extraído dos PDFs anexados — ou seja, conteúdo do processo sai do seu controle nesse momento, e esse envio passa a ser regido pelos termos da API do Google, não por este app. Em processo sob segredo de justiça, pense duas vezes antes de usar. Sem chave guardada, nada é enviado; com a chave guardada, só é enviado quando você clica em Analisar, ou automaticamente após anexar documentos se você tiver ligado essa opção. A chave fica no seu perfil, que só a sua conta lê, e pode ser removida a qualquer momento. O resultado é rascunho de leitura, não laudo: o modelo erra e pode afirmar com segurança algo que não está nos autos, por isso cada item vem com a fonte para você conferir.'],
-  ['Dados de terceiros nos autos',
-   'Ao anexar documentos, você trata dados de partes, testemunhas e terceiros. O tratamento se justifica pelo exercício regular de direitos em processo judicial e pelo cumprimento da nomeação. Anexe apenas o que a perícia exigir e evite subir documentos alheios ao objeto da prova.'],
-];
+/* ==========================================================================
+   Termos de uso, Política de privacidade e Segurança
+   Três documentos no mesmo formato dos manuais ({titulo, resumo, curto, secoes}),
+   lidos na seção "Termos e privacidade", numa janela por cima do login e do aceite,
+   e baixados em PDF. O texto descreve o que o sistema realmente faz: nada de selo
+   ou promessa que o código não cumpra. Mudou o texto? Suba VERSAO_PRIVACIDADE:
+   cada conta é convidada a aceitar a nova versão.
+   ========================================================================== */
+const LEGAL_RESPONSAVEL = 'Jonatas de Souza Miranda';
+const LEGAL_CONTATO = 'jonatasmiranda2405@gmail.com';
+const LEGAL_FORO = 'Goiânia/GO';
 
-function renderPrivacidade(){
+const LEGAL = {
+  termos: {
+    aba: 'Termos de uso', titulo: 'Termos de uso',
+    resumo: 'As regras para usar o PeríciaFlow e a extensão PROJUDI PDFs.',
+    curto: [
+      'O PeríciaFlow organiza o seu trabalho; o laudo, os cálculos que você assina e as conclusões são seus.',
+      'A conta é pessoal. Cada perícia aparece só para quem você compartilhar.',
+      'A IA é opcional, usa a sua chave do Google e entrega rascunho para conferir.',
+      'Os seus dados continuam seus: você corrige, exporta pelos documentos e exclui quando quiser.',
+    ],
+    secoes: [
+      {t:'Aceitação', b:[
+        ['p', `Estes termos valem entre você e ${LEGAL_RESPONSAVEL}, que mantém o PeríciaFlow ("nós"). Ao criar a conta ou usar o sistema, você declara ter pelo menos 18 anos, capacidade para contratar e que leu estes termos e a Política de privacidade. Se não concordar, não use o sistema.`],
+      ]},
+      {t:'O que é o serviço', b:[
+        ['p','O PeríciaFlow é uma ferramenta para peritos organizarem perícias: processos, documentos dos autos, prazos, tarefas, agenda, honorários, cálculos, proposta de honorários e revisão dos autos com inteligência artificial. A extensão PROJUDI PDFs, para o Google Chrome, baixa os autos do PROJUDI do TJGO para a perícia.'],
+        ['lista',['O PeríciaFlow não presta serviço pericial, contábil ou jurídico e não substitui o seu julgamento profissional.',
+                  'O PeríciaFlow e a extensão não são oficiais nem têm vínculo com o TJGO, o CNJ ou qualquer tribunal.']],
+      ]},
+      {t:'Conta e acesso', b:[
+        ['lista',['A conta é pessoal e intransferível. Não empreste a sua senha nem a sua sessão.',
+                  'Você responde pelo que for feito na sua conta e deve nos avisar logo se suspeitar de uso indevido.',
+                  'Para escrever no sistema é preciso confirmar o e-mail. Quem entra pelo Google já chega com o e-mail confirmado.',
+                  'Cada perícia pode ser compartilhada com outros e-mails, com acesso de edição ou só de leitura. Quem compartilha responde por essa escolha.']],
+      ]},
+      {t:'Uso permitido', b:[
+        ['p','Você se compromete a usar o sistema só para a sua atividade profissional e dentro da lei. Não é permitido:'],
+        ['lista',['tratar dados de processos sem ter acesso legítimo a eles, ou violar sigilo e segredo de justiça;',
+                  'tentar acessar contas, perícias ou arquivos de outras pessoas, ou contornar as proteções do sistema;',
+                  'enviar código malicioso, sobrecarregar o serviço ou automatizar consultas ao PROJUDI fora do uso normal do perito;',
+                  'usar o sistema para assédio, fraude ou qualquer fim ilícito.']],
+      ]},
+      {t:'Responsabilidade profissional', b:[
+        ['p','O laudo, a resposta aos quesitos das partes, as conclusões, os cálculos que você assina e o cumprimento dos prazos são de responsabilidade exclusiva do perito. As ferramentas de cálculo, os modelos de proposta e a revisão por IA são apoio: confira cada resultado nos autos e na legislação antes de usar.'],
+      ]},
+      {t:'Inteligência artificial', b:[
+        ['lista',['A Revisão IA é opcional e só funciona com uma chave do Google AI Studio cadastrada por você. O uso dessa chave é um contrato seu com o Google e segue os termos dele.',
+                  'Ao revisar, o texto da perícia e dos documentos é enviado ao Google. Leia a Política de privacidade e o manual "Chave da IA (Gemini)" antes de usar com autos reais.',
+                  'O resultado é rascunho de leitura. O modelo pode errar ou afirmar algo que não está nos autos. Não use nenhuma linha sem conferir.',
+                  'A IA aponta erros e inconsistências; ela não sugere quesitos nem conclui pela perícia.']],
+      ]},
+      {t:'Extensão PROJUDI PDFs', b:[
+        ['lista',['O login no PROJUDI é sempre feito por você, no site do tribunal, com certificado digital ou CPF e senha. Nem o PeríciaFlow nem a extensão pedem ou guardam a sua senha ou o seu certificado.',
+                  'A extensão usa a sessão que você abriu e só baixa processos a que você tem acesso. Respeite as regras de uso do tribunal.',
+                  'O funcionamento depende do PROJUDI. Mudanças no site do tribunal podem interromper a extensão até que ela seja ajustada.']],
+      ]},
+      {t:'Planos e pagamento', b:[
+        ['lista',['Os planos da extensão e os preços aparecem na tela antes da compra. O pagamento é processado pelo Mercado Pago; nós não recebemos nem guardamos dados do seu cartão.',
+                  'Você pode cancelar quando quiser. O cancelamento interrompe as próximas cobranças, e o período já pago continua valendo até o fim.',
+                  'Na contratação pela internet, você pode desistir em até 7 dias a contar da compra, com devolução do valor pago (art. 49 do Código de Defesa do Consumidor).']],
+      ]},
+      {t:'Seus dados e o que é nosso', b:[
+        ['p','Os dados e documentos que você coloca no sistema continuam seus. Você nos autoriza a guardá-los e processá-los apenas para fazer o serviço funcionar para você e para quem você compartilhar. O software, a marca e a interface do PeríciaFlow são nossos e não podem ser copiados ou revendidos.'],
+      ]},
+      {t:'Disponibilidade e cópias', b:[
+        ['p','Trabalhamos para o sistema ficar no ar, mas ele depende de serviços de terceiros (Google, GitHub, Mercado Pago e o próprio PROJUDI) e pode ficar indisponível. Não há backup automático que você consiga restaurar pelo app: guarde por fora as versões finais dos seus laudos e os documentos de que precisar.'],
+      ]},
+      {t:'Limitação de responsabilidade', b:[
+        ['p','Na medida permitida pela lei, não respondemos por: decisões tomadas com base em cálculos ou textos da IA sem conferência; falhas, mudanças ou indisponibilidade de serviços de terceiros; uso da sua conta por quem obteve a sua senha ou a sua sessão; ou perda de dados causada por exclusão feita por você ou por quem tinha acesso de edição. Nada nestes termos afasta direitos que a lei garante a você.'],
+      ]},
+      {t:'Suspensão e encerramento', b:[
+        ['p','Você pode parar de usar e pedir a exclusão da conta a qualquer momento. Podemos suspender ou encerrar uma conta que viole estes termos ou ponha em risco outras pessoas ou o sistema, avisando pelo e-mail da conta sempre que possível.'],
+      ]},
+      {t:'Mudanças nestes termos', b:[
+        ['p','Quando estes termos mudarem, a nova versão aparece no sistema com a data, e o aceite é pedido de novo no próximo acesso. Se você não concordar com a nova versão, pode deixar de usar e pedir a exclusão dos seus dados.'],
+      ]},
+      {t:'Lei e foro', b:[
+        ['p',`Estes termos seguem a lei brasileira. Fica eleito o foro da comarca de ${LEGAL_FORO}, sem prejuízo do direito do consumidor de propor ação no foro do seu domicílio.`],
+      ]},
+      {t:'Contato', b:[
+        ['p',`Dúvidas, pedidos e avisos: ${LEGAL_CONTATO}.`],
+      ]},
+    ],
+  },
+
+  privacidade: {
+    aba: 'Política de privacidade', titulo: 'Política de privacidade',
+    resumo: 'Que dados o PeríciaFlow trata, para quê, com quem e quais são os seus direitos pela LGPD.',
+    curto: [
+      'Não vendemos dados, não usamos para publicidade e não há rastreadores no sistema.',
+      'Os dados ficam no Google Cloud (Firebase), com acesso conferido no servidor perícia por perícia.',
+      'Conteúdo do processo só sai para fora se você ligar a Revisão IA, com a sua chave do Google.',
+      'Você pode acessar, corrigir e excluir os seus dados, e pedir o resto pelo contato do encarregado.',
+    ],
+    secoes: [
+      {t:'Quem trata os dados', b:[
+        ['p',`O PeríciaFlow é mantido por ${LEGAL_RESPONSAVEL}, que é o controlador dos dados da sua conta (cadastro, acesso e assinatura).`],
+        ['p','Os dados das perícias e dos autos são tratados pelo perito no exercício da nomeação: para eles, o perito é o controlador e o PeríciaFlow atua como operador, guardando e processando conforme as instruções de quem usa o sistema.'],
+      ]},
+      {t:'Que dados tratamos', b:[
+        ['lista',['Conta: e-mail, nome e, na entrada pelo Google, a foto do perfil.',
+                  'Cadastro profissional (Meu perfil): nome completo, CRC, CPF, telefone, endereço, cidade e hora técnica.',
+                  'Perícias: número do processo, vara, comarca, partes, prazos, honorários, tarefas, compromissos, comentários e os documentos que você anexa ou importa do PROJUDI.',
+                  'Revisão IA, se usada: a sua chave do Google AI Studio e o resultado das revisões.',
+                  'Assinatura da extensão: e-mail, plano e situação do pagamento informada pelo Mercado Pago.',
+                  'Dados técnicos: o GitHub, que hospeda o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.']],
+        ['p','Os autos podem conter dados sensíveis e dados de terceiros (partes, testemunhas). Anexe só o que a perícia exigir.'],
+      ]},
+      {t:'Para que usamos', b:[
+        ['lista',['fazer o sistema funcionar: guardar e mostrar as suas perícias, documentos e prazos;',
+                  'controlar quem acessa cada perícia;',
+                  'preencher a proposta de honorários com o seu cadastro;',
+                  'rodar a Revisão IA quando você pede;',
+                  'ativar a assinatura da extensão;',
+                  'manter a segurança, prevenir abuso e cumprir obrigações legais.']],
+      ]},
+      {t:'Bases legais', b:[
+        ['lista',['execução do contrato com você (art. 7º, V, da LGPD) para a conta, o cadastro e as funções do sistema;',
+                  'exercício regular de direitos em processo judicial (art. 7º, VI, e art. 11, II, "d") para os dados dos autos tratados na perícia;',
+                  'cumprimento de obrigação legal (art. 7º, II) quando a lei exigir guardar ou informar dados;',
+                  'legítimo interesse (art. 7º, IX) para segurança e prevenção de fraude.']],
+      ]},
+      {t:'Com quem compartilhamos', b:[
+        ['p','Não vendemos, alugamos nem cedemos dados, e não usamos dados para publicidade. Os serviços que participam do funcionamento são:'],
+        ['lista',['Google (Firebase): login, banco de dados (Cloud Firestore) e arquivos (Cloud Storage);',
+                  'Google (Gemini API): só quando você usa a Revisão IA, com a sua própria chave;',
+                  'Google Fonts: as fontes da interface;',
+                  'GitHub (GitHub Pages): hospedagem do site;',
+                  'Mercado Pago: pagamento da assinatura da extensão;',
+                  'Banco Central do Brasil: consulta de índices de correção, sem nenhum dado do processo;',
+                  'autoridades, quando houver ordem judicial ou obrigação legal.']],
+      ]},
+      {t:'Transferência internacional', b:[
+        ['p','Os serviços do Google e do GitHub podem guardar ou processar dados em servidores fora do Brasil. Essa transferência se apoia nas garantias contratuais desses fornecedores, nos termos do art. 33 da LGPD.'],
+      ]},
+      {t:'Armazenamento no navegador', b:[
+        ['p','O sistema não usa cookies de publicidade nem de rastreamento. Ele guarda no seu navegador: a sessão de login (Firebase), as preferências de tela e cor, a última seção aberta e uma cópia das perícias para funcionar sem internet. Limpar os dados do site apaga essa cópia local.'],
+      ]},
+      {t:'Por quanto tempo', b:[
+        ['p','Os dados de uma perícia ficam enquanto ela existir. Excluir a perícia remove o registro, os comentários e os arquivos no Storage, de forma definitiva. Os dados da conta ficam enquanto ela estiver ativa; depois do pedido de exclusão, são apagados, salvo o que a lei obrigar a guardar.'],
+      ]},
+      {t:'O que o sistema não protege', b:[
+        ['alerta','Link de download','O endereço de download de um arquivo anexado é gerado pelo Firebase Storage e abre o arquivo para quem tiver o endereço completo, mesmo sem login. Ele só aparece para quem já vê a perícia, mas se for repassado por fora, quem o receber consegue abrir. Trate esses endereços como o próprio documento.'],
+        ['p','Também não há como proteger o que sai do sistema por você: PDFs baixados, prints e e-mails enviados ficam sob a sua guarda.'],
+      ]},
+      {t:'Seus direitos', b:[
+        ['p','Pela LGPD (art. 18), você pode pedir confirmação e acesso aos dados, correção, anonimização, bloqueio ou eliminação, portabilidade, informação sobre compartilhamento e revisão do consentimento, quando for o caso.'],
+        ['lista',['Acesso e correção do cadastro: direto em Meu perfil.',
+                  'Correção e exclusão de perícias: direto na perícia, pelo dono.',
+                  `Demais pedidos, inclusive a exclusão da conta: ${LEGAL_CONTATO}. Respondemos em até 15 dias.`,
+                  'Se não ficar satisfeito, você pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).']],
+      ]},
+      {t:'Menores de idade', b:[
+        ['p','O sistema é destinado a profissionais maiores de 18 anos. Dados de crianças e adolescentes só aparecem quando constam dos autos, e são tratados no seu melhor interesse e no limite do que a perícia exige.'],
+      ]},
+      {t:'Mudanças nesta política', b:[
+        ['p','Quando esta política mudar, a nova versão aparece no sistema com a data, e o aceite é pedido de novo no próximo acesso.'],
+      ]},
+      {t:'Encarregado e contato', b:[
+        ['p',`Encarregado pelo tratamento de dados (DPO): ${LEGAL_RESPONSAVEL}, ${LEGAL_CONTATO}.`],
+      ]},
+    ],
+  },
+
+  seguranca: {
+    aba: 'Segurança', titulo: 'Segurança',
+    resumo: 'Como o PeríciaFlow protege as contas, as perícias e os arquivos, e o que cabe a você.',
+    curto: [
+      'Tudo trafega por HTTPS, e o Google cifra os dados guardados.',
+      'Quem lê, edita ou apaga cada perícia é conferido no servidor, não só na tela, com testes automáticos a cada mudança.',
+      'A senha do PROJUDI e o certificado nunca passam pelo PeríciaFlow.',
+      'Ative a verificação em duas etapas na sua conta Google.',
+    ],
+    secoes: [
+      {t:'Criptografia', b:[
+        ['lista',['Em trânsito: o site e todos os serviços usam HTTPS (TLS).',
+                  'Guardados: o Google Cloud cifra os dados do Firestore e os arquivos do Storage (AES-256).',
+                  'No PeríciaFlow em PHP, os arquivos dos autos ficam cifrados em disco com AES-256-GCM, fora da pasta pública.']],
+      ]},
+      {t:'Controle de acesso no servidor', b:[
+        ['p','As regras de segurança do Firebase decidem cada leitura e gravação no servidor do Google. Mesmo quem tentar contornar a tela não passa delas.'],
+        ['lista',['Uma perícia só é lida por quem está na lista de acesso dela, alterada por quem tem acesso de edição e excluída só pelo dono.',
+                  'Os arquivos seguem o mesmo acesso da perícia. Arquivos HTML, SVG e scripts são recusados, e cada arquivo tem limite de 50 MB.',
+                  'O seu perfil, com o cadastro e a chave da IA, só é lido pela sua conta.',
+                  'Qualquer caminho que não esteja nas regras fica fechado.',
+                  'As regras são testadas automaticamente a cada mudança, no emulador oficial do Firebase.']],
+      ]},
+      {t:'Contas e senhas', b:[
+        ['lista',['Entrada pelo Google ou por e-mail e senha. A senha é definida por você e validada pelo Firebase: o PeríciaFlow nunca a recebe nem a guarda.',
+                  'O Firebase guarda só um resumo irreversível da senha (hash scrypt) e bloqueia tentativas seguidas.',
+                  'É preciso confirmar o e-mail antes de gravar qualquer perícia.',
+                  'Cada conta nasce com o espaço vazio: nenhuma conta vê as perícias de outra sem compartilhamento.']],
+      ]},
+      {t:'Proteções no navegador', b:[
+        ['lista',['Política de segurança de conteúdo (CSP): a página só carrega código do próprio site e de serviços do Google necessários ao login, e só envia dados para os serviços listados.',
+                  'Bibliotecas servidas pelo próprio site, sem CDN de terceiros no carregamento.',
+                  'Proteção contra clickjacking: o sistema não abre dentro de moldura de outro site.',
+                  'Os dados de perícias compartilhadas e as respostas da IA são tratados como texto: nada do que chega vira código na tela.',
+                  'Endereços de arquivo só são abertos se forem do Firebase Storage ou de um tipo de arquivo seguro.']],
+      ]},
+      {t:'PROJUDI e extensão', b:[
+        ['lista',['O login no PROJUDI é feito por você, no site do tribunal. A extensão só usa a sessão aberta e não guarda senha nem certificado.',
+                  'A extensão só tem acesso ao PeríciaFlow, ao PROJUDI e ao serviço que confere a assinatura, e a busca é confirmada pelo seu clique em "Consultar".',
+                  'Arquivos baixados de novo não se duplicam: cada um leva o identificador fixo do PROJUDI.']],
+      ]},
+      {t:'Inteligência artificial', b:[
+        ['lista',['A chave do Google AI Studio é sua e fica no seu perfil, lido só pela sua conta.',
+                  'Nada é enviado à IA sem o seu aceite e o seu clique (ou a opção automática que você mesmo liga).',
+                  'Para autos reais, use uma chave com faturamento ativo: no nível gratuito, o Google pode usar o conteúdo para melhorar os produtos dele.']],
+      ]},
+      {t:'Incidentes de segurança', b:[
+        ['p','Se houver um incidente que possa trazer risco ou dano relevante aos titulares, vamos conter o problema, investigar, avisar as pessoas afetadas e comunicar a ANPD em até 3 dias úteis, como pede o Regulamento de Comunicação de Incidente de Segurança (Resolução CD/ANPD nº 15/2024).'],
+      ]},
+      {t:'O que fica com você', b:[
+        ['lista',['Ative a verificação em duas etapas na sua conta Google (myaccount.google.com > Segurança).',
+                  'Use senha forte e só sua; não empreste a conta.',
+                  'Em computador compartilhado, use "Sair da conta" em Meu perfil ao terminar.',
+                  'Revise de tempos em tempos quem tem acesso a cada perícia e remova quem não precisa mais.',
+                  'Mantenha o Chrome e a extensão atualizados.',
+                  'Desconfie de qualquer página que peça a sua senha do PROJUDI fora do site do tribunal.']],
+      ]},
+      {t:'Limites conhecidos', b:[
+        ['lista',['O link de download de arquivo funciona para quem tiver o endereço completo (veja a Política de privacidade).',
+                  'O sistema ainda não tem verificação em duas etapas própria para a entrada por e-mail e senha; prefira entrar pelo Google com a verificação em duas etapas ligada.',
+                  'A cópia local das perícias fica no navegador do computador em que você usa o sistema.']],
+      ]},
+      {t:'Encontrou uma falha?', b:[
+        ['p',`Escreva para ${LEGAL_CONTATO} descrevendo o problema. Não acesse dados de outras pessoas nem tente explorar a falha além do necessário para mostrá-la. Respondemos e corrigimos o quanto antes.`],
+      ]},
+    ],
+  },
+};
+const LEGAL_ORDEM = ['termos', 'privacidade', 'seguranca'];
+let legalAba = 'termos';
+let legalModalAba = null;
+
+function legalBlocos(b){
+  return b.map(bl => {
+    const tipo = bl[0];
+    if(tipo === 'p') return `<p>${escapeHtml(bl[1])}</p>`;
+    if(tipo === 'lista') return `<ul>${bl[1].map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+    if(tipo === 'passos') return `<ol>${bl[1].map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>`;
+    if(tipo === 'alerta') return `<div class="lg-aviso"><b>${escapeHtml(bl[1])}</b><p>${escapeHtml(bl[2])}</p></div>`;
+    if(tipo === 'dica') return `<div class="lg-aviso lg-dica"><p>${escapeHtml(bl[1])}</p></div>`;
+    return '';
+  }).join('');
+}
+function legalLeitor(aba, emModal){
+  const d = LEGAL[aba] || LEGAL.termos;
+  const pre = emModal ? 'lgm' : 'lg';
   const aceite = meuAceite();
-  const pendente = precisaAceitar() ? `
-      <div class="banner" style="margin-bottom:14px;">
-        ${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')}
-        <span>Falta o seu aceite desta versão.
-          <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="registrarAceite()">Li e concordo</button></span>
-      </div>` : '';
-  const corpoResumo = `
-      ${pendente}
-      ${selo()}
-      <div class="calc-nota" style="margin-top:14px;">
-        Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}. Este texto descreve o funcionamento real deste sistema;
-        ele não é um certificado emitido por terceiros.
-      </div>
-      <div class="kv-grid" style="margin-top:14px;">
-        <div class="kv"><div class="k">Seu aceite</div><div class="v">${aceite ? 'registrado em ' + fmtDate(String(aceite.quando).slice(0,10)) : (currentUser ? 'pendente' : 'entre para registrar')}</div></div>
-        <div class="kv"><div class="k">Conta</div><div class="v">${escapeHtml(meuEmail() || 'sem login')}</div></div>
-        <div class="kv"><div class="k">Transporte</div><div class="v">HTTPS ponta a ponta</div></div>
-        <div class="kv"><div class="k">Acesso</div><div class="v">verificado no servidor</div></div>
-      </div>`;
-
-  const corpoTexto = TOPICOS_PRIVACIDADE.map(([titulo, texto]) => `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13.5px; font-weight:600; margin-bottom:4px;">${escapeHtml(titulo)}</div>
-        <p style="font-size:13px; line-height:1.62; color:var(--ink-2); margin:0;">${escapeHtml(texto)}</p>
-      </div>`).join('');
-
-  const corpoRegistro = aceite
-    ? `<div class="rows">
-        <div class="row-item" style="cursor:default;">
-          <div class="row-main">
-            <div class="row-title">${escapeHtml(membroDe(meuEmail()).nome)}</div>
-            <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(meuEmail())}</div>
-          </div>
-          <div class="row-side"><span class="row-date">${fmtDate(String(aceite.quando).slice(0,10))} · v${escapeHtml(aceite.versao)}</span></div>
+  const pendente = !emModal && precisaAceitar();
+  return `
+    <div class="lg ${emModal ? 'lg-modal-corpo' : ''}">
+      <div class="lg-topo">
+        <div class="lg-abas" role="tablist" aria-label="Documentos">
+          ${LEGAL_ORDEM.map(k => `<button role="tab" class="lg-aba ${k === aba ? 'on' : ''}" aria-selected="${k === aba}" data-legal="${k}"
+              onclick="${emModal ? 'abrirLegal' : 'legalIr'}(${jsq(k)})">${escapeHtml(LEGAL[k].aba)}</button>`).join('')}
+        </div>
+        <div class="lg-meta">
+          <span>Versão ${VERSAO_PRIVACIDADE} · ${DATA_PRIVACIDADE}</span>
+          <button class="btn btn-ghost btn-sm lg-pdf" onclick="legalPdf(${jsq(aba)})">${svg(ICONE_BAIXAR)} Baixar PDF</button>
         </div>
       </div>
-      <div class="hint" style="margin-top:12px;">O aceite fica no seu perfil. Cada conta registra o seu, e ninguém vê o das outras.</div>`
-    : `<div class="chart-empty">Você ainda não registrou o aceite desta versão.</div>`;
-
-  return `
-    <div class="section-gap">
-      ${panel('privResumo', 'Selo e resumo', 'versão ' + VERSAO_PRIVACIDADE, corpoResumo)}
-      ${panel('privTexto', 'Como os dados são tratados', TOPICOS_PRIVACIDADE.length + ' itens', corpoTexto)}
-      ${panel('privAceites', 'Meu aceite', aceite ? 'registrado' : 'pendente', corpoRegistro)}
+      ${pendente ? `<div class="lg-pendente">${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')}
+          <span>Falta o seu aceite da versão ${VERSAO_PRIVACIDADE} dos termos e da política.</span>
+          <button class="btn btn-primary btn-sm" onclick="registrarAceite()">Li e concordo</button></div>` : ''}
+      <div class="lg-corpo">
+        <nav class="lg-indice" aria-label="Nesta página">
+          <span class="lg-indice-tit">Nesta página</span>
+          ${d.secoes.map((s, i) => `<button class="lg-indice-item" data-alvo="${pre}-${aba}-${i + 1}" onclick="legalRolar(${jsq(pre + '-' + aba + '-' + (i + 1))})"><span>${i + 1}</span>${escapeHtml(s.t)}</button>`).join('')}
+        </nav>
+        <article class="lg-texto">
+          <h1>${escapeHtml(d.titulo)}</h1>
+          <p class="lg-resumo">${escapeHtml(d.resumo)}</p>
+          <div class="lg-curto"><b>Em resumo</b><ul>${d.curto.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul></div>
+          ${d.secoes.map((s, i) => `
+          <section id="${pre}-${aba}-${i + 1}" class="lg-sec">
+            <h2><span>${i + 1}.</span> ${escapeHtml(s.t)}</h2>
+            ${legalBlocos(s.b)}
+          </section>`).join('')}
+          <footer class="lg-pe">
+            <span>${aceite ? `Seu aceite: ${fmtDate(String(aceite.quando).slice(0, 10))}, versão ${escapeHtml(aceite.versao)}.` : (currentUser ? 'Aceite pendente nesta conta.' : 'Entre na sua conta para registrar o aceite.')}</span>
+            <span>Dúvidas: ${escapeHtml(LEGAL_CONTATO)}</span>
+          </footer>
+        </article>
+      </div>
     </div>`;
+}
+function renderPrivacidade(){
+  setTimeout(legalObservar, 0);
+  return legalLeitor(legalAba, false);
+}
+function legalIr(aba){
+  if(!LEGAL[aba]) return;
+  legalAba = aba;
+  try{ localStorage.setItem('pf_legal_aba', aba); }catch(e){}
+  renderAll();
+  window.scrollTo({top:0});
+}
+try{ const a = localStorage.getItem('pf_legal_aba'); if(a && LEGAL[a]) legalAba = a; }catch(e){}
+function legalRolar(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+/* destaca no índice a seção que está sendo lida */
+let legalObs = null;
+function legalObservar(raiz){
+  if(legalObs){ legalObs.disconnect(); legalObs = null; }
+  if(!('IntersectionObserver' in window)) return;
+  const caixa = raiz || document;
+  const secs = [...caixa.querySelectorAll('.lg-sec')];
+  if(!secs.length) return;
+  legalObs = new IntersectionObserver(ents => {
+    ents.forEach(e => {
+      if(!e.isIntersecting) return;
+      caixa.querySelectorAll('.lg-indice-item').forEach(b => b.classList.toggle('on', b.dataset.alvo === e.target.id));
+    });
+  }, {root: raiz ? raiz.querySelector('.lg-modal-rolagem') : null, rootMargin:'0px 0px -70% 0px'});
+  secs.forEach(s => legalObs.observe(s));
+}
+async function legalPdf(aba){
+  const d = LEGAL[aba];
+  if(!d) return;
+  const ok = await gerarPdfDocs([d], {
+    arquivo: `periciaflow-${aba}.pdf`, rotulo: 'PeríciaFlow · ' + d.aba.toLowerCase(),
+    data: `Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}`, indice: 'Neste documento',
+  });
+  if(ok) pfAviso(`${d.titulo} baixado em PDF.`);
+}
+/* Janela por cima do login e da porta de aceite: dá para ler antes de entrar ou aceitar. */
+function abrirLegal(aba){
+  legalModalAba = LEGAL[aba] ? aba : 'termos';
+  let el = document.getElementById('legalModal');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'legalModal';
+    el.className = 'lg-modal';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-label', 'Termos e privacidade');
+    el.addEventListener('click', ev => { if(ev.target === el) fecharLegal(); });
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `<div class="lg-modal-caixa">
+      <button class="icon-btn lg-modal-fechar" onclick="fecharLegal()" aria-label="Fechar">${svg('<path d="M6 6l12 12M18 6L6 18"/>')}</button>
+      <div class="lg-modal-rolagem">${legalLeitor(legalModalAba, true)}</div>
+    </div>`;
+  el.classList.add('aberto');
+  legalObservar(el);
+  const f = el.querySelector('.lg-aba.on'); if(f) f.focus();
+}
+function fecharLegal(){
+  const el = document.getElementById('legalModal');
+  if(el){ el.classList.remove('aberto'); el.innerHTML = ''; }
+  legalModalAba = null;
+}
+document.addEventListener('keydown', ev => { if(ev.key === 'Escape' && legalModalAba) fecharLegal(); });
+/* o selo e os links de rodapé abrem a seção, ou a janela quando o login ou o aceite estão na frente */
+function verLegal(aba){
+  const travado = (document.getElementById('login') || {}).classList?.contains('aberto') || (document.getElementById('aceite') || {}).classList?.contains('aberto');
+  if(travado){ abrirLegal(aba); return; }
+  legalAba = LEGAL[aba] ? aba : 'termos';
+  setSection('privacidade');
+}
+function linksLegais(){
+  return `<span class="lg-links">${LEGAL_ORDEM.map(k => `<button class="lg-link" onclick="verLegal(${jsq(k)})">${escapeHtml(LEGAL[k].aba)}</button>`).join('<span aria-hidden="true">·</span>')}</span>`;
 }
 
 function renderPortaAceite(){
@@ -4230,12 +4635,17 @@ function renderPortaAceite(){
     <div class="aceite-caixa">
       ${selo()}
       <h2>Antes de continuar</h2>
-      <p>Este sistema guarda dados de processos, documentos dos autos e o seu cadastro profissional em serviços do Google Cloud, por meio do Firebase. O tráfego é cifrado e cada perícia só aparece para quem tem acesso a ela, com a verificação feita no servidor.</p>
-      <p>Um ponto que merece atenção: o link de download de um arquivo anexado funciona para quem tiver o endereço completo, mesmo sem login. Ele só aparece para quem já vê a perícia, mas trate esses endereços como o próprio documento.</p>
-      <p class="aceite-nota">Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}. O texto completo fica na aba Privacidade e pode ser lido antes de aceitar.</p>
+      <p>Para usar o PeríciaFlow, leia e aceite os <button class="lg-link" onclick="abrirLegal('termos')">Termos de uso</button> e a <button class="lg-link" onclick="abrirLegal('privacidade')">Política de privacidade</button>.</p>
+      <ul class="aceite-pontos">
+        <li>Os seus dados ficam no Google Cloud (Firebase), com o acesso de cada perícia conferido no servidor.</li>
+        <li>Não vendemos dados nem usamos para publicidade.</li>
+        <li>O laudo e as conclusões são seus; cálculos e IA são apoio para conferir.</li>
+        <li>O link de download de um arquivo abre para quem tiver o endereço completo: trate-o como o próprio documento.</li>
+      </ul>
+      <p class="aceite-nota">Versão ${VERSAO_PRIVACIDADE}, de ${DATA_PRIVACIDADE}. Veja também <button class="lg-link" onclick="abrirLegal('seguranca')">como protegemos o sistema</button>.</p>
       <div class="acoes">
         <button class="btn btn-primary" onclick="registrarAceite()">Li e concordo</button>
-        <button class="btn btn-ghost" onclick="lerAntesDeAceitar()">Ler o texto completo</button>
+        <button class="btn btn-ghost" onclick="abrirLegal('termos')">Ler o texto completo</button>
         <button class="btn btn-ghost" onclick="signOutGoogle()">Sair</button>
       </div>
     </div>`;
@@ -4261,7 +4671,7 @@ function mensagemAuth(codigo){
     'auth/invalid-credential': 'E-mail ou senha não conferem.',
     'auth/invalid-login-credentials': 'E-mail ou senha não conferem.',
     'auth/email-already-in-use': 'Já existe uma conta com esse e-mail. Use Entrar, ou peça um link de senha.',
-    'auth/weak-password': 'A senha precisa de pelo menos 6 caracteres.',
+    'auth/weak-password': 'Senha fraca. Use pelo menos 8 caracteres, com letras e números.',
     'auth/missing-password': 'Digite a senha.',
     'auth/too-many-requests': 'Muitas tentativas seguidas. Aguarde alguns minutos.',
     'auth/network-request-failed': 'Sem conexão com o servidor. Verifique a internet.',
@@ -4301,7 +4711,8 @@ async function criarConta(){
   const senha = document.getElementById('loginSenha').value || '';
   if(nome.length < 3){ avisoLogin('Escreva o seu nome completo.', 'erro'); return; }
   if(!email){ avisoLogin('Informe o e-mail.', 'erro'); return; }
-  if(senha.length < 6){ avisoLogin('A senha precisa de pelo menos 6 caracteres.', 'erro'); return; }
+  if(senha.length < 8 || !/[A-Za-z]/.test(senha) || !/\d/.test(senha)){ avisoLogin('Use uma senha com pelo menos 8 caracteres, com letras e números.', 'erro'); return; }
+  if(senha.toLowerCase().includes(email.split('@')[0].toLowerCase()) && email.split('@')[0].length >= 4){ avisoLogin('A senha não pode conter o seu e-mail.', 'erro'); return; }
   avisoLogin('Criando a conta...');
   try{
     const cred = await auth.createUserWithEmailAndPassword(email, senha);
@@ -4426,7 +4837,7 @@ function renderLogin(){
         <input id="loginEmail" type="email" autocomplete="username" placeholder="seu@email.com"
                onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginSenha').focus()}"></div>
 
-      <div class="field" style="margin-top:10px;"><label for="loginSenha">Senha${criando ? ' (mínimo 6 caracteres)' : ''}</label>
+      <div class="field" style="margin-top:10px;"><label for="loginSenha">Senha${criando ? ' (mínimo 8, com letras e números)' : ''}</label>
         <input id="loginSenha" type="password" autocomplete="${criando ? 'new-password' : 'current-password'}" placeholder="••••••••"
                onkeydown="if(event.key==='Enter'){event.preventDefault();${criando ? 'criarConta()' : 'entrarComSenha()'}}"></div>
 
@@ -4444,6 +4855,7 @@ function renderLogin(){
         <p>${criando
           ? 'Ao criar a conta você recebe um e-mail de confirmação. Cada conta tem o seu espaço: as suas perícias não aparecem para ninguém, a não ser que você compartilhe.'
           : 'O app não guarda a sua senha: quem a define e a valida é o Firebase, do Google.'}</p>
+        <p class="lg-aceite-login">Ao ${criando ? 'criar a conta' : 'entrar'}, você concorda com os <button class="lg-link" onclick="abrirLegal('termos')">Termos de uso</button> e a <button class="lg-link" onclick="abrirLegal('privacidade')">Política de privacidade</button>.</p>
       </div>
     </div>`;
 }
@@ -4500,7 +4912,7 @@ function renderMeuPerfil(){
         <div class="field" ${largo ? 'style="grid-column:1/-1;"' : ''}>
           <label for="ficha-${key}-${campo}">${rotulo}</label>
           <input id="ficha-${key}-${campo}" value="${escapeHtml(String(valor == null ? '' : valor))}"
-                 oninput="salvarFicha('${key}', '${campo}', this.value)">
+                 oninput="salvarFicha(${jsq(key)}, ${jsq(campo)}, this.value)">
           ${dica ? `<span class="dica">${dica}</span>` : ''}
         </div>`;
   const meuCad = meuEmail();
@@ -4583,7 +4995,7 @@ const MANUAIS = [
     {t:'Entrar na sua conta', b:[
       ['passos',['Abra o PeríciaFlow no Google Chrome, no computador.',
                  'No rodapé da barra lateral, clique em "Entrar com Google" e escolha a sua conta.',
-                 'Na primeira entrada, leia e aceite o aviso de privacidade.']],
+                 'Na primeira entrada, leia e aceite os Termos de uso e a Política de privacidade.']],
       ['dica','Sem entrar, o sistema funciona, mas os dados ficam só neste navegador: não aparecem em outro computador e somem se o histórico do navegador for apagado.'],
     ]},
     {t:'Preencher o seu perfil', b:[
@@ -4800,7 +5212,7 @@ const MANUAIS = [
       ['p','A tela Equipe mostra quem tem acesso ao sistema e o que foi compartilhado com cada pessoa.'],
     ]},
     {t:'Privacidade', b:[
-      ['p','A tela Privacidade explica como os dados são guardados, quem vê e quais são os seus direitos pela LGPD. O seu aceite fica registrado na sua conta.'],
+      ['p','A tela Termos e privacidade (grupo Sistema) traz os Termos de uso, a Política de privacidade e a página de Segurança, cada um com PDF para baixar. O seu aceite fica registrado na sua conta.'],
       ['alerta','A Revisão IA envia texto ao Google','Ao rodar a Revisão IA, o texto da perícia sai do navegador e vai para o Google, com a sua chave. Leia o manual "Chave da IA (Gemini)" antes de usar em autos reais.'],
     ]},
     {t:'Computador compartilhado', b:[
@@ -4814,8 +5226,18 @@ function manualIcone(m){ return m.icone === 'chave' ? ICONE_CHAVE : (ICONS[m.ico
 async function manualBaixar(id){
   const lista = id === 'todos' ? MANUAIS : MANUAIS.filter(m => m.id === id);
   if(!lista.length) return;
+  const ok = await gerarPdfDocs(lista, {
+    arquivo: id === 'todos' ? 'periciaflow-manuais.pdf' : `periciaflow-manual-${id}.pdf`,
+    rotulo: 'PeríciaFlow · manual de uso', data: 'Atualizado em ' + MANUAL_DATA,
+  });
+  if(ok) pfAviso(id === 'todos' ? 'Manual completo baixado.' : `Manual "${lista[0].titulo}" baixado.`);
+}
+/* Gera um PDF A4 a partir de documentos no formato {titulo, resumo, secoes:[{t, b:[blocos]}]}.
+   Blocos: ['p', texto] · ['lista', [itens]] · ['passos', [itens]] · ['alerta', título, texto] · ['dica', texto].
+   Usado pelos manuais e pelos termos, pela política de privacidade e pela página de segurança. */
+async function gerarPdfDocs(lista, op){
   try{ await iaCarregarJsPdf(); }
-  catch(e){ pfAviso('Não foi possível gerar o PDF: ' + e.message + '. Recarregue a página e tente de novo.'); return; }
+  catch(e){ pfAviso('Não foi possível gerar o PDF: ' + e.message + '. Recarregue a página e tente de novo.'); return false; }
   const doc = new window.jspdf.jsPDF({unit:'pt', format:'a4'});
   const T = iaPdfTexto;
   const L = 60, W = doc.internal.pageSize.getWidth() - 2 * L, H = doc.internal.pageSize.getHeight(), FIM = H - 66;
@@ -4853,13 +5275,13 @@ async function manualBaixar(id){
     atual = m.titulo;
     if(i === 0) rodapes.push(atual); else novaPagina();
     /* capa do manual */
-    escrever('PeríciaFlow · manual de uso', 9.5, 'normal', CINZA); y += 4;
+    escrever(op.rotulo, 9.5, 'normal', CINZA); y += 4;
     escrever(m.titulo, 24, 'bold', ESCURO, L, W, 1.25); y += 6;
     escrever(m.resumo, 11.5, 'normal', CINZA); y += 6;
-    escrever('Atualizado em ' + MANUAL_DATA, 9, 'normal', CINZA); y += 10;
+    escrever(op.data, 9, 'normal', CINZA); y += 10;
     doc.setDrawColor(...AZUL); doc.setLineWidth(1.5); doc.line(L, y, L + 44, y);
     y += 20;
-    escrever('Neste manual', 10, 'bold', AZUL); y += 2;
+    escrever(op.indice || 'Neste manual', 10, 'bold', AZUL); y += 2;
     m.secoes.forEach((s, k) => escrever(`${k + 1}.  ${s.t}`, 10, 'normal', ESCURO, L + 4, W - 4, 1.6));
     y += 16;
     m.secoes.forEach((s, k) => {
@@ -4894,8 +5316,8 @@ async function manualBaixar(id){
     doc.text(T('PeríciaFlow · ' + (rodapes[p - 1] || '')), L, H - 32);
     doc.text(`p. ${p} de ${total}`, L + W, H - 32, {align:'right'});
   }
-  doc.save(id === 'todos' ? 'periciaflow-manuais.pdf' : `periciaflow-manual-${id}.pdf`);
-  pfAviso(id === 'todos' ? 'Manual completo baixado.' : `Manual "${lista[0].titulo}" baixado.`);
+  doc.save(op.arquivo);
+  return true;
 }
 
 /* ---------- tela ---------- */
@@ -4915,7 +5337,7 @@ function renderConfig(){
         <header><h2 id="cfgTelaTit">Tela</h2><p>Clara ou escura. Com a conta conectada, a escolha vale em qualquer computador.</p></header>
         <div class="cfg-temas" role="radiogroup" aria-labelledby="cfgTelaTit">
           ${temas.map(t => `
-          <button class="cfg-tema ${prefTema === t.id ? 'on' : ''}" role="radio" aria-checked="${prefTema === t.id}" data-tema="${t.id}" onclick="definirTema('${t.id}')">
+          <button class="cfg-tema ${prefTema === t.id ? 'on' : ''}" role="radio" aria-checked="${prefTema === t.id}" data-tema="${t.id}" onclick="definirTema(${jsq(t.id)})">
             ${t.id === 'auto' ? `<span class="cfg-mini-duo">${cfgMini('light')}${cfgMini('dark')}</span>` : cfgMini(t.id)}
             <span class="cfg-tema-txt"><b>${t.nome}</b><span>${t.dica}</span></span>
             ${marca}
@@ -4927,7 +5349,7 @@ function renderConfig(){
         <header><h2 id="cfgCorTit">Cores</h2><p>A cor de destaque dos botões, seleções e gráficos. Todas mantêm a leitura confortável nas telas clara e escura.</p></header>
         <div class="cfg-cores" role="radiogroup" aria-labelledby="cfgCorTit">
           ${PALETAS.map(p => `
-          <button class="cfg-cor ${prefPaleta === p.id ? 'on' : ''}" role="radio" aria-checked="${prefPaleta === p.id}" data-paleta="${p.id}" onclick="definirPaleta('${p.id}')">
+          <button class="cfg-cor ${prefPaleta === p.id ? 'on' : ''}" role="radio" aria-checked="${prefPaleta === p.id}" data-paleta="${p.id}" onclick="definirPaleta(${jsq(p.id)})">
             <span class="paleta-amostra" data-palette="${p.id}"></span>
             <b>${p.nome}</b>
             ${marca}
@@ -4949,7 +5371,7 @@ function renderConfig(){
         </header>
         <div class="cfg-manuais">
           ${MANUAIS.map(m => `
-          <button class="cfg-manual ${m.destaque ? 'destaque' : ''}" data-manual="${m.id}" onclick="manualBaixar('${m.id}')" aria-label="Baixar o manual ${escapeHtml(m.titulo)} em PDF">
+          <button class="cfg-manual ${m.destaque ? 'destaque' : ''}" data-manual="${m.id}" onclick="manualBaixar(${jsq(m.id)})" aria-label="Baixar o manual ${escapeHtml(m.titulo)} em PDF">
             <span class="cfg-manual-topo">
               <span class="cfg-manual-ic">${svg(manualIcone(m))}</span>
               ${m.destaque ? '<span class="pill pill-accent">Essencial para a IA</span>' : ''}
@@ -5484,7 +5906,7 @@ function iaGravidade(v){
 }
 function iaCategoria(v){
   const t = normalizeText(v || '');
-  return IA_CATEGORIAS.find(c => normalizeText(c) === t) || (v ? String(v) : 'Outros');
+  return IA_CATEGORIAS.find(c => normalizeText(c) === t) || 'Outros';
 }
 /* Análises antigas (pontosAtencao) viram achados; quesitos sugeridos não são mais usados. */
 function iaAchados(c){
@@ -5564,10 +5986,10 @@ function iaCorpoAnalise(c){
     const g = IA_GRAV[s.gravidade];
     const extras = [...new Set(todos.map(x => x.categoria))].filter(k => !IA_CATEGORIAS.includes(k));
     const cats = ['Todos', ...IA_CATEGORIAS.filter(k => todos.some(x => x.categoria === k)), ...extras];
-    const botaoDec = (v, rotulo, classe) => `<button class="btn ${classe}" aria-pressed="${s.decisao === v}" onclick="iaDecidir('${s.chave}','${v}')">${s.decisao === v ? '✓ ' : ''}${rotulo}</button>`;
+    const botaoDec = (v, rotulo, classe) => `<button class="btn ${classe}" aria-pressed="${s.decisao === v}" onclick="iaDecidir(${jsq(s.chave)},${jsq(v)})">${s.decisao === v ? '✓ ' : ''}${rotulo}</button>`;
     carrossel = `
     <div class="ia-chips" role="group" aria-label="Filtrar por assunto">
-      ${cats.map(k => `<button class="ia-chip" aria-pressed="${iaFiltro === k}" onclick="iaFiltrar('${escapeHtml(k).replace(/'/g, '&#39;')}')">${escapeHtml(k)}<span>${k === 'Todos' ? todos.length : todos.filter(x => x.categoria === k).length}</span></button>`).join('')}
+      ${cats.map(k => `<button class="ia-chip" aria-pressed="${iaFiltro === k}" onclick="iaFiltrar(${jsq(k)})">${escapeHtml(k)}<span>${k === 'Todos' ? todos.length : todos.filter(x => x.categoria === k).length}</span></button>`).join('')}
     </div>
     <section aria-label="Achados">
       <div class="ia-nav">
@@ -5636,7 +6058,7 @@ function iaCorpoAnalise(c){
   else corpo = `<div class="hint" style="line-height:1.7;">${(a.fontes || []).map(f => escapeHtml(f.nome) + (f.comTexto === false ? ' (só cabeçalho)' : '')).join(' · ') || '—'}</div>
       ${(a.avisos && a.avisos.length) ? `<div class="hint" style="margin-top:10px;"><b>Sobre a leitura:</b> ${a.avisos.map(x => escapeHtml(x)).join(' ')}</div>` : ''}`;
   const mais = panel('iaMais', 'Mais da revisão', '', `
-      <div class="ia-abas" role="tablist">${abas.map(([k, rotulo, n]) => `<button class="ia-aba" role="tab" aria-selected="${aba === k}" onclick="iaAba('${k}')">${rotulo}${n ? ` <span>${n}</span>` : ''}</button>`).join('')}</div>
+      <div class="ia-abas" role="tablist">${abas.map(([k, rotulo, n]) => `<button class="ia-aba" role="tab" aria-selected="${aba === k}" onclick="iaAba(${jsq(k)})">${rotulo}${n ? ` <span>${n}</span>` : ''}</button>`).join('')}</div>
       ${corpo}`);
 
   return resumo + carrossel + mais;
@@ -5664,14 +6086,14 @@ function renderIA(){
         <span class="ia-num mono">${escapeHtml(c.numeroProcesso || 'sem número de processo')}</span>
       </div>
       <div class="ia-topo-dir">
-        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar('${c.id}')" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? 'Revisando…' : (a ? 'Revisar de novo' : 'Revisar esta perícia')}</button>
-        <button class="btn btn-primary" onclick="iaBaixarPdf('${c.id}')" ${a ? '' : 'disabled'}>${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>')} Baixar PDF dos erros</button>
+        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar(${jsq(c.id)})" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? 'Revisando…' : (a ? 'Revisar de novo' : 'Revisar esta perícia')}</button>
+        <button class="btn btn-primary" onclick="iaBaixarPdf(${jsq(c.id)})" ${a ? '' : 'disabled'}>${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>')} Baixar PDF dos erros</button>
       </div>
     </div>
     ${a ? `
     <div class="ia-fresco ${velho ? 'velho' : ''}">
       <i></i><span>${velho ? 'A perícia mudou depois da revisão de ' + iaQuando(a.quando) + '.' : 'Em dia · revisão de ' + iaQuando(a.quando) + ' · ' + (a.fontes || []).length + ' fonte' + ((a.fontes || []).length === 1 ? '' : 's') + ' lida' + ((a.fontes || []).length === 1 ? '' : 's')}</span>
-      ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar('${c.id}')">Revisar de novo</button>` : ''}
+      ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar(${jsq(c.id)})">Revisar de novo</button>` : ''}
       <label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Rever sozinha quando chegar documento novo</label>
     </div>` : ''}
     ${msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
@@ -6000,7 +6422,7 @@ function assinarCasos(filtrado){
   casosUnsub = consulta.onSnapshot(snap => {
     const antes = {};
     casos.forEach(c => { antes[c.id] = c.documentos; });
-    casos = snap.docs.map(d => ({id:d.id, documentos: antes[d.id] || [], ...d.data()}));
+    casos = snap.docs.filter(d => ID_SEGURO.test(d.id)).map(d => limparCaso({...d.data(), id:d.id, documentos: antes[d.id] || []}));
     if(!filtrado) migrarAcessos();
     renderAll();
   }, err => {
@@ -6128,7 +6550,7 @@ function subscribeDocumentos(casoId){
   currentDocsUnsub = db.collection('casos').doc(casoId).collection('documentos').onSnapshot(snap => {
     const cc = casos.find(x => x.id === casoId);
     if(!cc) return;
-    cc.documentos = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    cc.documentos = snap.docs.filter(d => ID_SEGURO.test(d.id)).map(d => ({...d.data(), id:d.id}));
     if(drawerCasoId === casoId) renderDrawer();
   }, err => { /* mantém último estado conhecido */ });
 }
@@ -6313,6 +6735,7 @@ async function downloadDoc(casoId, docId){
   const d = c && c.documentos.find(x => x.id === docId);
   if(!d || !d.arquivo) return;
   const src = arquivoSrc(d.arquivo);
+  if(!src){ pfAviso('Este arquivo tem um endereço inválido e não foi aberto.'); return; }
   try{
     const res = await fetch(src);
     if(!res.ok) throw new Error('fetch failed');
@@ -6323,7 +6746,7 @@ async function downloadDoc(casoId, docId){
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 10000);
   }catch(e){
-    window.open(src, '_blank');
+    window.open(src, '_blank', 'noopener');
   }
 }
 
@@ -6382,14 +6805,14 @@ function openViewer(casoId, docId){
   const d = c && (c.documentos||[]).find(x => x.id === docId);
   if(!d || !d.arquivo) return;
   const src = arquivoSrc(d.arquivo);
-  const mime = arquivoMime(d.arquivo);
+  const mime = String(arquivoMime(d.arquivo) || '');
   let bodyHtml;
-  if(mime === 'application/pdf'){
-    bodyHtml = `<iframe src="${src}" title="${escapeHtml(d.nome)}"></iframe>`;
-  } else if(mime.startsWith('image/')){
-    bodyHtml = `<img src="${src}" alt="${escapeHtml(d.nome)}">`;
+  if(src && mime === 'application/pdf'){
+    bodyHtml = `<iframe src="${escapeHtml(src)}" title="${escapeHtml(d.nome)}"></iframe>`;
+  } else if(src && /^image\/(png|jpe?g|gif|webp)$/.test(mime)){
+    bodyHtml = `<img src="${escapeHtml(src)}" alt="${escapeHtml(d.nome)}">`;
   } else {
-    bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc('${casoId}','${docId}')">Baixar arquivo</button></div>`;
+    bodyHtml = `<div class="viewer-fallback">Pré-visualização não disponível para este tipo de arquivo.<br><button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="downloadDoc(${jsq(casoId)},${jsq(docId)})">Baixar arquivo</button></div>`;
   }
   document.getElementById('viewerTitle').textContent = d.nome;
   document.getElementById('viewerBody').innerHTML = bodyHtml;
@@ -6418,14 +6841,14 @@ function renderDocItem(c, d){
           <input type="date" id="editData-${d.id}" value="${d.data||''}">
         </div>
         <div class="add-row">
-          <button class="btn btn-primary btn-sm" onclick="saveDocEdit('${c.id}','${d.id}')">Salvar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveDocEdit(${jsq(c.id)},${jsq(d.id)})">Salvar</button>
           <button class="btn btn-ghost btn-sm" onclick="cancelEditDoc()">Cancelar</button>
         </div>
       </div>`;
   }
   const sizeTxt = fmtBytes(d.tamanho);
   const processoDivergente = d.processo && c.numeroProcesso && d.processo !== c.numeroProcesso;
-  const openAttr = d.arquivo ? `onclick="openViewer('${c.id}','${d.id}')"` : '';
+  const openAttr = d.arquivo ? `onclick="openViewer(${jsq(c.id)},${jsq(d.id)})"` : '';
   return `
     <div class="doc-item ${d.arquivo ? 'has-file' : ''}" ${openAttr} ${d.arquivo ? `title="Clique para abrir ${escapeHtml(d.nome)}"` : ''}>
       <div style="min-width:0;">
@@ -6438,10 +6861,10 @@ function renderDocItem(c, d){
         ${d.codigoAcesso ? `<div class="d-meta">Código de acesso: <span class="mono">${escapeHtml(d.codigoAcesso)}</span></div>` : ''}
       </div>
       <div class="d-actions">
-        ${d.arquivo ? `<button class="icon-btn" title="Abrir arquivo" onclick="event.stopPropagation(); openViewer('${c.id}','${d.id}')">${svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>')}</button>` : ''}
-        ${d.arquivo ? `<button class="icon-btn" title="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${c.id}','${d.id}')">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')}</button>` : ''}
-        <button class="icon-btn" title="Editar" onclick="event.stopPropagation(); editDoc('${d.id}')">${svg('<path d="M4 20h4L19 9a2.1 2.1 0 00-3-3L5 17z"/>')}</button>
-        <button class="icon-btn danger" title="Remover" onclick="event.stopPropagation(); removeDoc('${c.id}','${d.id}')">${svg('<path d="M18 6L6 18M6 6l12 12"/>')}</button>
+        ${d.arquivo ? `<button class="icon-btn" title="Abrir arquivo" onclick="event.stopPropagation(); openViewer(${jsq(c.id)},${jsq(d.id)})">${svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>')}</button>` : ''}
+        ${d.arquivo ? `<button class="icon-btn" title="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc(${jsq(c.id)},${jsq(d.id)})">${svg('<path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>')}</button>` : ''}
+        <button class="icon-btn" title="Editar" onclick="event.stopPropagation(); editDoc(${jsq(d.id)})">${svg('<path d="M4 20h4L19 9a2.1 2.1 0 00-3-3L5 17z"/>')}</button>
+        <button class="icon-btn danger" title="Remover" onclick="event.stopPropagation(); removeDoc(${jsq(c.id)},${jsq(d.id)})">${svg('<path d="M18 6L6 18M6 6l12 12"/>')}</button>
       </div>
     </div>`;
 }
@@ -6467,14 +6890,14 @@ function renderDocumentosSection(c){
       <datalist id="${faseListId}">${suggestions.map(s => `<option value="${escapeHtml(s)}">`).join('')}</datalist>
 
       <div class="import-box">
-        <input type="file" id="zipInput-${c.id}" accept=".zip" style="display:none" onchange="handleZipImport('${c.id}', this)">
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('zipInput-${c.id}').click()">Importar ZIP de documentos</button>
+        <input type="file" id="zipInput-${c.id}" accept=".zip" style="display:none" onchange="handleZipImport(${jsq(c.id)}, this)">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById(${jsq('zipInput-' + c.id)}).click()">Importar ZIP de documentos</button>
         <div class="hint">Cada arquivo é separado por pasta (fase ou despacho) e pela data no nome. Arquivos até ${limite} ficam anexados; os maiores entram apenas como registro.</div>
         <div id="zipStatus-${c.id}" class="hint" style="color:var(--accent-deep);"></div>
       </div>
 
       <div class="import-box" style="margin-top:10px;">
-        <button class="btn btn-primary btn-sm" onclick="pjBaixarAutos('${c.id}')">Baixar autos do PROJUDI</button>
+        <button class="btn btn-primary btn-sm" onclick="pjBaixarAutos(${jsq(c.id)})">Baixar autos do PROJUDI</button>
         <div class="hint">Traz os PDFs do processo direto do PROJUDI, um a um e sem repetir os que já estão aqui. ${c.codigoAcesso && pjMetodo() !== 'sessao' ? 'Usa o código de acesso desta perícia, sem login.' : 'Usa o seu login no PROJUDI (certificado digital ou CPF e senha).'}</div>
         <div id="pjStatus-${c.id}" class="hint" style="color:var(--ink-2);">${pjStatusHtml(c.id)}</div>
       </div>
@@ -6493,7 +6916,7 @@ function renderDocumentosSection(c){
         </div>
         <div class="add-row">
           <input type="file" id="docArquivo-${c.id}" style="flex:1; border:none; padding:4px 0; background:transparent; font-size:12px;">
-          <button class="btn btn-ghost btn-sm" onclick="addDocFromForm('${c.id}')">Adicionar</button>
+          <button class="btn btn-ghost btn-sm" onclick="addDocFromForm(${jsq(c.id)})">Adicionar</button>
         </div>
       </div>
     </div>`;
@@ -6507,7 +6930,7 @@ function renderObservacoesSection(c){
       <div class="add-row" style="flex-wrap:wrap; margin-top:0; margin-bottom:10px;">
         <textarea id="obsTexto-${c.id}" placeholder="Escreva um comentário sobre o andamento da perícia" style="flex:1 1 100%; min-height:64px; resize:vertical;"></textarea>
       </div>
-      <div class="add-row" style="margin-top:0; margin-bottom:16px;"><button class="btn btn-ghost btn-sm" onclick="addObs('${c.id}')">Adicionar comentário</button></div>
+      <div class="add-row" style="margin-top:0; margin-bottom:16px;"><button class="btn btn-ghost btn-sm" onclick="addObs(${jsq(c.id)})">Adicionar comentário</button></div>
       ${obs.length===0 ? `<div class="hint">Nenhum comentário ainda.</div>` : ''}
       ${[...obs].reverse().map(o => `
         <div class="obs-item"><div><div class="o-date mono">${fmtDate(o.data)}</div>${escapeHtml(o.texto)}</div></div>`).join('')}
@@ -6530,10 +6953,10 @@ function renderDrawer(){
         ${svg('<path d="M19 12H5M11 18l-6-6 6-6"/>')}
         Voltar
       </button>
-      <input class="codigo-input" value="${escapeHtml(c.codigo)}" onchange="fieldUpdate('${c.id}','codigo',this.value)" aria-label="Código da perícia">
-      <input class="nome-input" value="${escapeHtml(c.nome)}" onchange="fieldUpdate('${c.id}','nome',this.value)" aria-label="Nome da perícia">
+      <input class="codigo-input" value="${escapeHtml(c.codigo)}" onchange="fieldUpdate(${jsq(c.id)},'codigo',this.value)" aria-label="Código da perícia">
+      <input class="nome-input" value="${escapeHtml(c.nome)}" onchange="fieldUpdate(${jsq(c.id)},'nome',this.value)" aria-label="Nome da perícia">
       ${meuNivel === 'dono'
-        ? `<button class="btn btn-danger btn-sm" onclick="confirmDelete('${c.id}')">Excluir perícia</button>`
+        ? `<button class="btn btn-danger btn-sm" onclick="confirmDelete(${jsq(c.id)})">Excluir perícia</button>`
         : `<span class="pill ${meuNivel==='editar'?'pill-success':'pill-muted'}" title="Compartilhada por ${escapeHtml(membroDe(dono).nome)}">${meuNivel==='editar'?'Compartilhada — você pode editar':'Compartilhada — somente leitura'}</span>`}
     </div>
     <div class="drawer-body ${meuNivel === 'leitura' ? 'somente-leitura' : ''}">
@@ -6541,23 +6964,23 @@ function renderDrawer(){
 
       <div class="meta-grid">
         <div class="meta-item"><label>Perito responsável</label>
-          <select onchange="mudarDono('${c.id}', this.value)" ${souDono(c)?'':'disabled'}>${donoOptions}</select>
+          <select onchange="mudarDono(${jsq(c.id)}, this.value)" ${souDono(c)?'':'disabled'}>${donoOptions}</select>
         </div>
-        <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate('${c.id}','numeroProcesso',this.value)"></div>
-        <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate('${c.id}','codigoAcesso',this.value)"></div>
+        <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate(${jsq(c.id)},'numeroProcesso',this.value)"></div>
+        <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate(${jsq(c.id)},'codigoAcesso',this.value)"></div>
         <div class="meta-item"><label>Status do processo</label>
-          <select onchange="fieldUpdate('${c.id}','statusProcesso',this.value)">${statusProcessoOptions}</select>
+          <select onchange="fieldUpdate(${jsq(c.id)},'statusProcesso',this.value)">${statusProcessoOptions}</select>
         </div>
-        <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate('${c.id}','vara',this.value)"></div>
-        <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate('${c.id}','comarca',this.value)"></div>
-        <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate('${c.id}','partes',this.value)"></div>
-        <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate('${c.id}','dataNomeacao',this.value)"></div>
-        <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate('${c.id}','prazoEntrega',this.value)"></div>
+        <div class="meta-item"><label>Vara</label><input value="${escapeHtml(c.vara)}" onchange="fieldUpdate(${jsq(c.id)},'vara',this.value)"></div>
+        <div class="meta-item"><label>Comarca</label><input value="${escapeHtml(c.comarca)}" onchange="fieldUpdate(${jsq(c.id)},'comarca',this.value)"></div>
+        <div class="meta-item"><label>Partes</label><input value="${escapeHtml(c.partes)}" onchange="fieldUpdate(${jsq(c.id)},'partes',this.value)"></div>
+        <div class="meta-item"><label>Data de nomeação</label><input type="date" value="${c.dataNomeacao}" onchange="fieldUpdate(${jsq(c.id)},'dataNomeacao',this.value)"></div>
+        <div class="meta-item"><label>Prazo de entrega</label><input type="date" value="${c.prazoEntrega}" onchange="fieldUpdate(${jsq(c.id)},'prazoEntrega',this.value)"></div>
         <div class="meta-item"><label>Status</label>
-          <select onchange="fieldUpdate('${c.id}','statusCaso',this.value)">${statusOptions}</select>
+          <select onchange="fieldUpdate(${jsq(c.id)},'statusCaso',this.value)">${statusOptions}</select>
         </div>
-        <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate('${c.id}','honorarios',this.value,true)"></div>
-        <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate('${c.id}','valorRecebido',this.value,true)"></div>
+        <div class="meta-item"><label>Honorários (R$)</label><input type="number" step="0.01" value="${c.honorarios}" onchange="fieldUpdate(${jsq(c.id)},'honorarios',this.value,true)"></div>
+        <div class="meta-item"><label>Valor recebido (R$)</label><input type="number" step="0.01" value="${c.valorRecebido}" onchange="fieldUpdate(${jsq(c.id)},'valorRecebido',this.value,true)"></div>
         <div class="meta-item"><label>Saldo a receber</label><div class="readout" style="color:${saldo>0?'var(--danger)':'var(--ok)'}">${fmtMoney(Math.max(0,saldo))}</div></div>
       </div>
 
@@ -6584,7 +7007,7 @@ function confirmDelete(casoId){
     <div class="confirm-box" style="margin:16px 0 0;">
       Excluir esta perícia e todos os seus documentos e comentários? Esta ação não pode ser desfeita.
       <div class="row">
-        <button class="btn btn-danger btn-sm" onclick="excluirCaso('${casoId}')">Sim, excluir</button>
+        <button class="btn btn-danger btn-sm" onclick="excluirCaso(${jsq(casoId)})">Sim, excluir</button>
         <button class="btn btn-ghost btn-sm" onclick="renderDrawer()">Cancelar</button>
       </div>
     </div>`;
@@ -6652,7 +7075,7 @@ function pjStatusHtml(casoId){
   return `<div style="display:flex; gap:8px; align-items:flex-start; margin-top:8px;">
       <span class="pill ${pill}">${rotulo}</span>
       <span style="flex:1; min-width:0;">${escapeHtml(s.texto || '')}${barra}</span>
-      ${ativo ? `<button class="btn btn-ghost btn-sm" onclick="pjCancelar('${casoId}')">Cancelar</button>` : ''}
+      ${ativo ? `<button class="btn btn-ghost btn-sm" onclick="pjCancelar(${jsq(casoId)})">Cancelar</button>` : ''}
     </div>`;
 }
 function pjStatus(casoId, patch){
@@ -6780,8 +7203,8 @@ function pjMostrarOfertas(){
         <label class="hint" for="pjDestino-${p.id}">Guardar em</label>
         <select id="pjDestino-${p.id}">${opcoes}</select>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-primary btn-sm" onclick="pjAceitarOferta('${p.id}')">Importar</button>
-          <button class="btn btn-ghost btn-sm" onclick="pjDescartarOferta('${p.id}')">Descartar</button>
+          <button class="btn btn-primary btn-sm" onclick="pjAceitarOferta(${jsq(p.id)})">Importar</button>
+          <button class="btn btn-ghost btn-sm" onclick="pjDescartarOferta(${jsq(p.id)})">Descartar</button>
         </div>
       </div>`;
   }).join('<hr style="border:0; border-top:1px solid var(--line); margin:4px 0;">');
@@ -6828,7 +7251,7 @@ function renderAcessoProjudi(){
     </div>
     <div style="margin:16px 0 8px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);">Como buscar os autos</div>
     <div class="chips">
-      ${PJ_METODOS.map(m => `<button class="chip ${atual===m.id?'active':''}" onclick="pjDefinirMetodo('${m.id}')" aria-pressed="${atual===m.id}">${m.nome}</button>`).join('')}
+      ${PJ_METODOS.map(m => `<button class="chip ${atual===m.id?'active':''}" onclick="pjDefinirMetodo(${jsq(m.id)})" aria-pressed="${atual===m.id}">${m.nome}</button>`).join('')}
     </div>
     <div class="hint" style="margin-top:8px;">${escapeHtml((PJ_METODOS.find(m => m.id === atual) || PJ_METODOS[0]).desc)}</div>
     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;">
@@ -7008,17 +7431,17 @@ function renderTarefas(){
   const colunas = PF_TAREFA_COLS.map(([k, rotulo], ci) => {
     const lista = todas.filter(t => (t.col || 'fazer') === k)
       .sort((a, b) => (ordemPrio[a.prio] ?? 1) - (ordemPrio[b.prio] ?? 1) || (a.ate || '9').localeCompare(b.ate || '9'));
-    return `<div class="pf-kcol" data-col="${k}" ondragover="event.preventDefault(); this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="pfSoltar(event,'${k}')">
+    return `<div class="pf-kcol" data-col="${k}" ondragover="event.preventDefault(); this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="pfSoltar(event,${jsq(k)})">
       <h5>${rotulo}<span>${lista.length}</span></h5>
       ${lista.map(t => `
-        <div class="pf-kcard" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${t.casoId}|${t.id}')">
+        <div class="pf-kcard" draggable="true" ondragstart="event.dataTransfer.setData('text/plain',${jsq(t.casoId + '|' + t.id)})">
           <div class="pf-krow"><span class="pf-prio ${t.prio || 'media'}" title="prioridade ${PF_PRIO[t.prio] || 'Média'}"></span><b>${escapeHtml(t.titulo)}</b></div>
-          <div class="pf-krow pf-kmeta"><button class="link-sutil mono" onclick="openDrawer('${t.casoId}')">${escapeHtml(t.caso.codigo)}</button><span style="flex:1"></span>${t.ate ? pfPillData(t.ate, k === 'feito') : ''}</div>
+          <div class="pf-krow pf-kmeta"><button class="link-sutil mono" onclick="openDrawer(${jsq(t.casoId)})">${escapeHtml(t.caso.codigo)}</button><span style="flex:1"></span>${t.ate ? pfPillData(t.ate, k === 'feito') : ''}</div>
           <div class="pf-krow pf-kacoes">
-            ${ci > 0 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa('${t.casoId}','${t.id}',-1)" aria-label="Voltar" title="Voltar para ${PF_TAREFA_COLS[ci-1][1]}">←</button>` : ''}
-            ${ci < 2 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa('${t.casoId}','${t.id}',1)" aria-label="Avançar" title="Mover para ${PF_TAREFA_COLS[ci+1][1]}">→</button>` : ''}
+            ${ci > 0 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa(${jsq(t.casoId)},${jsq(t.id)},-1)" aria-label="Voltar" title="Voltar para ${PF_TAREFA_COLS[ci-1][1]}">←</button>` : ''}
+            ${ci < 2 ? `<button class="btn btn-ghost btn-sm" onclick="pfPassoTarefa(${jsq(t.casoId)},${jsq(t.id)},1)" aria-label="Avançar" title="Mover para ${PF_TAREFA_COLS[ci+1][1]}">→</button>` : ''}
             <span style="flex:1"></span>
-            <button class="btn btn-ghost btn-sm" onclick="pfApagarTarefa('${t.casoId}','${t.id}')">Apagar</button>
+            <button class="btn btn-ghost btn-sm" onclick="pfApagarTarefa(${jsq(t.casoId)},${jsq(t.id)})">Apagar</button>
           </div>
         </div>`).join('') || `<div class="pf-vazio">${['Nenhuma tarefa por fazer. Crie a próxima no formulário acima.', 'Arraste para cá a tarefa que você começar.', 'As tarefas concluídas aparecem aqui.'][ci]}</div>`}
     </div>`;
@@ -7096,9 +7519,9 @@ function renderAgenda(){
       <time class="mono">${e.hora || '—'}</time>
       <div style="flex:1; min-width:0;">
         <b>${escapeHtml(e.titulo)}</b> <span class="pill ${pillTipo[e.tipo] || 'pill-muted'}">${e.tipo === 'prazo' ? 'Prazo' : PF_TIPO_COMP[e.tipo] || 'Compromisso'}</span>
-        <div class="hint"><button class="link-sutil mono" onclick="openDrawer('${e.casoId}')">${escapeHtml(e.caso.codigo)}</button>${e.local ? ' · ' + escapeHtml(e.local) : ''}</div>
+        <div class="hint"><button class="link-sutil mono" onclick="openDrawer(${jsq(e.casoId)})">${escapeHtml(e.caso.codigo)}</button>${e.local ? ' · ' + escapeHtml(e.local) : ''}</div>
       </div>
-      ${e.origem === 'compromisso' && podeEditar(e.caso) ? `<button class="btn btn-ghost btn-sm" onclick="pfApagarCompromisso('${e.casoId}','${e.id}')">Apagar</button>` : ''}
+      ${e.origem === 'compromisso' && podeEditar(e.caso) ? `<button class="btn btn-ghost btn-sm" onclick="pfApagarCompromisso(${jsq(e.casoId)},${jsq(e.id)})">Apagar</button>` : ''}
     </div>`;
   const lista = Object.keys(porDia).length ? Object.entries(porDia).map(([d, itens]) => {
       const dt = new Date(d + 'T12:00:00');
@@ -7148,10 +7571,10 @@ function renderFinanceiro(){
     const f = pfFin(c);
     const pct = (v) => f.arbitrado ? Math.min(100, Math.round(100 * v / f.arbitrado)) : 0;
     return `<tr>
-      <td><button class="link-sutil" onclick="openDrawer('${c.id}')"><b>${escapeHtml(c.nome)}</b></button><div class="hint mono">${escapeHtml(c.codigo)}</div></td>
+      <td><button class="link-sutil" onclick="openDrawer(${jsq(c.id)})"><b>${escapeHtml(c.nome)}</b></button><div class="hint mono">${escapeHtml(c.codigo)}</div></td>
       <td style="min-width:140px;"><div class="pf-fin-bar" title="levantado ${pct(f.levantado)}% · depositado ${pct(f.depositado)}%"><i class="lev" style="width:${pct(f.levantado)}%"></i><i class="dep" style="width:${pct(f.depositado) - pct(f.levantado)}%"></i></div></td>
       <td class="n">${fmtMoney(f.arbitrado)}</td>
-      <td class="n">${podeEditar(c) ? `<input class="pf-num" id="pfDep-${c.id}" inputmode="decimal" value="${f.depositado ? f.depositado.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : ''}" placeholder="0,00" onchange="pfSalvarDepositado('${c.id}', this.value)" aria-label="Depositado em juízo">` : fmtMoney(f.depositado)}</td>
+      <td class="n">${podeEditar(c) ? `<input class="pf-num" id="pfDep-${c.id}" inputmode="decimal" value="${f.depositado ? f.depositado.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : ''}" placeholder="0,00" onchange="pfSalvarDepositado(${jsq(c.id)}, this.value)" aria-label="Depositado em juízo">` : fmtMoney(f.depositado)}</td>
       <td class="n">${fmtMoney(f.levantado)}</td>
     </tr>`;
   }).join('');
@@ -7241,7 +7664,7 @@ function renderImportar(){
     </div>`;
   }
   return `<div class="section-gap">
-    <div class="chips">${abas.map(([k, l]) => `<button class="chip ${pfOrigemImport === k ? 'active' : ''}" onclick="pfSetOrigem('${k}')">${l}</button>`).join('')}</div>
+    <div class="chips">${abas.map(([k, l]) => `<button class="chip ${pfOrigemImport === k ? 'active' : ''}" onclick="pfSetOrigem(${jsq(k)})">${l}</button>`).join('')}</div>
     ${corpo}
   </div>`;
 }
@@ -7256,7 +7679,7 @@ function renderPublicacoes(){
       <div class="pf-linha"><a class="btn btn-ghost" href="https://comunica.pje.jus.br/" target="_blank" rel="noopener">Consultar o DJEN agora</a></div>
     </div>
     ${panel('pubMonitorar', 'O que será monitorado', `${numeros.length} processo${numeros.length === 1 ? '' : 's'} em andamento`, numeros.length
-      ? `<div class="rows">${numeros.map(c => `<div class="row-item" onclick="openDrawer('${c.id}')"><div class="row-main"><div class="row-title">${escapeHtml(c.nome)}</div><div class="row-sub"><span class="mono">${escapeHtml(c.numeroProcesso)}</span> · ${escapeHtml(c.vara || 'vara não informada')}</div></div></div>`).join('')}</div>`
+      ? `<div class="rows">${numeros.map(c => `<div class="row-item" onclick="openDrawer(${jsq(c.id)})"><div class="row-main"><div class="row-title">${escapeHtml(c.nome)}</div><div class="row-sub"><span class="mono">${escapeHtml(c.numeroProcesso)}</span> · ${escapeHtml(c.vara || 'vara não informada')}</div></div></div>`).join('')}</div>`
       : `<div class="chart-empty">Nenhuma perícia em andamento com número de processo.</div>`)}
   </div>`;
 }
@@ -7357,7 +7780,7 @@ function renderHoje(){
   const tarefas = pfTarefasAbertas().filter(t => t.ate && diasAte(t.ate) <= 3).sort((a, b) => a.ate.localeCompare(b.ate)).slice(0, 6);
   const comp = pfEventos().filter(e => e.origem === 'compromisso' && diasAte(e.data) >= 0 && diasAte(e.data) <= 7).slice(0, 6);
   if(!tarefas.length && !comp.length) return '';
-  const item = (titulo, sub, iso, casoId) => `<div class="row-item" onclick="openDrawer('${casoId}')"><div class="row-main"><div class="row-title">${escapeHtml(titulo)}</div><div class="row-sub">${sub}</div></div><div class="row-side">${pfPillData(iso)}</div></div>`;
+  const item = (titulo, sub, iso, casoId) => `<div class="row-item" onclick="openDrawer(${jsq(casoId)})"><div class="row-main"><div class="row-title">${escapeHtml(titulo)}</div><div class="row-sub">${sub}</div></div><div class="row-side">${pfPillData(iso)}</div></div>`;
   return `<div class="pf-grid2">
     ${panel('hojeTarefas', 'Tarefas que vencem logo', `${pfTarefasAbertas().length} aberta${pfTarefasAbertas().length === 1 ? '' : 's'}`, tarefas.length ? `<div class="rows">${tarefas.map(t => item(t.titulo, `<span class="mono">${escapeHtml(t.caso.codigo)}</span> · prioridade ${PF_PRIO[t.prio] || 'Média'}`, t.ate, t.casoId)).join('')}</div>` : `<div class="chart-empty">Nenhuma tarefa vencendo.</div>`)}
     ${panel('hojeAgenda', 'Agenda da semana', 'próximos 7 dias', comp.length ? `<div class="rows">${comp.map(e => item(e.titulo, `${e.hora || 'dia todo'} · <span class="mono">${escapeHtml(e.caso.codigo)}</span>${e.local ? ' · ' + escapeHtml(e.local) : ''}`, e.data, e.casoId)).join('')}</div>` : `<div class="chart-empty">Nada agendado na semana.</div>`)}
@@ -7409,7 +7832,7 @@ function renderNav(){
   const item = (id) => {
     const s = SECTIONS.find(x => x.id === id);
     if(!s) return '';
-    return `<button class="nav-item ${activeSection === id ? 'active' : ''}" data-sec="${id}" onclick="setSection('${id}')" title="${escapeHtml(s.titulo)}" ${activeSection === id ? 'aria-current="page"' : ''}>
+    return `<button class="nav-item ${activeSection === id ? 'active' : ''}" data-sec="${id}" onclick="setSection(${jsq(id)})" title="${escapeHtml(s.titulo)}" ${activeSection === id ? 'aria-current="page"' : ''}>
       ${svg(ICONS[id] || ICONS.docs)}<span>${escapeHtml(s.titulo)}</span>${selos[id] || ''}</button>`;
   };
   const html = PF_NAV.map(g => {
@@ -7418,7 +7841,7 @@ function renderNav(){
     const aberto = abertos[g.id] || temAtivo;
     const alerta = !aberto && g.itens.some(i => selos[i]);
     return `<div class="pf-grupo ${aberto ? 'aberto' : ''}">
-      <button class="pf-grupo-tit" onclick="pfAlternarGrupo('${g.id}')" aria-expanded="${aberto}" aria-controls="pfg-${g.id}">
+      <button class="pf-grupo-tit" onclick="pfAlternarGrupo(${jsq(g.id)})" aria-expanded="${aberto}" aria-controls="pfg-${g.id}">
         <span>${g.titulo}</span>${alerta ? '<i class="pf-ponto" aria-label="tem pendências"></i>' : ''}
         ${svg('<path d="M9 6l6 6-6 6"/>', 'class="pf-chev"')}
       </button>

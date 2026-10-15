@@ -189,15 +189,37 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 });
 
 
+// ---------- Quem pode pedir o quê ----------
+// Cada tipo de mensagem só é aceito vindo do lugar certo: os pedidos "PF_" só da página do
+// PeríciaFlow, os "PROJUDI_"/"PJ_" só do site do PROJUDI. E só baixamos arquivos do PROJUDI.
+const ORIGENS_PF = ["https://jonatasmiranda2405-crypto.github.io", "http://localhost:8080"];
+const ORIGEM_PJ = "https://projudi.tjgo.jus.br";
+const TIPOS_PF = new Set(["PF_ACEITAR", "PF_BAIXAR", "PF_CANCELAR", "PF_ENTRAR", "PF_FIM", "PF_LICENCA", "PF_PENDENTES"]);
+const TIPOS_PJ = new Set(["PROJUDI_CHECKOUT", "PROJUDI_LICENSE", "PROJUDI_LISTA", "PROJUDI_TAREFA", "PROJUDI_ZIP", "PJ_TAREFA", "PJ_TENTATIVA", "PJ_PRECISA"]);
+function origemDe(sender) {
+  if (sender.origin) return sender.origin;
+  try { return new URL(sender.url || sender.tab?.url || "").origin; } catch (_) { return ""; }
+}
+function urlDoProjudi(u) {
+  try { const x = new URL(u); return x.protocol === "https:" && (x.hostname === "projudi.tjgo.jus.br" || x.hostname.endsWith(".tjgo.jus.br")); }
+  catch (_) { return false; }
+}
+function nomeSeguro(n, padrao) {
+  const s = String(n || "").replace(/\.\.+/g, ".").replace(/[\\:*?"<>|\x00-\x1f]/g, "_").replace(/^[\/.]+/, "").slice(0, 180);
+  return s || padrao;
+}
+function soArquivosDoProjudi(lista) {
+  return (Array.isArray(lista) ? lista : []).filter((f) => f && urlDoProjudi(f.url));
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (sender.id !== chrome.runtime.id) return;
+  const origem = origemDe(sender);
+  if (TIPOS_PF.has(msg?.type) && !ORIGENS_PF.includes(origem)) { sendResponse({ ok: false, erro: "Origem não permitida." }); return; }
+  if (TIPOS_PJ.has(msg?.type) && origem !== ORIGEM_PJ) { sendResponse({ ok: false, error: "Origem não permitida." }); return; }
+
   if (msg?.type === "PROJUDI_LICENSE") {
     checkLicense(msg.email).then(sendResponse);
-    return true;
-  }
-
-  // Download avulso (fallback interno)
-  if (msg?.type === "PROJUDI_DOWNLOAD") {
-    download({ url: msg.url, filename: msg.filename }).then(sendResponse);
     return true;
   }
 
@@ -211,7 +233,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "PROJUDI_ZIP") {
     (async () => {
       const tabId = sender.tab?.id;
-      const { files, zipFilename, folder } = msg;
+      const files = soArquivosDoProjudi(msg.files);
+      const zipFilename = nomeSeguro(msg.zipFilename, "PROJUDI.zip");
+      const folder = nomeSeguro(msg.folder, "PROJUDI");
       try {
         const lic = await checkLicense();
         if (!lic.ativo) { sendResponse({ ok: false, license: lic }); return; }
@@ -227,7 +251,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const failed = res?.failed || files;
         let avulsos = 0;
         for (const f of failed) {
-          const r = await download({ url: f.url, filename: `${folder}/${f.zipName}` });
+          const r = await download({ url: f.url, filename: `${folder}/${nomeSeguro(f.zipName, "arquivo.pdf")}` });
           if (r.ok) avulsos++;
         }
         sendResponse({ ok: zipOk, count: zipOk ? res.count : 0, bytes: res?.bytes || 0, avulsos, falhas: failed.length - avulsos });
@@ -396,7 +420,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       try {
         const lic = await checkLicense();
         if (!lic.ativo) { sendResponse({ ok: false, license: lic }); return; }
-        const arquivos = msg.files || [];
+        const arquivos = soArquivosDoProjudi(msg.files);
         let p = msg.pedidoId ? await lerPedido(msg.pedidoId) : null;
         if (p) {
           // pedido feito pelo site: só os arquivos novos

@@ -65,7 +65,7 @@ test('criar perícia: só como dono, com acessos coerentes e id seguro', async (
   await assertSucceeds(setDoc(doc(f, 'casos/c2'), { nome: 'Nova', dono: ESTRANHO, emails: [ESTRANHO], editores: [ESTRANHO], compartilhamentos: [] }));
   await assertFails(setDoc(doc(f, 'casos/c3'), { nome: 'Nova', dono: DONO, emails: [DONO, ESTRANHO], editores: [DONO, ESTRANHO] }));
   await assertFails(setDoc(doc(f, 'casos/c4'), { nome: 'Nova', dono: ESTRANHO, emails: [ESTRANHO], editores: [ESTRANHO, DONO] }));
-  await assertFails(setDoc(doc(f, "casos/x');alert(1)//"), { nome: 'Nova', dono: ESTRANHO, emails: [ESTRANHO], editores: [ESTRANHO] }));
+  await assertFails(setDoc(doc(f, "casos/x');alert(1)"), { nome: 'Nova', dono: ESTRANHO, emails: [ESTRANHO], editores: [ESTRANHO] }));
   await assertFails(setDoc(doc(f, 'casos/c5'), { nome: 'Sem acessos' }));
 });
 test('editor altera e compartilha, mas não troca o dono nem o remove', async () => {

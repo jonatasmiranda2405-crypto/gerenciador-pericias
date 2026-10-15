@@ -31,6 +31,8 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const pf = await ctx.newPage();
   const erros = [];
   pf.on("pageerror", (e) => erros.push(e.message));
+  const cspErros = [];
+  pf.on("console", (m) => { if (/Content Security Policy/i.test(m.text())) cspErros.push(m.text().slice(0, 200)); });
   // registra as notificações mostradas
   await pf.addInitScript(() => {
     window.__notas = [];
@@ -250,6 +252,47 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const [tudo] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click(".cfg-todos")]);
   fs.copyFileSync(await tudo.path(), path.join(SAIDA, "manuais-todos.pdf"));
   check("manual completo baixa em um PDF", tudo.suggestedFilename() === "periciaflow-manuais.pdf");
+
+  console.log("\n11) Segurança e Termos e privacidade");
+  check("página com política de segurança (CSP) e sem scripts de CDN", await pf.evaluate(() =>
+    /object-src 'none'/.test((document.querySelector('meta[http-equiv="Content-Security-Policy"]') || {}).content || "") &&
+    ![...document.scripts].some((x) => /cdnjs|gstatic/.test(x.src))));
+  const MAL = "x');window.__xss=1;('";
+  await pf.evaluate(async ([id, mal]) => {
+    const c = casos.find((x) => x.id === id);
+    await saveCaso(id, { tarefas: [...(c.tarefas || []), { id: mal, titulo: "<img src=x onerror=window.__xss=2>", col: "fazer", prio: "alta" }] });
+  }, [c1, MAL]);
+  await ir("tarefas");
+  await pf.click(`.pf-kcard:has-text("<img src=x") button[aria-label="Avançar"]`);
+  await sleep(300);
+  check("id e título maliciosos não viram código (tarefas)", await pf.evaluate(() => window.__xss === undefined) && await pf.locator('.pf-kcol[data-col="fazendo"] .pf-kcard:has-text("<img src=x")').count() === 1);
+  check("dados da nuvem passam pela limpeza", await pf.evaluate(() => {
+    const o = limparCaso({ emails: ["ok@x.com", "a');alert(1)//@x.com"], editores: ["OK@X.COM"], tarefas: [{ id: "a'b", titulo: "t" }], compartilhamentos: [{ email: 'b"@x.com' }] });
+    return o.emails.join() === "ok@x.com" && o.editores.join() === "ok@x.com" && o.tarefas[0].id === "a_b" && o.compartilhamentos.length === 0;
+  }));
+  check("endereço de arquivo perigoso é recusado", await pf.evaluate(() =>
+    arquivoSrc({ url: "javascript:alert(1)" }) === "" && arquivoSrc({ dataUrl: "data:text/html;base64,PHNjcmlwdD4=" }) === "" &&
+    arquivoSrc({ url: "https://firebasestorage.googleapis.com/v0/b/x/o/a.pdf" }) !== "" && arquivoSrc({ dataUrl: "data:application/pdf;base64,JVBE" }) !== ""));
+  await ir("privacidade");
+  check("Termos e privacidade: três documentos em abas", await pf.locator(".lg-aba").count() === 3 && /Termos de uso/.test(await pf.textContent(".lg-texto h1")));
+  check("índice lateral com as seções", await pf.locator(".lg-indice-item").count() === await pf.locator(".lg-sec").count() && await pf.locator(".lg-sec").count() >= 10);
+  await pf.click('.lg-aba[data-legal="seguranca"]');
+  await sleep(200);
+  check("aba Segurança abre", /Segurança/.test(await pf.textContent(".lg-texto h1")) && /Controle de acesso no servidor/.test(await pf.textContent(".lg-texto")));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-seguranca.png"), fullPage: true });
+  await pf.click('.lg-aba[data-legal="privacidade"]');
+  await sleep(200);
+  await pf.screenshot({ path: path.join(SAIDA, "tela-privacidade.png") });
+  const [lgpdf] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click(".lg-pdf")]);
+  fs.copyFileSync(await lgpdf.path(), path.join(SAIDA, "politica-privacidade.pdf"));
+  check("política baixa em PDF", lgpdf.suggestedFilename() === "periciaflow-privacidade.pdf");
+  await pf.evaluate(() => abrirLegal("termos"));
+  await sleep(200);
+  check("janela dos termos abre por cima (login e aceite)", await pf.isVisible("#legalModal .lg-texto"));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-termos-janela.png") });
+  await pf.keyboard.press("Escape");
+  check("Esc fecha a janela", !(await pf.isVisible("#legalModal .lg-texto")));
+  check("sem violação da política de segurança no console", cspErros.length === 0, cspErros.slice(0, 2).join(" | "));
 
   console.log("\n9) Barra lateral e paleta de comandos");
   await pf.setViewportSize({ width: 1360, height: 900 });
