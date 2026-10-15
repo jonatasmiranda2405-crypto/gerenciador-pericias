@@ -351,6 +351,26 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.evaluate(() => abrirLogin(false));
   check("ao entrar, a apresentação some", !(await pf.isVisible("#login .lp")));
 
+  console.log("\n13) Central do administrador (vigia)");
+  check("quem não é administrador não vê a Central", await pf.locator('#nav .nav-item[data-sec="admin"]').count() === 0);
+  await pf.evaluate(() => { currentUser = { email: "estranho@exemplo.com", emailVerified: true, providerData: [] }; renderAll(); setSection("admin"); });
+  await sleep(200);
+  check("conta comum que força a tela vê 'Área restrita'", /Área restrita/.test(await pf.textContent("#view")) && await pf.locator('#nav .nav-item[data-sec="admin"]').count() === 0);
+  await pf.evaluate(() => { currentUser = { email: "jonatasmiranda2405@gmail.com", emailVerified: true, providerData: [] }; pfRegistrarErro("erro", "teste do vigia: x is not a function", "index.html:10:5", "at teste"); renderAll(); setSection("admin"); });
+  await pf.waitForFunction(() => ADM.quando !== null, null, { timeout: 15000 });
+  await sleep(200);
+  const admTxt = await pf.textContent("#view");
+  check("administrador vê a Central com sondas, pontos frágeis e erros", await pf.locator('#nav .nav-item[data-sec="admin"]').count() === 1 && /Pontos frágeis para corrigir/.test(admTxt) && await pf.locator(".adm-sonda").count() >= 5 && /teste do vigia/.test(admTxt));
+  check("sondas do site passam (HTTPS, CSP, moldura, código só do site)", await pf.evaluate(() => ["csp", "moldura", "scripts"].every((id) => (ADM.sondas.find((x) => x.id === id) || {}).ok === true)), JSON.stringify(await pf.evaluate(() => ADM.sondas.map((x) => x.id + ":" + x.ok))));
+  await pf.check('.adm-ponto:has-text("duas etapas") input[type="checkbox"]');
+  await sleep(200);
+  check("'Já fiz' marca o ponto e fica salvo", await pf.evaluate(() => !!(perfil.adminFeitos || {})["2fa"]) && await pf.locator(".adm-ponto.feito").count() === 1);
+  await pf.screenshot({ path: path.join(SAIDA, "tela-admin.png"), fullPage: true });
+  const [rel] = await Promise.all([pf.waitForEvent("download", { timeout: 20000 }), pf.click('button:has-text("Relatório em PDF")')]);
+  fs.copyFileSync(await rel.path(), path.join(SAIDA, "relatorio-seguranca.pdf"));
+  check("relatório de segurança em PDF", /gerenciador-pericia-seguranca-/.test(rel.suggestedFilename()));
+  await pf.evaluate(() => { currentUser = null; perfil.adminFeitos = {}; setSection("visao"); });
+
   console.log("\n9) Barra lateral e paleta de comandos");
   await pf.setViewportSize({ width: 1360, height: 900 });
   await pf.evaluate(() => { document.documentElement.setAttribute("data-theme", "light"); setSection("visao"); });

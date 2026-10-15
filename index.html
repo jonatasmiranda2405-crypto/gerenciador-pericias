@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Segurança: de onde a página aceita carregar e para onde pode mandar dados. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br https://api.github.com; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script>
   /* Anti-clickjacking: o Gerenciador de Perícia nunca roda dentro de moldura de outro site. */
@@ -28,7 +28,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Montserrat:wght@600;700&display=swap">
 <!-- Bibliotecas servidas pelo próprio site (pasta vendor/): nenhum script de terceiros no carregamento. -->
 <script src="vendor/jszip-3.10.1.min.js"></script>
-<script src="vendor/pdfjs-2.16.105/pdf.min.js"></script>
+<script type="module">
+  /* pdf.js 6 (módulo): leitura do texto dos PDFs anexados. */
+  import * as pdfjsLib from './vendor/pdfjs-6.4.299/pdf.min.mjs';
+  window.pdfjsLib = pdfjsLib;
+</script>
 <script src="vendor/firebase-10.13.2/firebase-app-compat.js"></script>
 <script src="vendor/firebase-10.13.2/firebase-auth-compat.js"></script>
 <script src="vendor/firebase-10.13.2/firebase-firestore-compat.js"></script>
@@ -1403,6 +1407,51 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
   .lp-ia-vis{padding:30px 0 0;}
   .lp-rodape-in{grid-template-columns:1fr;}
 }
+
+/* ---------- Central do administrador ---------- */
+.adm-topo{display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:18px 20px; border-radius:14px; border:1px solid var(--line); background:var(--surface);}
+.adm-topo-ic{width:46px; height:46px; flex-shrink:0;}
+.adm-topo-ic .mk{width:46px; height:46px;}
+.adm-topo-txt{flex:1; min-width:220px; display:flex; flex-direction:column; gap:3px;}
+.adm-topo-txt b{font-size:17px;}
+.adm-topo-txt span{font-size:12.5px; color:var(--muted);}
+.adm-topo-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+.adm-topo-acoes .btn svg{width:15px; height:15px;}
+.adm-critico{border-color:var(--danger); background:var(--danger-soft);}
+.adm-critico .adm-topo-txt b{color:var(--danger);}
+.adm-alto{border-color:var(--warn); background:var(--warn-soft);}
+.adm-ok{border-color:var(--ok);}
+.adm-pontos{display:flex; flex-direction:column; gap:8px;}
+.adm-ponto{display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface);}
+.adm-ponto .pill{flex-shrink:0; margin-top:1px; min-width:58px; text-align:center;}
+.adm-ponto-txt{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
+.adm-ponto-txt b{font-size:13.5px;}
+.adm-ponto-txt span{font-size:12.5px; line-height:1.55; color:var(--muted);}
+.adm-ponto.feito{opacity:.55;}
+.adm-ponto.feito b{text-decoration:line-through;}
+.adm-feito{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2); white-space:nowrap; cursor:pointer;}
+.adm-ao-vivo{font-size:11.5px; font-weight:600; color:var(--danger); white-space:nowrap;}
+.adm-sondas{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:8px;}
+.adm-sonda{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:10px;}
+.adm-sonda b{display:block; font-size:13px;}
+.adm-sonda span{font-size:12px; color:var(--muted);}
+.adm-st{width:22px; height:22px; border-radius:50%; display:grid; place-items:center; flex-shrink:0;}
+.adm-st svg{width:14px; height:14px; stroke-width:2.6;}
+.adm-st.ok{background:var(--ok-soft); color:var(--ok);}
+.adm-st.falha{background:var(--danger-soft); color:var(--danger);}
+.adm-st.neutro{background:var(--surface-2); color:var(--muted);}
+.adm-erros{display:flex; flex-direction:column; gap:8px;}
+.adm-erro{border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+.adm-erro-cab{display:flex; align-items:center; gap:12px; width:100%; padding:11px 14px; background:var(--surface); border:0; text-align:left; font:inherit; color:var(--ink); cursor:pointer;}
+.adm-erro-n{font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:600; color:var(--danger); min-width:34px;}
+.adm-erro-msg{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+.adm-erro-msg b{font-size:13px; overflow-wrap:anywhere;}
+.adm-erro-msg span{font-size:12px; color:var(--muted);}
+.adm-chev{width:16px; height:16px; color:var(--muted);}
+.adm-erro-det{padding:12px 14px; border-top:1px solid var(--line); background:var(--surface-2);}
+.adm-pilha{white-space:pre-wrap; font-size:11.5px; line-height:1.5; max-height:220px; overflow:auto; color:var(--ink-2); overflow-wrap:anywhere;}
+.adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
+.mk-parado .mk-lupa{animation:none;}
 </style>
 </head>
 <body>
@@ -1870,6 +1919,7 @@ const SECTIONS = [
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
   {id:'integracoes', titulo:'Integrações', sub:'O que liga o Gerenciador de Perícia aos tribunais e serviços'},
   {id:'privacidade', titulo:'Termos e privacidade', sub:'Termos de uso, política de privacidade e segurança'},
+  {id:'admin',    titulo:'Central do administrador', sub:'Vigia de segurança, erros dos usuários e pontos frágeis para corrigir'},
   {id:'config',   titulo:'Configurações', sub:'Tema, cores e manuais de uso'},
   {id:'perfil',   titulo:'Meu perfil',    sub:'Seu cadastro profissional, conta e acesso ao PROJUDI'},
 ];
@@ -1890,6 +1940,7 @@ const ICONS = {
   ia:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/>',
   equipe:'<path d="M16 19v-1.4a3.6 3.6 0 00-3.6-3.6H7.6A3.6 3.6 0 004 17.6V19"/><circle cx="10" cy="7.5" r="3.1"/><path d="M20.5 19v-1.4a3.6 3.6 0 00-2.7-3.5M15.8 4.6a3.1 3.1 0 010 5.9"/>',
   projudi:'<path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V7z"/><path d="M9 12l2 2 4-4"/>',
+  admin:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><circle cx="12" cy="11" r="2.6"/><path d="M14 13l2 2"/>',
   perfil:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0115 0"/>',
   privacidade:'<path d="M12 3l7.5 3.2v5c0 4.4-3.1 8.2-7.5 9.6C7.6 19.4 4.5 15.6 4.5 11.2v-5z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>',
   config:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
@@ -2101,7 +2152,7 @@ function ensurePdfJs(){
   if(typeof pdfjsLib === 'undefined') return false;
   if(!pdfJsReady){
     try{
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs-2.16.105/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs-6.4.299/pdf.worker.min.mjs';
       pdfJsReady = true;
     }catch(e){ return false; }
   }
@@ -2111,7 +2162,7 @@ async function extractPdfInfo(bytes){
   const result = {processo:null, codigoAcesso:null};
   if(!ensurePdfJs()) return result;
   try{
-    const doc = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+    const doc = await pdfjsLib.getDocument({data: bytes.slice(), isEvalSupported: false, enableXfa: false}).promise;
     let text = '';
     const maxPages = Math.min(doc.numPages, 3);
     for(let i=1; i<=maxPages; i++){
@@ -2265,6 +2316,335 @@ function pfFavicon(){
     im.src = 'icones/icone-64.png';
   } else desenhar();
   if(rodando) PF_FAV.timer = setInterval(() => { PF_FAV.fase ^= 1; desenhar(); }, 700);
+}
+
+/* ==========================================================================
+   Central do administrador (Jonatas e Rodrigo)
+   Um "vigia" que roda no navegador do administrador:
+   - sondas de segurança ao vivo (o banco e os arquivos estão fechados?);
+   - erros que aconteceram no navegador dos usuários (coleção `erros`);
+   - pontos frágeis para corrigir, com gravidade e o passo a passo;
+   - integridade dos dados e o resultado do vigia diário do GitHub.
+   A visibilidade da tela é só de interface; quem garante o acesso aos
+   erros são as regras do Firestore (somente os dois e-mails abaixo).
+   ========================================================================== */
+const ADMINS = ['jonatasmiranda2405@gmail.com', 'rodrigodosantosmiranda@gmail.com'];
+const APP_VERSAO = '2026.10.15';
+const EXT_VERSAO_ATUAL = '1.7.3';
+const VIGIA_API = 'https://api.github.com/repos/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml/runs?per_page=5';
+const VIGIA_LINK = 'https://github.com/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml';
+function souAdmin(){ return !!(currentUser && contaVerificada() && ADMINS.includes(meuEmail())); }
+
+/* ---------- registro de erros (todos os usuários logados) ---------- */
+const PF_ERROS = {enviados: new Set(), n: 0, fila: []};
+function pfRegistrarErro(tipo, msg, origem, pilha){
+  try{
+    const m = String(msg || '').slice(0, 500);
+    if(!m || /ResizeObserver loop|^Script error\.?$/i.test(m)) return;
+    const chave = iaHash(m + '|' + String(origem || '').replace(/:\d+:\d+$/, ''));
+    if(PF_ERROS.enviados.has(chave) || PF_ERROS.n >= 15) return;
+    PF_ERROS.enviados.add(chave); PF_ERROS.n++;
+    const doc = {tipo: tipo === 'promessa' ? 'promessa' : 'erro', msg: m, origem: String(origem || '').slice(0, 300), pilha: String(pilha || '').slice(0, 3000),
+      secao: /^[a-z]{0,40}$/.test(activeSection || '') ? (activeSection || '') : '', navegador: navigator.userAgent.slice(0, 240), versao: APP_VERSAO,
+      email: meuEmail() || '', chave};
+    PF_ERROS.fila.push({...doc, quando: new Date().toISOString()});
+    if(PF_ERROS.fila.length > 30) PF_ERROS.fila.shift();
+    /* id = conta + erro: o mesmo erro da mesma pessoa vira um registro só; o horário é o do servidor */
+    if(usingDb && db && currentUser && contaVerificada())
+      db.collection('erros').doc(currentUser.uid + '_' + chave).set({...doc, quando: firebase.firestore.FieldValue.serverTimestamp()}).catch(() => {});
+  }catch(e){}
+}
+window.addEventListener('error', e => { if(e && e.message) pfRegistrarErro('erro', e.message, (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0), e.error && e.error.stack); });
+window.addEventListener('unhandledrejection', e => { const r = e && e.reason; pfRegistrarErro('promessa', (r && (r.message || r.code)) || String(r), '', r && r.stack); });
+
+/* ---------- estado ---------- */
+const ADM = {quando: null, rodando: false, sondas: [], erros: null, errosFalha: '', vigia: null, vigiaFalha: '', abertos: {}};
+
+function admCmpVersao(a, b){
+  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for(let i = 0; i < 3; i++){ if((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); }
+  return 0;
+}
+async function adminSondas(){
+  const r = [];
+  const add = (id, titulo, ok, detalhe, grav, correcao) => r.push({id, titulo, ok, detalhe, grav, correcao});
+  add('https', 'Conexão segura (HTTPS)', location.protocol === 'https:' || location.hostname === 'localhost', location.protocol.replace(':', '').toUpperCase(), 'alto',
+    'Abra o site sempre pelo endereço com https://.');
+  const csp = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+  add('csp', 'Política de segurança de conteúdo (CSP)', !!csp && /object-src 'none'/.test(csp.content), csp ? 'ativa' : 'ausente', 'alto',
+    'A página publicada perdeu a CSP. Republique o index.html do repositório.');
+  add('moldura', 'Proteção contra clickjacking', window.top === window.self, 'o sistema não está dentro de moldura', 'medio', 'Abra o sistema direto, não dentro de outro site.');
+  const externos = [...document.scripts].filter(s => s.src && new URL(s.src, location.href).origin !== location.origin).map(s => s.src);
+  add('scripts', 'Código só do próprio site', externos.length === 0, externos.length ? externos.join(', ') : 'nenhum script de fora carregado', 'alto',
+    'Algum script de fora foi incluído na página. Remova ou sirva pela pasta vendor/.');
+  if(usingDb && db){
+    const semLogin = async url => { try{ const res = await fetch(url, {credentials: 'omit', cache: 'no-store'}); return res.status; }catch(e){ return 0; } };
+    const s1 = await semLogin(`https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/casos?pageSize=1`);
+    add('fs-publico', 'Banco fechado para quem não entrou', s1 === 401 || s1 === 403, s1 ? `o servidor respondeu ${s1}` : 'sem conexão para testar', 'critico',
+      'Publique firebase/firestore.rules no Firebase Console (Firestore Database > Regras > Publicar).');
+    const s2 = await semLogin(`https://firebasestorage.googleapis.com/v0/b/${FIREBASE_CONFIG.storageBucket}/o?maxResults=1`);
+    add('st-publico', 'Arquivos fechados para quem não entrou', s2 === 401 || s2 === 403, s2 ? `o servidor respondeu ${s2}` : 'sem conexão para testar', 'critico',
+      'Publique firebase/storage.rules no Firebase Console (Storage > Regras > Publicar).');
+    const negado = async fn => { try{ await fn(); return false; }catch(e){ return !!e && /permission-denied|unauthorized|insufficient/i.test(String(e.code || e.message)); } };
+    add('fs-colecao', 'Uma conta não lê as perícias das outras', await negado(() => db.collection('casos').limit(1).get()), 'tentativa de ler a coleção inteira', 'critico',
+      'As regras antigas ainda valem: qualquer conta logada lê todas as perícias. Publique firebase/firestore.rules.');
+    add('fs-perfis', 'Perfis (com a chave da IA) só do dono', await negado(() => db.collection('usuarios').limit(1).get()), 'tentativa de listar os perfis', 'critico',
+      'Publique firebase/firestore.rules: hoje uma conta consegue listar perfis de outras.');
+    const ref = db.collection('vigia_sonda').doc('teste');
+    const fechado = await negado(() => ref.set({t: Date.now()}));
+    if(!fechado){ try{ await ref.delete(); }catch(e){} }
+    add('fs-escrita', 'Gravação fora das regras é recusada', fechado, 'tentativa de gravar numa coleção que não existe', 'alto',
+      'Publique firebase/firestore.rules (a regra final fecha qualquer caminho não previsto).');
+    if(storage){
+      const sref = storage.ref().child('vigia/sonda.html');
+      const stFechado = await negado(() => sref.put(new Blob(['<b>sonda</b>'], {type: 'text/html'})));
+      if(!stFechado){ try{ await sref.delete(); }catch(e){} }
+      add('st-html', 'Storage recusa HTML e pastas soltas', stFechado, 'tentativa de enviar HTML fora de casos/', 'alto', 'Publique firebase/storage.rules.');
+    }
+    let errosOk = false;
+    try{ await db.collection('erros').limit(1).get(); errosOk = true; }catch(e){}
+    add('fs-erros', 'Registro de erros dos usuários ativo', errosOk, errosOk ? 'leitura liberada só para administradores' : 'as regras novas ainda não foram publicadas', 'baixo',
+      'Publique firebase/firestore.rules: elas criam a coleção de erros, que só os administradores leem.');
+  } else {
+    add('nuvem', 'Sondas do Firebase', null, 'entre com a sua conta para testar o banco e os arquivos', 'medio', '');
+  }
+  add('libs', 'Bibliotecas sem falhas conhecidas', null, 'conferidas todo dia pelo vigia do GitHub (veja abaixo): pdf.js 6.4.299, jsPDF 4.2.1, JSZip 3.10.1 e Firebase 10.13.2', 'alto',
+    'O vigia diário confere as versões na base de vulnerabilidades e avisa por e-mail.');
+  add('extensao', 'Extensão atualizada neste navegador', PJ.versao ? admCmpVersao(PJ.versao, EXT_VERSAO_ATUAL) >= 0 : null,
+    PJ.versao ? `instalada v${PJ.versao} · atual v${EXT_VERSAO_ATUAL}` : 'não instalada neste navegador', 'medio', `Publique a versão ${EXT_VERSAO_ATUAL} na Chrome Web Store e atualize aqui.`);
+  return r;
+}
+
+/* Pontos que dependem de configuração fora do código: o administrador marca quando fizer. */
+const ADM_MANUAIS = [
+  {id: '2fa', grav: 'alto', titulo: 'Verificação em duas etapas nas contas Google dos administradores',
+   correcao: 'myaccount.google.com > Segurança > Verificação em duas etapas. Administradores entram sempre pelo botão do Google: os erros só abrem nessa forma de entrada, e uma senha avulsa pularia as duas etapas.'},
+  {id: 'regras-iguais', grav: 'alto', titulo: 'Conferir que as regras publicadas são as do repositório',
+   correcao: 'Firebase Console > Firestore > Regras e Storage > Regras: o texto precisa ser igual a firebase/firestore.rules e firebase/storage.rules. Repita sempre que as regras mudarem.'},
+  {id: 'chave-firebase', grav: 'medio', titulo: 'Restringir a chave do Firebase ao domínio do site',
+   correcao: 'Google Cloud Console > APIs e serviços > Credenciais > chave "Browser key" > Restrições de aplicativo: Referenciadores HTTP com o endereço do site (e o domínio próprio, quando houver).'},
+  {id: 'dominios-auth', grav: 'medio', titulo: 'Revisar os domínios autorizados do login',
+   correcao: 'Firebase Console > Authentication > Configurações > Domínios autorizados: deixe só o endereço do site, o domínio próprio e o firebaseapp.com. Tire localhost.'},
+  {id: 'app-check', grav: 'medio', titulo: 'Ativar o App Check',
+   correcao: 'Firebase Console > App Check: registre o site com reCAPTCHA Enterprise e ative a aplicação no Firestore e no Storage. Bloqueia robôs que usam a chave pública do site.'},
+  {id: 'orcamento', grav: 'medio', titulo: 'Alerta de orçamento no Google Cloud',
+   correcao: 'Google Cloud Console > Faturamento > Orçamentos e alertas: crie um orçamento mensal baixo. Avisa por e-mail se alguém abusar e gerar custo.'},
+  {id: 'backup', grav: 'medio', titulo: 'Cópia de segurança do banco',
+   correcao: 'Google Cloud Console > Firestore > Recuperação de desastres: ative a recuperação para um momento (PITR) ou exportações agendadas para um bucket.'},
+  {id: 'cabecalhos', grav: 'medio', titulo: 'Cabeçalhos de segurança no servidor (HSTS e frame-ancestors)',
+   correcao: 'O GitHub Pages não permite configurar. Com o domínio próprio no Cloudflare, ative HSTS e as regras de cabeçalho. Fazemos isso na etapa do domínio.'},
+  {id: 'csp-inline', grav: 'medio', titulo: "A CSP ainda permite código embutido ('unsafe-inline')",
+   correcao: 'Os botões usam onclick na própria página. Para tirar essa permissão, os eventos precisam ir para o JavaScript. Os dados já são limpos e escapados; isto é uma camada a mais.'},
+  {id: 'enumeracao', grav: 'baixo', titulo: 'Proteção contra descoberta de e-mails cadastrados',
+   correcao: 'Firebase Console > Authentication > Configurações > Proteção contra enumeração de e-mail: ativar.'},
+  {id: 'senha-politica', grav: 'baixo', titulo: 'Política de senha no servidor',
+   correcao: 'Firebase Console > Authentication > Configurações > Política de senha: mínimo de 8 caracteres, com letras e números (hoje é exigida só na tela).'},
+  {id: 'extensao-loja', grav: 'medio', titulo: `Publicar a extensão ${EXT_VERSAO_ATUAL} na Chrome Web Store`,
+   correcao: 'Envie o pacote projudi-pdfs-' + EXT_VERSAO_ATUAL + '.zip no painel do desenvolvedor da Chrome Web Store.'},
+  {id: 'termos', grav: 'baixo', titulo: 'Revisar os Termos e a Política com advogado',
+   correcao: 'Responsável e contato, foro, cancelamento e direito de arrependimento.'},
+];
+const ADM_GRAV = {critico: {rot: 'Crítico', pill: 'pill-danger', ordem: 0}, alto: {rot: 'Alto', pill: 'pill-danger', ordem: 1}, medio: {rot: 'Médio', pill: 'pill-warning', ordem: 2}, baixo: {rot: 'Baixo', pill: 'pill-muted', ordem: 3}};
+function admFeitos(){ return (perfil && perfil.adminFeitos && typeof perfil.adminFeitos === 'object') ? perfil.adminFeitos : {}; }
+async function admMarcar(id, feito){
+  const f = {...admFeitos()};
+  if(feito) f[id] = new Date().toISOString(); else delete f[id];
+  await salvarPerfil({adminFeitos: f});
+  renderAll();
+}
+function admPontos(){
+  const feitos = admFeitos();
+  const vivos = ADM.sondas.filter(s => s.ok === false).map(s => ({id: s.id, grav: s.grav, titulo: s.titulo, correcao: s.correcao, origem: 'sonda'}));
+  const manuais = ADM_MANUAIS.map(m => ({...m, origem: 'manual', feito: !!feitos[m.id]}));
+  return [...vivos, ...manuais].sort((a, b) => (a.feito ? 1 : 0) - (b.feito ? 1 : 0) || ADM_GRAV[a.grav].ordem - ADM_GRAV[b.grav].ordem);
+}
+function admIntegridade(){
+  const lista = casos;
+  const pessoas = {};
+  lista.forEach(c => (c.emails || []).forEach(e => { if(e && !ADMINS.includes(e)) pessoas[e] = (pessoas[e] || 0) + 1; }));
+  const docsInvalidos = lista.flatMap(c => (c.documentos || []).filter(d => d.arquivo && !arquivoSrc(d.arquivo)).map(d => `${c.codigo} · ${d.nome}`));
+  return {
+    total: lista.length,
+    semDono: lista.filter(c => !c.dono).length,
+    semNumero: lista.filter(c => !c.numeroProcesso).length,
+    semPrazo: lista.filter(c => !(STATUS[c.statusCaso] || {}).final && !c.prazoEntrega).length,
+    pessoas: Object.entries(pessoas).sort((a, b) => b[1] - a[1]),
+    docsInvalidos,
+  };
+}
+async function adminErros(){
+  ADM.errosFalha = '';
+  if(!(usingDb && db)){ ADM.erros = PF_ERROS.fila.slice(); return; }
+  try{
+    /* registros com mais de 90 dias são apagados a cada verificação do administrador */
+    try{
+      const velhos = await db.collection('erros').where('quando', '<', new Date(Date.now() - 90 * 864e5)).limit(200).get();
+      await Promise.all(velhos.docs.map(d => d.ref.delete().catch(() => {})));
+    }catch(e){}
+    const snap = await db.collection('erros').orderBy('quando', 'desc').limit(300).get();
+    ADM.erros = snap.docs.map(d => { const x = d.data(); const q = x.quando && x.quando.toDate ? x.quando.toDate().toISOString() : String(x.quando || ''); return {...x, quando: q, _id: d.id}; });
+  }catch(e){
+    ADM.erros = PF_ERROS.fila.slice();
+    ADM.errosFalha = 'Os erros dos outros usuários aparecem aqui quando as regras novas do Firestore estiverem publicadas e você tiver entrado com a conta Google. Por enquanto, só os deste navegador.';
+  }
+}
+async function adminVigia(){
+  ADM.vigiaFalha = '';
+  try{
+    const res = await fetch(VIGIA_API, {cache: 'no-store'});
+    if(!res.ok) throw new Error('GitHub respondeu ' + res.status);
+    const j = await res.json();
+    ADM.vigia = (j.workflow_runs || []).map(r => ({quando: r.created_at, status: r.status, conclusao: r.conclusion, link: r.html_url, evento: r.event}));
+  }catch(e){ ADM.vigia = null; ADM.vigiaFalha = e.message; }
+}
+async function adminVerificar(silencioso){
+  if(ADM.rodando || !souAdmin()) return;
+  ADM.rodando = true;
+  if(!silencioso && activeSection === 'admin') renderAll();
+  try{
+    const [sondas] = await Promise.all([adminSondas(), adminErros(), adminVigia()]);
+    ADM.sondas = sondas;
+    ADM.quando = new Date().toISOString();
+  }finally{
+    ADM.rodando = false;
+    renderAll();
+  }
+  const criticos = ADM.sondas.filter(s => s.ok === false && (s.grav === 'critico' || s.grav === 'alto')).length;
+  if(silencioso && criticos) pfAviso(`Vigia: ${criticos} ponto${criticos > 1 ? 's' : ''} de segurança para corrigir. Veja a Central do administrador.`);
+}
+async function admApagarErros(chave, soVelhos){
+  const alvo = (ADM.erros || []).filter(e => soVelhos ? (Date.now() - new Date(e.quando).getTime() > 90 * 864e5) : String(e.chave) === String(chave));
+  for(const e of alvo){ if(e._id && usingDb && db){ try{ await db.collection('erros').doc(e._id).delete(); }catch(x){} } }
+  ADM.erros = (ADM.erros || []).filter(e => !alvo.includes(e));
+  PF_ERROS.fila = PF_ERROS.fila.filter(e => !alvo.includes(e));
+  renderAll();
+}
+function admAlternar(k){ ADM.abertos[k] = !ADM.abertos[k]; renderAll(); }
+
+/* ---------- tela ---------- */
+function admIconeStatus(ok){
+  if(ok === true) return `<span class="adm-st ok" title="ok">${svg('<path d="M5 12.5l4 4L19 7"/>')}</span>`;
+  if(ok === false) return `<span class="adm-st falha" title="falha">${svg('<path d="M12 7v6M12 17v.01"/>')}</span>`;
+  return `<span class="adm-st neutro" title="não testado">${svg('<path d="M8 12h8"/>')}</span>`;
+}
+function renderAdmin(){
+  if(!souAdmin()) return `<div class="empty-state"><h3>Área restrita</h3><p>Esta tela é só para os administradores do sistema.</p></div>`;
+  if(!ADM.quando && !ADM.rodando) setTimeout(() => adminVerificar(false), 0);
+  const pontos = admPontos();
+  const abertos = pontos.filter(p => !p.feito);
+  const criticos = abertos.filter(p => p.grav === 'critico').length;
+  const altos = abertos.filter(p => p.grav === 'alto').length;
+  const tom = criticos ? 'critico' : altos ? 'alto' : abertos.length ? 'medio' : 'ok';
+  const resumoTxt = ADM.rodando && !ADM.quando ? 'Verificando…'
+    : criticos ? `${criticos} ponto${criticos > 1 ? 's' : ''} crítico${criticos > 1 ? 's' : ''} para corrigir agora`
+    : altos ? `${altos} ponto${altos > 1 ? 's' : ''} importante${altos > 1 ? 's' : ''} para corrigir`
+    : abertos.length ? `${abertos.length} melhoria${abertos.length > 1 ? 's' : ''} recomendada${abertos.length > 1 ? 's' : ''}`
+    : 'Tudo em ordem';
+  const integ = admIntegridade();
+  const grupos = new Map();
+  (ADM.erros || []).forEach(e => {
+    const k = String(e.chave || '');
+    if(!grupos.has(k)) grupos.set(k, {chave: k, msg: String(e.msg || ''), origem: String(e.origem || ''), pilha: String(e.pilha || ''), n: 0, ultima: String(e.quando || ''), secoes: new Set(), pessoas: new Set(), navegadores: new Set()});
+    const g = grupos.get(k);
+    g.n++; if(e.quando > g.ultima) g.ultima = e.quando;
+    if(e.secao) g.secoes.add(String(e.secao)); if(e.email) g.pessoas.add(String(e.email));
+    const nav = String(e.navegador || '');
+    g.navegadores.add(/Edg\//.test(nav) ? 'Edge' : /Chrome\//.test(nav) ? 'Chrome' : /Firefox\//.test(nav) ? 'Firefox' : /Safari\//.test(nav) ? 'Safari' : 'outro');
+  });
+  const listaErros = [...grupos.values()].sort((a, b) => String(b.ultima).localeCompare(String(a.ultima)));
+  const ultimaVigia = ADM.vigia && ADM.vigia[0];
+
+  return `
+    <div class="section-gap adm">
+      <div class="adm-topo adm-${tom}">
+        <span class="adm-topo-ic mk-${ADM.rodando ? 'varre' : 'parado'}">${MARCA_SVG}</span>
+        <div class="adm-topo-txt">
+          <b>${escapeHtml(resumoTxt)}</b>
+          <span>${ADM.quando ? 'Última verificação: ' + iaQuando(ADM.quando) : 'O vigia confere a segurança ao abrir esta tela.'} · versão ${APP_VERSAO}</span>
+        </div>
+        <div class="adm-topo-acoes">
+          <button class="btn btn-ghost btn-sm" onclick="adminRelatorio()" ${ADM.quando ? '' : 'disabled'}>${svg(ICONE_BAIXAR)} Relatório em PDF</button>
+          <button class="btn btn-primary btn-sm" onclick="adminVerificar(false)" ${ADM.rodando ? 'disabled' : ''}>${ADM.rodando ? 'Verificando…' : 'Verificar agora'}</button>
+        </div>
+      </div>
+
+      ${panel('admPontos', 'Pontos frágeis para corrigir', `${abertos.length} em aberto`, `
+        <div class="adm-pontos">
+          ${pontos.map(p => `
+          <div class="adm-ponto ${p.feito ? 'feito' : ''}">
+            <span class="pill ${ADM_GRAV[p.grav].pill}">${ADM_GRAV[p.grav].rot}</span>
+            <div class="adm-ponto-txt"><b>${escapeHtml(p.titulo)}</b><span>${escapeHtml(p.correcao || '')}</span></div>
+            ${p.origem === 'manual'
+              ? `<label class="adm-feito"><input type="checkbox" ${p.feito ? 'checked' : ''} onchange="admMarcar(${jsq(p.id)}, this.checked)"> Já fiz</label>`
+              : `<span class="adm-ao-vivo">detectado agora</span>`}
+          </div>`).join('')}
+        </div>`)}
+
+      ${panel('admSondas', 'Segurança ao vivo', ADM.sondas.length ? `${ADM.sondas.filter(s => s.ok === true).length} de ${ADM.sondas.length} ok` : 'aguardando', ADM.sondas.length ? `
+        <div class="adm-sondas">
+          ${ADM.sondas.map(s => `<div class="adm-sonda">${admIconeStatus(s.ok)}<div><b>${escapeHtml(s.titulo)}</b><span>${escapeHtml(s.detalhe || '')}</span></div></div>`).join('')}
+        </div>
+        <div class="hint" style="margin-top:12px;">As sondas tentam o que um invasor tentaria (ler o banco sem login, ler perícias de outras contas, gravar fora das regras) e confirmam que o servidor recusa. Nada fica gravado.</div>`
+        : (ADM.rodando ? marcaCarregando('Conferindo a segurança do sistema…') : '<div class="chart-empty">Clique em Verificar agora.</div>'))}
+
+      ${panel('admErros', 'Erros no navegador dos usuários', listaErros.length ? `${listaErros.length} tipo${listaErros.length > 1 ? 's' : ''} · ${(ADM.erros || []).length} ocorrência${(ADM.erros || []).length === 1 ? '' : 's'}` : 'nenhum', `
+        ${ADM.errosFalha ? `<div class="hint" style="margin-bottom:10px;">${escapeHtml(ADM.errosFalha)}</div>` : ''}
+        ${listaErros.length ? `<div class="adm-erros">${listaErros.map(g => `
+          <div class="adm-erro">
+            <button class="adm-erro-cab" onclick="admAlternar(${jsq('e' + g.chave)})" aria-expanded="${!!ADM.abertos['e' + g.chave]}">
+              <span class="adm-erro-n">${g.n}×</span>
+              <span class="adm-erro-msg"><b>${escapeHtml(g.msg)}</b><span>${escapeHtml([...g.secoes].join(', ') || 'tela não informada')} · ${escapeHtml([...g.navegadores].join(', '))} · ${g.pessoas.size} pessoa${g.pessoas.size === 1 ? '' : 's'} · última ${escapeHtml(iaQuando(g.ultima))}</span></span>
+              ${svg('<path d="M6 9l6 6 6-6"/>', 'class="adm-chev"')}
+            </button>
+            ${ADM.abertos['e' + g.chave] ? `<div class="adm-erro-det">
+              <div class="mono adm-pilha">${escapeHtml(g.origem || '')}\n${escapeHtml(g.pilha || 'sem pilha')}</div>
+              <div class="adm-erro-acoes"><span class="hint">${escapeHtml([...g.pessoas].join(', '))}</span><button class="btn btn-ghost btn-sm" onclick="admApagarErros(${jsq(g.chave)})">Marcar como resolvido</button></div>
+            </div>` : ''}
+          </div>`).join('')}</div>
+          <button class="link-sutil" style="width:auto;" onclick="admApagarErros('', true)">Apagar registros com mais de 90 dias</button>`
+        : '<div class="chart-empty">Nenhum erro registrado. Quando algo der errado na tela de alguém, aparece aqui com a tela, o navegador e o rastro técnico.</div>'}`)}
+
+      ${panel('admDados', 'Integridade dos dados', `${integ.total} perícia${integ.total === 1 ? '' : 's'} visíveis`, `
+        <div class="kv-grid">
+          <div class="kv"><div class="k">Sem dono</div><div class="v num">${integ.semDono}</div></div>
+          <div class="kv"><div class="k">Sem número de processo</div><div class="v num">${integ.semNumero}</div></div>
+          <div class="kv"><div class="k">Em andamento sem prazo</div><div class="v num">${integ.semPrazo}</div></div>
+          <div class="kv"><div class="k">Arquivos com endereço inválido</div><div class="v num">${integ.docsInvalidos.length}</div></div>
+        </div>
+        <div style="margin-top:14px; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);">Quem mais tem acesso às perícias</div>
+        ${integ.pessoas.length ? `<div class="rows" style="margin-top:8px;">${integ.pessoas.map(([e, n]) => `<div class="row-item" style="cursor:default;"><div class="row-main"><div class="row-title mono" style="font-size:12.5px;">${escapeHtml(e)}</div></div><div class="row-side"><span class="pill pill-muted">${n} perícia${n === 1 ? '' : 's'}</span></div></div>`).join('')}</div>
+          <div class="hint" style="margin-top:8px;">Confira se todos são pessoas que você conhece. Quem não deveria estar aqui, remova em "Quem tem acesso" dentro da perícia.</div>`
+        : '<div class="chart-empty">Só os administradores têm acesso às perícias visíveis.</div>'}`)}
+
+      ${panel('admVigia', 'Vigia diário (automático)', ultimaVigia ? (ultimaVigia.conclusao === 'success' ? 'última rodada ok' : ultimaVigia.status !== 'completed' ? 'rodando' : 'última rodada com problema') : 'sem dados', `
+        <p class="hint" style="margin:0 0 12px;">Todo dia às 6h, o GitHub roda o vigia: testa as regras do Firebase, confere se o banco está fechado para visitantes, procura falhas conhecidas nas bibliotecas, compara o site publicado com o repositório e procura senhas esquecidas no código. Se algo falhar, o GitHub manda e-mail.</p>
+        ${ADM.vigia && ADM.vigia.length ? `<div class="rows">${ADM.vigia.map(v => `<div class="row-item" style="cursor:default;">${admIconeStatus(v.status !== 'completed' ? null : v.conclusao === 'success')}<div class="row-main"><div class="row-title">${escapeHtml(iaQuando(v.quando))}</div><div class="row-sub">${v.evento === 'schedule' ? 'rodada automática' : 'rodada manual ou por atualização'}</div></div><div class="row-side"><a href="${escapeHtml(v.link)}" target="_blank" rel="noopener">ver detalhes</a></div></div>`).join('')}</div>`
+          : `<div class="chart-empty">${ADM.vigiaFalha ? 'Não foi possível consultar o GitHub agora (' + escapeHtml(ADM.vigiaFalha) + ').' : 'O vigia ainda não rodou.'}</div>`}
+        <a class="btn btn-ghost btn-sm" style="margin-top:12px;" href="${VIGIA_LINK}" target="_blank" rel="noopener">Abrir o vigia no GitHub</a>`)}
+    </div>`;
+}
+
+async function adminRelatorio(){
+  const pontos = admPontos();
+  const integ = admIntegridade();
+  const est = s => s.ok === true ? 'OK' : s.ok === false ? 'FALHA' : 'NÃO TESTADO';
+  const doc = {
+    aba: 'Relatório de segurança', titulo: 'Relatório de segurança',
+    resumo: `Verificação de ${iaQuando(ADM.quando)} · versão ${APP_VERSAO}`,
+    secoes: [
+      {t: 'Segurança ao vivo', b: [['lista', ADM.sondas.map(s => `[${est(s)}] ${s.titulo}: ${s.detalhe || ''}`)]]},
+      {t: 'Pontos frágeis', b: [['lista', pontos.map(p => `[${ADM_GRAV[p.grav].rot}${p.feito ? ' · feito' : ''}] ${p.titulo}. ${p.correcao || ''}`)]]},
+      {t: 'Erros dos usuários', b: [(ADM.erros || []).length
+        ? ['lista', [...(ADM.erros || []).reduce((m, e) => { const k = String(e.chave || ''); if(!m.has(k)) m.set(k, {msg: String(e.msg || ''), n: 0}); m.get(k).n++; return m; }, new Map()).values()].sort((a, b) => b.n - a.n).slice(0, 20).map(g => `${g.n}x ${g.msg}`)]
+        : ['p', 'Nenhum erro registrado.']]},
+      {t: 'Integridade dos dados', b: [['lista', [
+        `${integ.total} perícias visíveis; ${integ.semDono} sem dono; ${integ.semNumero} sem número de processo; ${integ.semPrazo} em andamento sem prazo.`,
+        `${integ.docsInvalidos.length} arquivo(s) com endereço inválido.`,
+        `Pessoas com acesso (fora os administradores): ${integ.pessoas.length ? integ.pessoas.map(([e, n]) => `${e} (${n})`).join('; ') : 'nenhuma'}.`]]]},
+    ],
+  };
+  const ok = await gerarPdfDocs([doc], {arquivo: `gerenciador-pericia-seguranca-${todayIso()}.pdf`, rotulo: 'Gerenciador de Perícia · uso interno', data: `Gerado em ${iaQuando(new Date().toISOString())}`, indice: 'Neste relatório'});
+  if(ok) pfAviso('Relatório de segurança baixado.');
 }
 
 function setSection(id){
@@ -4573,7 +4953,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
    A página descreve o que o sistema realmente faz com os dados — inclusive o
    que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
-const VERSAO_PRIVACIDADE = '2.0';
+const VERSAO_PRIVACIDADE = '2.1';
 const DATA_PRIVACIDADE = '15/10/2026';
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
@@ -4711,7 +5091,8 @@ const LEGAL = {
                   'Perícias: número do processo, vara, comarca, partes, prazos, honorários, tarefas, compromissos, comentários e os documentos que você anexa ou importa do PROJUDI.',
                   'Revisão IA, se usada: a sua chave do Google AI Studio e o resultado das revisões.',
                   'Assinatura da extensão: e-mail, plano e situação do pagamento informada pelo Mercado Pago.',
-                  'Dados técnicos: o GitHub, que hospeda o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.']],
+                  'Dados técnicos: o GitHub, que hospeda o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.',
+                  'Registros de erro: quando algo falha na tela, o sistema guarda a mensagem técnica e o rastro do erro (que pode trazer um trecho do que estava na tela), a tela, o navegador e o e-mail da conta. Só os administradores veem, para corrigir o problema. Registros com mais de 90 dias são apagados na verificação seguinte dos administradores.']],
         ['p','Os autos podem conter dados sensíveis e dados de terceiros (partes, testemunhas). Anexe só o que a perícia exigir.'],
       ]},
       {t:'Para que usamos', b:[
@@ -4792,6 +5173,10 @@ const LEGAL = {
                   'O seu perfil, com o cadastro e a chave da IA, só é lido pela sua conta.',
                   'Qualquer caminho que não esteja nas regras fica fechado.',
                   'As regras são testadas automaticamente a cada mudança nelas, no emulador oficial do Firebase.']],
+      ]},
+    {t:'Vigia de segurança', b:[
+      ['lista',['Todo dia, uma verificação automática testa as regras no emulador oficial do Firebase, confere se o banco e os arquivos estão fechados para quem não entrou, procura falhas conhecidas nas bibliotecas usadas e compara o site publicado com o código original.',
+                'Os administradores têm uma central que repete essas verificações na hora e mostra os erros que aconteceram na tela dos usuários, para corrigir rápido.']],
       ]},
       {t:'Contas e senhas', b:[
         ['lista',['Entrada pelo Google ou por e-mail e senha. A senha é definida por você e validada pelo Firebase: o Gerenciador de Perícia nunca a recebe nem a guarda.',
@@ -6377,7 +6762,7 @@ function iaDesatualizada(c){
 async function iaTextoDoPdf(bytes, maxPag){
   if(!ensurePdfJs()) return '';
   try{
-    const doc = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+    const doc = await pdfjsLib.getDocument({data: bytes.slice(), isEvalSupported: false, enableXfa: false}).promise;
     const n = Math.min(doc.numPages, maxPag || IA_MAX_PAGINAS);
     const partes = [];
     for(let i=1; i<=n; i++){
@@ -6997,7 +7382,7 @@ function iaCarregarJsPdf(){
   if(window.jspdf) return Promise.resolve();
   return new Promise((ok, falha) => {
     const s = document.createElement('script');
-    s.src = 'vendor/jspdf-2.5.1.umd.min.js';
+    s.src = 'vendor/jspdf-4.2.1.umd.min.js';
     s.onload = () => window.jspdf ? ok() : falha(new Error('o gerador de PDF não carregou'));
     s.onerror = () => falha(new Error('o gerador de PDF não carregou'));
     document.head.appendChild(s);
@@ -7124,6 +7509,7 @@ async function iaBaixarPdf(casoId){
    ========================================================================== */
 function renderAll(){
   pfFavicon();
+  if(souAdmin() && !ADM.agendado){ ADM.agendado = true; setTimeout(() => adminVerificar(true), 8000); }
   renderPerfil();
   renderSeloRodape();
   renderNav();
@@ -7165,6 +7551,7 @@ function renderAll(){
   else if(activeSection === 'integracoes') view.innerHTML = renderIntegracoes();
   else if(activeSection === 'privacidade') view.innerHTML = renderPrivacidade();
   else if(activeSection === 'config') view.innerHTML = renderConfig();
+  else if(activeSection === 'admin') view.innerHTML = renderAdmin();
   else if(activeSection === 'perfil'){
     const foco = document.activeElement;
     if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderMeuPerfil();
@@ -8674,7 +9061,7 @@ const PF_NAV = [
   {id:'processos', titulo:'Processos',        itens:['importar','publicacoes','docs']},
   {id:'producao',  titulo:'Produção técnica', itens:['calculos','proposta','ia']},
   {id:'escritorio',titulo:'Escritório',       itens:['financeiro','equipe']},
-  {id:'sistema',   titulo:'Sistema',          itens:['integracoes','projudi','privacidade','config'], fechado:true},
+  {id:'sistema',   titulo:'Sistema',          itens:['admin','integracoes','projudi','privacidade','config'], fechado:true},
 ];
 function pfGruposAbertos(){
   let salvo = {};
@@ -8700,9 +9087,10 @@ function renderNav(){
     tarefas: tarefasUrgentes ? `<span class="nav-badge warn" title="${tarefasUrgentes} tarefa(s) para hoje ou atrasada(s)">${tarefasUrgentes}</span>` : '',
   };
   const abertos = pfGruposAbertos();
+  if(souAdmin() && ADM.sondas.some(x => x.ok === false && (x.grav === 'critico' || x.grav === 'alto'))) selos.admin = '<span class="nav-badge alert" title="pontos de segurança para corrigir">!</span>';
   const item = (id) => {
     const s = SECTIONS.find(x => x.id === id);
-    if(!s) return '';
+    if(!s || (id === 'admin' && !souAdmin())) return '';
     return `<button class="nav-item ${activeSection === id ? 'active' : ''}" data-sec="${id}" onclick="setSection(${jsq(id)})" title="${escapeHtml(s.titulo)}" ${activeSection === id ? 'aria-current="page"' : ''}>
       ${svg(ICONS[id] || ICONS.docs)}<span>${escapeHtml(s.titulo)}</span>${selos[id] || ''}</button>`;
   };
@@ -8799,7 +9187,7 @@ function pfFecharPaleta(){
   document.body.classList.remove('pf-paleta-on');
 }
 function pfOpcoesPaleta(){
-  const telas = SECTIONS.map(s => ({grupo:'Ir para', titulo:s.titulo, sub:s.sub, icone:ICONS[s.id] || ICONS.docs, busca:s.titulo + ' ' + s.sub, fazer:() => setSection(s.id)}));
+  const telas = SECTIONS.filter(s => s.id !== 'admin' || souAdmin()).map(s => ({grupo:'Ir para', titulo:s.titulo, sub:s.sub, icone:ICONS[s.id] || ICONS.docs, busca:s.titulo + ' ' + s.sub, fazer:() => setSection(s.id)}));
   const pericias = casosVisiveis('todas').map(c => ({grupo:'Perícias', titulo:c.nome, sub:[c.codigo, c.numeroProcesso, c.vara].filter(Boolean).join(' · '),
     icone:ICONS.pericias, busca:[c.codigo, c.nome, c.numeroProcesso, (c.numeroProcesso || '').replace(/\D/g, ''), c.partes, c.vara].join(' '), fazer:() => openDrawer(c.id)}));
   const acoes = [

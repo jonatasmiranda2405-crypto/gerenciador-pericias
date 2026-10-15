@@ -10,6 +10,7 @@ rules_version = '2';
 //                          tira ou rebaixa alguém); apaga só o `dono`
 //   casos/{id}/documentos  lê quem lê a perícia; grava quem edita a perícia
 //   config/*               só leitura, só para as três contas antigas (migração do cadastro)
+//   erros/*                cada conta registra o próprio erro; só os administradores leem
 //   todo o resto           fechado
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -31,6 +32,18 @@ service cloud.firestore {
         'rodrigodosantosmiranda@gmail.com',
         'periciamiranda@gmail.com'
       ];
+    }
+    // Administradores: só com a entrada pelo Google (que tem a verificação em duas etapas da conta).
+    function admin() {
+      return verificado()
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && email() in [
+        'jonatasmiranda2405@gmail.com',
+        'rodrigodosantosmiranda@gmail.com'
+      ];
+    }
+    function textoAte(v, n) {
+      return v is string && v.size() <= n;
     }
     function idValido(id) {
       return id.matches('^[A-Za-z0-9_-]{1,150}$');
@@ -115,6 +128,27 @@ service cloud.firestore {
         allow delete: if verificado()
           && (ehEditor(caso()) || (semAcessos(caso()) && legado()));
       }
+    }
+
+    // ---------- erros do navegador (vigia da Central do administrador) ----------
+    // Qualquer conta confirmada registra o próprio erro; só os administradores leem e apagam.
+    match /erros/{id} {
+      allow create: if verificado()
+        && id == request.auth.uid + '_' + request.resource.data.chave
+        && request.resource.data.keys().hasOnly(['tipo', 'msg', 'origem', 'pilha', 'secao', 'navegador', 'versao', 'email', 'quando', 'chave'])
+        && request.resource.data.keys().hasAll(['tipo', 'msg', 'chave', 'quando', 'email', 'versao', 'secao'])
+        && request.resource.data.tipo in ['erro', 'promessa']
+        && request.resource.data.chave is string && request.resource.data.chave.matches('^r[0-9a-z]{1,10}$')
+        && request.resource.data.versao is string && request.resource.data.versao.matches('^[0-9.]{1,20}$')
+        && request.resource.data.secao is string && request.resource.data.secao.matches('^[a-z]{0,40}$')
+        && request.resource.data.quando == request.time
+        && textoAte(request.resource.data.msg, 500)
+        && textoAte(request.resource.data.get('origem', ''), 300)
+        && textoAte(request.resource.data.get('pilha', ''), 3000)
+        && textoAte(request.resource.data.get('navegador', ''), 240)
+        && request.resource.data.email == email();
+      allow read, delete: if admin();
+      allow update: if false;
     }
 
     // Qualquer outro caminho: fechado.

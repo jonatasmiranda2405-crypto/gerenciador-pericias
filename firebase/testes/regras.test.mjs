@@ -3,7 +3,7 @@
 import { test, before, after, beforeEach } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getBytes, deleteObject } from 'firebase/storage';
 
 const DONO = 'dona@exemplo.com', EDITOR = 'editor@exemplo.com', LEITOR = 'leitor@exemplo.com', ESTRANHO = 'estranho@exemplo.com';
@@ -126,6 +126,34 @@ test('config: leitura só das contas antigas; ninguém grava', async () => {
   await assertSucceeds(getDoc(doc(db('u-antiga', ANTIGA), 'config/peritos')));
   await assertFails(getDoc(doc(db('u-x', ESTRANHO), 'config/peritos')));
   await assertFails(setDoc(doc(db('u-antiga', ANTIGA), 'config/peritos'), { x: 2 }));
+});
+const erro = (email, extra = {}) => ({ tipo: 'erro', msg: 'x is not a function', origem: 'index.html:1:2', pilha: 'at f', secao: 'visao', navegador: 'Chrome', versao: '2026.10.15', email, quando: serverTimestamp(), chave: 'r1', ...extra });
+const ADM = 'rodrigodosantosmiranda@gmail.com';
+const google = (uid, email) => env.authenticatedContext(uid, { email, email_verified: true, firebase: { sign_in_provider: 'google.com' } }).firestore();
+const senha = (uid, email) => env.authenticatedContext(uid, { email, email_verified: true, firebase: { sign_in_provider: 'password' } }).firestore();
+test('erros: cada conta registra o próprio, com id e horário do servidor', async () => {
+  const f = db('u-x', ESTRANHO);
+  await assertSucceeds(setDoc(doc(f, 'erros/u-x_r1'), erro(ESTRANHO)));
+  await assertFails(setDoc(doc(f, 'erros/u-x_r1'), erro(ESTRANHO, { msg: 'de novo' })));
+  await assertFails(setDoc(doc(f, 'erros/u-x_r2'), erro(DONO, { chave: 'r2' })));
+  await assertFails(setDoc(doc(f, 'erros/outro_r3'), erro(ESTRANHO, { chave: 'r3' })));
+  await assertFails(setDoc(doc(f, 'erros/u-x___proto__'), erro(ESTRANHO, { chave: '__proto__' })));
+  await assertFails(setDoc(doc(f, 'erros/u-x_r4'), erro(ESTRANHO, { chave: 'r4', quando: '9999-01-01' })));
+  await assertFails(setDoc(doc(f, 'erros/u-x_r5'), erro(ESTRANHO, { chave: 'r5', msg: 'x'.repeat(600) })));
+  await assertFails(setDoc(doc(f, 'erros/u-x_r6'), erro(ESTRANHO, { chave: 'r6', extra: 1 })));
+  await assertFails(setDoc(doc(f, 'erros/u-x_r7'), erro(ESTRANHO, { chave: 'r7', tipo: 'outro' })));
+  await assertFails(setDoc(doc(db('u-y', 'naoconfirmado@exemplo.com', false), 'erros/u-y_r1'), erro('naoconfirmado@exemplo.com')));
+  await assertFails(setDoc(doc(env.unauthenticatedContext().firestore(), 'erros/x_r1'), erro('')));
+});
+test('erros: só administradores pelo Google leem e apagam', async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => { await setDoc(doc(ctx.firestore(), 'erros/u-x_r9'), { msg: 'x', chave: 'r9' }); });
+  await assertFails(getDocs(collection(db('u-x', ESTRANHO), 'erros')));
+  await assertFails(deleteDoc(doc(db('u-x', ESTRANHO), 'erros/u-x_r9')));
+  await assertFails(getDocs(collection(db('u-p', 'periciamiranda@gmail.com'), 'erros')));
+  await assertFails(getDocs(collection(senha('u-adm', ADM), 'erros')));
+  await assertSucceeds(getDocs(collection(google('u-adm', ADM), 'erros')));
+  await assertSucceeds(getDocs(collection(google('u-j', ANTIGA), 'erros')));
+  await assertSucceeds(deleteDoc(doc(google('u-adm', ADM), 'erros/u-x_r9')));
 });
 test('coleções não previstas ficam fechadas', async () => {
   await assertFails(setDoc(doc(db('u-x', ESTRANHO), 'qualquer/coisa'), { a: 1 }));

@@ -137,7 +137,7 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
     if (estatico) {
       const base = path.join(__dirname, "..", estatico[1]);
       const arq = path.normalize(path.join(base, decodeURIComponent(estatico[2])));
-      const tipos = { ".js": "application/javascript", ".png": "image/png", ".svg": "image/svg+xml", ".webp": "image/webp", ".ico": "image/x-icon", ".webmanifest": "application/manifest+json", ".txt": "text/plain", ".md": "text/plain" };
+      const tipos = { ".js": "application/javascript", ".mjs": "application/javascript", ".png": "image/png", ".svg": "image/svg+xml", ".webp": "image/webp", ".ico": "image/x-icon", ".webmanifest": "application/manifest+json", ".txt": "text/plain", ".md": "text/plain" };
       if (arq.startsWith(base + path.sep) && fs.existsSync(arq) && fs.statSync(arq).isFile()) { res.writeHead(200, { "Content-Type": tipos[path.extname(arq)] || "application/octet-stream" }); return res.end(fs.readFileSync(arq)); }
       res.writeHead(404); return res.end();
     }

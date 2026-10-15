@@ -15,7 +15,7 @@ Gerenciador de perícias judiciais. O site é publicado pelo GitHub Pages a part
 | `servidor-php/` | Peças para o Gerenciador de Perícia em PHP/MySQL (`localhost:8080`): API de upload dos autos (criptografada, sem duplicados), tabela e receptor. Instalação em `servidor-php/LEIA-ME.md`. |
 | `apresentacao/` | Telas reais (WebP, dados fictícios) usadas na página de apresentação. |
 | `icones/` | Ícone do Gerenciador de Perícia (pasta com lupa): SVG, favicons, ícones do app e `site.webmanifest` na raiz. |
-| `vendor/` | Bibliotecas servidas pelo próprio site (sem CDN): Firebase 10.13.2, pdf.js 2.16.105, JSZip 3.10.1 e jsPDF 2.5.1, com as licenças ao lado. |
+| `vendor/` | Bibliotecas servidas pelo próprio site (sem CDN): Firebase 10.13.2, pdf.js 6.4.299 (módulo), JSZip 3.10.1 e jsPDF 4.2.1, com as licenças ao lado. |
 | `firebase/` | Regras de segurança do Firestore e do Storage, com testes no emulador (`firebase/testes`, rodam no GitHub Actions a cada mudança). |
 | `testes/` | Testes de ponta a ponta com Chromium, a extensão real e um PROJUDI simulado. |
 
@@ -50,6 +50,18 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
 - Se a perícia mudar (documento novo), aparece o aviso; com a opção ligada, a revisão roda de novo sozinha
   depois de uma importação.
 
+## Central do administrador e vigia
+
+- **Central do administrador** (só Jonatas e Rodrigo, entrando pelo Google): sondas de segurança ao vivo
+  (banco e arquivos fechados para visitantes, uma conta não lê a outra, gravação fora das regras recusada),
+  pontos frágeis com gravidade e passo a passo ("Já fiz" fica salvo), erros do navegador dos usuários
+  (coleção `erros`, só administradores leem; mais de 90 dias são apagados na verificação), integridade
+  dos dados e relatório em PDF.
+- **Vigia diário** (`.github/workflows/vigia.yml`, 6h): testes das regras no emulador, banco/arquivos
+  fechados para visitantes, falhas conhecidas nas bibliotecas de `vendor/` (npm audit, ignorando alertas
+  só de servidor), site publicado igual ao repositório, CSP e proteção contra moldura no ar, e busca de
+  senhas/chaves no código (`ferramentas/vigia.mjs`). Falhou: o GitHub manda e-mail.
+
 ## Página de apresentação
 
 Quem não entrou vê a apresentação (`renderApresentacao`): o que o sistema faz, demonstração com telas
@@ -83,7 +95,7 @@ volta a ser o de antes; os dados não mudam.
 
 Precisa de Node, PHP (pdo_sqlite e openssl), OpenSSL e Playwright com Chromium. O script
 sobe o PROJUDI simulado (HTTPS local) e o PHP de teste (SQLite), e roda as três suítes:
-o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil, Configurações, segurança, termos e apresentação (78) e o PHP com o Mercado Pago (13).
+o fluxo dos autos no site (24), as telas, a barra lateral, a paleta, a Revisão IA, Meu perfil, Configurações, segurança, termos, apresentação e Central do administrador (85) e o PHP com o Mercado Pago (13).
 
 ## Publicar uma nova versão da extensão
 
