@@ -30,7 +30,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
 
   const pf = await ctx.newPage();
   const erros = [];
-  pf.on("pageerror", (e) => erros.push(e.message));
+  pf.on("pageerror", (e) => { erros.push(e.message); if (process.env.PF_PILHA) console.log("PAGEERROR", e.stack); });
   const cspErros = [];
   pf.on("console", (m) => { if (/Content Security Policy/i.test(m.text())) cspErros.push(m.text().slice(0, 200)); });
   // registra as notificações mostradas
@@ -355,6 +355,33 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.keyboard.press("Escape");
   await pf.evaluate(() => abrirLogin(false));
   check("ao entrar, a apresentação some", !(await pf.isVisible("#login .lp")));
+
+  console.log("\n15) Documentos por processo");
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await pf.evaluate(() => { const c = casos.find((x) => (x.documentos || []).length >= 2); docCasoSel = c ? c.id : null; docQuery = ""; docTopico = "todos"; setSection("docs"); });
+  await sleep(300);
+  const dcInfo = await pf.evaluate(() => ({ procs: document.querySelectorAll(".dc-proc").length, sel: document.querySelectorAll(".dc-proc.sel").length, docs: document.querySelectorAll(".dc-doc").length, topicos: document.querySelectorAll(".dc-topicos .chip").length, nome: (document.querySelector(".dc-doc-nome") || {}).textContent || "" }));
+  check("lista de processos e documentos do processo escolhido", dcInfo.procs >= 2 && dcInfo.sel === 1 && dcInfo.docs >= 2 && dcInfo.topicos >= 2, JSON.stringify(dcInfo));
+  check("nome do arquivo limpo (sem data e sem extensão)", !/\.pdf$|^\d{4}-\d{2}-\d{2}/.test(dcInfo.nome), dcInfo.nome);
+  await pf.click(".dc-topicos .chip:nth-child(2)");
+  await sleep(150);
+  const dcTop = await pf.evaluate(() => ({ docs: document.querySelectorAll(".dc-doc").length, ativo: document.querySelector(".dc-topicos .chip.active").textContent }));
+  check("tópico filtra os documentos", dcTop.docs >= 1 && dcTop.docs <= dcInfo.docs && !/^Todos/.test(dcTop.ativo.trim()), JSON.stringify(dcTop));
+  await pf.click('.dc-agrupar button:has-text("Movimentação")');
+  await pf.fill("#docSearch", "zzzz-nada");
+  await sleep(150);
+  check("busca no processo sem resultado mostra 'Limpar filtros'", /Limpar filtros/.test(await pf.textContent(".dc-lista")));
+  check("busca mantém o foco no campo", await pf.evaluate(() => document.activeElement && document.activeElement.id === "docSearch"));
+  await pf.click('.dc-lista a:has-text("Limpar filtros")');
+  await sleep(150);
+  check("limpar volta todos os documentos", await pf.locator(".dc-doc").count() === dcInfo.docs);
+  await pf.screenshot({ path: path.join(SAIDA, "tela-documentos.png"), fullPage: true });
+  await pf.setViewportSize({ width: 390, height: 844 });
+  await sleep(200);
+  check("no celular, sem rolagem lateral", await pf.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-documentos-celular.png"), fullPage: true });
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await pf.evaluate(() => { docAgrupar = "data"; setSection("visao"); });
 
   console.log("\n13) Central do administrador (vigia)");
   check("quem não é administrador não vê a Central", await pf.locator('#nav .nav-item[data-sec="admin"]').count() === 0);

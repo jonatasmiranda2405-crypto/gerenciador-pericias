@@ -1479,6 +1479,59 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .com-contato-acoes select{width:auto;}
 @media (max-width:1100px){ .com-grade{grid-template-columns:1fr;} }
 @media (max-width:700px){ .com-kpis{grid-template-columns:repeat(2, minmax(0, 1fr));} .com-contato{flex-wrap:wrap;} .com-busca{flex:1 1 100%; max-width:none;} }
+/* ---------- documentos ---------- */
+.dc{display:grid; grid-template-columns:300px minmax(0, 1fr); gap:18px; align-items:start;}
+.dc-procs{position:sticky; top:16px; display:flex; flex-direction:column; gap:10px; max-height:calc(100vh - 140px); min-width:0;}
+.dc-busca-proc{max-width:none; flex:none;}
+.dc-procs-lista{display:flex; flex-direction:column; gap:6px; overflow:auto; padding:2px; margin:-2px;}
+.dc-proc{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:3px; padding:11px 13px; border-radius:12px; border:1px solid var(--line); background:var(--surface); transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;}
+.dc-proc:hover{border-color:var(--line-strong);}
+.dc-proc:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.dc-proc.sel{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 3px 0 0 var(--accent);}
+.dc-proc-top{display:flex; justify-content:space-between; gap:8px; font-size:11.5px; color:var(--muted);}
+.dc-proc-n{font-variant-numeric:tabular-nums;}
+.dc-proc-nome{font-size:13.5px; font-weight:600; color:var(--ink); line-height:1.3; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
+.dc-proc-num{font-size:11.5px; color:var(--muted); overflow-wrap:anywhere;}
+.dc-det{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; display:flex; flex-direction:column; gap:14px; min-width:0;}
+.dc-cab{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start;}
+.dc-cab-txt{min-width:0; flex:1 1 280px;}
+.dc-cab-cod{font-size:12px; color:var(--muted);}
+.dc-cab-nome{margin:3px 0 2px; font-size:19px; line-height:1.25; letter-spacing:-.01em;}
+.dc-cab-num{font-size:12.5px; color:var(--ink-2); overflow-wrap:anywhere;}
+.dc-cab-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+.dc-resumo{display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--muted); padding-bottom:12px; border-bottom:1px solid var(--line);}
+.dc-resumo b{color:var(--ink); font-weight:600;}
+.dc-ferramentas{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
+.dc-busca-doc{flex:1 1 260px; max-width:420px;}
+.dc-agrupar{display:inline-flex; border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; background:var(--surface-2);}
+.dc-agrupar button{all:unset; cursor:pointer; padding:6px 12px; border-radius:7px; font-size:12.5px; color:var(--muted); font-weight:500;}
+.dc-agrupar button.sel{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12);}
+.dc-agrupar button:focus-visible{outline:2px solid var(--accent);}
+.dc-topicos{gap:6px;}
+.dc-lista{display:flex; flex-direction:column; gap:18px; min-height:120px;}
+.dc-grupo-tit{display:flex; align-items:center; gap:8px; margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+.dc-grupo-tit i{font-style:normal; font-weight:500; opacity:.8;}
+.dc-grupo-tit::after{content:''; flex:1; height:1px; background:var(--line);}
+.dc-docs{display:flex; flex-direction:column;}
+.dc-doc{display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:12px; align-items:center; padding:9px 10px; margin:0 -10px; border-radius:10px; cursor:pointer; transition:background .12s ease;}
+.dc-doc:hover, .dc-doc:focus-visible{background:var(--surface-2); outline:none;}
+.dc-ext{width:38px; height:38px; border-radius:9px; display:grid; place-items:center; font-size:9.5px; font-weight:700; letter-spacing:.04em; background:var(--surface-2); color:var(--muted); border:1px solid var(--line);}
+.dc-ext-pdf{background:var(--danger-soft); color:var(--danger); border-color:transparent;}
+.dc-ext-html, .dc-ext-htm{background:var(--accent-soft); color:var(--accent-deep); border-color:transparent;}
+.dc-doc-txt{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.dc-doc-nome{font-size:13.5px; font-weight:500; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.dc-doc-sub{font-size:11.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.dc-doc-data{font-size:12px; color:var(--ink-2);}
+.dc mark{background:var(--accent-soft); color:var(--accent-deep); border-radius:3px; padding:0 1px;}
+.dc-vazio{padding:28px 10px;}
+@media (max-width:960px){
+  .dc{grid-template-columns:1fr;}
+  .dc-procs{position:static; max-height:none;}
+  .dc-procs-lista{flex-direction:row; overflow-x:auto; padding-bottom:6px;}
+  .dc-proc{min-width:220px; max-width:260px;}
+  .dc-det{padding:16px;}
+  .dc-doc-data{font-size:11px;}
+}
 .adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
 .mk-parado .mk-lupa{animation:none;}
 </style>
@@ -1942,7 +1995,7 @@ const SECTIONS = [
   {id:'financeiro', titulo:'Financeiro',  sub:'Honorários arbitrados, depositados e levantados'},
   {id:'calculos', titulo:'Cálculos',      sub:'Ferramentas periciais com memória de cálculo auditável'},
   {id:'proposta', titulo:'Proposta de honorários', sub:'Preenche o seu modelo com os dados da perícia escolhida'},
-  {id:'docs',     titulo:'Documentos',    sub:'Índice de todos os documentos das perícias'},
+  {id:'docs',     titulo:'Documentos',    sub:'Os autos de cada processo, por tópico, data ou movimentação'},
   {id:'ia',       titulo:'Revisão IA',    sub:'Erros e inconsistências dos autos, com o lugar exato para conferir'},
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
   {id:'projudi',  titulo:'Projudi',       sub:'Consulta processual no Tribunal de Justiça de Goiás'},
@@ -2014,7 +2067,6 @@ let activeSection = (function(){
 })();
 let activeFilter = 'todas';
 let searchQuery = '';
-let docFiltroTipo = 'todos';
 let docQuery = '';
 let drawerCasoId = null;
 let editingDocId = null;
@@ -3417,61 +3469,218 @@ function renderPrazos(){
 /* ==========================================================================
    Seção: documentos
    ========================================================================== */
-function renderDocs(){
-  let docs = todosDocumentos();
-  if(docFiltroTipo !== 'todos') docs = docs.filter(d => (d.tipo||'Outro') === docFiltroTipo);
-  if(docQuery){
-    const q = normalizeText(docQuery);
-    docs = docs.filter(d => normalizeText(`${d.nome} ${d.fase||''} ${d.caso.codigo} ${d.caso.nome}`).includes(q));
+/* Documentos: escolhe o processo à esquerda e procura os autos dele à direita, por tópico,
+   por texto ou na linha do tempo. Os documentos de cada perícia são lidos uma vez da nuvem. */
+const DOC_TOPICOS = [
+  {id:'nomeacao',   rot:'Nomeação e intimações', re:/nomea|intimacao do perito|designa|aceite|ciencia/},
+  {id:'quesitos',   rot:'Quesitos',              re:/quesito/},
+  {id:'laudos',     rot:'Laudos e pareceres',    re:/laudo|parecer|esclarec/},
+  {id:'honorarios', rot:'Honorários e pagamentos', re:/honorar|pagamento|alvara|deposito|guia|comprovante|levantamento/},
+  {id:'decisoes',   rot:'Decisões e despachos',  re:/decis|senten|despacho|acordao|ato ordinatorio/},
+  {id:'peticoes',   rot:'Petições',              re:/petic|manifest|contestac|impugna|inicial|replica|recurso|embargo/},
+  {id:'comunicacoes', rot:'E-mails, ofícios e certidões', re:/e-?mail|oficio|carta|mandado|certid|intimac|aviso|online/},
+  {id:'provas',     rot:'Provas e documentos',   re:/procura|contrato|extrato|planilha|calculo|nota fiscal|balanc|demonstra|holerite|recibo|documento/},
+];
+const DOC_TOPICO_OUTROS = {id:'outros', rot:'Outros'};
+const DOCS_OK = new Set();          // perícias cujos documentos já foram lidos da nuvem
+const DOCS_LENDO = new Set();
+let docCasoSel = null, docTopico = 'todos', docAgrupar = 'data', docProcQuery = '';
+try{ docCasoSel = localStorage.getItem('pf_doc_caso') || null; docAgrupar = localStorage.getItem('pf_doc_agrupar') || 'data'; }catch(e){}
+
+function docTopicoDe(d){
+  const campos = [d.nome, d.tipo, d.movimentacao, d.fase].map(x => normalizeText(String(x || '')));
+  for(const campo of campos){
+    if(!campo) continue;
+    const t = DOC_TOPICOS.find(t => t.re.test(campo));
+    if(t) return t;
   }
-  const tiposPresentes = [...new Set(todosDocumentos().map(d => d.tipo || 'Outro'))].sort();
+  return DOC_TOPICO_OUTROS;
+}
+function docNomeLimpo(nome){
+  let s = String(nome || '').replace(/\.(pdf|html?|docx?|xlsx?|zip|p7s|jpe?g|png|txt)$/i, '');
+  s = s.replace(/^\d{4}[-_.]\d{2}[-_.]\d{2}[\s_-]*/, '').replace(/^\d{1,4}\s*-\s*/, '');
+  s = s.replace(/[_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  s = s.replace(/^email de tjgo\s*/i, 'E-mail do TJGO · ');
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : String(nome || 'Documento');
+}
+function docExt(nome){ const m = String(nome || '').match(/\.([a-z0-9]{2,4})$/i); return m ? m[1].toUpperCase() : 'ARQ'; }
+function casoNomeCurto(c){
+  const partes = String(c.nome || '').split('->').map(x => x.trim()).filter(Boolean);
+  const n = (partes.length ? partes[partes.length - 1] : c.nome || '').replace(/^\d+\s*-\s*/, '');
+  return n || c.codigo || 'Perícia';
+}
+async function docsGarantir(c){
+  if(!c || !usingDb || !db || DOCS_OK.has(c.id) || DOCS_LENDO.has(c.id)) return;
+  DOCS_LENDO.add(c.id);
+  try{
+    const snap = await db.collection('casos').doc(c.id).collection('documentos').get();
+    c.documentos = snap.docs.filter(d => ID_SEGURO.test(d.id)).map(d => limparDocumento({...d.data(), id: d.id}));
+  }catch(e){ /* sem permissão ou sem rede: fica o que já havia */ }
+  finally{
+    DOCS_OK.add(c.id);   /* não tenta de novo em laço; o painel da perícia continua atualizando */
+    DOCS_LENDO.delete(c.id);
+    if(activeSection === 'docs') docsRedesenhar();
+  }
+}
+/* lê os documentos das perícias aos poucos, para contar e buscar em todas */
+async function docsPreCarregar(){
+  if(!usingDb || !db) return;
+  const fila = casosVisiveis().filter(c => !DOCS_OK.has(c.id)).slice(0, 60);
+  const trabalhar = async () => { while(fila.length){ await docsGarantir(fila.shift()); } };
+  await Promise.all([trabalhar(), trabalhar(), trabalhar()]);
+}
+function docsRedesenhar(){
+  const foco = document.activeElement;
+  const id = foco && foco.id;
+  const pos = foco && typeof foco.selectionStart === 'number' ? foco.selectionStart : null;
+  const view = document.getElementById('view');
+  if(view) view.innerHTML = renderDocs();
+  if(id){ const n = document.getElementById(id); if(n){ n.focus(); if(pos !== null) try{ n.setSelectionRange(pos, pos); }catch(e){} } }
+}
+function docsDoCaso(c){ return [...(c.documentos || [])].sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')) || String(b.nome || '').localeCompare(String(a.nome || ''))); }
+function docsCarregado(c){ return !usingDb || DOCS_OK.has(c.id); }
+function docMarcar(textoEscapado, q){
+  if(!q || q.length < 2) return textoEscapado;
+  const alvo = escapeHtml(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return textoEscapado.replace(new RegExp(alvo, 'gi'), m => `<mark>${m}</mark>`);
+}
+function docMesRotulo(iso){
+  if(!iso) return 'Sem data';
+  const d = new Date(String(iso).slice(0, 10) + 'T00:00:00');
+  if(isNaN(d)) return 'Sem data';
+  const r = d.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
+  return r.charAt(0).toUpperCase() + r.slice(1);
+}
 
-  const porFase = {};
-  docs.forEach(d => {
-    const k = d.fase || 'Sem fase identificada';
-    (porFase[k] = porFase[k] || []).push(d);
-  });
+function renderDocs(){
+  const lista = casosVisiveis();
+  if(!lista.length) return `<div class="empty-state"><h3>Nenhuma perícia ainda</h3><p>Os documentos aparecem aqui quando uma perícia tiver autos importados do PROJUDI ou anexados.</p></div>`;
+  setTimeout(docsPreCarregar, 0);
+  let c = lista.find(x => x.id === docCasoSel);
+  if(!c){
+    c = [...lista].sort((a, b) => (b.documentos || []).length - (a.documentos || []).length)[0];
+    docCasoSel = c.id;
+  }
+  if(!docsCarregado(c)) setTimeout(() => docsGarantir(c), 0);
 
-  return `
-    <div class="section-gap">
-      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <div class="search">
-          ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
-          <input id="docSearch" type="text" value="${escapeHtml(docQuery)}" placeholder="Buscar documento, fase ou perícia" oninput="onDocSearch()">
+  /* ---------- coluna dos processos ---------- */
+  const qp = normalizeText(docProcQuery);
+  const procs = lista.filter(x => !qp
+      || normalizeText(`${x.codigo} ${x.nome} ${x.numeroProcesso} ${x.partes || ''} ${x.comarca || ''}`).includes(qp)
+      || (qp.length >= 3 && (x.documentos || []).some(d => normalizeText(d.nome).includes(qp))))
+    .sort((a, b) => String(b.dataNomeacao || '').localeCompare(String(a.dataNomeacao || '')));
+  const colunaProcessos = `
+    <aside class="dc-procs" aria-label="Processos">
+      <div class="search dc-busca-proc">
+        ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
+        <input id="docProcBusca" type="search" value="${escapeHtml(docProcQuery)}" placeholder="Processo, perícia ou documento" aria-label="Buscar processo" oninput="docProcQuery = this.value; docsRedesenhar();">
+      </div>
+      <div class="dc-procs-lista" role="listbox">
+        ${procs.length ? procs.map(x => {
+          const n = (x.documentos || []).length;
+          const conta = docsCarregado(x) ? `${n} doc${n === 1 ? '' : 's'}` : (DOCS_LENDO.has(x.id) ? '…' : '');
+          return `<button class="dc-proc ${x.id === c.id ? 'sel' : ''}" role="option" aria-selected="${x.id === c.id}" onclick="docEscolherCaso(${jsq(x.id)})">
+            <span class="dc-proc-top"><span class="mono">${escapeHtml(x.codigo || '')}</span><span class="dc-proc-n">${conta}</span></span>
+            <span class="dc-proc-nome">${escapeHtml(casoNomeCurto(x))}</span>
+            <span class="dc-proc-num mono">${escapeHtml(x.numeroProcesso || 'sem número')}</span>
+          </button>`;
+        }).join('') : '<div class="chart-empty">Nenhum processo encontrado.</div>'}
+      </div>
+    </aside>`;
+
+  /* ---------- documentos do processo escolhido ---------- */
+  const todos = docsDoCaso(c);
+  const comTopico = todos.map(d => ({d, t: docTopicoDe(d)}));
+  const contagem = {};
+  comTopico.forEach(({t}) => { contagem[t.id] = (contagem[t.id] || 0) + 1; });
+  const topicosVisiveis = [...DOC_TOPICOS, DOC_TOPICO_OUTROS].filter(t => contagem[t.id]);
+  if(docTopico !== 'todos' && !contagem[docTopico]) docTopico = 'todos';
+  const q = normalizeText(docQuery);
+  const filtrados = comTopico.filter(({d, t}) => (docTopico === 'todos' || t.id === docTopico)
+    && (!q || normalizeText(`${d.nome} ${d.tipo || ''} ${d.fase || ''} ${d.movimentacao || ''} ${d.obs || ''}`).includes(q)));
+
+  const chave = ({d, t}) => docAgrupar === 'fase' ? (d.fase || 'Sem fase identificada') : docAgrupar === 'topico' ? t.rot : docMesRotulo(d.data);
+  const grupos = new Map();
+  filtrados.forEach(x => { const k = chave(x); if(!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(x); });
+
+  const linha = ({d, t}) => `
+    <div class="dc-doc" role="button" tabindex="0" onclick="abrirDocumento(${jsq(c.id)},${jsq(d.id)})" onkeydown="if(event.key==='Enter'){abrirDocumento(${jsq(c.id)},${jsq(d.id)})}">
+      <span class="dc-ext dc-ext-${escapeHtml(docExt(d.nome).toLowerCase())}">${escapeHtml(docExt(d.nome))}</span>
+      <span class="dc-doc-txt">
+        <span class="dc-doc-nome" title="${escapeHtml(d.nome || '')}">${docMarcar(escapeHtml(docNomeLimpo(d.nome)), docQuery)}</span>
+        <span class="dc-doc-sub">${escapeHtml(t.rot)}${docAgrupar !== 'fase' && d.fase ? ' · ' + docMarcar(escapeHtml(cleanFolderName(d.fase) || d.fase), docQuery) : ''}${d.tamanho ? ' · ' + fmtBytes(d.tamanho) : ''}${d.arquivo ? '' : ' · sem arquivo'}</span>
+      </span>
+      <span class="dc-doc-data mono">${fmtDate(d.data)}</span>
+    </div>`;
+
+  const lendo = !docsCarregado(c);
+  const corpo = lendo
+    ? marcaCarregando('Abrindo os documentos deste processo…')
+    : !todos.length
+      ? `<div class="empty-state dc-vazio"><h3>Nenhum documento neste processo</h3><p>Traga os autos do PROJUDI pela perícia ou anexe arquivos.</p>
+           <button class="btn btn-primary btn-sm" onclick="openDrawer(${jsq(c.id)})">Abrir a perícia</button></div>`
+      : !filtrados.length
+        ? `<div class="chart-empty">Nada encontrado${docQuery ? ` para "${escapeHtml(docQuery)}"` : ''}${docTopico !== 'todos' ? ' neste tópico' : ''}. <a href="#" onclick="docQuery=''; docTopico='todos'; docsRedesenhar(); return false;">Limpar filtros</a></div>`
+        : [...grupos.entries()].map(([k, itens]) => `
+            <section class="dc-grupo">
+              <h4 class="dc-grupo-tit"><span>${escapeHtml(k)}</span><i>${itens.length}</i></h4>
+              <div class="dc-docs">${itens.map(linha).join('')}</div>
+            </section>`).join('');
+
+  const ultimo = todos[0];
+  const detalhe = `
+    <div class="dc-det">
+      <div class="dc-cab">
+        <div class="dc-cab-txt">
+          <div class="dc-cab-cod"><span class="mono">${escapeHtml(c.codigo || '')}</span>${c.comarca ? ' · ' + escapeHtml(c.comarca) : ''}</div>
+          <h3 class="dc-cab-nome">${escapeHtml(casoNomeCurto(c))}</h3>
+          <div class="dc-cab-num mono">${escapeHtml(c.numeroProcesso || 'sem número de processo')}</div>
         </div>
-        <div class="chips">
-          <button class="chip ${docFiltroTipo==='todos'?'active':''}" onclick="setDocTipo('todos')">Todos</button>
-          ${tiposPresentes.map(t => `<button class="chip ${docFiltroTipo===t?'active':''}" onclick="setDocTipo(${jsq(t)})">${escapeHtml(t)}</button>`).join('')}
+        <div class="dc-cab-acoes">
+          <button class="btn btn-ghost btn-sm" onclick="openDrawer(${jsq(c.id)})">Abrir perícia</button>
+          ${podeEditar(c) ? `<button class="btn btn-primary btn-sm" onclick="openDrawer(${jsq(c.id)}); pjBaixarAutos(${jsq(c.id)});">${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>')} Baixar autos novos</button>` : ''}
         </div>
       </div>
-
-      ${docs.length === 0
-        ? `<div class="empty-state"><h3>Nenhum documento</h3><p>Importe um ZIP dentro de uma perícia ou adicione documentos manualmente.</p></div>`
-        : Object.entries(porFase).map(([fase, items], i) =>
-            panel('doc'+i, escapeHtml(fase), `${items.length} documento${items.length===1?'':'s'}`, `
-                <div class="rows">
-                  ${items.map(d => `
-                    <div class="row-item" onclick="abrirDocumento(${jsq(d.caso.id)},${jsq(d.id)})">
-                      <div class="row-main">
-                        <div class="row-title">${escapeHtml(d.nome)}</div>
-                        <div class="row-sub"><span class="mono">${escapeHtml(d.caso.codigo)}</span> · ${escapeHtml(d.caso.nome)}${d.tamanho ? ' · '+fmtBytes(d.tamanho) : ''}</div>
-                      </div>
-                      <div class="row-side">
-                        <span class="pill ${pillForTipo(d.tipo)}">${escapeHtml(d.tipo||'Outro')}</span>
-                        <span class="row-date">${fmtDate(d.data)}</span>
-                      </div>
-                    </div>`).join('')}
-                </div>`)).join('')}
+      <div class="dc-resumo">
+        <span><b>${todos.length}</b> documento${todos.length === 1 ? '' : 's'}</span>
+        ${ultimo ? `<span>último em <b>${fmtDate(ultimo.data)}</b></span>` : ''}
+        <span><b>${topicosVisiveis.length}</b> tópico${topicosVisiveis.length === 1 ? '' : 's'}</span>
+      </div>
+      <div class="dc-ferramentas">
+        <div class="search dc-busca-doc">
+          ${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}
+          <input id="docSearch" type="search" value="${escapeHtml(docQuery)}" placeholder="Buscar neste processo" aria-label="Buscar documento neste processo" oninput="docQuery = this.value; docsRedesenhar();">
+        </div>
+        <div class="dc-agrupar" role="group" aria-label="Agrupar por">
+          ${[['data', 'Data'], ['topico', 'Tópico'], ['fase', 'Movimentação']].map(([k, r]) => `<button class="${docAgrupar === k ? 'sel' : ''}" aria-pressed="${docAgrupar === k}" onclick="docMudarAgrupar(${jsq(k)})">${r}</button>`).join('')}
+        </div>
+      </div>
+      ${todos.length ? `<div class="chips dc-topicos" role="tablist" aria-label="Tópicos">
+        <button class="chip ${docTopico === 'todos' ? 'active' : ''}" onclick="docTopico='todos'; docsRedesenhar();">Todos <span class="chip-num">${todos.length}</span></button>
+        ${topicosVisiveis.map(t => `<button class="chip ${docTopico === t.id ? 'active' : ''}" onclick="docTopico=${jsq(t.id)}; docsRedesenhar();">${escapeHtml(t.rot)} <span class="chip-num">${contagem[t.id]}</span></button>`).join('')}
+      </div>` : ''}
+      <div class="dc-lista">${corpo}</div>
     </div>`;
+
+  setTimeout(() => {   /* deixa o processo escolhido à vista na lista (no celular ela corre para o lado) */
+    const l = document.querySelector('.dc-procs-lista'), sel = l && l.querySelector('.dc-proc.sel');
+    if(!sel) return;
+    if(l.scrollWidth > l.clientWidth + 4){ if(sel.offsetLeft < l.scrollLeft || sel.offsetLeft + sel.offsetWidth > l.scrollLeft + l.clientWidth) l.scrollLeft = sel.offsetLeft - 8; }
+    else if(sel.offsetTop < l.scrollTop || sel.offsetTop + sel.offsetHeight > l.scrollTop + l.clientHeight) l.scrollTop = sel.offsetTop - 8;
+  }, 0);
+  return `<div class="dc">${colunaProcessos}${detalhe}</div>`;
 }
-function setDocTipo(t){ docFiltroTipo = t; renderAll(); }
-function onDocSearch(){
-  const el = document.getElementById('docSearch');
-  docQuery = el.value;
-  const pos = el.selectionStart;
-  renderAll();
-  const novo = document.getElementById('docSearch');
-  if(novo){ novo.focus(); try{ novo.setSelectionRange(pos,pos); }catch(e){} }
+function docEscolherCaso(id){
+  docCasoSel = id; docTopico = 'todos'; docQuery = '';
+  try{ localStorage.setItem('pf_doc_caso', id); }catch(e){}
+  docsRedesenhar();
+  const det = document.querySelector('.dc-det');
+  if(det && window.innerWidth < 960) det.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+function docMudarAgrupar(k){
+  docAgrupar = k;
+  try{ localStorage.setItem('pf_doc_agrupar', k); }catch(e){}
+  docsRedesenhar();
 }
 function abrirDocumento(casoId, docId){
   const c = casos.find(x => x.id === casoId);
@@ -6401,11 +6610,13 @@ function lpTrocarAchado(){
   if(!box) return;
   box.classList.add('troca');
   setTimeout(() => {
-    document.getElementById('lpAchCat').textContent = cat;
-    const g = document.getElementById('lpAchGrav'); g.textContent = grav; g.dataset.g = grav;
-    document.getElementById('lpAchTit').textContent = tit;
-    document.getElementById('lpAchDet').textContent = det;
-    document.getElementById('lpAchFonte').textContent = fonte;
+    const el = id => document.getElementById(id);
+    if(!el('lpAchCat') || !el('lpAchGrav')) return;   /* a apresentação já fechou */
+    el('lpAchCat').textContent = cat;
+    const g = el('lpAchGrav'); g.textContent = grav; g.dataset.g = grav;
+    if(el('lpAchTit')) el('lpAchTit').textContent = tit;
+    if(el('lpAchDet')) el('lpAchDet').textContent = det;
+    if(el('lpAchFonte')) el('lpAchFonte').textContent = fonte;
     box.classList.remove('troca');
   }, 260);
 }
@@ -7948,7 +8159,10 @@ function renderAll(){
     if(digitando) atualizarTotais();
     else view.innerHTML = renderProposta();
   }
-  else if(activeSection === 'docs') view.innerHTML = renderDocs();
+  else if(activeSection === 'docs'){
+    const foco = document.activeElement;
+    if(!(foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName) && view.contains(foco))) view.innerHTML = renderDocs();
+  }
   else if(activeSection === 'ia'){
     /* o campo da chave não pode perder o foco enquanto está sendo colado */
     const foco = document.activeElement;
