@@ -957,11 +957,6 @@ body.rail .pf-rodape{flex-direction:column;}
 @media (max-width:560px){ #pfPaleta{padding-top:8vh;} .pf-pal-rodape{display:none;} }
 @media (prefers-reduced-motion:reduce){ .pf-ind,.pf-grupo-corpo,.pf-chev{transition:none;} .pf-pal-caixa{animation:none;} }
 /* ===== Revisão do processo pela IA ===== */
-.ia-topo{display:flex; flex-wrap:wrap; gap:12px 16px; align-items:center; justify-content:space-between;}
-.ia-topo-esq{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; min-width:0;}
-.ia-topo-esq select{height:40px; width:min(360px,100%); padding:0 10px; border-radius:9px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font:inherit; font-size:14px;}
-.ia-rot,.ia-num{font-size:12.5px; color:var(--muted);}
-.ia-topo-dir{display:flex; flex-wrap:wrap; gap:8px;}
 .ia-fresco{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:13px; color:var(--ink-2);}
 .ia-fresco > i{width:8px; height:8px; border-radius:50%; background:var(--ok); flex-shrink:0;}
 .ia-fresco.velho > i{background:var(--warn);}
@@ -1667,18 +1662,71 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .pub-acoes{display:flex; gap:8px; flex-wrap:wrap;}
 @media (max-width:700px){ .pub-busca{max-width:none;} .pub-ferr-dir{justify-content:stretch;} .pub-card{padding:12px;} }
 /* ---------- Revisão IA: escolha da IA e conta própria ---------- */
-.ia-prov{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-bottom:14px;}
-.ia-prov-op{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:6px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); font-size:12.5px; line-height:1.45; color:var(--muted); transition:border-color .15s ease, background .15s ease;}
-.ia-prov-op:hover{border-color:var(--line-strong);}
-.ia-prov-op:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
-.ia-prov-op.sel{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent);}
-.ia-prov-top{display:flex; justify-content:space-between; gap:8px; align-items:center;}
-.ia-prov-top b{font-size:13.5px; color:var(--ink);}
-.ia-prov-top em{font-style:normal; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent-deep); font-weight:600; white-space:nowrap;}
-.ia-prov-det{border-top:1px solid var(--line); padding-top:12px;}
-.ia-com{display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--muted); padding:5px 10px; border:1px solid var(--line); border-radius:20px; white-space:nowrap;}
-.ia-com svg{width:13px; height:13px; color:var(--accent);}
-.ia-conta{display:flex; flex-direction:column; gap:12px; background:var(--surface); border:1px solid var(--accent); border-radius:var(--radius); padding:16px 18px;}
+.ia-tela{gap:14px;}
+.ia-topo{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--line);}
+.ia-topo-esq{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1 1 280px;}
+.ia-topo-esq select{appearance:none; -webkit-appearance:none; border:none; background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 2px center / 16px; padding:0 24px 0 0; height:auto; width:auto; max-width:100%; font:inherit; font-size:17px; font-weight:600; color:var(--ink); cursor:pointer; text-overflow:ellipsis;}
+.ia-topo-esq select:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:6px;}
+.ia-um{font-size:17px;}
+.ia-num{font-size:12px; color:var(--muted);}
+.ia-topo-dir{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+.ia-com{all:unset; box-sizing:border-box; cursor:pointer; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 12px; border:1px solid var(--line); border-radius:999px; font-size:12.5px; color:var(--ink-2); white-space:nowrap; transition:border-color .15s ease;}
+.ia-com:hover{border-color:var(--line-strong);}
+.ia-com:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.ia-com svg{width:14px; height:14px; color:var(--accent);}
+.ia-com svg:last-child{color:var(--muted); width:13px; height:13px;}
+.ia-setup{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; display:flex; flex-direction:column; gap:16px; max-width:760px;}
+.ia-setup > header{display:flex; flex-direction:column; gap:4px;}
+.ia-setup > header b{font-size:16px;}
+.ia-setup > header span{font-size:13px; color:var(--muted);}
+.ia-prov{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+.ia-prov-op{all:unset; box-sizing:border-box; cursor:pointer; display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:12px; align-items:center; padding:12px 14px; border-top:1px solid var(--line); background:var(--surface); transition:background .15s ease;}
+.ia-prov-op:first-child{border-top:none;}
+.ia-prov-op:hover{background:var(--surface-2);}
+.ia-prov-op:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+.ia-prov-op.sel{background:var(--accent-soft);}
+.ia-radio{width:16px; height:16px; border-radius:50%; border:1.5px solid var(--line-strong); display:grid; place-items:center;}
+.ia-prov-op.sel .ia-radio{border-color:var(--accent);}
+.ia-prov-op.sel .ia-radio::after{content:''; width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.ia-prov-txt{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.ia-prov-txt b{font-size:13.5px; color:var(--ink);}
+.ia-prov-txt span{font-size:12px; color:var(--muted); line-height:1.4;}
+.ia-prov-op em{font-style:normal; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; white-space:nowrap;}
+.ia-prov-det{display:flex; flex-direction:column; gap:14px;}
+.ia-linha{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 12px; border:1px solid var(--line); border-radius:10px;}
+.ia-linha-rot{font-size:12.5px; color:var(--muted);}
+.ia-linha-val{flex:1; font-size:12.5px; min-width:120px;}
+.ia-teste{font-size:12.5px; color:var(--muted); margin-top:-6px;}
+.ia-teste.ok{color:var(--ok);}
+.ia-teste.erro{color:var(--danger);}
+.ia-switch{display:grid; grid-template-columns:auto minmax(0, 1fr); gap:12px; align-items:start; cursor:pointer;}
+.ia-switch input{position:absolute; opacity:0; pointer-events:none;}
+.ia-switch i{width:34px; height:20px; border-radius:999px; background:var(--line-strong); position:relative; transition:background .15s ease; margin-top:1px;}
+.ia-switch i::after{content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.2);}
+.ia-switch input:checked + i{background:var(--accent);}
+.ia-switch input:checked + i::after{transform:translateX(14px);}
+.ia-switch input:focus-visible + i{outline:2px solid var(--accent); outline-offset:2px;}
+.ia-switch span{display:flex; flex-direction:column; gap:2px;}
+.ia-switch b{font-size:13px; font-weight:500;}
+.ia-switch small{font-size:12px; color:var(--muted); line-height:1.4;}
+.ia-seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; background:var(--surface-2); width:max-content; max-width:100%;}
+.ia-seg button{all:unset; cursor:pointer; padding:6px 12px; border-radius:7px; font-size:12.5px; color:var(--muted);}
+.ia-seg button.sel{background:var(--surface); color:var(--ink); font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.12);}
+.ia-seg button:focus-visible{outline:2px solid var(--accent);}
+.ia-aceite{border-top:1px solid var(--line); padding-top:14px; display:flex; flex-direction:column; gap:10px; font-size:13px; line-height:1.6; color:var(--ink-2);}
+.ia-aceite p{margin:0;}
+.ia-aceite .btn{align-self:flex-start;}
+.ia-det-mais summary{cursor:pointer; font-size:12.5px; color:var(--accent-deep); font-weight:500; width:max-content;}
+.ia-det-mais ul{margin:8px 0 0; padding-left:18px; font-size:12.5px; color:var(--ink-2);}
+.ia-det-mais[open] summary{margin-bottom:6px;}
+.ia-conta-como .link-sutil{display:inline; width:auto; margin:0; padding:0; font-size:inherit;}
+.ia-modal{position:fixed; inset:0; z-index:60; background:rgba(15,20,25,.45); display:grid; place-items:center; padding:16px;}
+.ia-modal-caixa{background:var(--surface); border-radius:16px; width:min(620px, 100%); max-height:calc(100vh - 32px); overflow:auto; padding:18px 20px 16px; display:flex; flex-direction:column; gap:14px; box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.ia-modal-caixa > header{display:flex; justify-content:space-between; align-items:center;}
+.ia-modal-caixa > header b{font-size:16px;}
+.ia-modal-caixa > footer{display:flex; justify-content:flex-end; border-top:1px solid var(--line); padding-top:12px;}
+.ia-mais{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:6px 18px 18px;}
+.ia-conta{display:flex; flex-direction:column; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
 .ia-conta-passo{display:flex; gap:12px; align-items:flex-start;}
 .ia-conta-passo > i{font-style:normal; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-deep); font-weight:700; font-size:13px; flex-shrink:0;}
 .ia-conta-passo > div{display:flex; flex-direction:column; gap:7px; min-width:0; flex:1;}
@@ -8696,114 +8744,113 @@ function iaQuando(iso){
 function iaCorpoChave(){
   const p = iaProvedor();
   const chave = iaChave();
-  const mascarada = k => `${escapeHtml(k.slice(0, 7))}${'•'.repeat(Math.max(0, Math.min(18, k.length - 11)))}${escapeHtml(k.slice(-4))}`;
+  const mascarada = k => `${escapeHtml(k.slice(0, 7))}${'•'.repeat(Math.max(0, Math.min(14, k.length - 11)))}${escapeHtml(k.slice(-4))}`;
   const escolha = `
-      <div class="ia-prov" role="radiogroup" aria-label="Qual IA vai ler os autos">
+      <div class="ia-prov" role="radiogroup" aria-label="Quem lê os autos">
         ${Object.entries(IA_PROVEDORES).map(([k, v]) => `
           <button class="ia-prov-op ${p === k ? 'sel' : ''}" role="radio" aria-checked="${p === k}" onclick="iaDefinirProvedor(${jsq(k)})">
-            <span class="ia-prov-top"><b>${escapeHtml(v.nome)}</b><em>${escapeHtml(v.selo)}</em></span>
-            <span>${escapeHtml(v.desc)}</span>
+            <i class="ia-radio"></i>
+            <span class="ia-prov-txt"><b>${escapeHtml(v.nome)}</b><span>${escapeHtml(v.desc)}</span></span>
+            <em>${escapeHtml(v.selo)}</em>
           </button>`).join('')}
       </div>`;
-  const campoChave = (rotulo, placeholder, dica) => chave ? `
-      <div class="row-item" style="cursor:default;">
-        <div class="row-main"><div class="row-title">${rotulo} guardada</div><div class="row-sub mono">${mascarada(chave)}</div></div>
-        <div class="row-side">${p === 'claude' ? `<button class="btn btn-ghost btn-sm" onclick="iaTestarChaveClaude()">Testar</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="iaApagarChave()">Remover</button></div>
+  const campoChave = (rotulo, placeholder, ajuda, link) => chave ? `
+      <div class="ia-linha">
+        <span class="ia-linha-rot">${rotulo}</span>
+        <span class="mono ia-linha-val">${mascarada(chave)}</span>
+        ${p === 'claude' ? `<button class="btn btn-ghost btn-sm" onclick="iaTestarChaveClaude()">Testar</button>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="iaApagarChave()">Remover</button>
       </div>
-      ${iaTesteChave && p === 'claude' ? `<div class="hint" style="color:${iaTesteChave.startsWith('ok:') ? 'var(--ok)' : iaTesteChave.startsWith('erro:') ? 'var(--danger)' : 'var(--muted)'};">${escapeHtml(iaTesteChave.replace(/^(ok|erro):/, ''))}</div>` : ''}` : `
+      ${iaTesteChave && p === 'claude' ? `<div class="ia-teste ${iaTesteChave.startsWith('ok:') ? 'ok' : iaTesteChave.startsWith('erro:') ? 'erro' : ''}">${escapeHtml(iaTesteChave.replace(/^(ok|erro):/, ''))}</div>` : ''}` : `
       <div class="field">
         <label for="iaChave">${rotulo}</label>
         <input id="iaChave" type="password" autocomplete="off" spellcheck="false" placeholder="${placeholder}" onchange="iaDefinirChave(this.value).then(renderAll)">
-        <span class="dica">${dica}</span>
+        <span class="dica">${ajuda} <a href="${link}" target="_blank" rel="noopener">Criar a chave ↗</a></span>
       </div>`;
-  const manual = `<button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="setSection('config')">Configurações</button>`;
-  let especifico = '';
-  if(p === 'claude'){
-    especifico = `
-      ${campoChave('Chave da API do Claude', 'sk-ant-…', `Crie em console.anthropic.com, em Settings > API Keys, e coloque créditos em Billing. A assinatura do Claude (Pro ou Max) não vale para a API; para usá-la, escolha "Minha conta de IA". Passo a passo no manual "IA da Revisão", em ${manual}.`)}
-      <div class="field" style="margin-top:12px;">
-        <label for="iaModelo">Modelo</label>
-        <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
-          ${CLAUDE_MODELOS.map(m => `<option value="${m.id}" ${iaModeloClaude() === m.id ? 'selected' : ''}>${escapeHtml(m.nome)} — ${escapeHtml(m.nota)}</option>`).join('')}
-        </select>
-      </div>
-      <label class="check" style="margin-top:12px; display:flex; gap:9px; align-items:flex-start; cursor:pointer;">
-        <input type="checkbox" ${iaPdfInteiro() ? 'checked' : ''} onchange="iaSalvarConfig({pdfInteiro: this.checked})" style="margin-top:3px;">
-        <span style="font-size:13px; line-height:1.5;">Mandar os PDFs inteiros
-          <span class="dica" style="display:block; margin-top:2px;">O Claude lê cada página como texto e como imagem: pega tabelas, carimbos e páginas digitalizadas e cita a página. Custa mais que só o texto. Até ${CLAUDE_MAX_PAGINAS_PDF} páginas por revisão; o que passar disso vai como texto.</span>
-        </span>
-      </label>`;
-  } else if(p === 'gemini'){
-    especifico = `
-      ${campoChave('Chave da API do Gemini', 'cole aqui a chave do Google AI Studio', `Pegue em aistudio.google.com, em "Get API key". Para autos reais, ative o faturamento: no nível gratuito o Google pode usar o que for enviado. Passo a passo no manual "IA da Revisão", em ${manual}.`)}
-      <div class="field" style="margin-top:12px;">
-        <label for="iaModelo">Modelo</label>
-        <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
-          ${iaModelosParaEscolher().map(m => `<option value="${m.id}" ${iaModelo() === m.id ? 'selected' : ''}>${escapeHtml(m.nome)}${m.nota ? ' — ' + escapeHtml(m.nota) : ''}</option>`).join('')}
-        </select>
-        <span class="dica">
-          ${iaCatalogo
-            ? `${iaCatalogo.length} modelos disponíveis na sua chave. <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="iaCarregarCatalogo(true)">atualizar lista</button>`
-            : iaCatalogoErro
-              ? `Não foi possível ler a lista de modelos da sua chave (${escapeHtml(iaCatalogoErro)}). O seletor mostra os apelidos, que acompanham a versão atual. <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="iaCarregarCatalogo(true)">tentar de novo</button>`
-              : iaBuscandoCatalogo ? 'Perguntando à sua chave quais modelos estão disponíveis...' : 'Os apelidos "versão atual" seguem o modelo corrente do Google.'}
-        </span>
-      </div>`;
-  } else {
-    especifico = `
+  const seletor = (opcoes, atual) => `
       <div class="field">
-        <label>Onde você tem conta</label>
-        <div class="chips">${Object.entries(IA_APPS).map(([k, v]) => `<button class="chip ${iaApp() === k ? 'active' : ''}" onclick="iaSalvarConfig({app: ${jsq(k)}})">${escapeHtml(v.nome)}</button>`).join('')}</div>
+        <label for="iaModelo">Modelo</label>
+        <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
+          ${opcoes.map(m => `<option value="${m.id}" ${atual === m.id ? 'selected' : ''}>${escapeHtml(m.nome)}${m.nota ? ' — ' + escapeHtml(m.nota) : ''}</option>`).join('')}
+        </select>
+      </div>`;
+  const chaveLiga = (marcado, rotulo, dica, acao) => `
+      <label class="ia-switch"><input type="checkbox" ${marcado ? 'checked' : ''} onchange="${acao}"><i></i><span><b>${rotulo}</b><small>${dica}</small></span></label>`;
+  let det = '';
+  if(p === 'claude'){
+    det = campoChave('Chave da API do Claude', 'sk-ant-…', 'Em console.anthropic.com > API Keys, com créditos em Billing. A assinatura Pro ou Max não vale para a API.', 'https://console.anthropic.com/settings/keys')
+      + seletor(CLAUDE_MODELOS, iaModeloClaude())
+      + chaveLiga(iaPdfInteiro(), 'Ler os PDFs inteiros', `Tabelas, carimbos e páginas digitalizadas, com a página citada. Custa mais. Até ${CLAUDE_MAX_PAGINAS_PDF} páginas por revisão.`, 'iaSalvarConfig({pdfInteiro: this.checked})');
+  } else if(p === 'gemini'){
+    det = campoChave('Chave da API do Gemini', 'AIza…', 'Em aistudio.google.com > Get API key. Para autos reais, ative o faturamento.', 'https://aistudio.google.com/apikey')
+      + seletor(iaModelosParaEscolher(), iaModelo());
+  } else {
+    det = `
+      <div class="field"><label>Onde você tem conta</label>
+        <div class="ia-seg">${Object.entries(IA_APPS).map(([k, v]) => `<button class="${iaApp() === k ? 'sel' : ''}" aria-pressed="${iaApp() === k}" onclick="iaSalvarConfig({app: ${jsq(k)}})">${escapeHtml(v.nome)}</button>`).join('')}</div>
       </div>
       ${iaApp() === 'chrome' ? `
       <ol class="ia-conta-como">
-        <li>Instale o <b>Claude no Chrome</b>, a extensão oficial da Anthropic, e entre com a sua conta do Claude (planos pagos). <a href="${IA_APPS.chrome.ajuda}" target="_blank" rel="noopener">Como instalar ↗</a></li>
-        <li>Uma vez só: no Claude no Chrome, crie um atalho (digite <b>/</b>) chamado <b>revisar-pericia</b> com o texto abaixo. <button class="link-sutil" style="display:inline; margin:0; padding:0;" onclick="iaCopiarAtalho()">Copiar o texto do atalho</button></li>
-        <li>Na Revisão IA, escolha a perícia, abra o painel do Claude e use <b>/revisar-pericia</b>. Ele prepara o material, lê os autos, escreve a revisão e importa. Você só confere os cartões.</li>
+        <li>Instale o <b>Claude no Chrome</b> (extensão oficial da Anthropic) e entre com a sua conta. <a href="${IA_APPS.chrome.ajuda}" target="_blank" rel="noopener">Como instalar ↗</a></li>
+        <li>Crie nele o atalho <b>/revisar-pericia</b> com o texto abaixo. <button class="link-sutil" onclick="iaCopiarAtalho()">Copiar texto</button></li>
+        <li>Abra a perícia aqui e use o atalho no painel do Claude. Ele lê, responde e importa.</li>
       </ol>
-      <pre class="ia-atalho">${escapeHtml(IA_ATALHO_CHROME)}</pre>` : `
+      <details class="ia-det-mais"><summary>Texto do atalho</summary><pre class="ia-atalho">${escapeHtml(IA_ATALHO_CHROME)}</pre></details>` : `
       <ol class="ia-conta-como">
-        <li>Clique em <b>Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}</b> no alto da tela.</li>
-        <li>Copie (ou baixe) as instruções com o texto dos autos e cole num chat novo do ${escapeHtml(IA_APPS[iaApp()].nome)}.</li>
-        <li>Copie a resposta do chat e cole de volta aqui. A revisão aparece nos cartões, igual à da API.</li>
-      </ol>`}
-      <div class="hint">Não precisa de chave nem de outro plano: vale a assinatura que você já tem. Os limites de uso são os do seu plano.</div>`;
+        <li>Clique em <b>Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}</b>.</li>
+        <li>Copie (ou baixe) o material e cole num chat novo.</li>
+        <li>Cole a resposta de volta e importe.</li>
+      </ol>`}`;
   }
   return `
       ${escolha}
-      <div class="ia-prov-det">${especifico}</div>
-      ${p !== 'conta' ? `
-      <label class="check" style="margin-top:14px; display:flex; gap:9px; align-items:flex-start; cursor:pointer;">
-        <input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)" style="margin-top:3px;">
-        <span style="font-size:13px; line-height:1.5;">Analisar sozinho quando eu anexar documentos novos
-          <span class="dica" style="display:block; margin-top:2px;">Espera 25 segundos depois do último anexo e roda uma vez. Cada rodada é cobrada na sua conta da API.</span>
-        </span>
-      </label>
-      <div class="hint" style="margin-top:14px;">A chave fica no seu perfil, que só a sua conta lê. Ainda assim, trate-a como senha: quem entrar na sua conta alcança a chave.</div>` : ''}`;
+      <div class="ia-prov-det">${det}
+        ${p !== 'conta' ? chaveLiga(iaAuto(), 'Revisar sozinha ao chegar documento novo', 'Roda uma vez, 25 segundos depois do último anexo. Cada rodada é cobrada na API.', 'iaAlternarAuto(this.checked)') : ''}
+      </div>`;
 }
 
 function iaCorpoCiencia(){
   const p = iaProvedor();
-  const destino = p === 'claude' ? 'à API da Anthropic (Claude), com a sua chave'
-    : p === 'gemini' ? 'à API do Google (Gemini), com a sua chave'
-    : iaApp() === 'chrome' ? 'ao Claude, pela extensão Claude no Chrome, na sua conta' : `ao ${IA_APPS[iaApp()].nome}, quando você colar no chat da sua conta`;
+  const destino = p === 'claude' ? 'para a Anthropic (Claude), com a sua chave'
+    : p === 'gemini' ? 'para o Google (Gemini), com a sua chave'
+    : iaApp() === 'chrome' ? 'para o Claude, pela sua conta no Claude no Chrome' : `para o ${IA_APPS[iaApp()].nome}, quando você colar no chat`;
   const termos = p === 'claude'
-    ? 'A Anthropic trata esse envio pelos termos comerciais da API dela. Pela política atual, o que é enviado pela API não é usado para treinar modelos, salvo se você der retorno (como o polegar) ou autorizar.'
+    ? 'Pela política da Anthropic, o que vai pela API não é usado para treinar modelos, salvo se você der retorno (como o polegar) ou autorizar.'
     : p === 'gemini'
-      ? '<b>No nível gratuito</b>, os termos do Google permitem que o conteúdo seja usado para melhorar os produtos dele e que pessoas o leiam; para autos reais, use uma chave com faturamento ativo.'
-      : 'Vale o contrato da sua conta pessoal. Antes de colar autos reais, confira nas configurações do app se o uso das conversas para treinar modelos está desligado.';
+      ? 'No nível gratuito, o Google pode usar o conteúdo para melhorar os produtos dele e pessoas podem lê-lo. Para autos reais, use chave com faturamento ativo.'
+      : 'Vale o contrato do seu plano. Antes de usar autos reais, confira nas configurações do app se o uso das conversas para treinamento está desligado.';
   return `
-      <div style="font-size:13px; line-height:1.65; color:var(--ink-2);">
-        <p style="margin:0 0 10px;">Antes da primeira revisão com <b>${escapeHtml(IA_PROVEDORES[p].nome)}</b>:</p>
-        <ul style="margin:0 0 14px; padding-left:18px;">
-          <li style="margin-bottom:7px;">O texto da perícia e dos documentos${p === 'claude' ? ' (e os PDFs, se você deixar ligado)' : ''} <b>sai deste navegador</b> e vai ${destino}. Documento sob sigilo processual deixa de estar apenas com você nesse momento.</li>
-          <li style="margin-bottom:7px;">${termos} Detalhes no manual "IA da Revisão", em Configurações.</li>
-          <li style="margin-bottom:7px;">O resultado é <b>rascunho de leitura</b>. A IA erra e às vezes inventa com cara de certeza. Cada item vem com a fonte justamente para você conferir nos autos.</li>
-          <li>Nada é enviado sem clique seu${p === 'conta' ? '' : ', a não ser que você ligue a análise automática'}.</li>
-        </ul>
+      <div class="ia-aceite">
+        <p>O texto da perícia e dos documentos${p === 'claude' ? ' (e os PDFs, se ligado)' : ''} sai do navegador e vai ${destino}. O resultado é rascunho para conferir: a IA erra e às vezes inventa com cara de certeza.</p>
+        <details class="ia-det-mais"><summary>O que mais saber</summary>
+          <ul>
+            <li>${termos}</li>
+            <li>Documento sob sigilo processual deixa de estar só com você no momento do envio.</li>
+            <li>Nada é enviado sem clique seu${p === 'conta' ? '' : ', a não ser que você ligue a revisão automática'}.</li>
+            <li>Detalhes no manual "IA da Revisão", em Configurações.</li>
+          </ul>
+        </details>
         <button class="btn btn-primary" onclick="iaRegistrarCiencia()">Li e estou ciente — liberar a revisão</button>
       </div>`;
 }
+
+/* configuração em janela própria, depois da primeira vez */
+let iaConfigAberta = false;
+function iaAbrirConfig(v){ iaConfigAberta = v !== false; iaTesteChave = ''; renderAll(); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && iaConfigAberta){ iaConfigAberta = false; renderAll(); } });
+function iaModalConfig(){
+  if(!iaConfigAberta) return '';
+  return `
+    <div class="ia-modal" role="dialog" aria-modal="true" aria-label="IA da revisão" onclick="if(event.target === this) iaAbrirConfig(false)">
+      <div class="ia-modal-caixa">
+        <header><b>IA da revisão</b><button class="icon-btn" aria-label="Fechar" onclick="iaAbrirConfig(false)">${svg('<path d="M6 6l12 12M18 6L6 18"/>')}</button></header>
+        ${iaCorpoChave()}
+        ${(iaProvedor() === 'conta' || iaChave()) && !iaCiente() ? iaCorpoCiencia() : ''}
+        <footer><button class="btn btn-primary" onclick="iaAbrirConfig(false)">${iaPronta() ? 'Pronto' : 'Fechar'}</button></footer>
+      </div>
+    </div>`;
+}
+
 
 /* ==========================================================================
    Revisão do processo pela IA — carrossel por categoria
@@ -8988,9 +9035,9 @@ function iaCorpoAnalise(c){
   else if(aba === 'faltou') corpo = (a.lacunas || []).length ? `<ul style="margin:0; padding-left:18px; font-size:13.5px; line-height:1.7; color:var(--ink-2);">${a.lacunas.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>` : vazio('Nada apontado como faltante.');
   else corpo = `<div class="hint" style="line-height:1.7;">${(a.fontes || []).map(f => escapeHtml(f.nome) + (f.comTexto === false ? ' (só cabeçalho)' : '')).join(' · ') || '—'}</div>
       ${(a.avisos && a.avisos.length) ? `<div class="hint" style="margin-top:10px;"><b>Sobre a leitura:</b> ${a.avisos.map(x => escapeHtml(x)).join(' ')}</div>` : ''}`;
-  const mais = panel('iaMais', 'Mais da revisão', '', `
+  const mais = `<section class="ia-mais" aria-label="Mais da revisão">
       <div class="ia-abas" role="tablist">${abas.map(([k, rotulo, n]) => `<button class="ia-aba" role="tab" aria-selected="${aba === k}" onclick="iaAba(${jsq(k)})">${rotulo}${n ? ` <span>${n}</span>` : ''}</button>`).join('')}</div>
-      ${corpo}`);
+      ${corpo}</section>`;
 
   return resumo + carrossel + mais;
 }
@@ -8998,54 +9045,50 @@ function iaCorpoAnalise(c){
 function renderIA(){
   if(iaProvedor() === 'gemini' && iaChaveGemini() && !iaCatalogo && !iaBuscandoCatalogo && !iaCatalogoErro) iaCarregarCatalogo();
   const conta = iaProvedor() === 'conta';
-  /* a chave e o modelo começam recolhidos: o dia a dia é a revisão */
-  try{ if(!localStorage.getItem('pf_ia_chave_recolhida')){ panelsFechados.add('iaChave'); localStorage.setItem('pf_ia_chave_recolhida', '1'); } }catch(e){}
   const lista = casosVisiveis();
   const c = lista.find(x => x.id === iaCasoId) || lista[0] || null;
   if(c) iaCasoId = c.id;
   const pronta = iaPronta();
   if(c && usingDb && !DOCS_OK.has(c.id)) setTimeout(() => docsGarantir(c).then(() => { if(activeSection === 'ia') renderAll(); }), 0);
-  if(!pronta) panelsFechados.delete('iaChave');   /* falta configurar: o painel fica aberto */
   const a = c && iaAnalise(c);
   const rodando = c && iaRodando.has(c.id);
   const msg = c && iaEstado[c.id];
   const velho = c && iaDesatualizada(c);
+  const acao = conta ? `Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}` : (a ? 'Revisar de novo' : 'Revisar esta perícia');
 
   const topo = !c ? '' : `
     <div class="ia-topo">
       <div class="ia-topo-esq">
         ${lista.length > 1
-          ? `<label class="ia-rot" for="iaPericia">Perícia</label><select id="iaPericia" onchange="iaEscolher(this.value)">${lista.map(x => `<option value="${x.id}" ${x.id === c.id ? 'selected' : ''}>${escapeHtml(x.codigo || '')} · ${escapeHtml(x.nome || 'sem nome')}</option>`).join('')}</select>`
-          : `<b>${escapeHtml(c.codigo || '')} · ${escapeHtml(c.nome || '')}</b>`}
+          ? `<select id="iaPericia" aria-label="Perícia" onchange="iaEscolher(this.value)">${lista.map(x => `<option value="${x.id}" ${x.id === c.id ? 'selected' : ''}>${escapeHtml(x.codigo || '')} · ${escapeHtml(casoNomeCurto(x))}</option>`).join('')}</select>`
+          : `<b class="ia-um">${escapeHtml(c.codigo || '')} · ${escapeHtml(casoNomeCurto(c))}</b>`}
         <span class="ia-num mono">${escapeHtml(c.numeroProcesso || 'sem número de processo')}</span>
       </div>
       <div class="ia-topo-dir">
-        <span class="ia-com" title="Trocar em IA e chave">${svg('<path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/>')} ${escapeHtml(iaNomeModelo())}</span>
-        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar(${jsq(c.id)})" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? (conta ? 'Preparando…' : 'Revisando…') : conta ? `Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}` : (a ? 'Revisar de novo' : 'Revisar esta perícia')}</button>
-        <button class="btn btn-primary" onclick="iaBaixarPdf(${jsq(c.id)})" ${a ? '' : 'disabled'}>${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>')} Baixar PDF dos erros</button>
+        <button class="ia-com" onclick="iaAbrirConfig()" title="Trocar a IA e a chave">${svg('<path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/>')}<span>${escapeHtml(iaNomeModelo())}</span>${svg('<path d="m6 9 6 6 6-6"/>')}</button>
+        ${a ? `<button class="btn btn-ghost" onclick="iaBaixarPdf(${jsq(c.id)})">${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>')} Baixar PDF dos erros</button>` : ''}
+        <button class="btn btn-primary" onclick="iaAnalisar(${jsq(c.id)})" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? (conta ? 'Preparando…' : 'Revisando…') : acao}</button>
       </div>
     </div>
     ${a ? `
     <div class="ia-fresco ${velho ? 'velho' : ''}">
-      <i></i><span>${velho ? 'A perícia mudou depois da revisão de ' + iaQuando(a.quando) + '.' : 'Em dia · revisão de ' + iaQuando(a.quando) + ' · ' + (a.fontes || []).length + ' fonte' + ((a.fontes || []).length === 1 ? '' : 's') + ' lida' + ((a.fontes || []).length === 1 ? '' : 's')}</span>
-      ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar(${jsq(c.id)})">Revisar de novo</button>` : ''}
-      ${conta ? '' : `<label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Rever sozinha quando chegar documento novo</label>`}
+      <i></i><span>${velho ? 'A perícia mudou depois da revisão de ' + iaQuando(a.quando) + '.' : 'Em dia · ' + iaQuando(a.quando) + ' · ' + (a.fontes || []).length + ' fonte' + ((a.fontes || []).length === 1 ? '' : 's') + (a.modelo ? ' · ' + escapeHtml(a.modelo) : '')}</span>
+      ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar(${jsq(c.id)})">${conta ? 'Preparar de novo' : 'Revisar de novo'}</button>` : ''}
+      ${conta ? '' : `<label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Revisar sozinha ao chegar documento</label>`}
     </div>` : ''}
     ${rodando ? marcaCarregando(msg || 'Conferindo os autos…') : msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}
     ${conta && IA_CONTA[c.id] && !rodando ? iaCorpoConta(c) : ''}`;
 
-  const corpo = !c ? `<div class="chart-empty">Nenhuma perícia para revisar ainda.</div>`
-    : !pronta ? `<div class="ia-vazio"><b>Falta pouco para a primeira revisão.</b><span>${conta ? 'Dê o aceite no painel acima.' : `Guarde a sua chave do ${IA_PROVEDORES[iaProvedor()].curto} e dê o aceite nos painéis acima.`}</span></div>`
-    : iaCorpoAnalise(c);
+  /* primeira vez: configuração em uma tela só, em vez dos resultados */
+  const setup = pronta ? '' : `
+    <section class="ia-setup">
+      <header><b>Configure a Revisão IA</b><span>Escolha quem lê os autos. Dá para trocar depois, no botão da IA no alto.</span></header>
+      ${iaCorpoChave()}
+      ${(conta || iaChave()) && !iaCiente() ? iaCorpoCiencia() : ''}
+    </section>`;
 
-  return `
-    <div class="section-gap">
-      ${!pronta ? panel('iaChave', 'IA e chave', IA_PROVEDORES[iaProvedor()].curto + (conta ? '' : iaChave() ? ' · chave guardada' : ' · sem chave'), iaCorpoChave()) : ''}
-      ${(conta || iaChave()) && !iaCiente() ? panel('iaCiencia', 'Antes da primeira revisão', 'leia isto', iaCorpoCiencia()) : ''}
-      ${topo}
-      ${corpo}
-      ${pronta ? panel('iaChave', 'IA e chave', iaNomeModelo(), iaCorpoChave()) : ''}
-    </div>`;
+  const corpo = !c ? `<div class="ia-vazio"><b>Nenhuma perícia para revisar ainda.</b></div>` : pronta ? iaCorpoAnalise(c) : '';
+  return `<div class="section-gap ia-tela">${topo}${setup}${corpo}</div>${pronta ? iaModalConfig() : ''}`;
 }
 function iaEscolher(id){ iaCasoId = id; iaFiltro = 'Todos'; renderAll(); }
 

@@ -383,6 +383,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.evaluate((n) => { perfil.ia = { provedor: "claude" }; iaCasoId = (casos.find((x) => x.numeroProcesso === n && (x.documentos || []).some((d) => d.arquivo)) || casos[0]).id; setSection("ia"); }, NUM);
   await sleep(300);
   check("três opções de IA: Claude, Gemini e a própria conta", await pf.locator(".ia-prov-op").count() === 3 && /Claude, da Anthropic/.test(await pf.textContent(".ia-prov")) && /Minha conta de IA/.test(await pf.textContent(".ia-prov")));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-ia-setup.png") });
   await pf.fill("#iaChave", "sk-ant-teste");
   await pf.press("#iaChave", "Tab");
   await sleep(300);
@@ -401,7 +402,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   /* minha conta de IA */
   await pf.evaluate(() => { perfil.ia = { ...perfil.ia, provedor: "conta", app: "chatgpt" }; renderAll(); });
   await sleep(200);
-  check("modo conta pede só o aceite (sem chave)", /Antes da primeira revisão/.test(await pf.textContent("#view")) && await pf.locator("#iaChave").count() === 0);
+  check("modo conta pede só o aceite (sem chave)", /Li e estou ciente/.test(await pf.textContent("#view")) && await pf.locator("#iaChave").count() === 0);
   await pf.click('button:has-text("Li e estou ciente")');
   await sleep(200);
   await pf.click('.ia-topo button:has-text("Preparar para o ChatGPT")');
@@ -421,7 +422,13 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   /* Claude no Chrome: material visível na página e campo rotulado para a extensão oficial preencher */
   await pf.evaluate(() => { perfil.ia = { ...perfil.ia, provedor: "conta", app: "chrome", ciencias: { ...(perfil.ia.ciencias || {}), conta: "2026-10-16T00:00:00Z" } }; renderAll(); });
   await sleep(200);
-  check("Claude no Chrome: passo a passo e atalho na configuração", /Claude no Chrome/.test(await pf.textContent(".ia-prov-det")) && /revisar-pericia/.test(await pf.textContent(".ia-prov-det")) && /Material para o Claude/.test(await pf.textContent(".ia-atalho")));
+  await pf.click(".ia-com");
+  await sleep(200);
+  check("configuração abre em janela, com o passo a passo e o atalho do Claude no Chrome", await pf.locator(".ia-modal").count() === 1 && /Claude no Chrome/.test(await pf.textContent(".ia-prov-det")) && /revisar-pericia/.test(await pf.textContent(".ia-prov-det")) && /Material para o Claude/.test(await pf.textContent(".ia-atalho")));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-ia-config.png") });
+  await pf.keyboard.press("Escape");
+  await sleep(150);
+  check("Esc fecha a janela da IA", await pf.locator(".ia-modal").count() === 0);
   await pf.click('.ia-topo button:has-text("Preparar para o Claude no Chrome")');
   await pf.waitForSelector("#iaMaterialClaude", { timeout: 30000 });
   const mat = await pf.evaluate(() => { const el = document.getElementById("iaMaterialClaude"); const r = el.getBoundingClientRect(); return { visivel: r.height > 50 && getComputedStyle(el).display !== "none", ficha: /FICHA DA PERÍCIA/.test(el.textContent), formato: /FORMATO DA RESPOSTA/.test(el.textContent), rotulo: document.querySelector('textarea[aria-label="Resposta da IA (JSON)"]') !== null }; });
