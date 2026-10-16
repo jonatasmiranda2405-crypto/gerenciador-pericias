@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Segurança: de onde a página aceita carregar e para onde pode mandar dados. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br https://api.github.com; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src https://api.anthropic.com 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br https://api.github.com; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script>
   /* Anti-clickjacking: o Gerenciador de Perícia nunca roda dentro de moldura de outro site. */
@@ -1666,6 +1666,31 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .pub-card.lida .pub-texto{color:var(--muted);}
 .pub-acoes{display:flex; gap:8px; flex-wrap:wrap;}
 @media (max-width:700px){ .pub-busca{max-width:none;} .pub-ferr-dir{justify-content:stretch;} .pub-card{padding:12px;} }
+/* ---------- Revisão IA: escolha da IA e conta própria ---------- */
+.ia-prov{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-bottom:14px;}
+.ia-prov-op{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:6px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); font-size:12.5px; line-height:1.45; color:var(--muted); transition:border-color .15s ease, background .15s ease;}
+.ia-prov-op:hover{border-color:var(--line-strong);}
+.ia-prov-op:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.ia-prov-op.sel{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent);}
+.ia-prov-top{display:flex; justify-content:space-between; gap:8px; align-items:center;}
+.ia-prov-top b{font-size:13.5px; color:var(--ink);}
+.ia-prov-top em{font-style:normal; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent-deep); font-weight:600; white-space:nowrap;}
+.ia-prov-det{border-top:1px solid var(--line); padding-top:12px;}
+.ia-com{display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--muted); padding:5px 10px; border:1px solid var(--line); border-radius:20px; white-space:nowrap;}
+.ia-com svg{width:13px; height:13px; color:var(--accent);}
+.ia-conta{display:flex; flex-direction:column; gap:12px; background:var(--surface); border:1px solid var(--accent); border-radius:var(--radius); padding:16px 18px;}
+.ia-conta-passo{display:flex; gap:12px; align-items:flex-start;}
+.ia-conta-passo > i{font-style:normal; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-deep); font-weight:700; font-size:13px; flex-shrink:0;}
+.ia-conta-passo > div{display:flex; flex-direction:column; gap:7px; min-width:0; flex:1;}
+.ia-conta-passo b{font-size:14px;}
+.ia-conta-passo span{font-size:12.5px; color:var(--muted); line-height:1.5;}
+.ia-conta-passo textarea{width:100%; font-family:'IBM Plex Mono', monospace; font-size:12px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); color:var(--ink); resize:vertical;}
+.ia-conta-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+.ia-conta-como{margin:4px 0 8px; padding-left:20px; font-size:13px; line-height:1.65; color:var(--ink-2);}
+.lp-ia-provs{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:16px 0 4px;}
+.lp-ia-provs span{display:flex; flex-direction:column; gap:3px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; font-size:12.5px; color:var(--muted); line-height:1.4; background:var(--surface);}
+.lp-ia-provs b{font-size:14px; color:var(--ink);}
+@media (max-width:820px){ .ia-prov{grid-template-columns:1fr;} .lp-ia-provs{grid-template-columns:1fr;} }
 .adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
 .mk-parado .mk-lupa{animation:none;}
 </style>
@@ -3110,19 +3135,13 @@ function comExportar(){
 }
 /* Reescreve a mensagem com a IA (chave do próprio administrador). */
 async function comVariarComIA(tom){
-  if(!iaChave()){ pfAviso('Guarde a sua chave do Gemini na Revisão IA para usar este botão.'); return; }
+  if(iaProvedor() === 'conta'){ pfAviso('Com "Minha conta de IA", copie o texto e peça a variação no seu chat.'); return; }
+  if(!iaChave()){ pfAviso(`Guarde a sua chave do ${IA_PROVEDORES[iaProvedor()].curto} na Revisão IA para usar este botão.`); return; }
   const atual = comMensagemAtual();
   COM.iaRodando = true; renderAll();
   try{
     const prompt = `Reescreva o e-mail comercial abaixo, em português do Brasil, com tom ${tom}. Público: peritos judiciais contábeis. Regras: no máximo 140 palavras; não invente números, clientes, depoimentos nem promessas; mantenha exatamente as marcações {nome}, {link} e {remetente}; mantenha a última linha sobre responder "remover" quando ela existir. Responda só em JSON com os campos "assunto" e "corpo".\n\nASSUNTO: ${atual.assunto}\n\nCORPO:\n${atual.corpo}`;
-    const res = await fetch(IA_ENDPOINT + encodeURIComponent(iaModelo()) + ':generateContent', {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'x-goog-api-key': iaChave()},
-      body: JSON.stringify({contents: [{role: 'user', parts: [{text: prompt}]}], generationConfig: {temperature: 0.8, responseMimeType: 'application/json'}}),
-    });
-    const j = await res.json();
-    if(!res.ok) throw new Error((j.error && j.error.message) || ('erro ' + res.status));
-    const txt = (((j.candidates || [])[0] || {}).content || {}).parts?.map(p => p.text).join('') || '';
-    const out = JSON.parse(txt);
+    const out = await iaPedirJson(prompt, {type: 'OBJECT', properties: {assunto: {type: 'STRING'}, corpo: {type: 'STRING'}}, required: ['assunto', 'corpo']});
     if(!out.corpo || !String(out.corpo).includes('{link}')) throw new Error('a resposta veio sem o link do convite');
     COM.assunto = String(out.assunto || atual.assunto).slice(0, 160);
     COM.corpo = String(out.corpo).slice(0, 3000);
@@ -6204,7 +6223,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
    A página descreve o que o sistema realmente faz com os dados — inclusive o
    que ele não protege. O aceite fica registrado no perfil de cada conta.
    ========================================================================== */
-const VERSAO_PRIVACIDADE = '2.3';
+const VERSAO_PRIVACIDADE = '2.4';
 const DATA_PRIVACIDADE = '15/10/2026';
 let aceiteAdiado = false;   /* deixou a porta de lado para ler o texto antes */
 
@@ -6254,7 +6273,7 @@ const LEGAL = {
     curto: [
       'O Gerenciador de Perícia organiza o seu trabalho; o laudo, os cálculos que você assina e as conclusões são seus.',
       'A conta é pessoal. Cada perícia aparece só para quem você compartilhar.',
-      'A IA é opcional, usa a sua chave do Google e entrega rascunho para conferir.',
+      'A IA é opcional: Claude ou Gemini com a sua chave, ou a sua própria conta de IA. Ela entrega rascunho para conferir.',
       'Os seus dados continuam seus: você corrige, exporta pelos documentos e exclui quando quiser.',
     ],
     secoes: [
@@ -6283,8 +6302,8 @@ const LEGAL = {
         ['p','O laudo, a resposta aos quesitos das partes, as conclusões, os cálculos que você assina e o cumprimento dos prazos são de responsabilidade exclusiva do perito. As ferramentas de cálculo, os modelos de proposta e a revisão por IA são apoio: confira cada resultado nos autos e na legislação antes de usar.'],
       ]},
       {t:'Inteligência artificial', b:[
-        ['lista',['A Revisão IA é opcional e só funciona com uma chave do Google AI Studio cadastrada por você. O uso dessa chave é um contrato seu com o Google e segue os termos dele.',
-                  'Ao revisar, o texto da perícia e dos documentos é enviado ao Google. Leia a Política de privacidade e o manual "Chave da IA (Gemini)" antes de usar com autos reais.',
+        ['lista',['A Revisão IA é opcional. Funciona com uma chave da API cadastrada por você (Claude, da Anthropic, ou Gemini, do Google) ou com a sua própria conta de IA (Claude, ChatGPT ou Gemini), em que você mesmo cola o material no chat. O uso é um contrato seu com o fornecedor escolhido e segue os termos dele.',
+                  'Ao revisar, o texto da perícia e dos documentos (e, no Claude, os PDFs) é enviado ao fornecedor escolhido. Leia a Política de privacidade e o manual "IA da Revisão" antes de usar com autos reais.',
                   'O resultado é rascunho de leitura. O modelo pode errar ou afirmar algo que não está nos autos. Não use nenhuma linha sem conferir.',
                   'A IA aponta erros e inconsistências; ela não sugere quesitos nem conclui pela perícia.']],
       ]},
@@ -6328,7 +6347,7 @@ const LEGAL = {
     curto: [
       'Não vendemos dados, não usamos para publicidade e não há rastreadores no sistema.',
       'Os dados ficam no Google Cloud (Firebase), com acesso conferido no servidor perícia por perícia.',
-      'Conteúdo do processo só sai para fora se você ligar a Revisão IA, com a sua chave do Google.',
+      'Conteúdo do processo só sai para fora se você usar a Revisão IA, com a IA e a chave que você escolher.',
       'Você pode acessar, corrigir e excluir os seus dados, e pedir o resto pelo contato do encarregado.',
     ],
     secoes: [
@@ -6340,7 +6359,7 @@ const LEGAL = {
         ['lista',['Conta: e-mail, nome e, na entrada pelo Google, a foto do perfil.',
                   'Cadastro profissional (Meu perfil): nome completo, CRC, CPF, telefone, endereço, cidade e hora técnica.',
                   'Perícias: número do processo, vara, comarca, partes, prazos, honorários, tarefas, compromissos, comentários e os documentos que você anexa ou importa do PROJUDI.',
-                  'Revisão IA, se usada: a sua chave do Google AI Studio e o resultado das revisões.',
+                  'Revisão IA, se usada: a sua chave da API (Anthropic ou Google), a IA escolhida e o resultado das revisões.',
                   'Assinatura da extensão: e-mail, plano e situação do pagamento informada pelo Mercado Pago.',
                   'Dados técnicos: o GitHub, que hospeda o site, a Cloudflare, que protege e entrega o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.',
                   'Registros de erro: quando algo falha na tela, o sistema guarda a mensagem técnica e o rastro do erro (que pode trazer um trecho do que estava na tela), a tela, o navegador e o e-mail da conta. Só os administradores veem, para corrigir o problema. Registros com mais de 90 dias são apagados na verificação seguinte dos administradores.',
@@ -6364,7 +6383,7 @@ const LEGAL = {
       {t:'Com quem compartilhamos', b:[
         ['p','Não vendemos, alugamos nem cedemos dados, e não usamos dados para publicidade. Os serviços que participam do funcionamento são:'],
         ['lista',['Google (Firebase): login, banco de dados (Cloud Firestore) e arquivos (Cloud Storage);',
-                  'Google (Gemini API): só quando você usa a Revisão IA, com a sua própria chave;',
+                  'Anthropic (Claude API) ou Google (Gemini API): só quando você usa a Revisão IA, com a sua própria chave. Na opção "Minha conta de IA", quem envia é você, no chat da sua conta;',
                   'Google Fonts: as fontes da interface;',
                   'GitHub (GitHub Pages): hospedagem do site;',
                   'Cloudflare: endereço (DNS), conexão segura e proteção do site contra ataques; vê o endereço IP e os dados do navegador de quem acessa, nunca o conteúdo das perícias, que vai direto ao Google;',
@@ -6451,9 +6470,10 @@ const LEGAL = {
                   'Arquivos baixados de novo não se duplicam: cada um leva o identificador fixo do PROJUDI.']],
       ]},
       {t:'Inteligência artificial', b:[
-        ['lista',['A chave do Google AI Studio é sua e fica no seu perfil, lido só pela sua conta.',
+        ['lista',['A chave da API (Claude ou Gemini) é sua e fica no seu perfil, lido só pela sua conta. O site fala direto com a Anthropic ou com o Google, sem servidor no meio.',
                   'Nada é enviado à IA sem o seu aceite e o seu clique (ou a opção automática que você mesmo liga).',
-                  'Para autos reais, use uma chave com faturamento ativo: no nível gratuito, o Google pode usar o conteúdo para melhorar os produtos dele.']],
+                  'Pela política da Anthropic, o que vai pela API do Claude não é usado para treinar modelos. No Gemini, use chave com faturamento ativo: no nível gratuito, o Google pode usar o conteúdo.',
+                  'Na sua conta de IA (Claude, ChatGPT ou Gemini), confira nas configurações do app se o uso das conversas para treinamento está desligado.']],
       ]},
       {t:'Incidentes de segurança', b:[
         ['p','Se houver um incidente que possa trazer risco ou dano relevante aos titulares, vamos conter o problema, investigar, avisar as pessoas afetadas e comunicar a ANPD em até 3 dias úteis, como pede o Regulamento de Comunicação de Incidente de Segurança (Resolução CD/ANPD nº 15/2024).'],
@@ -6933,12 +6953,12 @@ const LP_MODULOS = [
   ['financeiro', 'Financeiro', 'O que foi arbitrado, depositado e levantado, e o que falta receber.'],
   ['calculos', 'Cálculos periciais', 'Price, SAC, correção pelo Banco Central, rescisão, VPL e TIR.'],
   ['proposta', 'Proposta de honorários', 'Gerada com os dados da perícia, a sua hora técnica e o seu cadastro.'],
-  ['ia', 'Revisão IA', 'Erros e inconsistências dos autos, com o lugar exato para conferir.'],
+  ['ia', 'Revisão IA', 'Erros e inconsistências dos autos, com o lugar exato para conferir. Com o Claude, o Gemini ou a sua conta de IA.'],
   ['equipe', 'Equipe', 'Compartilhe cada perícia com edição ou só leitura.'],
 ];
 const LP_DUVIDAS = [
   ['Preciso instalar algum programa?', 'Não. O sistema funciona no navegador, no computador ou no celular. Para baixar os autos do PROJUDI direto para a perícia, instale a extensão PROJUDI PDFs no Google Chrome.'],
-  ['Quanto custa?', 'Criar a conta e usar o sistema é grátis. A extensão PROJUDI PDFs tem assinatura própria, a partir de R$ 15,99 por mês. A Revisão IA usa a sua chave do Google, e o uso é cobrado pelo Google, direto na sua conta.'],
+  ['Quanto custa?', 'Criar a conta e usar o sistema é grátis. A extensão PROJUDI PDFs tem assinatura própria, a partir de R$ 15,99 por mês. A Revisão IA usa a sua chave do Claude (Anthropic) ou do Gemini (Google), cobrada direto na sua conta, ou a assinatura de IA que você já tem (Claude, ChatGPT ou Gemini), sem custo a mais.'],
   ['Como os autos chegam do PROJUDI?', 'Você pede os autos na perícia, a aba do PROJUDI abre com o número e o código de acesso preenchidos e você clica em Consultar. Os arquivos chegam sozinhos, um a um, e nada se repete na próxima vez.'],
   ['O sistema pede a minha senha do PROJUDI?', 'Nunca. O login no tribunal é sempre seu, com certificado digital ou CPF e senha, no site do próprio tribunal. A extensão só usa a sessão que você abriu.'],
   ['A IA faz o laudo?', 'Não. A Revisão IA aponta erros e inconsistências e mostra onde conferir. O laudo, a resposta aos quesitos e as conclusões são do perito.'],
@@ -7005,7 +7025,7 @@ function renderApresentacao(){
       </div>
       <div class="lp-lim lp-integra lp-rev">
         <span>Funciona com</span>
-        <b>PROJUDI · TJGO</b><b>Google Agenda</b><b>Gemini, do Google</b><b>Mercado Pago</b><b>Google Cloud</b><b>LGPD</b>
+        <b>PROJUDI · TJGO</b><b>DJEN · CNJ</b><b>Claude, da Anthropic</b><b>Gemini, do Google</b><b>Google Agenda</b><b>Mercado Pago</b><b>Google Cloud</b><b>LGPD</b>
       </div>
     </section>
 
@@ -7057,11 +7077,17 @@ function renderApresentacao(){
           <ul class="lp-lista">
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Erros por categoria:</b> cálculo, valores, índices, datas, documentos, prazos e honorários.</span></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Onde conferir:</b> cada achado vem com a peça, a página e o trecho dos autos.</span></li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Integra com o Claude:</b> a IA da Anthropic lê os PDFs inteiros, com tabelas e páginas digitalizadas.</span></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Você decide:</b> confirme o erro, descarte ou deixe para depois.</span></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>PDF dos erros:</b> relatório para conferir com caneta, com assinatura e data.</span></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Sempre atual:</b> chegou documento novo, a revisão pode rodar sozinha.</span></li>
           </ul>
-          <p class="lp-nota">A IA não sugere quesitos nem escreve o laudo. Usa a sua chave do Google, e nada é enviado sem o seu aceite.</p>
+          <div class="lp-ia-provs">
+            <span><b>Claude</b>lê o PDF inteiro, até digitalizado, e aponta a página</span>
+            <span><b>Gemini</b>leitura rápida do texto dos autos</span>
+            <span><b>Sua conta</b>use a assinatura de IA que você já tem, sem contratar API</span>
+          </div>
+          <p class="lp-nota">A IA não sugere quesitos nem escreve o laudo. Você escolhe a IA, usa a sua chave ou a sua conta, e nada é enviado sem o seu aceite.</p>
         </div>
         <div class="lp-ia-vis lp-rev" aria-hidden="true">
           <div class="lp-achado" id="lpAchado">
@@ -7497,61 +7523,60 @@ const MANUAIS = [
     ]},
   ]},
 
-  {id:'chave-ia', titulo:'Chave da IA (Gemini)', icone:'chave', destaque:true,
-   resumo:'Criar a sua chave no Google AI Studio, colocar no Gerenciador de Perícia, controlar o custo e proteger os autos.',
+  {id:'chave-ia', titulo:'IA da Revisão: Claude, Gemini ou sua conta', icone:'chave', destaque:true,
+   resumo:'Escolher a IA que lê os autos, criar a chave do Claude ou do Gemini, ou usar a assinatura de IA que você já tem, sem contratar outra.',
    secoes:[
-    {t:'Para que serve a chave', b:[
-      ['p','A Revisão IA lê os autos com o Gemini, a inteligência artificial do Google. A chave liga o Gerenciador de Perícia à sua conta no Google: o uso é cobrado de você, segue os termos que você aceitou no Google, e o Gerenciador de Perícia não tem chave própria nem acesso à sua cobrança.'],
-      ['p','Cada perito usa a própria chave. Não empreste a sua a colegas.'],
+    {t:'Três jeitos de usar a IA', b:[
+      ['p','A Revisão IA lê os autos e aponta erros e inconsistências. Você escolhe quem faz a leitura, em Revisão IA > painel "IA e chave":'],
+      ['lista',['Claude, da Anthropic (pela API): lê o PDF inteiro, com tabelas, carimbos e páginas digitalizadas, e cita a página de cada achado. Pago por uso, com a sua chave.',
+                'Gemini, do Google (pela API): lê o texto dos autos. Tem nível gratuito, mas nele o Google pode usar o conteúdo.',
+                'Minha conta de IA (sem API): para quem já assina Claude, ChatGPT ou Gemini. O site prepara as instruções e o texto dos autos; você cola no chat e traz a resposta de volta. Não precisa de chave nem de outro plano.']],
+      ['p','O Gerenciador de Perícia não tem chave própria nem acesso à sua cobrança. Cada perito usa a sua chave ou a sua conta. Não empreste a sua a colegas.'],
     ]},
-    {t:'Antes de tudo: gratuito ou pago', b:[
-      ['alerta','Autos sob sigilo: use o nível pago','Pelos termos da API do Gemini (versão em vigor desde 23/03/2026), no uso gratuito o Google pode usar o que você envia para melhorar os produtos dele, e pessoas podem ler esse conteúdo. O próprio Google orienta a não enviar informação sigilosa, confidencial ou pessoal no nível gratuito.'],
-      ['p','No nível pago, o Google informa que não usa o que você envia para melhorar os produtos e que guarda os pedidos só por tempo limitado, para detectar abuso e cumprir a lei.'],
-      ['lista',['Para autos reais, ative o faturamento (tópico 4) antes da primeira revisão.',
-                'Use o gratuito apenas para testar, com documento público ou inventado.',
-                'Os termos mudam. Confira a versão atual em ai.google.dev/gemini-api/terms, sobretudo em processo que corra em segredo de justiça.']],
+    {t:'Claude: criar a chave', b:[
+      ['passos',['Acesse console.anthropic.com e crie a conta (ou entre). Ela é separada da assinatura do Claude: o Pro e o Max não valem para a API.',
+                 'Em Billing (cobrança), coloque créditos. A API é pré-paga: o uso desconta do saldo.',
+                 'Em Settings > API Keys, clique em "Create Key", dê um nome (por exemplo "Gerenciador de Perícia") e copie a chave. Ela começa com "sk-ant-" e só aparece inteira uma vez.',
+                 'No Gerenciador de Perícia, abra Revisão IA > "IA e chave", escolha "Claude, da Anthropic" e cole a chave. Clique em "Testar" para conferir.',
+                 'Em Modelo, deixe "Claude Sonnet 5.5". Use o Opus em processos longos ou cálculos difíceis, e o Haiku para leituras simples e baratas.',
+                 'Leia o aviso de ciência e clique em "Li e estou ciente".']],
+      ['dica','No console da Anthropic, em Limits, dá para definir um teto de gasto mensal.'],
     ]},
-    {t:'Criar a chave no Google AI Studio', b:[
+    {t:'Claude: PDF inteiro e custo', b:[
+      ['p','Com "Mandar os PDFs inteiros" ligado, o Claude lê cada página como texto e como imagem. Pega tabelas, carimbos e páginas digitalizadas e cita a página. Vão inteiros até 100 páginas por revisão; o que passar disso segue como texto.'],
+      ['lista',['Só o texto (opção desligada): uma revisão típica sai por volta de US$ 0,20 no Sonnet.',
+                'PDF inteiro: cada página custa mais, porque também é lida como imagem. Um processo de 100 páginas fica perto de US$ 0,50 a US$ 1,00 no Sonnet.',
+                'Cada "Revisar de novo" é uma nova cobrança. Os preços atuais estão na documentação da Anthropic (platform.claude.com, em Pricing).']],
+      ['alerta','Sigilo','Pela política da Anthropic, o que é enviado pela API não é usado para treinar modelos, salvo se você der retorno (como o polegar) ou autorizar. Confira os termos em vigor antes de usar em processo que corra em segredo de justiça.'],
+    ]},
+    {t:'Gemini: criar a chave', b:[
       ['passos',['Acesse aistudio.google.com e entre com a sua conta Google, de preferência a profissional.',
-                 'Na primeira vez, aceite os termos de uso e clique em "Continue".',
-                 'Clique em "Get API key" (menu da esquerda, embaixo) e depois em "Create API key".',
-                 'Dê um nome à chave, por exemplo "Gerenciador de Perícia", e escolha um projeto do Google Cloud ou crie um novo.',
-                 'Clique em "Create key" e depois no ícone de copiar, ao lado da chave criada. A chave é um texto longo, que costuma começar com "AIza".']],
-      ['dica','O Google muda o nome dos botões de tempos em tempos. Se não achar, procure por "API key" no menu do AI Studio.'],
+                 'Clique em "Get API key" e depois em "Create API key". A chave costuma começar com "AIza".',
+                 'Para autos reais, ative o faturamento: na lista de chaves, clique no plano do projeto ("Free tier") e cadastre um cartão no Google Cloud.',
+                 'No Gerenciador de Perícia, escolha "Gemini, do Google" em "IA e chave", cole a chave e deixe o modelo "Flash (versão atual)".']],
+      ['alerta','Autos sob sigilo: nível pago','Pelos termos da API do Gemini, no uso gratuito o Google pode usar o que você envia para melhorar os produtos dele, e pessoas podem ler esse conteúdo. No nível pago, o Google informa que não usa. Confira em ai.google.dev/gemini-api/terms.'],
     ]},
-    {t:'Ativar o faturamento (nível pago)', b:[
-      ['passos',['No AI Studio, abra a lista de chaves (API keys). Ao lado de cada uma aparece o plano do projeto, por exemplo "Free tier".',
-                 'Clique na indicação do plano (ou no link para configurar o faturamento) e siga as telas do Google Cloud para cadastrar um cartão.',
-                 'Volte à lista de chaves e confira que o projeto deixou de aparecer como gratuito.',
-                 'No Google Cloud, em Faturamento > Orçamentos e alertas, crie um orçamento mensal (por exemplo, R$ 50) para receber um e-mail se o gasto subir.']],
-    ]},
-    {t:'Colocar a chave no Gerenciador de Perícia', b:[
-      ['passos',['Abra Revisão IA, na barra lateral (grupo Produção técnica).',
-                 'Abra o painel "Chave e modelo", no fim da tela.',
-                 'Cole a chave no campo "Chave da API do Gemini" e clique fora do campo. Ela aparece mascarada, só com o começo e o fim visíveis.',
-                 'Em Modelo, deixe "Flash (versão atual)". Use "Pro (versão atual)" em processos longos ou difíceis; ele custa mais.',
-                 'Leia o aviso de ciência e clique em "Li e estou ciente — liberar a análise".',
-                 'Escolha a perícia no alto da tela e clique em "Revisar esta perícia".']],
-    ]},
-    {t:'Quanto custa', b:[
-      ['p','O Google cobra pelo volume de texto lido e escrito (medido em tokens). Uma revisão envia o cadastro da perícia e o texto dos documentos, até cerca de 180 mil caracteres e 40 páginas por PDF.'],
-      ['lista',['O Flash custa bem menos que o Pro e resolve a maioria das perícias.',
-                'Cada clique em "Revisar de novo" é uma nova cobrança.',
-                'A opção "Rever sozinha quando chegar documento novo" roda uma revisão depois de cada importação. Deixe desligada se quiser controlar o gasto.',
-                'Os preços atuais estão em ai.google.dev/pricing. O consumo do mês aparece no AI Studio e no faturamento do Google Cloud.']],
+    {t:'Minha conta de IA: passo a passo', b:[
+      ['passos',['Em "IA e chave", escolha "Minha conta de IA" e marque onde você tem conta: Claude, ChatGPT ou Gemini.',
+                 'Escolha a perícia e clique em "Preparar para o Claude" (ou ChatGPT, ou Gemini).',
+                 'Clique em "Copiar tudo" e cole num chat novo da sua conta. Se o texto for grande, use "Baixar .txt" e anexe o arquivo no chat.',
+                 'PDF digitalizado não entra no texto copiado: o site avisa quais são, e você os anexa no chat também.',
+                 'Quando o chat responder, copie a resposta inteira (o bloco JSON), volte ao site, cole no campo "Traga a resposta de volta" e clique em "Importar a revisão".']],
+      ['dica','Se a resposta vier com texto antes ou depois do JSON, o site acha o bloco sozinho. Se vier quebrada, peça ao chat: "responda de novo só com o JSON completo".'],
+      ['alerta','Conta pessoal e sigilo','Na sua conta, vale o contrato do seu plano. Antes de colar autos reais, confira nas configurações do app se o uso das conversas para treinar modelos está desligado.'],
     ]},
     {t:'Proteger a chave', b:[
       ['lista',['A chave fica no seu perfil, que só a sua conta lê. Ainda assim, trate-a como senha: quem entrar na sua conta alcança a chave.',
                 'Não mande a chave por WhatsApp, e-mail ou print de tela.',
-                'Se desconfiar de vazamento: apague a chave no AI Studio, crie outra, clique em "Remover" no painel "Chave e modelo" e cole a nova.',
-                'Em computador compartilhado, use "Sair da conta" em Meu perfil ao terminar.']],
+                'Se desconfiar de vazamento: apague a chave no console da Anthropic ou no AI Studio, crie outra, clique em "Remover" em "IA e chave" e cole a nova.']],
     ]},
     {t:'Problemas comuns', b:[
-      ['lista',['"API key not valid": a chave foi copiada pela metade ou apagada no AI Studio. Copie de novo e cole.',
-                '"Quota exceeded" ou erro 429: acabou o limite do gratuito ou foram muitos pedidos seguidos. Espere alguns minutos ou ative o faturamento.',
-                '"Model not found": o Google aposentou aquele modelo. Escolha "Flash (versão atual)".',
-                'O Google não respondeu: falha de internet ou instabilidade do serviço. Tente de novo em instantes.',
-                'Revisão vazia ou fraca: PDF escaneado como imagem não tem texto para ler. Em "Mais da revisão" > "Fontes lidas" você vê o que entrou.']],
+      ['lista',['Chave inválida (401): copiada pela metade ou apagada. Copie de novo e cole.',
+                'Sem créditos ou sem permissão (403 no Claude): coloque créditos em Billing, no console da Anthropic.',
+                'Limite de uso (429): muitos pedidos seguidos. Espere alguns minutos.',
+                'Material grande demais (413 no Claude): desligue "Mandar os PDFs inteiros" ou revise menos documentos.',
+                'Procura alta (529 no Claude, 503 no Gemini): o site tenta de novo sozinho; se persistir, tente mais tarde.',
+                'Revisão fraca no Gemini: PDF digitalizado não tem texto para ler. Use o Claude, que lê a imagem da página.']],
     ]},
   ]},
 
@@ -7564,7 +7589,7 @@ const MANUAIS = [
       ['alerta','É rascunho de leitura','O modelo erra e às vezes inventa com cara de certeza. Confira cada achado nos autos antes de usar qualquer linha no laudo.'],
     ]},
     {t:'Rodar a revisão', b:[
-      ['passos',['Configure a chave antes (manual "Chave da IA (Gemini)").',
+      ['passos',['Escolha a IA e configure antes (manual "IA da Revisão"): Claude, Gemini ou a sua conta de IA.',
                  'Abra Revisão IA e escolha a perícia no alto da tela.',
                  'Clique em "Revisar esta perícia" ou, se já houver revisão, em "Revisar de novo".',
                  'Aguarde: processos grandes podem levar alguns minutos.']],
@@ -7688,7 +7713,7 @@ const MANUAIS = [
     ]},
     {t:'Privacidade', b:[
       ['p','A tela Termos e privacidade (grupo Sistema) traz os Termos de uso, a Política de privacidade e a página de Segurança, cada um com PDF para baixar. O seu aceite fica registrado na sua conta.'],
-      ['alerta','A Revisão IA envia texto ao Google','Ao rodar a Revisão IA, o texto da perícia sai do navegador e vai para o Google, com a sua chave. Leia o manual "Chave da IA (Gemini)" antes de usar em autos reais.'],
+      ['alerta','A Revisão IA envia os autos à IA escolhida','Ao rodar a Revisão IA, o texto da perícia (e, no Claude, os PDFs) sai do navegador e vai para a Anthropic ou para o Google, com a sua chave, ou para o chat da sua conta, quando você cola. Leia o manual "IA da Revisão" antes de usar em autos reais.'],
     ]},
     {t:'Computador compartilhado', b:[
       ['lista',['Use "Sair da conta" em Meu perfil ao terminar.','Não salve a senha do Google em computador de terceiros.']],
@@ -7929,7 +7954,7 @@ let iaCatalogoErro = null;
 let iaBuscandoCatalogo = false;
 
 async function iaCarregarCatalogo(forcar){
-  if(!iaChave()) return;
+  if(!iaChaveGemini()) return;
   if(iaBuscandoCatalogo && !forcar) return;
   if(iaCatalogo && !forcar) return;
   iaBuscandoCatalogo = true;
@@ -7939,7 +7964,7 @@ async function iaCarregarCatalogo(forcar){
   const relogio = setTimeout(() => corta.abort(), 15000);
   try{
     const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',
-      {headers:{'x-goog-api-key': iaChave()}, signal: corta.signal});
+      {headers:{'x-goog-api-key': iaChaveGemini()}, signal: corta.signal});
     const j = await res.json();
     if(!res.ok) throw new Error((j.error && j.error.message) || ('erro ' + res.status));
     const lista = (j.models || [])
@@ -7974,32 +7999,97 @@ let iaRodando = new Set();
 let iaEstado = {};             /* casoId -> mensagem de progresso */
 let iaAutoTimer = null;
 
+/* ---------- de onde vem a leitura ----------
+   claude: API da Anthropic com a chave da pessoa. Lê o PDF inteiro (texto e imagem de cada
+           página), inclusive digitalizado, e cita a página.
+   gemini: API do Google com a chave da pessoa. Lê o texto extraído dos PDFs.
+   conta:  a assinatura de IA que a pessoa já tem (Claude, ChatGPT ou Gemini), sem API. O site
+           prepara as instruções e o texto dos autos; a pessoa cola no chat e traz a resposta. */
+const IA_PROVEDORES = {
+  claude: {nome: 'Claude, da Anthropic', curto: 'Claude', selo: 'pela API',
+    desc: 'Lê o PDF inteiro, com tabelas e páginas digitalizadas, e aponta a página. Pago por uso, com a sua chave da API.'},
+  gemini: {nome: 'Gemini, do Google', curto: 'Gemini', selo: 'pela API',
+    desc: 'Lê o texto dos autos. Tem nível gratuito, mas nele o Google pode usar o conteúdo: para autos reais, ative o faturamento.'},
+  conta: {nome: 'Minha conta de IA', curto: 'sua conta de IA', selo: 'sem API',
+    desc: 'Use a assinatura que você já tem (Claude, ChatGPT ou Gemini). O site prepara tudo, você cola no chat e traz a resposta.'},
+};
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODELO_PADRAO = 'claude-sonnet-5-5';
+const CLAUDE_MODELOS = [
+  {id: 'claude-sonnet-5-5', nome: 'Claude Sonnet 5.5', nota: 'recomendado: cuidadoso e com custo moderado'},
+  {id: 'claude-opus-5-5', nome: 'Claude Opus 5.5', nota: 'o mais cuidadoso, para processos longos e cálculos difíceis; custa mais'},
+  {id: 'claude-haiku-5-5', nome: 'Claude Haiku 5.5', nota: 'o mais rápido e barato; leitura mais simples'},
+];
+const CLAUDE_MAX_PAGINAS_PDF = 100;              /* limite da API por pedido */
+const CLAUDE_MAX_BYTES_PDF = 20 * 1024 * 1024;   /* folga sob os 32 MB do pedido */
+const IA_APPS = {
+  claude: {nome: 'Claude', url: 'https://claude.ai/new'},
+  chatgpt: {nome: 'ChatGPT', url: 'https://chatgpt.com/'},
+  gemini: {nome: 'Gemini', url: 'https://gemini.google.com/app'},
+};
+
 function iaConfig(){ return perfil.ia || {}; }
-function iaChave(){ return String(iaConfig().chave || '').trim(); }
+function iaProvedor(){
+  const p = iaConfig().provedor;
+  if(IA_PROVEDORES[p]) return p;
+  return iaConfig().chave ? 'gemini' : 'claude';   /* quem já usava o Gemini continua nele */
+}
+function iaChaveGemini(){ return String(iaConfig().chave || '').trim(); }
+function iaChaveClaude(){ return String(iaConfig().chaveClaude || '').trim(); }
+function iaChave(){ const p = iaProvedor(); return p === 'claude' ? iaChaveClaude() : p === 'gemini' ? iaChaveGemini() : ''; }
 function iaModelo(){
   const m = iaConfig().modelo;
   /* se o perfil ainda guarda um modelo aposentado, o padrão assume */
   return (!m || IA_APOSENTADOS.includes(m)) ? IA_MODELO_PADRAO : m;
 }
-function iaCiente(){ return !!iaConfig().cienciaEm; }
-function iaAuto(){ return !!iaConfig().auto; }
-function iaPronta(){ return !!iaChave() && iaCiente(); }
+function iaModeloClaude(){ const m = iaConfig().modeloClaude; return CLAUDE_MODELOS.some(x => x.id === m) ? m : CLAUDE_MODELO_PADRAO; }
+function iaNomeModelo(){
+  const p = iaProvedor();
+  if(p === 'claude') return (CLAUDE_MODELOS.find(x => x.id === iaModeloClaude()) || {}).nome || iaModeloClaude();
+  if(p === 'gemini') return 'Gemini · ' + iaModelo();
+  return IA_APPS[iaApp()].nome + ' (sua conta)';
+}
+function iaApp(){ return IA_APPS[iaConfig().app] ? iaConfig().app : 'claude'; }
+function iaPdfInteiro(){ return iaConfig().pdfInteiro !== false; }
+function iaCiente(){
+  const c = iaConfig(), p = iaProvedor();
+  return !!(c.ciencias && c.ciencias[p]) || (p === 'gemini' && !!c.cienciaEm);
+}
+function iaAuto(){ return !!iaConfig().auto && iaProvedor() !== 'conta'; }
+function iaPronta(){ return iaCiente() && (iaProvedor() === 'conta' || !!iaChave()); }
 
 async function iaSalvarConfig(patch){
   await salvarPerfil({ia: {...iaConfig(), ...patch}});
   renderAll();
 }
+async function iaDefinirProvedor(p){ if(IA_PROVEDORES[p]) await iaSalvarConfig({provedor: p}); }
 async function iaDefinirChave(valor){
   const v = String(valor || '').trim();
-  await salvarPerfil({ia: {...iaConfig(), chave: v}});
+  const p = iaProvedor();
+  if(p === 'claude' && v && !/^sk-ant-/.test(v)) pfAviso('A chave do Claude costuma começar com "sk-ant-". Confira se copiou a chave inteira.');
+  await salvarPerfil({ia: {...iaConfig(), [p === 'claude' ? 'chaveClaude' : 'chave']: v}});
 }
-async function iaDefinirModelo(id){ await iaSalvarConfig({modelo: id}); }
+async function iaDefinirModelo(id){ await iaSalvarConfig(iaProvedor() === 'claude' ? {modeloClaude: id} : {modelo: id}); }
 async function iaAlternarAuto(v){ await iaSalvarConfig({auto: !!v}); }
 async function iaRegistrarCiencia(){
-  await iaSalvarConfig({cienciaEm: new Date().toISOString(), versao: VERSAO_PRIVACIDADE});
+  const agora = new Date().toISOString();
+  const p = iaProvedor();
+  await iaSalvarConfig({ciencias: {...(iaConfig().ciencias || {}), [p]: agora}, versao: VERSAO_PRIVACIDADE, ...(p === 'gemini' ? {cienciaEm: agora} : {})});
 }
 async function iaApagarChave(){
-  await salvarPerfil({ia: {...iaConfig(), chave: ''}});
+  await salvarPerfil({ia: {...iaConfig(), [iaProvedor() === 'claude' ? 'chaveClaude' : 'chave']: ''}});
+  renderAll();
+}
+/* confere a chave do Claude sem gastar: a lista de modelos é gratuita */
+let iaTesteChave = '';
+async function iaTestarChaveClaude(){
+  iaTesteChave = 'Conferindo a chave…'; renderAll();
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/models?limit=20', {headers: {'x-api-key': iaChaveClaude(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'}});
+    if(res.status === 401) throw new Error('a chave não foi aceita; copie de novo no console da Anthropic');
+    if(!res.ok) throw new Error('a Anthropic respondeu ' + res.status);
+    iaTesteChave = 'ok:Chave aceita. Pronta para revisar.';
+  }catch(e){ iaTesteChave = 'erro:' + (e.message === 'Failed to fetch' ? 'sem conexão com a Anthropic' : e.message); }
   renderAll();
 }
 
@@ -8093,10 +8183,13 @@ function iaObservacoes(c){
 
 /* Reúne tudo e devolve o material e a lista do que entrou — a lista é
    mostrada ao perito antes do envio, para ele ver o que está saindo. */
-async function iaReunirMaterial(c, progresso){
+async function iaReunirMaterial(c, progresso, opcoes){
   const blocos = [];
   const fontes = [];
   const avisos = [];
+  const pdfs = [];
+  const comPdf = !!(opcoes && opcoes.pdfs);
+  let paginasPdf = 0, bytesPdf = 0;
 
   blocos.push('FICHA DA PERÍCIA\n' + iaFichaDoCaso(c));
   fontes.push({tipo:'ficha', nome:'Ficha cadastral da perícia', chars: blocos[0].length});
@@ -8120,7 +8213,19 @@ async function iaReunirMaterial(c, progresso){
         avisos.push(`${d.nome || 'Documento'}: o arquivo não pôde ser baixado para leitura. Entrou só pelo cabeçalho.`);
       } else {
         corpo = await iaTextoDoPdf(bytes);
-        if(!corpo) avisos.push(`${d.nome || 'Documento'}: PDF sem camada de texto, provavelmente digitalizado. Entrou só pelo cabeçalho — um PDF assim precisa de OCR antes.`);
+        /* para o Claude, o PDF vai inteiro (texto e imagem de cada página) enquanto couber */
+        if(comPdf && (iaPdfInteiro() || !corpo)){
+          const pag = await iaPaginasDoPdf(bytes);
+          if(pag && paginasPdf + pag <= CLAUDE_MAX_PAGINAS_PDF && bytesPdf + bytes.length <= CLAUDE_MAX_BYTES_PDF){
+            paginasPdf += pag; bytesPdf += bytes.length;
+            pdfs.push({nome: d.nome || 'documento.pdf', base64: bytesToBase64(bytes), paginas: pag});
+            fontes.push({tipo: 'documento', nome: d.nome || 'Documento', chars: 0, comTexto: true, pdf: pag});
+            blocos.push(cabeca + `\n---\n[PDF anexado inteiro: "${d.nome || 'documento.pdf'}", ${pag} página${pag === 1 ? '' : 's'}]`);
+            continue;
+          }
+          if(!corpo) avisos.push(`${d.nome || 'Documento'}: PDF digitalizado que não coube no limite de ${CLAUDE_MAX_PAGINAS_PDF} páginas por revisão. Entrou só pelo cabeçalho.`);
+        }
+        if(!corpo && !comPdf) avisos.push(`${d.nome || 'Documento'}: PDF sem camada de texto, provavelmente digitalizado. Entrou só pelo cabeçalho — use o Claude, que lê PDF digitalizado, ou faça OCR antes.`);
       }
     } else if(d.arquivo){
       avisos.push(`${d.nome || 'Documento'}: formato não lido aqui. Entrou só pelo cabeçalho.`);
@@ -8134,7 +8239,13 @@ async function iaReunirMaterial(c, progresso){
     blocos.push(bloco);
     fontes.push({tipo:'documento', nome: d.nome || 'Documento', chars: bloco.length, comTexto: !!corpo});
   }
-  return {texto: blocos.join('\n\n==============================\n\n'), fontes, avisos};
+  if(pdfs.length) avisos.push(`${pdfs.length} PDF${pdfs.length === 1 ? '' : 's'} (${paginasPdf} página${paginasPdf === 1 ? '' : 's'}) foram lidos inteiros pelo Claude.`);
+  return {texto: blocos.join('\n\n==============================\n\n'), fontes, avisos, pdfs};
+}
+async function iaPaginasDoPdf(bytes){
+  if(!ensurePdfJs()) return 0;
+  try{ const doc = await pdfjsLib.getDocument({data: bytes.slice(), isEvalSupported: false, enableXfa: false}).promise; return doc.numPages; }
+  catch(e){ return 0; }
 }
 
 /* ---------- a chamada ---------- */
@@ -8209,7 +8320,7 @@ async function iaUmaChamada(modelo, material, c){
   };
   const res = await fetch(IA_ENDPOINT + encodeURIComponent(modelo) + ':generateContent', {
     method: 'POST',
-    headers: {'Content-Type':'application/json', 'x-goog-api-key': iaChave()},
+    headers: {'Content-Type':'application/json', 'x-goog-api-key': iaChaveGemini()},
     body: JSON.stringify(corpo),
   });
   if(!res.ok){
@@ -8229,7 +8340,7 @@ async function iaUmaChamada(modelo, material, c){
 }
 /* 503 é fila cheia, passa sozinho: vale esperar. 404 é modelo aposentado:
    não adianta insistir, mas adianta cair no apelido da versão corrente. */
-async function iaChamar(material, c, aviso){
+async function iaChamarGemini(material, c, aviso){
   let modelo = iaModelo();
   const esperas = [0, 5000, 12000];
   let ultimo = null;
@@ -8254,6 +8365,214 @@ async function iaChamar(material, c, aviso){
   throw ultimo;
 }
 
+/* ---------- Claude (Anthropic) ---------- */
+const CLAUDE_ERROS = {
+  400: 'O pedido não foi aceito: o material pode ter ficado grande demais para uma leitura.',
+  401: 'Chave inválida. Confira em "IA e chave".',
+  403: 'A chave não tem permissão para este modelo, ou a conta está sem créditos.',
+  404: 'Este modelo não existe nesta conta.',
+  413: 'O material passou do tamanho que a API aceita. Desligue "Mandar os PDFs inteiros" ou revise menos documentos.',
+  429: 'Limite de uso da sua conta atingido. Espere alguns minutos.',
+  500: 'O serviço da Anthropic falhou agora.',
+  529: 'O Claude está com procura alta no momento.',
+};
+/* o esquema do Gemini usa tipos em maiúsculas; o JSON Schema do Claude, em minúsculas */
+function iaEsquemaJson(s){
+  if(Array.isArray(s)) return s.map(iaEsquemaJson);
+  if(s && typeof s === 'object'){
+    const o = {};
+    for(const [k, v] of Object.entries(s)) o[k] = (k === 'type' && typeof v === 'string') ? v.toLowerCase() : iaEsquemaJson(v);
+    return o;
+  }
+  return s;
+}
+async function iaClaudePedir(conteudo, esquema, ferramenta, maxTokens){
+  const res = await fetch(CLAUDE_URL, {
+    method: 'POST',
+    headers: {'content-type': 'application/json', 'x-api-key': iaChaveClaude(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
+    body: JSON.stringify({
+      model: iaModeloClaude(),
+      max_tokens: maxTokens || 16000,
+      tools: [{name: ferramenta, description: 'Registra o resultado no Gerenciador de Perícia.', input_schema: iaEsquemaJson(esquema)}],
+      tool_choice: {type: 'tool', name: ferramenta},
+      messages: [{role: 'user', content: conteudo}],
+    }),
+  });
+  if(!res.ok){
+    let detalhe = '';
+    try{ const j = await res.json(); detalhe = (j.error && j.error.message) || ''; }catch(e){}
+    const erro = new Error((CLAUDE_ERROS[res.status] || ('Erro ' + res.status + ' na chamada.')) + (detalhe ? ' (' + detalhe + ')' : ''));
+    erro.status = res.status;
+    throw erro;
+  }
+  const j = await res.json();
+  const uso = (j.content || []).find(b => b.type === 'tool_use');
+  if(!uso || !uso.input || typeof uso.input !== 'object'){
+    throw new Error(j.stop_reason === 'max_tokens' ? 'A resposta ficou longa demais e foi cortada. Tente o Claude Opus ou revise menos documentos.' : 'O Claude não devolveu a revisão no formato esperado.');
+  }
+  return uso.input;
+}
+async function iaChamarClaude(material, c, aviso){
+  const conteudo = [
+    ...material.pdfs.map(p => ({type: 'document', source: {type: 'base64', media_type: 'application/pdf', data: p.base64}, title: p.nome.slice(0, 200)})),
+    {type: 'text', text: iaInstrucao(c) + '\n\n' + material.texto},
+  ];
+  const esperas = [0, 6000, 15000];
+  let ultimo = null;
+  for(let i = 0; i < esperas.length; i++){
+    if(esperas[i]){
+      if(aviso) aviso('O Claude está com fila. Tentando de novo em ' + (esperas[i] / 1000) + ' segundos...');
+      await new Promise(r => setTimeout(r, esperas[i]));
+    }
+    try{ return {saida: await iaClaudePedir(conteudo, IA_ESQUEMA, 'registrar_revisao', 16000), modelo: (CLAUDE_MODELOS.find(x => x.id === iaModeloClaude()) || {}).nome || iaModeloClaude()}; }
+    catch(e){ ultimo = e; if(e.status !== 529 && e.status !== 503 && e.status !== 500) throw e; }
+  }
+  throw ultimo;
+}
+async function iaChamar(material, c, aviso){
+  return iaProvedor() === 'claude' ? iaChamarClaude(material, c, aviso) : iaChamarGemini(material.texto, c, aviso);
+}
+/* pedido curto de JSON (usado, por exemplo, para variar o texto do agente comercial) */
+async function iaPedirJson(prompt, esquema){
+  const p = iaProvedor();
+  if(p === 'claude'){
+    if(!iaChaveClaude()) throw new Error('guarde a chave do Claude na Revisão IA');
+    return iaClaudePedir([{type: 'text', text: prompt}], esquema, 'registrar_texto', 2000);
+  }
+  if(p === 'gemini'){
+    if(!iaChaveGemini()) throw new Error('guarde a chave do Gemini na Revisão IA');
+    const res = await fetch(IA_ENDPOINT + encodeURIComponent(iaModelo()) + ':generateContent', {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'x-goog-api-key': iaChaveGemini()},
+      body: JSON.stringify({contents: [{role: 'user', parts: [{text: prompt}]}], generationConfig: {temperature: 0.8, responseMimeType: 'application/json', responseSchema: esquema}}),
+    });
+    const j = await res.json();
+    if(!res.ok) throw new Error((j.error && j.error.message) || ('erro ' + res.status));
+    const txt = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map(x => x.text || '').join('');
+    return JSON.parse(txt);
+  }
+  throw new Error('com "Minha conta de IA" não há chamada automática; peça a variação no seu chat');
+}
+
+/* ---------- "Minha conta de IA": preparar, colar no chat e importar a resposta ---------- */
+const IA_CONTA = {};   /* casoId -> {prompt, fontes, avisos, chars, digitalizados} */
+function iaFormatoResposta(){
+  return [
+    '',
+    'FORMATO DA RESPOSTA',
+    'Responda somente com um bloco JSON, sem texto antes ou depois, exatamente com estas chaves:',
+    '{',
+    '  "resumo": "do que trata o processo, em até 6 frases",',
+    '  "areaProvavel": "área da perícia",',
+    '  "objeto": "o que a perícia precisa responder",',
+    '  "confianca": "alta | media | baixa",',
+    '  "achados": [{"categoria": "Cálculo | Valores | Índices | Datas | Documentos | Prazos | Honorários | Outros", "gravidade": "erro | atencao | verificar", "titulo": "...", "detalhe": "...", "efeito": "...", "fonte": "documento e página", "trecho": "até 200 caracteres do documento"}],',
+    '  "documentos": [{"item": "documento que falta", "deQuem": "parte ou órgão", "porque": "..."}],',
+    '  "linhaDoTempo": [{"data": "dd/mm/aaaa", "fato": "...", "fonte": "..."}],',
+    '  "prazos": [{"quando": "...", "oQue": "...", "critico": true}],',
+    '  "lacunas": ["o que não está no material"]',
+    '}',
+  ].join('\n');
+}
+async function iaPrepararConta(casoId){
+  const c = casos.find(x => x.id === casoId);
+  if(!c || iaRodando.has(casoId)) return;
+  iaRodando.add(casoId);
+  const passo = msg => { iaEstado[casoId] = msg; if(activeSection === 'ia') renderAll(); };
+  try{
+    passo('Reunindo o texto dos autos...');
+    const m = await iaReunirMaterial(c, passo, {pdfs: false});
+    const prompt = iaInstrucao(c) + '\n\n' + m.texto + '\n\n' + iaFormatoResposta();
+    IA_CONTA[casoId] = {prompt, fontes: m.fontes, avisos: m.avisos, chars: m.texto.length,
+      digitalizados: m.fontes.filter(f => f.tipo === 'documento' && f.comTexto === false).map(f => f.nome)};
+    delete iaEstado[casoId];
+  }catch(e){ iaEstado[casoId] = 'Não deu certo: ' + e.message; }
+  finally{ iaRodando.delete(casoId); renderAll(); }
+}
+async function iaCopiarConta(casoId){
+  const p = IA_CONTA[casoId]; if(!p) return;
+  try{ await navigator.clipboard.writeText(p.prompt); p.copiado = true; pfAviso('Copiado. Cole no chat com Ctrl+V.'); }
+  catch(e){
+    const ta = document.getElementById('iaPromptTexto');
+    if(ta){ ta.hidden = false; ta.select(); }
+    pfAviso('O navegador não deixou copiar sozinho: o texto está selecionado, use Ctrl+C.');
+  }
+  renderAll();
+}
+function iaBaixarConta(casoId){
+  const p = IA_CONTA[casoId]; const c = casos.find(x => x.id === casoId);
+  if(!p || !c) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([p.prompt], {type: 'text/plain;charset=utf-8'}));
+  a.download = `revisao-${c.codigo || 'pericia'}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+function iaExtrairJson(texto){
+  let t = String(texto || '').trim();
+  const cerca = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if(cerca) t = cerca[1];
+  const i = t.indexOf('{'), f = t.lastIndexOf('}');
+  if(i < 0 || f <= i) throw new Error('não achei o bloco JSON. Copie a resposta inteira do chat.');
+  try{ return JSON.parse(t.slice(i, f + 1)); }
+  catch(e){ throw new Error('o JSON da resposta veio quebrado. Peça ao chat: "responda de novo só com o JSON completo".'); }
+}
+function iaLimparSaida(s){
+  const txt = (v, n) => String(v == null ? '' : v).slice(0, n || 2000);
+  const lista = (v, fn, n) => (Array.isArray(v) ? v : []).filter(x => x && typeof x === 'object').slice(0, n || 200).map(fn);
+  return {
+    resumo: txt(s.resumo, 4000), areaProvavel: txt(s.areaProvavel, 200), objeto: txt(s.objeto, 1000),
+    confianca: ['alta', 'media', 'baixa'].includes(String(s.confianca).toLowerCase().replace('é', 'e')) ? String(s.confianca).toLowerCase().replace('é', 'e') : 'media',
+    achados: lista(s.achados, a => ({categoria: IA_CATEGORIAS.includes(a.categoria) ? a.categoria : 'Outros', gravidade: ['erro', 'atencao', 'verificar'].includes(a.gravidade) ? a.gravidade : 'verificar',
+      titulo: txt(a.titulo, 300), detalhe: txt(a.detalhe), efeito: txt(a.efeito, 600), fonte: txt(a.fonte, 400), trecho: txt(a.trecho, 400)})),
+    documentos: lista(s.documentos, d => ({item: txt(d.item, 300), deQuem: txt(d.deQuem, 200), porque: txt(d.porque, 600)})),
+    linhaDoTempo: lista(s.linhaDoTempo, l => ({data: txt(l.data, 40), fato: txt(l.fato, 600), fonte: txt(l.fonte, 300)})),
+    prazos: lista(s.prazos, p => ({quando: txt(p.quando, 80), oQue: txt(p.oQue, 400), critico: !!p.critico})),
+    lacunas: (Array.isArray(s.lacunas) ? s.lacunas : []).slice(0, 100).map(x => txt(x, 600)),
+  };
+}
+async function iaImportarConta(casoId){
+  const c = casos.find(x => x.id === casoId);
+  const ta = document.getElementById('iaResposta');
+  if(!c || !ta) return;
+  try{
+    const bruto = iaExtrairJson(ta.value);
+    if(!Array.isArray(bruto.achados)) throw new Error('a resposta não trouxe a lista de "achados".');
+    const prep = IA_CONTA[casoId] || {};
+    const analise = {...iaLimparSaida(bruto), quando: new Date().toISOString(), modelo: IA_APPS[iaApp()].nome + ' (sua conta)', por: meuEmail(),
+      assinatura: iaAssinatura(c), fontes: prep.fontes || [], avisos: prep.avisos || [], chars: prep.chars || 0};
+    await saveCaso(casoId, {analiseIA: analise});
+    delete IA_CONTA[casoId]; delete iaEstado[casoId];
+    pfAviso(`Revisão importada: ${analise.achados.length} achado${analise.achados.length === 1 ? '' : 's'}.`);
+  }catch(e){ iaEstado[casoId] = 'Não consegui ler a resposta: ' + e.message; }
+  renderAll();
+}
+function iaCorpoConta(c){
+  const p = IA_CONTA[c.id];
+  const app = IA_APPS[iaApp()];
+  if(!p) return '';
+  return `
+    <div class="ia-conta">
+      <div class="ia-conta-passo"><i>1</i><div><b>Leve os autos para o ${escapeHtml(app.nome)}</b>
+        <span>As instruções e o texto dos autos (${Math.round(p.chars / 1000)} mil caracteres) estão prontos. Copie e cole no chat, ou baixe o arquivo e anexe.</span>
+        <div class="ia-conta-acoes">
+          <button class="btn btn-primary btn-sm" onclick="iaCopiarConta(${jsq(c.id)})">${svg('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>')} ${p.copiado ? 'Copiado' : 'Copiar tudo'}</button>
+          <button class="btn btn-ghost btn-sm" onclick="iaBaixarConta(${jsq(c.id)})">${svg(ICONE_BAIXAR)} Baixar .txt</button>
+          <a class="btn btn-ghost btn-sm" href="${app.url}" target="_blank" rel="noopener">Abrir o ${escapeHtml(app.nome)} ↗</a>
+        </div>
+        ${p.digitalizados.length ? `<span class="dica">PDF digitalizado (sem texto) não entra no texto copiado. Anexe no chat também: ${p.digitalizados.map(escapeHtml).join(', ')}.</span>` : ''}
+        <textarea id="iaPromptTexto" hidden readonly rows="4">${escapeHtml(p.prompt)}</textarea>
+      </div></div>
+      <div class="ia-conta-passo"><i>2</i><div><b>Traga a resposta de volta</b>
+        <span>Quando o chat terminar, copie a resposta inteira (o bloco JSON) e cole aqui.</span>
+        <textarea id="iaResposta" rows="6" placeholder='{ "resumo": "...", "achados": [ ... ] }'></textarea>
+        <div class="ia-conta-acoes">
+          <button class="btn btn-primary btn-sm" onclick="iaImportarConta(${jsq(c.id)})">Importar a revisão</button>
+          <button class="btn btn-ghost btn-sm" onclick="delete IA_CONTA[${jsq(c.id)}]; renderAll();">Cancelar</button>
+        </div>
+      </div></div>
+    </div>`;
+}
+
 async function iaAnalisar(casoId, silencioso){
   const c = casos.find(x => x.id === casoId);
   if(!c) return;
@@ -8263,13 +8582,14 @@ async function iaAnalisar(casoId, silencioso){
     iaEstado[casoId] = 'Só quem tem acesso de edição pode gravar a análise nesta perícia.';
     renderAll(); return;
   }
+  if(iaProvedor() === 'conta'){ if(!silencioso) iaPrepararConta(casoId); return; }
   iaRodando.add(casoId);
   const passo = msg => { iaEstado[casoId] = msg; if(activeSection === 'ia') renderAll(); };
   passo('Reunindo o material...');
   try{
-    const material = await iaReunirMaterial(c, passo);
-    passo('Enviando para o Gemini e aguardando a leitura...');
-    const r = await iaChamar(material.texto, c, passo);
+    const material = await iaReunirMaterial(c, passo, {pdfs: iaProvedor() === 'claude'});
+    passo(`Enviando para o ${IA_PROVEDORES[iaProvedor()].curto} e aguardando a leitura...`);
+    const r = await iaChamar(material, c, passo);
     const analise = {
       ...r.saida,
       quando: new Date().toISOString(),
@@ -8318,63 +8638,107 @@ function iaQuando(iso){
 }
 
 function iaCorpoChave(){
+  const p = iaProvedor();
   const chave = iaChave();
-  const temChave = !!chave;
-  return `
-      ${temChave ? `
+  const mascarada = k => `${escapeHtml(k.slice(0, 7))}${'•'.repeat(Math.max(0, Math.min(18, k.length - 11)))}${escapeHtml(k.slice(-4))}`;
+  const escolha = `
+      <div class="ia-prov" role="radiogroup" aria-label="Qual IA vai ler os autos">
+        ${Object.entries(IA_PROVEDORES).map(([k, v]) => `
+          <button class="ia-prov-op ${p === k ? 'sel' : ''}" role="radio" aria-checked="${p === k}" onclick="iaDefinirProvedor(${jsq(k)})">
+            <span class="ia-prov-top"><b>${escapeHtml(v.nome)}</b><em>${escapeHtml(v.selo)}</em></span>
+            <span>${escapeHtml(v.desc)}</span>
+          </button>`).join('')}
+      </div>`;
+  const campoChave = (rotulo, placeholder, dica) => chave ? `
       <div class="row-item" style="cursor:default;">
-        <div class="row-main">
-          <div class="row-title">Chave do Google AI Studio guardada</div>
-          <div class="row-sub mono">${escapeHtml(chave.slice(0,6))}${'•'.repeat(Math.max(0, Math.min(18, chave.length-10)))}${escapeHtml(chave.slice(-4))}</div>
-        </div>
-        <div class="row-side"><button class="btn btn-ghost btn-sm" onclick="iaApagarChave()">Remover</button></div>
-      </div>` : `
+        <div class="row-main"><div class="row-title">${rotulo} guardada</div><div class="row-sub mono">${mascarada(chave)}</div></div>
+        <div class="row-side">${p === 'claude' ? `<button class="btn btn-ghost btn-sm" onclick="iaTestarChaveClaude()">Testar</button>` : ''}<button class="btn btn-ghost btn-sm" onclick="iaApagarChave()">Remover</button></div>
+      </div>
+      ${iaTesteChave && p === 'claude' ? `<div class="hint" style="color:${iaTesteChave.startsWith('ok:') ? 'var(--ok)' : iaTesteChave.startsWith('erro:') ? 'var(--danger)' : 'var(--muted)'};">${escapeHtml(iaTesteChave.replace(/^(ok|erro):/, ''))}</div>` : ''}` : `
       <div class="field">
-        <label for="iaChave">Chave da API do Gemini</label>
-        <input id="iaChave" type="password" autocomplete="off" spellcheck="false" placeholder="cole aqui a chave do Google AI Studio"
-               onchange="iaDefinirChave(this.value).then(renderAll)">
-        <span class="dica">Pegue em aistudio.google.com, em “Get API key”. Para autos reais, ative o faturamento: no nível gratuito o Google pode usar o que for enviado. Passo a passo no manual “Chave da IA”, em <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="setSection('config')">Configurações</button>.</span>
-      </div>`}
-
+        <label for="iaChave">${rotulo}</label>
+        <input id="iaChave" type="password" autocomplete="off" spellcheck="false" placeholder="${placeholder}" onchange="iaDefinirChave(this.value).then(renderAll)">
+        <span class="dica">${dica}</span>
+      </div>`;
+  const manual = `<button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="setSection('config')">Configurações</button>`;
+  let especifico = '';
+  if(p === 'claude'){
+    especifico = `
+      ${campoChave('Chave da API do Claude', 'sk-ant-…', `Crie em console.anthropic.com, em Settings > API Keys, e coloque créditos em Billing. A assinatura do Claude (Pro ou Max) não vale para a API; para usá-la, escolha "Minha conta de IA". Passo a passo no manual "IA da Revisão", em ${manual}.`)}
       <div class="field" style="margin-top:12px;">
         <label for="iaModelo">Modelo</label>
         <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
-          ${iaModelosParaEscolher().map(m => `<option value="${m.id}" ${iaModelo()===m.id?'selected':''}>${escapeHtml(m.nome)}${m.nota ? ' — ' + escapeHtml(m.nota) : ''}</option>`).join('')}
+          ${CLAUDE_MODELOS.map(m => `<option value="${m.id}" ${iaModeloClaude() === m.id ? 'selected' : ''}>${escapeHtml(m.nome)} — ${escapeHtml(m.nota)}</option>`).join('')}
+        </select>
+      </div>
+      <label class="check" style="margin-top:12px; display:flex; gap:9px; align-items:flex-start; cursor:pointer;">
+        <input type="checkbox" ${iaPdfInteiro() ? 'checked' : ''} onchange="iaSalvarConfig({pdfInteiro: this.checked})" style="margin-top:3px;">
+        <span style="font-size:13px; line-height:1.5;">Mandar os PDFs inteiros
+          <span class="dica" style="display:block; margin-top:2px;">O Claude lê cada página como texto e como imagem: pega tabelas, carimbos e páginas digitalizadas e cita a página. Custa mais que só o texto. Até ${CLAUDE_MAX_PAGINAS_PDF} páginas por revisão; o que passar disso vai como texto.</span>
+        </span>
+      </label>`;
+  } else if(p === 'gemini'){
+    especifico = `
+      ${campoChave('Chave da API do Gemini', 'cole aqui a chave do Google AI Studio', `Pegue em aistudio.google.com, em "Get API key". Para autos reais, ative o faturamento: no nível gratuito o Google pode usar o que for enviado. Passo a passo no manual "IA da Revisão", em ${manual}.`)}
+      <div class="field" style="margin-top:12px;">
+        <label for="iaModelo">Modelo</label>
+        <select id="iaModelo" onchange="iaDefinirModelo(this.value)">
+          ${iaModelosParaEscolher().map(m => `<option value="${m.id}" ${iaModelo() === m.id ? 'selected' : ''}>${escapeHtml(m.nome)}${m.nota ? ' — ' + escapeHtml(m.nota) : ''}</option>`).join('')}
         </select>
         <span class="dica">
           ${iaCatalogo
             ? `${iaCatalogo.length} modelos disponíveis na sua chave. <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="iaCarregarCatalogo(true)">atualizar lista</button>`
             : iaCatalogoErro
-              ? `Não foi possível ler a lista de modelos da sua chave (${escapeHtml(iaCatalogoErro)}). O seletor mostra os apelidos, que acompanham a versão atual e funcionam do mesmo jeito. <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="iaCarregarCatalogo(true)">tentar de novo</button>`
-              : iaBuscandoCatalogo
-                ? 'Perguntando à sua chave quais modelos estão disponíveis...'
-                : 'Os apelidos “versão atual” seguem o modelo corrente do Google, então não quebram quando uma versão é aposentada.'}
+              ? `Não foi possível ler a lista de modelos da sua chave (${escapeHtml(iaCatalogoErro)}). O seletor mostra os apelidos, que acompanham a versão atual. <button class="link-sutil" style="display:inline; margin:0; padding:0; font-size:12px;" onclick="iaCarregarCatalogo(true)">tentar de novo</button>`
+              : iaBuscandoCatalogo ? 'Perguntando à sua chave quais modelos estão disponíveis...' : 'Os apelidos "versão atual" seguem o modelo corrente do Google.'}
         </span>
+      </div>`;
+  } else {
+    especifico = `
+      <div class="field">
+        <label>Onde você tem conta</label>
+        <div class="chips">${Object.entries(IA_APPS).map(([k, v]) => `<button class="chip ${iaApp() === k ? 'active' : ''}" onclick="iaSalvarConfig({app: ${jsq(k)}})">${escapeHtml(v.nome)}</button>`).join('')}</div>
       </div>
-
+      <ol class="ia-conta-como">
+        <li>Clique em <b>Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}</b> no alto da tela.</li>
+        <li>Copie (ou baixe) as instruções com o texto dos autos e cole num chat novo do ${escapeHtml(IA_APPS[iaApp()].nome)}.</li>
+        <li>Copie a resposta do chat e cole de volta aqui. A revisão aparece nos cartões, igual à da API.</li>
+      </ol>
+      <div class="hint">Não precisa de chave nem de outro plano: vale a assinatura que você já tem. Os limites de uso são os do seu plano.</div>`;
+  }
+  return `
+      ${escolha}
+      <div class="ia-prov-det">${especifico}</div>
+      ${p !== 'conta' ? `
       <label class="check" style="margin-top:14px; display:flex; gap:9px; align-items:flex-start; cursor:pointer;">
-        <input type="checkbox" ${iaAuto()?'checked':''} onchange="iaAlternarAuto(this.checked)" style="margin-top:3px;">
+        <input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)" style="margin-top:3px;">
         <span style="font-size:13px; line-height:1.5;">Analisar sozinho quando eu anexar documentos novos
-          <span class="dica" style="display:block; margin-top:2px;">Espera 25 segundos depois do último anexo e roda uma vez. Cada rodada consome a sua cota.</span>
+          <span class="dica" style="display:block; margin-top:2px;">Espera 25 segundos depois do último anexo e roda uma vez. Cada rodada é cobrada na sua conta da API.</span>
         </span>
       </label>
-
-      <div class="hint" style="margin-top:14px;">
-        A chave fica no seu perfil, que só a sua conta lê. Ainda assim, trate-a como senha: quem entrar na sua conta alcança a chave.
-      </div>`;
+      <div class="hint" style="margin-top:14px;">A chave fica no seu perfil, que só a sua conta lê. Ainda assim, trate-a como senha: quem entrar na sua conta alcança a chave.</div>` : ''}`;
 }
 
 function iaCorpoCiencia(){
+  const p = iaProvedor();
+  const destino = p === 'claude' ? 'à API da Anthropic (Claude), com a sua chave'
+    : p === 'gemini' ? 'à API do Google (Gemini), com a sua chave'
+    : `ao ${IA_APPS[iaApp()].nome}, quando você colar no chat da sua conta`;
+  const termos = p === 'claude'
+    ? 'A Anthropic trata esse envio pelos termos comerciais da API dela. Pela política atual, o que é enviado pela API não é usado para treinar modelos, salvo se você der retorno (como o polegar) ou autorizar.'
+    : p === 'gemini'
+      ? '<b>No nível gratuito</b>, os termos do Google permitem que o conteúdo seja usado para melhorar os produtos dele e que pessoas o leiam; para autos reais, use uma chave com faturamento ativo.'
+      : 'Vale o contrato da sua conta pessoal. Antes de colar autos reais, confira nas configurações do app se o uso das conversas para treinar modelos está desligado.';
   return `
       <div style="font-size:13px; line-height:1.65; color:var(--ink-2);">
-        <p style="margin:0 0 10px;">Antes da primeira análise, o que precisa estar claro:</p>
+        <p style="margin:0 0 10px;">Antes da primeira revisão com <b>${escapeHtml(IA_PROVEDORES[p].nome)}</b>:</p>
         <ul style="margin:0 0 14px; padding-left:18px;">
-          <li style="margin-bottom:7px;">O texto da perícia e dos documentos selecionados <b>sai deste navegador</b> e vai para a API do Google, com a sua chave. Documento sob sigilo processual deixa de estar apenas com você nesse momento.</li>
-          <li style="margin-bottom:7px;">O Google trata esse envio pelos termos da API dele, não por este app. <b>No nível gratuito</b>, os termos permitem que o Google use o conteúdo para melhorar os produtos dele e que pessoas o leiam; para autos reais, use uma chave com faturamento ativo. Detalhes no manual “Chave da IA”, em Configurações.</li>
-          <li style="margin-bottom:7px;">O resultado é <b>rascunho de leitura</b>. O modelo erra e às vezes inventa com cara de certeza. Cada item vem com a fonte justamente para você conferir nos autos.</li>
-          <li>Nada é enviado sem clique seu — a não ser que você ligue a análise automática ali em cima, e aí o clique é esse.</li>
+          <li style="margin-bottom:7px;">O texto da perícia e dos documentos${p === 'claude' ? ' (e os PDFs, se você deixar ligado)' : ''} <b>sai deste navegador</b> e vai ${destino}. Documento sob sigilo processual deixa de estar apenas com você nesse momento.</li>
+          <li style="margin-bottom:7px;">${termos} Detalhes no manual "IA da Revisão", em Configurações.</li>
+          <li style="margin-bottom:7px;">O resultado é <b>rascunho de leitura</b>. A IA erra e às vezes inventa com cara de certeza. Cada item vem com a fonte justamente para você conferir nos autos.</li>
+          <li>Nada é enviado sem clique seu${p === 'conta' ? '' : ', a não ser que você ligue a análise automática'}.</li>
         </ul>
-        <button class="btn btn-primary" onclick="iaRegistrarCiencia()">Li e estou ciente — liberar a análise</button>
+        <button class="btn btn-primary" onclick="iaRegistrarCiencia()">Li e estou ciente — liberar a revisão</button>
       </div>`;
 }
 
@@ -8569,13 +8933,15 @@ function iaCorpoAnalise(c){
 }
 
 function renderIA(){
-  if(iaChave() && !iaCatalogo && !iaBuscandoCatalogo && !iaCatalogoErro) iaCarregarCatalogo();
+  if(iaProvedor() === 'gemini' && iaChaveGemini() && !iaCatalogo && !iaBuscandoCatalogo && !iaCatalogoErro) iaCarregarCatalogo();
+  const conta = iaProvedor() === 'conta';
   /* a chave e o modelo começam recolhidos: o dia a dia é a revisão */
   try{ if(!localStorage.getItem('pf_ia_chave_recolhida')){ panelsFechados.add('iaChave'); localStorage.setItem('pf_ia_chave_recolhida', '1'); } }catch(e){}
   const lista = casosVisiveis();
   const c = lista.find(x => x.id === iaCasoId) || lista[0] || null;
   if(c) iaCasoId = c.id;
   const pronta = iaPronta();
+  if(!pronta) panelsFechados.delete('iaChave');   /* falta configurar: o painel fica aberto */
   const a = c && iaAnalise(c);
   const rodando = c && iaRodando.has(c.id);
   const msg = c && iaEstado[c.id];
@@ -8590,7 +8956,8 @@ function renderIA(){
         <span class="ia-num mono">${escapeHtml(c.numeroProcesso || 'sem número de processo')}</span>
       </div>
       <div class="ia-topo-dir">
-        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar(${jsq(c.id)})" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? 'Revisando…' : (a ? 'Revisar de novo' : 'Revisar esta perícia')}</button>
+        <span class="ia-com" title="Trocar em IA e chave">${svg('<path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/>')} ${escapeHtml(iaNomeModelo())}</span>
+        <button class="btn ${a ? 'btn-ghost' : 'btn-primary'}" onclick="iaAnalisar(${jsq(c.id)})" ${rodando || !pronta ? 'disabled' : ''}>${rodando ? (conta ? 'Preparando…' : 'Revisando…') : conta ? `Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}` : (a ? 'Revisar de novo' : 'Revisar esta perícia')}</button>
         <button class="btn btn-primary" onclick="iaBaixarPdf(${jsq(c.id)})" ${a ? '' : 'disabled'}>${svg('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>')} Baixar PDF dos erros</button>
       </div>
     </div>
@@ -8598,21 +8965,22 @@ function renderIA(){
     <div class="ia-fresco ${velho ? 'velho' : ''}">
       <i></i><span>${velho ? 'A perícia mudou depois da revisão de ' + iaQuando(a.quando) + '.' : 'Em dia · revisão de ' + iaQuando(a.quando) + ' · ' + (a.fontes || []).length + ' fonte' + ((a.fontes || []).length === 1 ? '' : 's') + ' lida' + ((a.fontes || []).length === 1 ? '' : 's')}</span>
       ${velho && !rodando && pronta ? `<button class="link-sutil" onclick="iaAnalisar(${jsq(c.id)})">Revisar de novo</button>` : ''}
-      <label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Rever sozinha quando chegar documento novo</label>
+      ${conta ? '' : `<label class="ia-auto"><input type="checkbox" ${iaAuto() ? 'checked' : ''} onchange="iaAlternarAuto(this.checked)"> Rever sozinha quando chegar documento novo</label>`}
     </div>` : ''}
-    ${rodando ? marcaCarregando(msg || 'Conferindo os autos…') : msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}`;
+    ${rodando ? marcaCarregando(msg || 'Conferindo os autos…') : msg ? `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(msg)}</span></div>` : ''}
+    ${conta && IA_CONTA[c.id] && !rodando ? iaCorpoConta(c) : ''}`;
 
   const corpo = !c ? `<div class="chart-empty">Nenhuma perícia para revisar ainda.</div>`
-    : !pronta ? `<div class="ia-vazio"><b>Falta pouco para a primeira revisão.</b><span>Guarde a sua chave do Gemini e dê o aceite nos painéis acima.</span></div>`
+    : !pronta ? `<div class="ia-vazio"><b>Falta pouco para a primeira revisão.</b><span>${conta ? 'Dê o aceite no painel acima.' : `Guarde a sua chave do ${IA_PROVEDORES[iaProvedor()].curto} e dê o aceite nos painéis acima.`}</span></div>`
     : iaCorpoAnalise(c);
 
   return `
     <div class="section-gap">
-      ${!iaChave() || !iaCiente() ? panel('iaChave', 'Chave e modelo', iaChave() ? 'chave guardada' : 'nenhuma chave', iaCorpoChave()) : ''}
-      ${iaChave() && !iaCiente() ? panel('iaCiencia', 'Antes da primeira revisão', 'leia isto', iaCorpoCiencia()) : ''}
+      ${!pronta ? panel('iaChave', 'IA e chave', IA_PROVEDORES[iaProvedor()].curto + (conta ? '' : iaChave() ? ' · chave guardada' : ' · sem chave'), iaCorpoChave()) : ''}
+      ${(conta || iaChave()) && !iaCiente() ? panel('iaCiencia', 'Antes da primeira revisão', 'leia isto', iaCorpoCiencia()) : ''}
       ${topo}
       ${corpo}
-      ${pronta ? panel('iaChave', 'Chave e modelo', 'chave guardada', iaCorpoChave()) : ''}
+      ${pronta ? panel('iaChave', 'IA e chave', iaNomeModelo(), iaCorpoChave()) : ''}
     </div>`;
 }
 function iaEscolher(id){ iaCasoId = id; iaFiltro = 'Todos'; renderAll(); }
@@ -10509,7 +10877,7 @@ function renderIntegracoes(){
       'Baixa os autos do PROJUDI pelo código de acesso ou com o seu login e entrega os PDFs um a um, sem duplicar.', `<button class="btn btn-ghost btn-sm" onclick="setSection('importar')">Importar processo</button>`],
     ['Conta e armazenamento', usingDb ? st(true, 'sincronizando na nuvem') : st(null, 'só neste navegador'),
       'Perícias, documentos, tarefas e agenda ficam na sua conta (Firebase) e acompanham você em qualquer dispositivo.', ''],
-    ['Análise por IA (Gemini)', iaOk ? st(true, 'configurada') : st(null, 'falta a chave'),
+    ['Revisão IA (Claude ou Gemini)', iaOk ? st(true, IA_PROVEDORES[iaProvedor()].curto) : st(null, 'falta configurar'),
       'Resumo do processo, pontos de atenção, quesitos e prazos, com a sua própria chave.', `<button class="btn btn-ghost btn-sm" onclick="setSection('ia')">Abrir</button>`],
     ['Agenda (.ics)', st(true, 'disponível'), 'Exporta compromissos e prazos para o Google Agenda, Outlook ou celular.', `<button class="btn btn-ghost btn-sm" onclick="setSection('agenda')">Abrir</button>`],
     ['Notificações do navegador', pfAlertas().navegador ? st(true, 'ligadas') : st(null, 'desligadas'), 'Avisos de prazo e de tarefas enquanto o app está aberto.', `<button class="btn btn-ghost btn-sm" onclick="setSection('prazos')">Configurar</button>`],

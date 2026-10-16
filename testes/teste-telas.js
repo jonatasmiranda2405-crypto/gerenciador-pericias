@@ -19,7 +19,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
     channel: "chromium", headless: true, ignoreHTTPSErrors: true, acceptDownloads: true, viewport: { width: 1360, height: 900 },
     env: { ...process.env, HTTPS_PROXY: "", HTTP_PROXY: "", https_proxy: "", http_proxy: "" },
     args: ["--no-proxy-server", `--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, "--ignore-certificate-errors",
-      "--host-resolver-rules=MAP projudi.tjgo.jus.br 127.0.0.1:8443, MAP jonatasmiranda2405-crypto.github.io 127.0.0.1:8443, MAP script.google.com 127.0.0.1:8443, MAP comunicaapi.pje.jus.br 127.0.0.1:8443, EXCLUDE localhost"]
+      "--host-resolver-rules=MAP projudi.tjgo.jus.br 127.0.0.1:8443, MAP jonatasmiranda2405-crypto.github.io 127.0.0.1:8443, MAP script.google.com 127.0.0.1:8443, MAP comunicaapi.pje.jus.br 127.0.0.1:8443, MAP api.anthropic.com 127.0.0.1:8443, EXCLUDE localhost"]
   });
   await ctx.grantPermissions(["notifications"], { origin: "https://jonatasmiranda2405-crypto.github.io" });
   let sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js"));
@@ -376,6 +376,49 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.keyboard.press("Escape");
   await pf.evaluate(() => abrirLogin(false));
   check("ao entrar, a apresentação some", !(await pf.isVisible("#login .lp")));
+
+  console.log("\n18) Revisão IA com o Claude e com a própria conta");
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await ctx.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "https://jonatasmiranda2405-crypto.github.io" });
+  await pf.evaluate((n) => { perfil.ia = { provedor: "claude" }; iaCasoId = (casos.find((x) => x.numeroProcesso === n && (x.documentos || []).some((d) => d.arquivo)) || casos[0]).id; setSection("ia"); }, NUM);
+  await sleep(300);
+  check("três opções de IA: Claude, Gemini e a própria conta", await pf.locator(".ia-prov-op").count() === 3 && /Claude, da Anthropic/.test(await pf.textContent(".ia-prov")) && /Minha conta de IA/.test(await pf.textContent(".ia-prov")));
+  await pf.fill("#iaChave", "sk-ant-teste");
+  await pf.press("#iaChave", "Tab");
+  await sleep(300);
+  await pf.click('button:has-text("Testar")');
+  await pf.waitForFunction(() => /^ok:|^erro:/.test(iaTesteChave), null, { timeout: 10000 });
+  check("testar a chave do Claude", await pf.evaluate(() => iaTesteChave) === "ok:Chave aceita. Pronta para revisar.");
+  await pf.click('button:has-text("Li e estou ciente")');
+  await sleep(300);
+  await pf.click('.ia-topo button:has-text("Revisar")');
+  await pf.waitForFunction(() => { const c = casos.find((x) => x.id === iaCasoId); return c && c.analiseIA && /Claude/.test(JSON.stringify(c.analiseIA.achados || [])) && !iaRodando.size; }, null, { timeout: 60000 });
+  await sleep(300);
+  const claudeReq = await pf.evaluate(async () => (await fetch("https://api.anthropic.com/__claude_ultimo")).json());
+  check("Claude recebe os PDFs inteiros, o texto e o esquema da revisão", claudeReq.docs >= 1 && claudeReq.texto && claudeReq.esquema && claudeReq.ferramenta === "registrar_revisao" && claudeReq.modelo === "claude-sonnet-5-5", JSON.stringify(claudeReq));
+  check("achados do Claude aparecem nos cartões", /Juros capitalizados sem previsão \(Claude\)/.test(await pf.textContent("#view")) && /Claude Sonnet 5\.5/.test(await pf.textContent(".ia-com")));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-ia-claude.png"), fullPage: true });
+  /* minha conta de IA */
+  await pf.evaluate(() => { perfil.ia = { ...perfil.ia, provedor: "conta", app: "chatgpt" }; renderAll(); });
+  await sleep(200);
+  check("modo conta pede só o aceite (sem chave)", /Antes da primeira revisão/.test(await pf.textContent("#view")) && await pf.locator("#iaChave").count() === 0);
+  await pf.click('button:has-text("Li e estou ciente")');
+  await sleep(200);
+  await pf.click('.ia-topo button:has-text("Preparar para o ChatGPT")');
+  await pf.waitForFunction(() => IA_CONTA[iaCasoId], null, { timeout: 30000 });
+  await sleep(200);
+  await pf.click('button:has-text("Copiar tudo")');
+  await sleep(200);
+  const copiado = await pf.evaluate(() => navigator.clipboard.readText());
+  check("copia as instruções, o texto dos autos e o formato da resposta", /perito-contador judicial/.test(copiado) && /FICHA DA PERÍCIA/.test(copiado) && /FORMATO DA RESPOSTA/.test(copiado) && await pf.locator('.ia-conta a[href="https://chatgpt.com/"]').count() === 1, copiado.length + " caracteres");
+  const respostaChat = 'Claro! Segue a revisão:\n```json\n' + JSON.stringify({ resumo: "Resumo vindo do chat", areaProvavel: "Bancária", objeto: "x", confianca: "média", achados: [{ categoria: "Valores", gravidade: "atencao", titulo: "Valor divergente (conta própria)", detalhe: "d", efeito: "e", fonte: "f", trecho: "t" }, { categoria: "Inventada", gravidade: "grave", titulo: "<img src=x onerror=alert(1)>", detalhe: "d", fonte: "f" }], documentos: [], linhaDoTempo: [], prazos: [], lacunas: ["nada"] }) + '\n```\nQualquer dúvida, estou à disposição.';
+  await pf.fill("#iaResposta", respostaChat);
+  await pf.click('button:has-text("Importar a revisão")');
+  await sleep(400);
+  const imp = await pf.evaluate(() => { const c = casos.find((x) => x.id === iaCasoId); const a = c.analiseIA; return { modelo: a.modelo, n: a.achados.length, cat: a.achados[1].categoria, grav: a.achados[1].gravidade, conf: a.confianca, img: document.querySelectorAll("#view img[src='x']").length }; });
+  check("resposta do chat vira revisão (JSON achado no meio do texto, valores saneados)", imp.modelo === "ChatGPT (sua conta)" && imp.n === 2 && imp.cat === "Outros" && imp.grav === "verificar" && imp.conf === "media" && imp.img === 0, JSON.stringify(imp));
+  await pf.screenshot({ path: path.join(SAIDA, "tela-ia-conta.png"), fullPage: true });
+  await pf.evaluate(() => { perfil.ia = { chave: "chave-de-teste", cienciaEm: "2026-10-01T00:00:00Z" }; setSection("visao"); });
 
   console.log("\n17) Publicações do DJEN pela extensão");
   await pf.setViewportSize({ width: 1360, height: 900 });

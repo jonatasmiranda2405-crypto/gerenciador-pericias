@@ -8,6 +8,7 @@ const NUM = "5151870-23.2026.8.09.0051";
 const COD = "Zrrxk42nj8DcwbqmZd"; // o PROJUDI diferencia maiúsculas de minúsculas
 let extraLiberado = false; // simula um arquivo novo juntado depois
 const djenPedidos = []; // consultas recebidas pelo DJEN simulado
+let claudeUltimo = null; // último pedido recebido pela API do Claude simulada
 
 const ARQS = {
   "1001": { nome: "peticao_inicial.pdf", file: "peticao.pdf", mov: 1 },
@@ -144,6 +145,31 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
     }
     if (u.pathname.startsWith("/gerenciador-pericias/novo/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(path.join(__dirname, "..", "novo", "index.html"))); }
     if (u.pathname.startsWith("/gerenciador-pericias/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(APP)); }
+  }
+  if (u.pathname === "/__claude_ultimo") { res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }); return res.end(JSON.stringify(claudeUltimo)); }
+  if (host === "api.anthropic.com") {
+    // API do Claude simulada (com CORS, como a real com o cabeçalho de acesso direto do navegador)
+    const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type, x-api-key, anthropic-version, anthropic-dangerous-direct-browser-access", "Access-Control-Allow-Methods": "GET, POST, OPTIONS" };
+    if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end(); }
+    const ok = req.headers["x-api-key"] === "sk-ant-teste" && req.headers["anthropic-version"] && req.headers["anthropic-dangerous-direct-browser-access"] === "true";
+    if (!ok) { res.writeHead(401, { ...cors, "Content-Type": "application/json" }); return res.end(JSON.stringify({ type: "error", error: { type: "authentication_error", message: "invalid x-api-key" } })); }
+    if (u.pathname === "/v1/models") { res.writeHead(200, { ...cors, "Content-Type": "application/json" }); return res.end(JSON.stringify({ data: [{ id: "claude-sonnet-5-5" }] })); }
+    if (u.pathname === "/v1/messages" && req.method === "POST") {
+      let corpo = ""; req.on("data", (c) => (corpo += c));
+      req.on("end", () => {
+        let j = {}; try { j = JSON.parse(corpo); } catch (e) {}
+        const cont = ((j.messages || [])[0] || {}).content || [];
+        claudeUltimo = { modelo: j.model, ferramenta: j.tool_choice && j.tool_choice.name, docs: cont.filter((x) => x.type === "document").length, titulos: cont.filter((x) => x.type === "document").map((x) => x.title), texto: (cont.find((x) => x.type === "text") || {}).text ? true : false, esquema: !!(j.tools && j.tools[0] && j.tools[0].input_schema && j.tools[0].input_schema.type === "object") };
+        const entrada = j.tool_choice && j.tool_choice.name === "registrar_texto" ? { assunto: "Assunto variado", corpo: "Olá {nome}, conheça: {link}. {remetente}" } : {
+          resumo: "Revisional de contrato bancário com planilha do autor.", areaProvavel: "Bancária", objeto: "Recalcular o contrato", confianca: "alta",
+          achados: [{ categoria: "Cálculo", gravidade: "erro", titulo: "Juros capitalizados sem previsão (Claude)", detalhe: "A planilha capitaliza juros mensalmente.", efeito: "Aumenta o saldo.", fonte: "peticao_inicial.pdf, p. 1", trecho: "juros" },
+                    { categoria: "Documentos", gravidade: "verificar", titulo: "Extratos ausentes", detalhe: "Faltam extratos de 2023.", efeito: "Impede conferir.", fonte: "quesitos.pdf, p. 1", trecho: "" }],
+          documentos: [], linhaDoTempo: [], prazos: [], lacunas: [] };
+        res.writeHead(200, { ...cors, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ id: "msg_teste", type: "message", role: "assistant", model: j.model, stop_reason: "tool_use", content: [{ type: "tool_use", id: "toolu_1", name: j.tool_choice.name, input: entrada }], usage: { input_tokens: 1000, output_tokens: 200 } }));
+      });
+      return;
+    }
   }
   if (host === "comunicaapi.pje.jus.br" && u.pathname === "/api/v1/comunicacao") {
     // DJEN simulado: uma nomeação pelo nome do perito e uma intimação no processo de teste

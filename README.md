@@ -73,6 +73,17 @@ cada um com gravidade e o lugar exato para conferir. Não sugere quesitos: o per
 - Extensão 1.7.4 aceita o domínio novo e o antigo.
 - A Central do administrador confere sozinha: "Site no domínio próprio" e "Cabeçalhos de segurança do servidor".
 
+## Revisão IA: Claude, Gemini ou a conta da pessoa
+
+- Revisão IA > "IA e chave": a pessoa escolhe **Claude** (API da Anthropic, chave própria; lê os PDFs
+  inteiros, até 100 páginas por revisão, com `document` em base64 e resposta forçada por ferramenta com o
+  esquema da revisão), **Gemini** (API do Google, chave própria) ou **Minha conta de IA** (Claude, ChatGPT
+  ou Gemini, sem API: o site prepara as instruções e o texto dos autos, a pessoa cola no chat e importa a
+  resposta JSON, que é saneada antes de gravar).
+- O navegador fala direto com `api.anthropic.com` (cabeçalho `anthropic-dangerous-direct-browser-access`),
+  liberado na CSP. Chaves ficam em `usuarios/{uid}.ia` (`chaveClaude`, `chave`), lidas só pela própria conta.
+- Aceite (ciência) separado por IA, porque os termos de cada fornecedor são diferentes.
+
 ## Agente comercial
 
 - **Escritório > Agente comercial** (só administradores, entrando pelo Google): cole uma lista
