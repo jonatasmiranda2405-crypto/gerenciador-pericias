@@ -55,7 +55,7 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   const abaProjudi = () => ctx.pages().find((p) => p.url().includes("projudi.tjgo.jus.br/BuscaProcesso"));
   // ---------- 1) pelo código de acesso, sem login ----------
   console.log("\n1) Baixar autos pelo código de acesso (sem login)");
-  const c1 = await novoCaso({ nome: "Teste código", numero: NUM, codigo: "Ab12Cd34" });
+  const c1 = await novoCaso({ nome: "Teste código", numero: NUM, codigo: "Zrrxk42nj8DcwbqmZd" });
   await pf.click(`button[onclick="pjBaixarAutos('${c1}')"]`);
   let e = await esperarEtapa(c1, ["captcha", "confirmar", "fim", "erro", "assistido", "login"], 30000);
   check("detecta a verificação do Cloudflare e pede ao perito", e.s.etapa === "captcha", e.s.texto);
@@ -63,7 +63,7 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   e = await esperarEtapa(c1, ["confirmar", "fim", "erro", "assistido", "login"], 30000);
   check("preenche e pede para clicar em Buscar (sem clique automático)", e.s.etapa === "confirmar", e.s.texto);
   const campos1 = await abaProjudi().evaluate(() => [document.querySelector("#ProcessoNumero").value, document.querySelector("#CodigoAcesso").value]);
-  check("número curto e código (com maiúsculas e minúsculas) preenchidos", campos1[0] === "5151870-23" && campos1[1] === "Ab12Cd34", campos1.join(" / "));
+  check("número curto e código (com maiúsculas e minúsculas) preenchidos", campos1[0] === "5151870-23" && campos1[1] === "Zrrxk42nj8DcwbqmZd", campos1.join(" / "));
   await abaProjudi().check("#cf-humano").catch(() => {}); await abaProjudi().click("input[name=Localizar]");            // o perito clica em Buscar
   e = await esperarEtapa(c1, ["fim", "erro", "assistido", "login"]);
   check("terminou", e.s.etapa === "fim", e.s.texto);

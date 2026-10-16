@@ -328,6 +328,8 @@ body.rail .perfil-nums{display:none;}
 .chip.active{background:var(--accent); border-color:var(--accent); color:var(--surface);}
 
 .pill{font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; display:inline-block; white-space:nowrap;}
+.campo-invalido{border-color:var(--danger) !important;}
+.campo-aviso{display:block; font-size:11px; color:var(--danger); margin-top:4px; line-height:1.35;}
 .pill-muted{background:var(--surface-2); color:var(--muted);}
 .pill-accent{background:var(--accent-soft); color:var(--accent-deep);}
 .pill-warning{background:var(--warn-soft); color:var(--warn);}
@@ -1977,13 +1979,13 @@ const ICONS = {
 
 function seedData(){
   return [
-    {id:'seed-1', dono:'perito.a@exemplo.com', emails:['perito.a@exemplo.com'], editores:['perito.a@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-014', nome:'Divórcio Litigioso — Partilha de Bens', numeroProcesso:'0000001-00.2025.8.00.0000', codigoAcesso:'EXEMPLO1', statusProcesso:'em_tramitacao', vara:'3ª Vara de Família', comarca:'Comarca Exemplo/SP', partes:'Fulano de Tal x Beltrana Exemplo', dataNomeacao:'2026-06-02', prazoEntrega:'2026-09-25', honorarios:8500, valorRecebido:4250, statusCaso:'em_andamento',
+    {id:'seed-1', dono:'perito.a@exemplo.com', emails:['perito.a@exemplo.com'], editores:['perito.a@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-014', nome:'Divórcio Litigioso — Partilha de Bens', numeroProcesso:'0000001-00.2025.8.00.0000', codigoAcesso:'exemplo00chave0001', statusProcesso:'em_tramitacao', vara:'3ª Vara de Família', comarca:'Comarca Exemplo/SP', partes:'Fulano de Tal x Beltrana Exemplo', dataNomeacao:'2026-06-02', prazoEntrega:'2026-09-25', honorarios:8500, valorRecebido:4250, statusCaso:'em_andamento',
       documentos:[
         {id:'d1', nome:'Procuração', tipo:'Procuração', fase:'Habilitação das Partes', data:'2026-06-10', obs:''},
         {id:'d2', nome:'Quesitos do juízo', tipo:'Quesitos', fase:'Quesitos das Partes', data:'2026-07-01', obs:'Recebidos via DJE'}
       ],
       observacoes:[{id:'o1',data:'2026-07-15',texto:'Aguardando resposta do banco sobre extratos societários solicitados por ofício.'}]},
-    {id:'seed-2', dono:'perito.b@exemplo.com', emails:['perito.b@exemplo.com'], editores:['perito.b@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-009', nome:'Apuração de Haveres — Dissolução Societária', numeroProcesso:'0000002-00.2025.8.00.0000', codigoAcesso:'EXEMPLO2', statusProcesso:'transitado', vara:'2ª Vara Empresarial', comarca:'Comarca Exemplo/SP', partes:'Empresa Exemplo Ltda x Sócio Exemplo', dataNomeacao:'2026-03-14', prazoEntrega:'2026-08-20', honorarios:14000, valorRecebido:14000, statusCaso:'concluida',
+    {id:'seed-2', dono:'perito.b@exemplo.com', emails:['perito.b@exemplo.com'], editores:['perito.b@exemplo.com'], compartilhamentos:[], codigo:'PER-2026-009', nome:'Apuração de Haveres — Dissolução Societária', numeroProcesso:'0000002-00.2025.8.00.0000', codigoAcesso:'exemplo00chave0002', statusProcesso:'transitado', vara:'2ª Vara Empresarial', comarca:'Comarca Exemplo/SP', partes:'Empresa Exemplo Ltda x Sócio Exemplo', dataNomeacao:'2026-03-14', prazoEntrega:'2026-08-20', honorarios:14000, valorRecebido:14000, statusCaso:'concluida',
       documentos:[
         {id:'d3', nome:'Laudo Pericial Contábil', tipo:'Laudo Pericial', fase:'Laudo Pericial', data:'2026-08-18', obs:'Protocolado nos autos'}
       ],
@@ -2150,10 +2152,27 @@ function arquivoSrc(arquivo){
   return '';
 }
 function arquivoMime(arquivo){ return arquivo.mime || mimeFromDataUrl(arquivo.dataUrl); }
+/* Chave de acesso do processo no PROJUDI: letras e números misturados, como "zrrxk42nj8dcwbqmzd".
+   Os PDFs também trazem códigos só de números (validação do documento, id da movimentação), que
+   não abrem o processo: esses nunca são aceitos como código de acesso. */
+function codigoAcessoValido(v){
+  const t = String(v || '').trim();
+  return /^[A-Za-z0-9]{10,30}$/.test(t) && /[A-Za-z]/.test(t) && /\d/.test(t);
+}
 function guessCodigoAcessoFromText(text){
   // O PROJUDI diferencia maiúsculas de minúsculas no código: guardar exatamente como veio.
-  const m = text.match(/c[oó]digo\s*(?:de|do)?\s*acesso\s*[:\-]?\s*([A-Za-z0-9]{4,40})/i);
-  return m ? m[1] : null;
+  const re = /(?:c[oó]digo|chave)\s*(?:de|do|da)?\s*acesso(?:\s*(?:ao|do)\s*processo)?\s*[:\-–]?\s*([A-Za-z0-9]{4,40})/gi;
+  const t = String(text || '');
+  for(const m of t.matchAll(re)){
+    if(codigoAcessoValido(m[1])) return m[1];
+  }
+  /* rótulo com mais palavras no meio ("Código de acesso ao processo (consulta pública): …"):
+     procura a chave logo depois de "acesso" */
+  for(const m of t.matchAll(/(?:c[oó]digo|chave)[^.]{0,40}?acesso([\s\S]{0,140})/gi)){
+    const k = (m[1].match(/\b[A-Za-z0-9]{14,24}\b/g) || []).find(codigoAcessoValido);
+    if(k) return k;
+  }
+  return null;
 }
 function svg(path, extra){
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" ${extra||''}>${path}</svg>`;
@@ -8308,7 +8327,7 @@ async function addDocFromForm(casoId){
   await addDoc(casoId, {nome, fase, tipo, data, obs, tamanho, arquivo, processo, codigoAcesso}, docId);
   const c = casos.find(x => x.id === casoId);
   if(c && processo && !c.numeroProcesso){ await saveCaso(casoId, {numeroProcesso: processo}); }
-  if(c && codigoAcesso && !c.codigoAcesso){ await saveCaso(casoId, {codigoAcesso}); }
+  if(c && codigoAcesso && !codigoAcessoValido(c.codigoAcesso)){ await saveCaso(casoId, {codigoAcesso}); }
   iaAgendarAuto(casoId);
   nomeInput.value=''; document.getElementById(`docFase-${casoId}`).value=''; document.getElementById(`docObs-${casoId}`).value=''; fileInput.value='';
   renderDrawer(); renderAll();
@@ -8379,7 +8398,7 @@ async function handleZipImport(casoId, inputEl){
       }
     }
     let codigoMsg = '';
-    if(c && codigosDetectados.length && !c.codigoAcesso){
+    if(c && codigosDetectados.length && !codigoAcessoValido(c.codigoAcesso)){
       const freqC = {};
       codigosDetectados.forEach(p => { freqC[p] = (freqC[p]||0)+1; });
       const codigoMaisFrequente = Object.entries(freqC).sort((a,b)=>b[1]-a[1])[0][0];
@@ -8563,7 +8582,7 @@ function renderDocumentosSection(c){
 
       <div class="import-box" style="margin-top:10px;">
         <button class="btn btn-primary btn-sm" onclick="pjBaixarAutos(${jsq(c.id)})">Baixar autos do PROJUDI</button>
-        <div class="hint">Traz os PDFs do processo direto do PROJUDI, um a um e sem repetir os que já estão aqui. ${c.codigoAcesso && pjMetodo() !== 'sessao' ? 'Usa o código de acesso desta perícia, sem login.' : 'Usa o seu login no PROJUDI (certificado digital ou CPF e senha).'}</div>
+        <div class="hint">Traz os PDFs do processo direto do PROJUDI, um a um e sem repetir os que já estão aqui. ${codigoAcessoValido(c.codigoAcesso) && pjMetodo() !== 'sessao' ? 'Usa o código de acesso desta perícia, sem login.' : 'Usa o seu login no PROJUDI (certificado digital ou CPF e senha).'}</div>
         <div id="pjStatus-${c.id}" class="hint" style="color:var(--ink-2);">${pjStatusHtml(c.id)}</div>
       </div>
 
@@ -8632,7 +8651,7 @@ function renderDrawer(){
           <select onchange="mudarDono(${jsq(c.id)}, this.value)" ${souDono(c)?'':'disabled'}>${donoOptions}</select>
         </div>
         <div class="meta-item"><label>Número do processo</label><input class="mono" value="${escapeHtml(c.numeroProcesso)}" onchange="fieldUpdate(${jsq(c.id)},'numeroProcesso',this.value)"></div>
-        <div class="meta-item"><label>Código de acesso</label><input class="mono" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="—" onchange="fieldUpdate(${jsq(c.id)},'codigoAcesso',this.value)"></div>
+        <div class="meta-item"><label>Código de acesso</label><input class="mono${c.codigoAcesso && !codigoAcessoValido(c.codigoAcesso) ? ' campo-invalido' : ''}" value="${escapeHtml(c.codigoAcesso||'')}" placeholder="ex.: zrrxk42nj8dcwbqmzd" spellcheck="false" autocomplete="off" onchange="this.value = this.value.trim(); if(this.value && !codigoAcessoValido(this.value)) pfAviso('Isso não parece a chave de acesso do PROJUDI: ela mistura letras e números, como zrrxk42nj8dcwbqmzd.'); fieldUpdate(${jsq(c.id)},'codigoAcesso',this.value)">${c.codigoAcesso && !codigoAcessoValido(c.codigoAcesso) ? '<span class="campo-aviso">Não é uma chave de acesso do PROJUDI (ela mistura letras e números). Corrija ou apague.</span>' : ''}</div>
         <div class="meta-item"><label>Status do processo</label>
           <select onchange="fieldUpdate(${jsq(c.id)},'statusProcesso',this.value)">${statusProcessoOptions}</select>
         </div>
@@ -8772,9 +8791,9 @@ async function pjBaixarAutos(casoId){
   if(!pjVersaoOk()){ pjStatus(casoId, {etapa:'erro', texto:`A extensão instalada é a ${PJ.versao}. Atualize para a ${PJ_VERSAO_MINIMA} ou mais nova.`}); return; }
   const numero = (c.numeroProcesso || '').trim();
   if(numero.replace(/\D/g,'').length !== 20){ pjStatus(casoId, {etapa:'erro', texto:'Preencha o número do processo no formato CNJ (20 dígitos), em "Número do processo".'}); return; }
-  const codigo = (c.codigoAcesso || '').trim();
+  const codigo = codigoAcessoValido(c.codigoAcesso) ? String(c.codigoAcesso).trim() : '';
   const metodo = pjMetodo();
-  if(metodo === 'codigo' && !codigo){ pjStatus(casoId, {etapa:'erro', texto:'Você escolheu "Só código de acesso", mas esta perícia não tem código cadastrado.'}); return; }
+  if(metodo === 'codigo' && !codigo){ pjStatus(casoId, {etapa:'erro', texto: c.codigoAcesso ? `O código "${String(c.codigoAcesso).slice(0, 30)}" não é uma chave de acesso do PROJUDI (ela mistura letras e números, como zrrxk42nj8dcwbqmzd). Corrija em "Código de acesso".` : 'Você escolheu "Só código de acesso", mas esta perícia não tem código cadastrado.'}); return; }
 
   pjStatus(casoId, {etapa:'pedindo', texto:'Conferindo o que já foi importado…', feitos:0, total:0, falhas:0, pedidoId:null});
   const jaTenho = await pjIdsJaImportados(casoId);
@@ -8818,7 +8837,7 @@ async function pjGravarArquivo(d){
       tamanho: bytes.length, arquivo: built.arquivo, processo: c.numeroProcesso || null, codigoAcesso,
       projudiId: String(m.idArquivo), origem: 'projudi', movimentacao: m.mov || ''
     }, docId);
-    if(codigoAcesso && !c.codigoAcesso) await saveCaso(casoId, {codigoAcesso});
+    if(codigoAcesso && !codigoAcessoValido(c.codigoAcesso)) await saveCaso(casoId, {codigoAcesso});
     ok = true;
   }catch(e){
     ok = false;
@@ -9267,6 +9286,7 @@ async function pfImportarProjudi(ev){
   const f = ev.target;
   const numero = f.numero.value.trim();
   if(numero.replace(/\D/g, '').length !== 20){ pfAviso('Use o número CNJ completo, com 20 dígitos.'); return; }
+  if(f.codigo.value.trim() && !codigoAcessoValido(f.codigo.value)){ pfAviso('Confira o código de acesso: a chave do PROJUDI mistura letras e números, como zrrxk42nj8dcwbqmzd. Se não tiver, deixe em branco.'); f.codigo.focus(); return; }
   let casoId = f.destino.value;
   if(casoId === 'novo'){
     if(!possoCriar()){ pfAviso('Confirme o seu e-mail para criar perícias.'); return; }
@@ -9287,7 +9307,7 @@ function pfAtualizarDestino(input){
   const igual = pfEditaveis().find(c => (c.numeroProcesso || '').replace(/\D/g, '') === dig);
   sel.value = igual ? igual.id : 'novo';
   const cod = document.getElementById('pfImpCodigo');
-  if(igual && cod && !cod.value && igual.codigoAcesso) cod.value = igual.codigoAcesso;
+  if(igual && cod && !cod.value && codigoAcessoValido(igual.codigoAcesso)) cod.value = igual.codigoAcesso;
 }
 function pfImportarZip(input){
   const sel = document.getElementById('pfZipDestino');
@@ -9306,7 +9326,7 @@ function renderImportar(){
       <p class="hint" style="margin:0;">Com o código de acesso, a consulta é pública e não precisa de login. Sem o código, a extensão usa o seu login no PROJUDI (certificado digital ou CPF e senha, digitados por você no site do tribunal). Os PDFs chegam um a um, separados por movimentação, sem repetir os que já estão na perícia.</p>
       <form class="pf-form" onsubmit="pfImportarProjudi(event)">
         <label class="pf-campo pf-largo"><span>Número do processo (CNJ)</span><input name="numero" id="pfImpNumero" class="mono" placeholder="0000000-00.0000.8.09.0000" oninput="pfAtualizarDestino(this)" required></label>
-        <label class="pf-campo"><span>Código de acesso <i style="font-style:normal; opacity:.75;">(opcional)</i></span><input name="codigo" id="pfImpCodigo" class="mono" autocomplete="off" spellcheck="false" placeholder="Ex.: Ab12Cd34" aria-describedby="pfImpCodigoDica"><small id="pfImpCodigoDica">Digite como está no documento: maiúsculas e minúsculas contam.</small></label>
+        <label class="pf-campo"><span>Código de acesso <i style="font-style:normal; opacity:.75;">(opcional)</i></span><input name="codigo" id="pfImpCodigo" class="mono" autocomplete="off" spellcheck="false" placeholder="Ex.: zrrxk42nj8dcwbqmzd" aria-describedby="pfImpCodigoDica"><small id="pfImpCodigoDica">Digite como está no documento: maiúsculas e minúsculas contam.</small></label>
         <label class="pf-campo pf-largo"><span>Guardar em</span><select name="destino" id="pfImpDestino"><option value="novo">Nova perícia</option>${pfOpcoesCasos()}</select></label>
         <button class="btn btn-primary" type="submit" ${PJ.versao ? '' : 'disabled'}>Baixar autos</button>
       </form>

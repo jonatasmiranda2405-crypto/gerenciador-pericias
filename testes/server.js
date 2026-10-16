@@ -5,7 +5,7 @@ const path = require("path");
 const D = __dirname;
 const APP = path.join(__dirname, "..", "index.html");
 const NUM = "5151870-23.2026.8.09.0051";
-const COD = "Ab12Cd34"; // o PROJUDI diferencia maiúsculas de minúsculas
+const COD = "Zrrxk42nj8DcwbqmZd"; // o PROJUDI diferencia maiúsculas de minúsculas
 let extraLiberado = false; // simula um arquivo novo juntado depois
 
 const ARQS = {

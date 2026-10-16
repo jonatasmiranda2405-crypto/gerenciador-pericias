@@ -139,7 +139,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await ir("importar");
   await pf.fill("#pfImpNumero", NUM);
   check("reconhece a perícia do mesmo número", await pf.$eval("#pfImpDestino", (s) => s.value) === c1);
-  await pf.fill("#pfImpCodigo", "Ab12Cd34");
+  await pf.fill("#pfImpCodigo", "Zrrxk42nj8DcwbqmZd");
   await foto("importar");
   await pf.click(".pf-form button[type=submit]");
   const aba = async () => { for (let i = 0; i < 40; i++) { const p = ctx.pages().find((x) => x.url().includes("projudi.tjgo.jus.br/BuscaProcesso")); if (p) return p; await sleep(250); } return null; };
@@ -151,7 +151,12 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   st = await pf.waitForFunction((id) => ["erro", "fim"].includes(PJ.status[id].etapa) && PJ.status[id].etapa, c1, { timeout: 60000 }).then((h) => h.jsonValue());
   const docs = await pf.evaluate((id) => (casos.find((c) => c.id === id).documentos || []).length, c1);
   check("autos importados na perícia certa", st === "fim" && docs === 3, `${st} · ${docs} documentos`);
-  check("código de acesso salvo como digitado", await pf.evaluate((id) => casos.find((c) => c.id === id).codigoAcesso, c1) === "Ab12Cd34");
+  check("código de acesso salvo como digitado", await pf.evaluate((id) => casos.find((c) => c.id === id).codigoAcesso, c1) === "Zrrxk42nj8DcwbqmZd");
+  check("código de acesso: número de validação do PDF não vale; chave com letras e números vale", await pf.evaluate(() =>
+    guessCodigoAcessoFromText("Documento assinado. Código de acesso: 1788560988640. Processo 5947036-33.2025.8.09.0167") === null
+    && guessCodigoAcessoFromText("código de acesso: 1788560988640 ... Chave de acesso do processo: zrrxk42nj8dcwbqmzd") === "zrrxk42nj8dcwbqmzd"
+    && guessCodigoAcessoFromText("Código de acesso ao processo (consulta pública): zrrxk42nj8dcwbqmzd") === "zrrxk42nj8dcwbqmzd"
+    && !codigoAcessoValido("1788560988640") && codigoAcessoValido("zrrxk42nj8dcwbqmzd")));
 
   console.log("\n7) Publicações e Integrações");
   await ir("publicacoes");
