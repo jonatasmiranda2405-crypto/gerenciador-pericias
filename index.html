@@ -8183,7 +8183,18 @@ function iaObservacoes(c){
 
 /* Reúne tudo e devolve o material e a lista do que entrou — a lista é
    mostrada ao perito antes do envio, para ele ver o que está saindo. */
+/* na nuvem, os documentos de uma perícia só chegam quando ela é aberta: a revisão lê sempre a lista atual */
+async function iaGarantirDocumentos(c){
+  if(!(usingDb && db && c)) return;
+  try{
+    const snap = await db.collection('casos').doc(c.id).collection('documentos').get();
+    c.documentos = snap.docs.filter(d => ID_SEGURO.test(d.id)).map(d => limparDocumento({...d.data(), id: d.id}));
+    DOCS_OK.add(c.id);
+  }catch(e){ /* sem rede: segue com o que já havia */ }
+}
 async function iaReunirMaterial(c, progresso, opcoes){
+  if(progresso) progresso('Buscando a lista de documentos da perícia...');
+  await iaGarantirDocumentos(c);
   const blocos = [];
   const fontes = [];
   const avisos = [];
@@ -8941,6 +8952,7 @@ function renderIA(){
   const c = lista.find(x => x.id === iaCasoId) || lista[0] || null;
   if(c) iaCasoId = c.id;
   const pronta = iaPronta();
+  if(c && usingDb && !DOCS_OK.has(c.id)) setTimeout(() => docsGarantir(c).then(() => { if(activeSection === 'ia') renderAll(); }), 0);
   if(!pronta) panelsFechados.delete('iaChave');   /* falta configurar: o painel fica aberto */
   const a = c && iaAnalise(c);
   const rodando = c && iaRodando.has(c.id);
