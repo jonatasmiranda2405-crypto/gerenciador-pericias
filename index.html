@@ -1687,6 +1687,10 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .ia-conta-passo textarea{width:100%; font-family:'IBM Plex Mono', monospace; font-size:12px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); color:var(--ink); resize:vertical;}
 .ia-conta-acoes{display:flex; gap:8px; flex-wrap:wrap;}
 .ia-conta-como{margin:4px 0 8px; padding-left:20px; font-size:13px; line-height:1.65; color:var(--ink-2);}
+.ia-material{border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:10px 12px;}
+.ia-material h4{margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+.ia-material pre, .ia-atalho{margin:0; max-height:220px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font-family:'IBM Plex Mono', monospace; font-size:11.5px; line-height:1.5; color:var(--ink-2);}
+.ia-atalho{border:1px dashed var(--line-strong); border-radius:10px; padding:10px 12px; background:var(--surface-2); margin-bottom:10px;}
 .lp-ia-provs{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:16px 0 4px;}
 .lp-ia-provs span{display:flex; flex-direction:column; gap:3px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; font-size:12.5px; color:var(--muted); line-height:1.4; background:var(--surface);}
 .lp-ia-provs b{font-size:14px; color:var(--ink);}
@@ -7085,7 +7089,7 @@ function renderApresentacao(){
           <div class="lp-ia-provs">
             <span><b>Claude</b>lê o PDF inteiro, até digitalizado, e aponta a página</span>
             <span><b>Gemini</b>leitura rápida do texto dos autos</span>
-            <span><b>Sua conta</b>use a assinatura de IA que você já tem, sem contratar API</span>
+            <span><b>Sua conta</b>com o Claude no Chrome, a revisão sai dentro do site, na assinatura que você já tem</span>
           </div>
           <p class="lp-nota">A IA não sugere quesitos nem escreve o laudo. Você escolhe a IA, usa a sua chave ou a sua conta, e nada é enviado sem o seu aceite.</p>
         </div>
@@ -7556,7 +7560,16 @@ const MANUAIS = [
                  'No Gerenciador de Perícia, escolha "Gemini, do Google" em "IA e chave", cole a chave e deixe o modelo "Flash (versão atual)".']],
       ['alerta','Autos sob sigilo: nível pago','Pelos termos da API do Gemini, no uso gratuito o Google pode usar o que você envia para melhorar os produtos dele, e pessoas podem ler esse conteúdo. No nível pago, o Google informa que não usa. Confira em ai.google.dev/gemini-api/terms.'],
     ]},
-    {t:'Minha conta de IA: passo a passo', b:[
+    {t:'Minha conta de IA com o Claude no Chrome (sem copiar e colar)', b:[
+      ['p','O Claude no Chrome é a extensão oficial da Anthropic, para os planos pagos do Claude (Pro, Max, Team e Enterprise). Você entra com a sua conta do Claude e ele trabalha dentro do Gerenciador: lê a página, escreve no campo e clica em importar, usando a sua assinatura.'],
+      ['passos',['Instale o Claude no Chrome pela Chrome Web Store e entre com a sua conta do Claude.',
+                 'Em Revisão IA > "IA e chave", escolha "Minha conta de IA" e marque "Claude no Chrome".',
+                 'Uma vez só: copie o texto do atalho (botão "Copiar o texto do atalho") e, no Claude no Chrome, crie um atalho chamado revisar-pericia com esse texto.',
+                 'Para revisar: escolha a perícia, abra o painel do Claude e digite /revisar-pericia. Ele clica em "Preparar", lê o material, escreve a revisão e importa.',
+                 'Confira os cartões. Cada achado traz a fonte para você conferir nos autos.']],
+      ['dica','PDF digitalizado não tem texto para o material. Para esses autos, o Claude pela API (com "Mandar os PDFs inteiros") lê a imagem da página.'],
+    ]},
+    {t:'Minha conta de IA: copiar e colar (Claude, ChatGPT ou Gemini)', b:[
       ['passos',['Em "IA e chave", escolha "Minha conta de IA" e marque onde você tem conta: Claude, ChatGPT ou Gemini.',
                  'Escolha a perícia e clique em "Preparar para o Claude" (ou ChatGPT, ou Gemini).',
                  'Clique em "Copiar tudo" e cole num chat novo da sua conta. Se o texto for grande, use "Baixar .txt" e anexe o arquivo no chat.',
@@ -8011,7 +8024,7 @@ const IA_PROVEDORES = {
   gemini: {nome: 'Gemini, do Google', curto: 'Gemini', selo: 'pela API',
     desc: 'Lê o texto dos autos. Tem nível gratuito, mas nele o Google pode usar o conteúdo: para autos reais, ative o faturamento.'},
   conta: {nome: 'Minha conta de IA', curto: 'sua conta de IA', selo: 'sem API',
-    desc: 'Use a assinatura que você já tem (Claude, ChatGPT ou Gemini). O site prepara tudo, você cola no chat e traz a resposta.'},
+    desc: 'Use a assinatura que você já tem: com o Claude no Chrome, a revisão é feita dentro do site; ou copie e cole no Claude, ChatGPT ou Gemini.'},
 };
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODELO_PADRAO = 'claude-sonnet-5-5';
@@ -8023,6 +8036,7 @@ const CLAUDE_MODELOS = [
 const CLAUDE_MAX_PAGINAS_PDF = 100;              /* limite da API por pedido */
 const CLAUDE_MAX_BYTES_PDF = 20 * 1024 * 1024;   /* folga sob os 32 MB do pedido */
 const IA_APPS = {
+  chrome: {nome: 'Claude no Chrome', url: '', ajuda: 'https://support.claude.com/en/articles/12012173-get-started-with-claude-in-chrome'},
   claude: {nome: 'Claude', url: 'https://claude.ai/new'},
   chatgpt: {nome: 'ChatGPT', url: 'https://chatgpt.com/'},
   gemini: {nome: 'Gemini', url: 'https://gemini.google.com/app'},
@@ -8049,7 +8063,7 @@ function iaNomeModelo(){
   if(p === 'gemini') return 'Gemini · ' + iaModelo();
   return IA_APPS[iaApp()].nome + ' (sua conta)';
 }
-function iaApp(){ return IA_APPS[iaConfig().app] ? iaConfig().app : 'claude'; }
+function iaApp(){ return IA_APPS[iaConfig().app] ? iaConfig().app : 'chrome'; }
 function iaPdfInteiro(){ return iaConfig().pdfInteiro !== false; }
 function iaCiente(){
   const c = iaConfig(), p = iaProvedor();
@@ -8466,6 +8480,18 @@ async function iaPedirJson(prompt, esquema){
 
 /* ---------- "Minha conta de IA": preparar, colar no chat e importar a resposta ---------- */
 const IA_CONTA = {};   /* casoId -> {prompt, fontes, avisos, chars, digitalizados} */
+/* atalho para salvar no Claude no Chrome (extensão oficial da Anthropic): ele mesmo prepara, lê, responde e importa */
+const IA_ATALHO_CHROME = [
+  'Você está no Gerenciador de Perícia, na tela Revisão IA.',
+  '1. Se a página ainda não mostra o bloco "Material para o Claude", clique no botão "Preparar para o Claude no Chrome" e espere o bloco aparecer.',
+  '2. Leia o bloco "Material para o Claude" inteiro (instruções e autos) e siga as instruções dele à risca.',
+  '3. Escreva a revisão somente como JSON, no formato pedido, no campo "Resposta da IA (JSON)".',
+  '4. Clique em "Importar a revisão" e confira se os cartões dos achados apareceram. Se aparecer erro, corrija o JSON e importe de novo.',
+].join('\n');
+async function iaCopiarAtalho(){
+  try{ await navigator.clipboard.writeText(IA_ATALHO_CHROME); pfAviso('Atalho copiado. No Claude no Chrome, crie um atalho (/) e cole.'); }
+  catch(e){ pfAviso('Não deu para copiar sozinho. O texto do atalho está logo abaixo e no manual "IA da Revisão".'); }
+}
 function iaFormatoResposta(){
   return [
     '',
@@ -8561,6 +8587,25 @@ function iaCorpoConta(c){
   const p = IA_CONTA[c.id];
   const app = IA_APPS[iaApp()];
   if(!p) return '';
+  if(iaApp() === 'chrome') return `
+    <div class="ia-conta" id="iaContaChrome">
+      <div class="ia-conta-passo"><i>1</i><div><b>Peça ao Claude no Chrome</b>
+        <span>Abra o painel do Claude (ícone da extensão) e use o atalho <b>/revisar-pericia</b>, ou escreva: <em>"Revise a perícia desta página"</em>. Ele lê o material abaixo, escreve a revisão no campo e importa sozinho.</span>
+        ${p.digitalizados.length ? `<span class="dica">PDF digitalizado (sem texto) não entra no material: ${p.digitalizados.map(escapeHtml).join(', ')}. Para esses, prefira o Claude pela API, que lê a imagem da página.</span>` : ''}
+      </div></div>
+      <section class="ia-material" aria-label="Material para o Claude">
+        <h4>Material para o Claude</h4>
+        <pre id="iaMaterialClaude">${escapeHtml(p.prompt)}</pre>
+      </section>
+      <div class="ia-conta-passo"><i>2</i><div><b>Resposta da IA (JSON)</b>
+        <label for="iaResposta" class="dica">O Claude escreve aqui. Você também pode colar à mão.</label>
+        <textarea id="iaResposta" rows="6" aria-label="Resposta da IA (JSON)" placeholder='{ "resumo": "...", "achados": [ ... ] }'></textarea>
+        <div class="ia-conta-acoes">
+          <button class="btn btn-primary btn-sm" onclick="iaImportarConta(${jsq(c.id)})">Importar a revisão</button>
+          <button class="btn btn-ghost btn-sm" onclick="delete IA_CONTA[${jsq(c.id)}]; renderAll();">Cancelar</button>
+        </div>
+      </div></div>
+    </div>`;
   return `
     <div class="ia-conta">
       <div class="ia-conta-passo"><i>1</i><div><b>Leve os autos para o ${escapeHtml(app.nome)}</b>
@@ -8710,11 +8755,18 @@ function iaCorpoChave(){
         <label>Onde você tem conta</label>
         <div class="chips">${Object.entries(IA_APPS).map(([k, v]) => `<button class="chip ${iaApp() === k ? 'active' : ''}" onclick="iaSalvarConfig({app: ${jsq(k)}})">${escapeHtml(v.nome)}</button>`).join('')}</div>
       </div>
+      ${iaApp() === 'chrome' ? `
+      <ol class="ia-conta-como">
+        <li>Instale o <b>Claude no Chrome</b>, a extensão oficial da Anthropic, e entre com a sua conta do Claude (planos pagos). <a href="${IA_APPS.chrome.ajuda}" target="_blank" rel="noopener">Como instalar ↗</a></li>
+        <li>Uma vez só: no Claude no Chrome, crie um atalho (digite <b>/</b>) chamado <b>revisar-pericia</b> com o texto abaixo. <button class="link-sutil" style="display:inline; margin:0; padding:0;" onclick="iaCopiarAtalho()">Copiar o texto do atalho</button></li>
+        <li>Na Revisão IA, escolha a perícia, abra o painel do Claude e use <b>/revisar-pericia</b>. Ele prepara o material, lê os autos, escreve a revisão e importa. Você só confere os cartões.</li>
+      </ol>
+      <pre class="ia-atalho">${escapeHtml(IA_ATALHO_CHROME)}</pre>` : `
       <ol class="ia-conta-como">
         <li>Clique em <b>Preparar para o ${escapeHtml(IA_APPS[iaApp()].nome)}</b> no alto da tela.</li>
         <li>Copie (ou baixe) as instruções com o texto dos autos e cole num chat novo do ${escapeHtml(IA_APPS[iaApp()].nome)}.</li>
         <li>Copie a resposta do chat e cole de volta aqui. A revisão aparece nos cartões, igual à da API.</li>
-      </ol>
+      </ol>`}
       <div class="hint">Não precisa de chave nem de outro plano: vale a assinatura que você já tem. Os limites de uso são os do seu plano.</div>`;
   }
   return `
@@ -8734,7 +8786,7 @@ function iaCorpoCiencia(){
   const p = iaProvedor();
   const destino = p === 'claude' ? 'à API da Anthropic (Claude), com a sua chave'
     : p === 'gemini' ? 'à API do Google (Gemini), com a sua chave'
-    : `ao ${IA_APPS[iaApp()].nome}, quando você colar no chat da sua conta`;
+    : iaApp() === 'chrome' ? 'ao Claude, pela extensão Claude no Chrome, na sua conta' : `ao ${IA_APPS[iaApp()].nome}, quando você colar no chat da sua conta`;
   const termos = p === 'claude'
     ? 'A Anthropic trata esse envio pelos termos comerciais da API dela. Pela política atual, o que é enviado pela API não é usado para treinar modelos, salvo se você der retorno (como o polegar) ou autorizar.'
     : p === 'gemini'

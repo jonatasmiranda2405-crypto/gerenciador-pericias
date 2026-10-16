@@ -418,6 +418,18 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   const imp = await pf.evaluate(() => { const c = casos.find((x) => x.id === iaCasoId); const a = c.analiseIA; return { modelo: a.modelo, n: a.achados.length, cat: a.achados[1].categoria, grav: a.achados[1].gravidade, conf: a.confianca, img: document.querySelectorAll("#view img[src='x']").length }; });
   check("resposta do chat vira revisão (JSON achado no meio do texto, valores saneados)", imp.modelo === "ChatGPT (sua conta)" && imp.n === 2 && imp.cat === "Outros" && imp.grav === "verificar" && imp.conf === "media" && imp.img === 0, JSON.stringify(imp));
   await pf.screenshot({ path: path.join(SAIDA, "tela-ia-conta.png"), fullPage: true });
+  /* Claude no Chrome: material visível na página e campo rotulado para a extensão oficial preencher */
+  await pf.evaluate(() => { perfil.ia = { ...perfil.ia, provedor: "conta", app: "chrome", ciencias: { ...(perfil.ia.ciencias || {}), conta: "2026-10-16T00:00:00Z" } }; renderAll(); });
+  await sleep(200);
+  check("Claude no Chrome: passo a passo e atalho na configuração", /Claude no Chrome/.test(await pf.textContent(".ia-prov-det")) && /revisar-pericia/.test(await pf.textContent(".ia-prov-det")) && /Material para o Claude/.test(await pf.textContent(".ia-atalho")));
+  await pf.click('.ia-topo button:has-text("Preparar para o Claude no Chrome")');
+  await pf.waitForSelector("#iaMaterialClaude", { timeout: 30000 });
+  const mat = await pf.evaluate(() => { const el = document.getElementById("iaMaterialClaude"); const r = el.getBoundingClientRect(); return { visivel: r.height > 50 && getComputedStyle(el).display !== "none", ficha: /FICHA DA PERÍCIA/.test(el.textContent), formato: /FORMATO DA RESPOSTA/.test(el.textContent), rotulo: document.querySelector('textarea[aria-label="Resposta da IA (JSON)"]') !== null }; });
+  check("material visível na página, com instruções, autos e formato, e campo rotulado", mat.visivel && mat.ficha && mat.formato && mat.rotulo, JSON.stringify(mat));
+  await pf.fill('textarea[aria-label="Resposta da IA (JSON)"]', JSON.stringify({ resumo: "via Claude no Chrome", areaProvavel: "a", objeto: "o", confianca: "alta", achados: [{ categoria: "Datas", gravidade: "erro", titulo: "Data trocada (Claude no Chrome)", detalhe: "d", efeito: "e", fonte: "f", trecho: "t" }], documentos: [], linhaDoTempo: [], prazos: [], lacunas: [] }));
+  await pf.click('button:has-text("Importar a revisão")');
+  await sleep(400);
+  check("resposta escrita pelo Claude no Chrome é importada", await pf.evaluate(() => casos.find((x) => x.id === iaCasoId).analiseIA.modelo) === "Claude no Chrome (sua conta)" && /Data trocada \(Claude no Chrome\)/.test(await pf.textContent("#view")));
   await pf.evaluate(() => { perfil.ia = { chave: "chave-de-teste", cienciaEm: "2026-10-01T00:00:00Z" }; setSection("visao"); });
 
   console.log("\n17) Publicações do DJEN pela extensão");
