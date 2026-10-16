@@ -1532,6 +1532,16 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
   .dc-det{padding:16px;}
   .dc-doc-data{font-size:11px;}
 }
+.ficha-barra{position:sticky; bottom:12px; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px; padding:10px 12px 10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); transition:border-color .2s ease, box-shadow .2s ease;}
+.ficha-barra.sujo{border-color:var(--accent); box-shadow:0 6px 22px rgba(0,0,0,.10);}
+.ficha-barra.erro{border-color:var(--danger);}
+.ficha-status{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted);}
+.ficha-barra.sujo .ficha-status{color:var(--accent-deep); font-weight:600;}
+.ficha-barra.erro .ficha-status{color:var(--danger);}
+.ficha-status svg{width:15px; height:15px; color:var(--ok);}
+.ficha-acoes{display:flex; gap:8px;}
+.ficha-editado input{border-color:var(--accent) !important;}
+.ficha-editado label::after{content:' •'; color:var(--accent);}
 .adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
 .mk-parado .mk-lupa{animation:none;}
 </style>
@@ -1726,8 +1736,9 @@ async function salvarPerfil(patch){
   persistirPerfilLocal();
   if(usingDb && db && currentUser){
     try{ await db.collection('usuarios').doc(currentUser.uid).set(patch, {merge:true}); }
-    catch(e){ cloudSetBanner(bannerAviso('Não foi possível salvar o perfil agora (' + escapeHtml(e.code||'erro') + ').')); }
+    catch(e){ cloudSetBanner(bannerAviso('Não foi possível salvar o perfil agora (' + escapeHtml(e.code||'erro') + ').')); return false; }
   }
+  return true;
 }
 /* As três contas antigas guardavam ficha e aceite em config/*. Na primeira
    entrada com esta versão, o que era delas passa para o perfil pessoal. */
@@ -3115,6 +3126,7 @@ function renderComercial(){
 }
 
 function setSection(id){
+  if(activeSection === 'perfil' && id !== 'perfil' && fichaSujo()) pfAviso('Os dados pessoais têm alterações não salvas.', async () => { await fichaSalvar(); }, 'Salvar agora');
   /* solta o campo em edição: senão a proteção de foco impediria o redesenho */
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
   activeSection = id;
@@ -4537,11 +4549,63 @@ function fichaDe(email){
   if(e && e !== meuEmail()) return {...FICHA_VAZIA, outroPerito:true};
   return {...FICHA_VAZIA, ...(perfil.ficha || {})};
 }
-async function salvarFicha(key, campo, valor){
-  if(String(key||'').toLowerCase() !== meuEmail()) return;
-  const v = campo === 'horaTecnica' ? num(valor) : valor;
-  await salvarPerfil({ficha: {...(perfil.ficha||{}), [campo]: v}});
+/* Dados pessoais: o que a pessoa digita fica num rascunho e só vai para a nuvem no botão Salvar
+   (ou Ctrl+S). Sair da tela não perde o rascunho; fechar a aba pede confirmação. */
+let fichaRascunho = null, fichaEstado = '', fichaSalvaEm = null;
+function fichaSujo(){ return !!(fichaRascunho && Object.keys(fichaRascunho).length); }
+function fichaEditar(campo, valor){
+  const atual = fichaDe(meuEmail()) || {};
+  const original = campo === 'horaTecnica' ? brl(atual.horaTecnica) : String(atual[campo] == null ? '' : atual[campo]);
+  fichaRascunho = {...(fichaRascunho || {})};
+  if(String(valor) === original) delete fichaRascunho[campo]; else fichaRascunho[campo] = valor;
+  fichaEstado = '';
+  fichaAtualizarBarra();
 }
+function fichaBarraHtml(){
+  const sujo = fichaSujo();
+  const n = sujo ? Object.keys(fichaRascunho).length : 0;
+  const status = fichaEstado === 'salvando' ? 'Salvando…'
+    : fichaEstado === 'erro' ? 'Não foi possível salvar agora. Confira a internet e tente de novo.'
+    : sujo ? `${n} ${n === 1 ? 'alteração não salva' : 'alterações não salvas'}`
+    : fichaSalvaEm ? `Tudo salvo às ${fichaSalvaEm.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}` : 'Tudo salvo';
+  return `<div class="ficha-barra ${sujo ? 'sujo' : ''} ${fichaEstado === 'erro' ? 'erro' : ''}" id="fichaBarra" role="status" aria-live="polite">
+    <span class="ficha-status">${sujo || fichaEstado ? '' : svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>')}${escapeHtml(status)}</span>
+    <span class="ficha-acoes">
+      ${sujo ? `<button class="btn btn-ghost btn-sm" onclick="fichaDescartar()" ${fichaEstado === 'salvando' ? 'disabled' : ''}>Descartar</button>` : ''}
+      <button class="btn btn-primary btn-sm" id="fichaSalvarBtn" onclick="fichaSalvar()" ${sujo && fichaEstado !== 'salvando' ? '' : 'disabled'}>${svg('<path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>')} Salvar</button>
+    </span>
+  </div>`;
+}
+function fichaAtualizarBarra(){
+  const b = document.getElementById('fichaBarra');
+  if(b) b.outerHTML = fichaBarraHtml();
+}
+async function fichaSalvar(){
+  if(!fichaSujo() || fichaEstado === 'salvando' || !meuEmail()) return;
+  const patch = {};
+  for(const [k, v] of Object.entries(fichaRascunho)) patch[k] = k === 'horaTecnica' ? num(v) : String(v).trim();
+  fichaEstado = 'salvando'; fichaAtualizarBarra();
+  const ok = await salvarPerfil({ficha: {...(perfil.ficha || {}), ...patch}});
+  if(ok){
+    fichaRascunho = null; fichaEstado = ''; fichaSalvaEm = new Date();
+    pfAviso('Dados pessoais salvos.');
+    const foco = document.activeElement;
+    if(foco && foco.blur && document.getElementById('view').contains(foco)) foco.blur();
+    renderAll();
+  } else {
+    fichaEstado = 'erro'; fichaAtualizarBarra();
+  }
+}
+function fichaDescartar(){
+  fichaRascunho = null; fichaEstado = '';
+  const foco = document.activeElement;
+  if(foco && foco.blur) foco.blur();
+  renderAll();
+}
+window.addEventListener('beforeunload', e => { if(fichaSujo()){ e.preventDefault(); e.returnValue = ''; } });
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S') && activeSection === 'perfil' && fichaSujo()){ e.preventDefault(); fichaSalvar(); }
+});
 
 /* ---------- número por extenso, em reais ---------- */
 const EXT_UNI = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
@@ -6750,13 +6814,18 @@ function renderMeuPerfil(){
           Conectado à nuvem, cada arquivo vai para o Storage e aceita até 50 MB. Sem conexão, o arquivo fica embutido no próprio registro do navegador.
         </div>`;
 
-  const campoFicha = (key, campo, rotulo, valor, dica, largo) => `
-        <div class="field" ${largo ? 'style="grid-column:1/-1;"' : ''}>
-          <label for="ficha-${key}-${campo}">${rotulo}</label>
-          <input id="ficha-${key}-${campo}" value="${escapeHtml(String(valor == null ? '' : valor))}"
-                 oninput="salvarFicha(${jsq(key)}, ${jsq(campo)}, this.value)">
+  const campoFicha = (key, campo, rotulo, valor, dica, largo) => {
+    const editado = !!(fichaRascunho && campo in fichaRascunho);
+    const v = editado ? fichaRascunho[campo] : valor;
+    return `
+        <div class="field ${editado ? 'ficha-editado' : ''}" ${largo ? 'style="grid-column:1/-1;"' : ''}>
+          <label for="ficha-${campo}">${rotulo}</label>
+          <input id="ficha-${campo}" data-campo="${campo}" value="${escapeHtml(String(v == null ? '' : v))}"
+                 oninput="fichaEditar(${jsq(campo)}, this.value); this.closest('.field').classList.add('ficha-editado');"
+                 onkeydown="if(event.key==='Enter'){ event.preventDefault(); fichaSalvar(); }">
           ${dica ? `<span class="dica">${dica}</span>` : ''}
         </div>`;
+  };
   const meuCad = meuEmail();
   const f = fichaDe(meuCad);
   const eu = membroDe(meuCad);
@@ -6779,6 +6848,7 @@ function renderMeuPerfil(){
         ${campoFicha(meuCad, 'endereco', 'Endereço profissional', f.endereco, 'Linha completa do rodapé', true)}
         ${campoFicha(meuCad, 'referenciaHora', 'Referência da hora técnica', f.referenciaHora, 'Entidade citada na proposta', true)}
       </div>
+      ${fichaBarraHtml()}
       <div class="hint" style="margin-top:12px;">
         Este cadastro é seu: só você edita. Ele entra na qualificação do perito, no rodapé e na assinatura das propostas que você gerar.
         O cadastro dos outros peritos é de cada um — se faltar algum dado no documento de um colega, peça para ele completar aqui.
@@ -9255,14 +9325,14 @@ function pfPillData(iso, final){
   const cls = n < 0 ? 'pill-danger' : n <= 3 ? 'pill-danger' : n <= 7 ? 'pill-warning' : 'pill-muted';
   return `<span class="pill ${cls}">${pfQuando(iso)}</span>`;
 }
-function pfAviso(texto, desfazer){
+function pfAviso(texto, desfazer, rotulo){
   const el = document.getElementById('pfAviso');
   if(!el) return;
   el.innerHTML = '';
   el.append(texto);
   if(desfazer){
     const b = document.createElement('button');
-    b.type = 'button'; b.textContent = 'Desfazer';
+    b.type = 'button'; b.textContent = rotulo || 'Desfazer';
     b.onclick = async () => { el.hidden = true; await desfazer(); };
     el.append(b);
   }
