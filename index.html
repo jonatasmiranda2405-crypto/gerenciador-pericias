@@ -1542,6 +1542,102 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
 .ficha-acoes{display:flex; gap:8px;}
 .ficha-editado input{border-color:var(--accent) !important;}
 .ficha-editado label::after{content:' •'; color:var(--accent);}
+/* ---------- proposta de honorários ---------- */
+.pp{display:grid; grid-template-columns:minmax(0, 1fr) 360px; gap:20px; align-items:start;}
+.pp-main{display:flex; flex-direction:column; gap:16px; min-width:0;}
+.pp-passo{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px 20px; display:flex; flex-direction:column; gap:14px; min-width:0;}
+.pp-passo-cab{display:flex; align-items:center; gap:12px;}
+.pp-passo-cab i{font-style:normal; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-deep); font-weight:700; font-size:13px; flex-shrink:0;}
+.pp-passo-cab h3{margin:0; font-size:15px;}
+.pp-passo-cab span{font-size:12px; color:var(--muted);}
+.pp-ident{display:grid; grid-template-columns:240px minmax(0, 1fr); gap:16px; align-items:start;}
+.pp-logo-zona{height:128px; border:1.5px dashed var(--line-strong); border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; text-align:center; padding:12px; cursor:pointer; color:var(--muted); background:var(--surface-2); transition:border-color .15s ease, background .15s ease;}
+.pp-logo-zona:hover, .pp-logo-zona:focus-visible, .pp-logo-zona.arrastando{border-color:var(--accent); background:var(--accent-soft); outline:none;}
+.pp-logo-zona svg{width:28px; height:28px; color:var(--accent);}
+.pp-logo-zona b{font-size:13px; color:var(--ink);}
+.pp-logo-zona span{font-size:11.5px; line-height:1.35;}
+.pp-logo-zona.tem{border-style:solid; background:#fff;}
+.pp-logo-zona img{max-width:100%; max-height:100%; object-fit:contain;}
+.pp-logo-opcoes{display:flex; flex-direction:column; gap:10px; min-width:0;}
+.pp-logo-metodos, .pp-logo-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+.pp-seg-l{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.pp-seg-l > span{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; width:64px;}
+.pp-seg{display:inline-flex; border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; background:var(--surface-2);}
+.pp-seg button{all:unset; cursor:pointer; padding:5px 11px; border-radius:7px; font-size:12.5px; color:var(--muted);}
+.pp-seg button.sel{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12); font-weight:500;}
+.pp-seg button:focus-visible{outline:2px solid var(--accent);}
+.pp-check{display:flex; gap:8px; align-items:flex-start; font-size:12.5px; color:var(--ink-2); line-height:1.4;}
+.pp-contato{border-top:1px solid var(--line); padding-top:12px;}
+.pp-contato-tit{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; margin-bottom:8px; display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between;}
+.pp-contato-tit a{text-transform:none; letter-spacing:0; font-weight:500;}
+.pp-contato-grade{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px 14px;}
+.pp-contato-grade span{display:flex; flex-direction:column; font-size:13px; color:var(--ink); overflow-wrap:anywhere;}
+.pp-contato-grade span.largo{grid-column:1/-1;}
+.pp-contato-grade small{font-size:11px; color:var(--muted);}
+.pp-falta{margin-top:10px; display:flex; gap:6px; align-items:center; font-size:12.5px; color:var(--warn, #9a6700);}
+.pp-falta svg{width:15px; height:15px; flex-shrink:0;}
+.pp-modelo{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; border:1px solid var(--line); border-radius:12px; padding:10px 12px;}
+.pp-modelo > div:first-child{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.pp-modelo b{font-size:13px; overflow-wrap:anywhere;}
+.pp-modelo span{font-size:12px; color:var(--muted);}
+.pp-modelo-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+.pp-chips-info{display:flex; gap:8px; flex-wrap:wrap;}
+.pp-chips-info span{display:flex; flex-direction:column; padding:7px 11px; border-radius:10px; background:var(--surface-2); min-width:0;}
+.pp-chips-info small{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+.pp-chips-info b{font-size:13px; font-weight:600; overflow-wrap:anywhere;}
+.pp-horas{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+.pp-hora{display:grid; grid-template-columns:minmax(0, 1fr) 84px; gap:12px; align-items:center; padding:8px 12px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-2); line-height:1.4;}
+.pp-hora:first-child{border-top:none;}
+.pp-hora:focus-within{background:var(--accent-soft);}
+.pp-hora input{width:100%; text-align:center; font-family:'IBM Plex Mono',monospace; padding:7px 6px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font-size:13px;}
+.pp-hora input:focus{outline:none; border-color:var(--accent);}
+.pp-valores{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.pp-lado{position:sticky; top:16px; display:flex; flex-direction:column; gap:12px; min-width:0;}
+.pp-totais{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; display:flex; flex-direction:column; gap:12px;}
+.pp-total-principal{display:flex; flex-direction:column; gap:2px;}
+.pp-total-principal small, .pp-total-linhas small{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600;}
+.pp-total-principal b{font-size:28px; font-family:'IBM Plex Mono',monospace; letter-spacing:-.02em; font-weight:600;}
+.pp-total-principal span{font-size:11.5px; color:var(--muted); line-height:1.35;}
+.pp-total-linhas{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding-top:10px; border-top:1px solid var(--line);}
+.pp-total-linhas span{display:flex; flex-direction:column; gap:1px; min-width:0;}
+.pp-total-linhas b{font-size:13px; font-family:'IBM Plex Mono',monospace;}
+.pp-total-linhas em{font-style:normal; font-size:10.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.pp-gerar{display:flex; flex-direction:column; gap:8px;}
+.pp-gerar .btn{justify-content:center;}
+.pp-status{font-size:12px; color:var(--accent-deep); font-weight:500; min-height:16px; text-align:center;}
+.pp-previa-tit{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; padding-left:2px;}
+.pp-folha{background:#fff; color:#222; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,.12), 0 10px 30px rgba(0,0,0,.08); padding:22px 24px 14px; aspect-ratio:210/297; display:flex; flex-direction:column; gap:6px; font-family:Calibri, Carlito, Arial, sans-serif; font-size:8.5px; line-height:1.45; overflow:hidden;}
+.pp-folha-logo{display:flex; align-items:center; gap:6px; margin-bottom:8px;}
+.pp-folha-logo i{flex:1; height:0; border-top:1px solid #9a9a9a;}
+.pp-folha-logo.pos-centro{flex-direction:column;}
+.pp-folha-logo.pos-centro i{width:100%; flex:none;}
+.pp-folha-logo.pos-direita{flex-direction:row-reverse;}
+.pp-folha-logo img{max-width:60%; object-fit:contain;}
+.pp-folha-juizo{text-align:center; font-weight:700; margin:2px 6px 8px; line-height:1.4;}
+.pp-folha-sec{font-weight:700; margin-top:4px;}
+.pp-folha-semlogo{all:unset; cursor:pointer; align-self:flex-start; border:1px dashed #bbb; color:#888; border-radius:4px; padding:5px 10px; font-size:9px; margin-bottom:6px;}
+.pp-folha-l{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.pp-folha-l.b{font-weight:700;}
+.pp-folha-l.c{text-align:center; margin-top:4px;}
+.pp-folha-acao{margin-bottom:6px;}
+.pp-folha-txt{text-align:justify; color:#444; text-indent:14px;}
+.pp-folha-barras{display:flex; flex-direction:column; gap:4px;}
+.pp-folha-barras i{display:block; height:4px; border-radius:2px; background:#e7e7e7; width:100%;}
+.pp-folha-quadro{border:1px solid #bbb; border-radius:2px; padding:6px 8px; display:flex; justify-content:space-between; gap:8px; font-size:8px; margin:4px 0;}
+.pp-folha-ass{margin-top:auto; text-align:center; font-weight:700; line-height:1.35;}
+.pp-folha-ass small{font-weight:400; color:#333;}
+.pp-folha-rodape{padding-top:8px; color:#404040; font-size:6.5px; line-height:1.5; display:flex; flex-direction:column; gap:1px;}
+.pp-folha-rodape span{display:flex; align-items:center; gap:4px; overflow-wrap:anywhere;}
+.pp-folha-rodape span.mail{color:#0563C1; text-decoration:underline;}
+.pp-folha-rodape svg{width:8px; height:8px; flex-shrink:0; color:#404040;}
+@media (max-width:1180px){ .pp{grid-template-columns:1fr;} .pp-lado{position:static;} #ppPrevia{max-width:380px;} }
+@media (max-width:700px){
+  .pp-ident{grid-template-columns:1fr;}
+  .pp-contato-grade{grid-template-columns:1fr 1fr;}
+  .pp-valores{grid-template-columns:1fr;}
+  .pp-passo{padding:16px;}
+  .pp-total-linhas{grid-template-columns:1fr 1fr;}
+}
 .adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
 .mk-parado .mk-lupa{animation:none;}
 </style>
@@ -2005,7 +2101,7 @@ const SECTIONS = [
   {id:'agenda',   titulo:'Agenda',        sub:'Diligências, vistorias, audiências e prazos'},
   {id:'financeiro', titulo:'Financeiro',  sub:'Honorários arbitrados, depositados e levantados'},
   {id:'calculos', titulo:'Cálculos',      sub:'Ferramentas periciais com memória de cálculo auditável'},
-  {id:'proposta', titulo:'Proposta de honorários', sub:'Preenche o seu modelo com os dados da perícia escolhida'},
+  {id:'proposta', titulo:'Proposta de honorários', sub:'Com a sua logo, os dados da perícia e o seu cadastro, pronta em .docx'},
   {id:'docs',     titulo:'Documentos',    sub:'Os autos de cada processo, por tópico, data ou movimentação'},
   {id:'ia',       titulo:'Revisão IA',    sub:'Erros e inconsistências dos autos, com o lugar exato para conferir'},
   {id:'equipe',   titulo:'Equipe',        sub:'Quem tem acesso ao sistema e o que foi compartilhado'},
@@ -4721,25 +4817,25 @@ function partesDoCaso(c){
 function juizoSugerido(c){
   const vara = (c.vara || '').trim();
   const comarca = (c.comarca || '').trim();
-  if(!vara && !comarca) return 'AO DOUTO JUÍZO DE DIREITO';
-  const partes = ['AO DOUTO JUÍZO DE DIREITO'];
+  if(!vara && !comarca) return 'EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO';
+  const partes = ['EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO'];
   if(vara) partes.push('DA ' + vara.toUpperCase());
   if(comarca) partes.push('DA COMARCA DE ' + comarca.toUpperCase());
   return partes.join(' ');
 }
 function acaoSugerida(c, analise){
   const {autor, reu} = partesDoCaso(c);
-  const acao = (c.nome || analise.area).toUpperCase();
+  const acao = (casoNomeCurto(c) || analise.area).toUpperCase();
   const encerra = t => /[.;]$/.test(t) ? t : t + '.';
   let linha = 'AÇÃO: ' + acao;
-  if(autor) linha += ' REQUERENTE:' + encerra(autor.toUpperCase());
-  if(reu) linha += ' REQUERIDO:' + encerra(reu.toUpperCase());
+  if(autor) linha += ' REQUERENTE: ' + autor.toUpperCase();
+  if(reu) linha += ' REQUERIDO: ' + reu.toUpperCase();
   return linha;
 }
 function resumoSugerido(c, analise){
   const {autor, reu} = partesDoCaso(c);
   const acao = (c.nome || analise.area);
-  let t = 'O processo trata de ' + acao;
+  let t = 'O processo trata de ' + (casoNomeCurto(c) || acao);
   if(autor) t += ' proposta por ' + autor;
   if(reu) t += ' em face de ' + reu;
   t += ', cabendo à perícia contábil ' + analise.obj;
@@ -4824,6 +4920,8 @@ function atualizarTotais(){
   põe('propValorExtenso', t.valor ? porExtenso(t.valor) : '');
   põe('propAdiantValor', 'R$ ' + brl(t.adiantado));
   põe('propSaldo', 'R$ ' + brl(t.valor - t.adiantado));
+  põe('ppHorasNota', t.horas + ' horas');
+  atualizarPrevia();
 }
 function trocarPericiaProposta(sel){
   propostaCasoId = sel.value;
@@ -5022,10 +5120,10 @@ function dadosDoDocumento(c, r, ficha){
   const pct = Math.min(100, Math.max(0, r.adiantamento));
   const adiantado = valor * pct / 100;
   const hoje = new Date();
-  const mes = capitalizar(hoje.toLocaleDateString('pt-BR', {month:'long'}));
+  const mes = hoje.toLocaleDateString('pt-BR', {month:'long'}).toLowerCase();   /* "10 de outubro de 2026" */
   const sigla = (ficha.crcRegistro || '').slice(0,2).toUpperCase();
   return {
-    horas: r.horas, totalHoras: horas, valor, pct, adiantado,
+    horas: r.horas, totalHoras: horas, valor, pct, adiantado, horaTecnica: r.horaTecnica,
     juizo: r.juizo,
     processo: c.numeroProcesso || '',
     acao: r.acao,
@@ -5050,6 +5148,7 @@ function dadosDoDocumento(c, r, ficha){
       + ' por cento) do valor estipulado para os honorários periciais, correspondente a R$ ' + brl(adiantado)
       + ', ficando o saldo remanescente para pagamento após a entrega do laudo e a prestação dos esclarecimentos necessários, '
       + 'nos termos do art. 465, §4º, do CPC.',
+    email: (c && donoDe(c)) || '',
     dataLinha: (ficha.cidadeUf || (c.comarca || 'Goiânia')) + ', ' + String(hoje.getDate()).padStart(2,'0')
       + ' de ' + mes + ' de ' + hoje.getFullYear(),
     ficha,
@@ -5064,7 +5163,7 @@ function reescreverDocumento(xml, d){
   return mapearParagrafos(xml, texto => {
     const t = texto.trim();
     if(!t) return null;
-    if(/^AO\s+DOUTO\s+JU[ÍI]ZO/i.test(t)) return d.juizo;
+    if(/^(AO\s+DOUTO\s+JU[ÍI]ZO|EXCELENT[ÍI]SSIMO\s+SENHOR)/i.test(t)) return d.juizo;
     if(/^PROCESSO\s*:/i.test(t)) return 'PROCESSO: ' + d.processo;
     if(/^A[ÇC][ÃA]O\s*:/i.test(t)) return d.acao;
     if(/regularmente inscrito no Conselho Regional/i.test(t)) return d.qualificacao;
@@ -5087,7 +5186,7 @@ function reescreverRodape(xml, ficha){
     return null;
   });
 }
-async function montarDocx(baseBytes, d){
+async function montarDocx(baseBytes, d, logo){
   const zip = await JSZip.loadAsync(baseBytes);
   const doc = zip.file('word/document.xml');
   if(!doc) throw new Error('documento sem word/document.xml');
@@ -5097,43 +5196,8 @@ async function montarDocx(baseBytes, d){
       zip.file(nome, reescreverRodape(await zip.file(nome).async('string'), d.ficha));
     }
   }
+  if(logo) await docxInserirLogo(zip, logo);
   return await zip.generateAsync({type:'uint8array'});
-}
-
-/* ---------- prévia em HTML, para quem ainda não importou o modelo ---------- */
-function propostaPadrao(d, c){
-  const p = txt => '<p style="text-align:justify; margin:0 0 12px;">' + escapeHtml(txt) + '</p>';
-  const linhas = d.horas.map((h,i) =>
-    '<tr><td style="border:1px solid #999; padding:5px 8px;">' + escapeHtml(TAREFAS[i])
-    + '</td><td style="border:1px solid #999; padding:5px 8px; text-align:center;">' + h + '</td></tr>').join('');
-  return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">'
-  + '<head><meta charset="utf-8"><style>@page{margin:2.5cm 2cm;} body{font-family:Calibri,Arial,sans-serif; font-size:12pt; line-height:1.5;}'
-  + 'table{border-collapse:collapse; width:100%; margin:14px 0; font-size:11pt;} h1{font-size:12pt; text-align:center;}</style></head><body>'
-  + '<p><b>' + escapeHtml(d.juizo) + '</b></p>'
-  + '<p><b>PROCESSO: ' + escapeHtml(d.processo) + '</b></p>'
-  + '<p><b>' + escapeHtml(d.acao) + '</b></p><br>'
-  + p(d.qualificacao) + p(d.resumo) + p(d.complexidade)
-  + p('Para elaboração desta proposta, foram considerados: a relevância, o vulto e a complexidade dos serviços a executar; '
-    + 'o volume documental; as horas estimadas para a realização de cada fase do trabalho; e o prazo fixado, tudo em conformidade '
-    + 'com a Norma do Conselho Federal de Contabilidade - NBC PP 01 (R2);')
-  + p(d.paragrafoHora) + p(d.paragrafoHoras)
-  + '<h1>QUADRO ORÇAMENTÁRIO</h1><table><tr><th style="border:1px solid #999; padding:5px 8px;">Tarefas a serem executadas</th>'
-  + '<th style="border:1px solid #999; padding:5px 8px;">Horas Totais</th></tr>' + linhas
-  + '<tr><td style="border:1px solid #999; padding:5px 8px;"><b>Total de Horas</b></td>'
-  + '<td style="border:1px solid #999; padding:5px 8px; text-align:center;"><b>' + d.totalHoras + '</b></td></tr>'
-  + '<tr><td style="border:1px solid #999; padding:5px 8px;"><b>Hora Técnica x Total de Horas</b></td>'
-  + '<td style="border:1px solid #999; padding:5px 8px; text-align:center;"><b>R$ ' + brl(d.valor) + '</b></td></tr></table>'
-  + p('O valor desta proposta de honorários não remunera o perito para responder a quesitos suplementares, nos termos do art. 469 do '
-    + 'Código de Processo Civil, nem abrange deslocamentos, hospedagens e outras despesas adicionais.')
-  + p(d.paragrafoAdiantamento)
-  + (d.requerimento ? p(d.requerimento) : '')
-  + p('Por fim, conforme Art. 465, §2º, II, CPC, segue apenso o curriculum vitae atualizado, comprovando a especialidade do perito no '
-    + 'assunto tratado, além de Certidão de Regularidade Profissional emitida pelo Conselho Regional de Contabilidade.')
-  + '<p style="text-align:center; margin-top:28px;">Termos em que, Pede Deferimento.</p>'
-  + '<p style="text-align:center; margin-top:22px;">' + escapeHtml(d.dataLinha) + '</p>'
-  + '<p style="text-align:center; margin-top:48px;">_____________________________________________<br><b>'
-  + escapeHtml(d.ficha.nomeCompleto || '') + '</b><br>Perito-Contador'
-  + (d.ficha.crcRegistro ? ' — CRC ' + escapeHtml(d.ficha.crcRegistro) : '') + '</p></body></html>';
 }
 
 /* ---------- importação do modelo ---------- */
@@ -5180,15 +5244,13 @@ async function gerarProposta(anexar){
   status.textContent = 'Gerando...';
   let bytes, nomeArq, mime;
   try{
-    if(modeloProposta && typeof JSZip !== 'undefined'){
-      bytes = await montarDocx(base64ToBytes(modeloProposta.base64), d);
-      nomeArq = 'proposta_honorarios_' + c.codigo + '.docx';
-      mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    } else {
-      bytes = new TextEncoder().encode(propostaPadrao(d, c));
-      nomeArq = 'proposta_honorarios_' + c.codigo + '.doc';
-      mime = 'application/msword';
-    }
+    if(typeof JSZip === 'undefined') throw new Error('leitor de .docx indisponível; recarregue a página');
+    const logo = propLogo();
+    bytes = modeloProposta
+      ? await montarDocx(base64ToBytes(modeloProposta.base64), d, logo && logo.noModelo ? logo : null)
+      : await gerarDocxPadrao(d, logo);
+    nomeArq = 'proposta_honorarios_' + c.codigo + '.docx';
+    mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
   }catch(e){
     status.textContent = 'Não foi possível reescrever o modelo (' + (e.message || 'erro') + ').';
     return;
@@ -5217,7 +5279,450 @@ async function gerarProposta(anexar){
   }
 }
 
+/* ==========================================================================
+   Logo da proposta
+   Fica no perfil do perito (perfil.logo), já reduzida e em PNG/JPEG, e entra no
+   cabeçalho do documento: no gerado pelo sistema e no modelo importado (troca a
+   imagem que o cabeçalho já tiver, ou acrescenta uma).
+   Formas de pôr: escolher o arquivo, arrastar e soltar, colar (Ctrl+V) ou criar
+   uma com as iniciais.
+   ========================================================================== */
+const LOGO_TAMANHOS = {P: {rot: 'Pequena', cm: 1.3}, M: {rot: 'Média', cm: 2}, G: {rot: 'Grande', cm: 2.8}};
+const LOGO_POSICOES = {esquerda: {rot: 'Esquerda', jc: 'left'}, centro: {rot: 'Centro', jc: 'center'}, direita: {rot: 'Direita', jc: 'right'}};
+const RE_LOGO = /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/;
+function propLogo(){
+  const l = perfil && perfil.logo;
+  if(!l || typeof l !== 'object' || !RE_LOGO.test(String(l.dataUrl || ''))) return null;
+  return {
+    dataUrl: l.dataUrl, nome: String(l.nome || 'logo').slice(0, 80),
+    w: Math.max(1, num(l.w) || 1), h: Math.max(1, num(l.h) || 1),
+    tamanho: LOGO_TAMANHOS[l.tamanho] ? l.tamanho : 'M',
+    posicao: LOGO_POSICOES[l.posicao] ? l.posicao : 'esquerda',
+    noModelo: l.noModelo !== false,
+  };
+}
+function logoCarregarImagem(src){
+  return new Promise((ok, falha) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => falha(new Error('imagem ilegível')); i.src = src; });
+}
+/* reduz para no máximo 900 x 360, apara as bordas vazias e grava em PNG (ou JPEG, se ficar grande) */
+async function logoNormalizar(blob){
+  const url = URL.createObjectURL(blob);
+  try{
+    const img = await logoCarregarImagem(url);
+    let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+    if(!w || !h) throw new Error('imagem sem tamanho');
+    const esc = Math.min(1, 900 / w, 360 / h);
+    w = Math.max(1, Math.round(w * esc)); h = Math.max(1, Math.round(h * esc));
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    /* apara margens transparentes ou brancas */
+    const px = ctx.getImageData(0, 0, w, h).data;
+    const vazio = i => px[i + 3] < 12 || (px[i] > 248 && px[i + 1] > 248 && px[i + 2] > 248);
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for(let y = 0; y < h; y++) for(let x = 0; x < w; x++){
+      if(!vazio((y * w + x) * 4)){ if(x < x0) x0 = x; if(x > x1) x1 = x; if(y < y0) y0 = y; if(y > y1) y1 = y; }
+    }
+    let out = cv;
+    if(x1 >= x0 && y1 >= y0 && (x0 > 2 || y0 > 2 || x1 < w - 3 || y1 < h - 3)){
+      const m = 4;
+      x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(w - 1, x1 + m); y1 = Math.min(h - 1, y1 + m);
+      out = document.createElement('canvas'); out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+      out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+    }
+    let dataUrl = out.toDataURL('image/png');
+    if(dataUrl.length > 350000){
+      const j = document.createElement('canvas'); j.width = out.width; j.height = out.height;
+      const jc = j.getContext('2d'); jc.fillStyle = '#fff'; jc.fillRect(0, 0, j.width, j.height); jc.drawImage(out, 0, 0);
+      dataUrl = j.toDataURL('image/jpeg', 0.88);
+    }
+    if(dataUrl.length > 700000) throw new Error('a imagem continua grande demais');
+    return {dataUrl, w: out.width, h: out.height};
+  } finally { URL.revokeObjectURL(url); }
+}
+async function logoReceber(blob, nome){
+  const st = document.getElementById('logoStatus');
+  const dizer = t => { if(st) st.textContent = t; };
+  if(!blob || !/^image\//.test(blob.type || '')){ dizer('Use uma imagem PNG, JPG, WEBP ou SVG.'); return; }
+  if(blob.size > 8 * 1024 * 1024){ dizer('A imagem passa de 8 MB. Use um arquivo menor.'); return; }
+  dizer('Preparando a logo…');
+  try{
+    const n = await logoNormalizar(blob);
+    const atual = propLogo() || {};
+    const ok = await salvarPerfil({logo: {...n, nome: String(nome || blob.name || 'logo').slice(0, 80), tamanho: atual.tamanho || 'M', posicao: atual.posicao || 'esquerda', noModelo: atual.noModelo !== false, quando: todayIso()}});
+    pfAviso(ok ? 'Logo adicionada. Ela entra no cabeçalho da proposta.' : 'A logo ficou neste navegador, mas não foi para a nuvem agora.');
+    renderAll();
+  }catch(e){ dizer('Não deu para usar esta imagem (' + (e.message || 'erro') + ').'); }
+}
+function logoEscolher(){ const i = document.getElementById('logoInput'); if(i) i.click(); }
+function logoArquivo(input){ const f = input.files && input.files[0]; input.value = ''; if(f) logoReceber(f, f.name); }
+function logoArrastar(ev, entrou){
+  ev.preventDefault();
+  const z = document.getElementById('logoZona');
+  if(z) z.classList.toggle('arrastando', !!entrou);
+}
+function logoSoltar(ev){
+  ev.preventDefault();
+  logoArrastar(ev, false);
+  const f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+  if(f) logoReceber(f, f.name);
+}
+document.addEventListener('paste', ev => {
+  if(activeSection !== 'proposta') return;
+  const alvo = ev.target;
+  if(alvo && /^(INPUT|TEXTAREA)$/.test(alvo.tagName)) return;   /* colar texto num campo continua normal */
+  const item = [...((ev.clipboardData && ev.clipboardData.items) || [])].find(i => /^image\//.test(i.type));
+  if(!item) return;
+  ev.preventDefault();
+  logoReceber(item.getAsFile(), 'logo colada');
+});
+/* logo simples com as iniciais e o nome, para quem ainda não tem uma */
+async function logoIniciais(){
+  const f = fichaDe(meuEmail()) || {};
+  const nome = (f.nomeCompleto || membroDe(meuEmail()).nome || '').trim();
+  if(!nome){ pfAviso('Preencha o nome completo em Meu perfil para criar a logo com as iniciais.'); return; }
+  const partes = nome.split(/\s+/).filter(p => p.length > 2 || /^[A-ZÁ-Ú]/.test(p));
+  const ini = ((partes[0] || nome)[0] + ((partes[partes.length - 1] || '')[0] || '')).toUpperCase();
+  const cor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#1A3650';
+  const cv = document.createElement('canvas'); cv.width = 900; cv.height = 240;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(120, 120, 104, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '600 96px Georgia, "Times New Roman", serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(ini, 120, 126);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#1f2a33';
+  ctx.font = '600 50px Georgia, "Times New Roman", serif';
+  const curto = partes.length > 2 ? `${partes[0]} ${partes[partes.length - 1]}` : nome;
+  ctx.fillText(curto.slice(0, 26), 262, 98);
+  ctx.fillStyle = cor; ctx.font = '500 30px Arial, sans-serif';
+  ctx.fillText('PERÍCIA CONTÁBIL' + (f.crcRegistro ? '  ·  CRC ' + f.crcRegistro : ''), 264, 160);
+  const blob = await new Promise(ok => cv.toBlob(ok, 'image/png'));
+  await logoReceber(blob, 'logo com iniciais');
+}
+async function logoAjustar(campo, valor){
+  const l = propLogo(); if(!l) return;
+  await salvarPerfil({logo: {...perfil.logo, [campo]: valor}});
+  renderAll();
+}
+async function logoRemover(){
+  const antes = perfil.logo;
+  await salvarPerfil({logo: null});
+  renderAll();
+  pfAviso('Logo removida da proposta.', async () => { await salvarPerfil({logo: antes}); renderAll(); });
+}
+
+/* ---------- logo no .docx ---------- */
+function logoBytes(l){ return base64ToBytes(l.dataUrl.split(',')[1]); }
+function logoExt(l){ return /^data:image\/jpeg/.test(l.dataUrl) ? 'jpeg' : 'png'; }
+function logoEmu(l){
+  const cy = Math.round(LOGO_TAMANHOS[l.tamanho].cm * 360000);
+  let cx = Math.round(cy * l.w / l.h);
+  const max = 16 * 360000;
+  if(cx > max){ return {cx: max, cy: Math.round(max * l.h / l.w)}; }
+  return {cx, cy};
+}
+function dxImagem(rid, cx, cy, id){
+  return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${id}" name="Logo ${id}"/>`
+    + `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>`
+    + `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+    + `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${id}" name="logo"/><pic:cNvPicPr/></pic:nvPicPr>`
+    + `<pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
+    + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>`
+    + `</a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+}
+const DX_REL_IMG = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image';
+const DX_REL_HDR = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header';
+function dxGarantirNs(xml, raiz){
+  const ini = xml.indexOf('<' + raiz);
+  if(ini < 0) return xml;
+  const fim = xml.indexOf('>', ini);
+  let tag = xml.slice(ini, fim);
+  if(!/xmlns:wp=/.test(tag)) tag += ' xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"';
+  if(!/xmlns:r=/.test(tag)) tag += ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+  return xml.slice(0, ini) + tag + xml.slice(fim);
+}
+async function dxGarantirTipo(zip, ext){
+  const f = zip.file('[Content_Types].xml');
+  if(!f) return;
+  let ct = await f.async('string');
+  if(!new RegExp(`Extension="${ext}"`, 'i').test(ct)){
+    ct = ct.replace('</Types>', `<Default Extension="${ext}" ContentType="image/${ext}"/></Types>`);
+    zip.file('[Content_Types].xml', ct);
+  }
+}
+function dxAttr(tag, nome){ const m = tag.match(new RegExp(`\\b${nome}="([^"]*)"`)); return m ? m[1] : ''; }
+async function docxInserirLogo(zip, l){
+  const ext = logoExt(l);
+  const alvoMedia = `media/pf_logo.${ext}`;
+  zip.file('word/' + alvoMedia, logoBytes(l));
+  await dxGarantirTipo(zip, ext);
+  const {cx, cy} = logoEmu(l);
+  const jc = LOGO_POSICOES[l.posicao].jc;
+  const docF = zip.file('word/document.xml');
+  let docXml = await docF.async('string');
+  const relsF = zip.file('word/_rels/document.xml.rels');
+  let docRels = relsF ? await relsF.async('string') : '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+  /* cabeçalhos usados pelo documento */
+  const alvos = new Map();
+  for(const tag of docXml.match(/<w:headerReference\b[^>]*\/>/g) || []){
+    const rid = dxAttr(tag, 'r:id');
+    const rel = (docRels.match(new RegExp(`<Relationship\\b[^>]*\\bId="${rid}"[^>]*/>`)) || [''])[0];
+    const alvo = dxAttr(rel, 'Target').replace(/^\/?word\//, '').replace(/^\//, '');
+    if(alvo) alvos.set(alvo, true);
+  }
+  if(!alvos.size){
+    /* sem cabeçalho: cria um só com a logo */
+    zip.file('word/header_pf.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><w:p><w:pPr><w:jc w:val="${jc}"/></w:pPr>${dxImagem('rIdPfLogo', cx, cy, 9101)}</w:p></w:hdr>`);
+    zip.file('word/_rels/header_pf.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdPfLogo" Type="${DX_REL_IMG}" Target="${alvoMedia}"/></Relationships>`);
+    docRels = docRels.replace('</Relationships>', `<Relationship Id="rIdPfHdr" Type="${DX_REL_HDR}" Target="header_pf.xml"/></Relationships>`);
+    zip.file('word/_rels/document.xml.rels', docRels);
+    docXml = dxGarantirNs(docXml, 'w:document').replace(/<w:sectPr\b[^>]*>/g, m => m + '<w:headerReference w:type="default" r:id="rIdPfHdr"/>');
+    zip.file('word/document.xml', docXml);
+    const ctF = zip.file('[Content_Types].xml');
+    if(ctF){
+      const ct = await ctF.async('string');
+      zip.file('[Content_Types].xml', ct.replace('</Types>', '<Override PartName="/word/header_pf.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/></Types>'));
+    }
+    return 'criado';
+  }
+  let resultado = 'inserido';
+  let n = 0;
+  for(const nome of alvos.keys()){
+    const hf = zip.file('word/' + nome);
+    if(!hf) continue;
+    let hx = await hf.async('string');
+    const relsNome = 'word/_rels/' + nome + '.rels';
+    const rf = zip.file(relsNome);
+    let hr = rf ? await rf.async('string') : '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+    const desenho = (hx.match(/<w:drawing>[\s\S]*?<\/w:drawing>/) || [''])[0];
+    const embed = desenho && dxAttr((desenho.match(/<a:blip\b[^>]*>/) || [''])[0], 'r:embed');
+    const relImg = embed && (hr.match(new RegExp(`<Relationship\\b[^>]*\\bId="${embed}"[^>]*/>`)) || [''])[0];
+    if(relImg && /\/image"/.test(relImg)){
+      /* troca a imagem que o modelo já tinha, mantendo a altura dela */
+      hr = hr.replace(relImg, relImg.replace(/Target="[^"]*"/, `Target="${alvoMedia}"`).replace(/\s*TargetMode="[^"]*"/, ''));
+      const ext0 = desenho.match(/<wp:extent cx="(\d+)" cy="(\d+)"\/>/);
+      let novo = desenho;
+      if(ext0){
+        const h0 = +ext0[2];
+        let w0 = Math.round(h0 * l.w / l.h);
+        let hh = h0;
+        const maxW = Math.max(+ext0[1], 16 * 360000 / 2);
+        if(w0 > maxW){ w0 = Math.round(maxW); hh = Math.round(maxW * l.h / l.w); }
+        novo = novo.replace(/<wp:extent cx="\d+" cy="\d+"\/>/, `<wp:extent cx="${w0}" cy="${hh}"/>`)
+                   .replace(/<a:ext cx="\d+" cy="\d+"\/>/, `<a:ext cx="${w0}" cy="${hh}"/>`);
+      }
+      hx = hx.replace(desenho, novo);
+      resultado = 'trocado';
+    } else {
+      hr = hr.replace('</Relationships>', `<Relationship Id="rIdPfLogo" Type="${DX_REL_IMG}" Target="${alvoMedia}"/></Relationships>`);
+      hx = dxGarantirNs(hx, 'w:hdr');
+      hx = hx.replace(/(<w:hdr\b[^>]*>)/, `$1<w:p><w:pPr><w:jc w:val="${jc}"/><w:spacing w:after="120"/></w:pPr>${dxImagem('rIdPfLogo', cx, cy, 9100 + (++n))}</w:p>`);
+    }
+    zip.file('word/' + nome, hx);
+    zip.file(relsNome, hr);
+  }
+  return resultado;
+}
+
+/* ---------- documento gerado pelo sistema (sem modelo importado), em .docx ----------
+   Segue o padrão das propostas do escritório: logo no alto com um fio até a margem,
+   seções I, II e III com parágrafos numerados, quadro orçamentário, requerimentos em
+   alíneas e rodapé com telefone, e-mail e endereço com ícones. */
+const DX_NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"';
+const DX_LARG = 9071;   /* largura útil da página em twips (A4, margens de 3 e 2 cm) */
+function dxRun(t, o = {}){
+  return `<w:r><w:rPr>${o.b ? '<w:b/><w:bCs/>' : ''}${o.i ? '<w:i/>' : ''}${o.u ? '<w:u w:val="single"/>' : ''}${o.caps ? '<w:caps/>' : ''}${o.sz ? `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>` : ''}${o.cor ? `<w:color w:val="${o.cor}"/>` : ''}</w:rPr><w:t xml:space="preserve">${escaparXml(t)}</w:t></w:r>`;
+}
+const dxTab = '<w:r><w:tab/></w:r>';
+function dxP(conteudo, o = {}){
+  const jc = o.jc || 'both';
+  return `<w:p><w:pPr>${o.tabs ? `<w:tabs>${o.tabs.map(t => `<w:tab w:val="left" w:pos="${t}"/>`).join('')}</w:tabs>` : ''}${o.bordaBaixo ? '<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="8C8C8C"/></w:pBdr>' : ''}<w:spacing w:before="${o.antes || 0}" w:after="${o.depois == null ? 200 : o.depois}" w:line="${o.linha || 360}" w:lineRule="auto"/>${o.recuo || o.esq ? `<w:ind${o.esq ? ` w:left="${o.esq}"` : ''}${o.recuo ? ` w:firstLine="${o.recuo}"` : ''}/>` : ''}<w:jc w:val="${jc}"/></w:pPr>${conteudo}</w:p>`;
+}
+function dxCelula(conteudo, larg, o = {}){
+  return `<w:tc><w:tcPr><w:tcW w:w="${larg}" w:type="dxa"/>${o.span ? `<w:gridSpan w:val="${o.span}"/>` : ''}${o.fundo ? `<w:shd w:val="clear" w:color="auto" w:fill="${o.fundo}"/>` : ''}<w:vAlign w:val="center"/></w:tcPr>${dxP(conteudo, {jc: o.jc || 'left', depois: 0, linha: 260})}</w:tc>`;
+}
+const dxSemBorda = '<w:tblBorders>' + ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(b => `<w:${b} w:val="none" w:sz="0" w:space="0" w:color="auto"/>`).join('') + '</w:tblBorders>';
+/* ícones do rodapé desenhados na hora, em PNG */
+const DX_ICONES = {
+  tel: 'M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2a1 1 0 011-.25 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.6 3.6a1 1 0 01-.25 1z',
+  mail: 'M3 6h18v12H3z M3 6l9 7 9-7',
+  local: 'M12 21s-7-6.2-7-11.5A7 7 0 0119 9.5C19 14.8 12 21 12 21z M12 12.2a2.6 2.6 0 100-5.2 2.6 2.6 0 000 5.2z',
+};
+function dxIconePng(nome){
+  try{
+    const cv = document.createElement('canvas'); cv.width = 64; cv.height = 64;
+    const ctx = cv.getContext('2d');
+    ctx.scale(64 / 24, 64 / 24);
+    ctx.strokeStyle = '#404040'; ctx.lineWidth = 1.7; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.stroke(new Path2D(DX_ICONES[nome]));
+    return base64ToBytes(cv.toDataURL('image/png').split(',')[1]);
+  }catch(e){ return null; }
+}
+function dxCrc(f){
+  const r = String(f.crcRegistro || '').trim();
+  if(!r) return '';
+  const m = r.match(/^([A-Za-z]{2})[\s\-–]*(.+)$/);
+  return m ? `CRC-${m[1].toUpperCase()} nº ${m[2]}` : `CRC nº ${r}`;
+}
+async function gerarDocxPadrao(d, logo){
+  const zip = new JSZip();
+  const f = d.ficha;
+  const crc = dxCrc(f);
+  const email = d.email || '';
+  let nPar = 0;
+  const item = (t) => dxP(dxRun(++nPar + '.', {b: true}) + dxTab + dxRun(t), {recuo: 1134, tabs: [1701]});
+  const corrido = (t, o = {}) => dxP(dxRun(t), {recuo: 1134, ...o});
+  const secao = t => dxP(dxRun(t, {b: true}), {jc: 'left', antes: 120, depois: 160});
+  /* quadro orçamentário */
+  const L1 = 7371, L2 = DX_LARG - L1;
+  const tr = cels => `<w:tr>${cels}</w:tr>`;
+  const linha = (a, b, o = {}) => tr(dxCelula(dxRun(a, {b: o.b, sz: 20}), L1, {jc: o.jcA || 'left', fundo: o.fundo}) + dxCelula(dxRun(b, {b: o.b, sz: 20}), L2, {jc: 'center', fundo: o.fundo}));
+  const tabela = `<w:tbl><w:tblPr><w:tblW w:w="${DX_LARG}" w:type="dxa"/><w:jc w:val="center"/><w:tblBorders>`
+    + ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(b => `<w:${b} w:val="single" w:sz="4" w:space="0" w:color="7F7F7F"/>`).join('')
+    + `</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="50" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="50" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tblCellMar></w:tblPr>`
+    + `<w:tblGrid><w:gridCol w:w="${L1}"/><w:gridCol w:w="${L2}"/></w:tblGrid>`
+    + tr(dxCelula(dxRun('QUADRO ORÇAMENTÁRIO', {b: true, sz: 20}), DX_LARG, {span: 2, jc: 'center', fundo: 'D9D9D9'}))
+    + linha('Tarefas a serem executadas', 'Horas', {b: true, jcA: 'center', fundo: 'F2F2F2'})
+    + d.horas.map((h, i) => h ? linha(TAREFAS[i], String(h)) : '').join('')
+    + linha('Total de horas', String(d.totalHoras), {b: true, jcA: 'center'})
+    + linha('Valor da hora técnica', 'R$ ' + brl(d.horaTecnica), {jcA: 'center'})
+    + linha(`Valor total dos honorários (${d.totalHoras} h × R$ ${brl(d.horaTecnica)})`, 'R$ ' + brl(d.valor), {b: true, jcA: 'center', fundo: 'F2F2F2'})
+    + `</w:tbl>`;
+  /* cabeçalho do processo: ação e partes em linhas separadas */
+  const linhasAcao = String(d.acao || '').split(/\s+(?=REQUERENTES?\s*:|REQUERID[OA]S?\s*:|AUTORE?S?\s*:|R[ÉE]US?\s*:)/i).map(x => x.trim()).filter(Boolean);
+  const abertura = dxP(
+      dxRun(f.nomeCompleto || '', {b: true})
+    + dxRun(', Contador' + (crc ? ', ' + crc : '') + (f.cpf ? ', CPF nº ' + f.cpf : '')
+      + ', habilitado nos termos do art. 156 do Código de Processo Civil e nomeado perito nos autos em epígrafe, vem, mui respeitosamente, à presença de Vossa Excelência, apresentar ')
+    + dxRun('PROPOSTA DE HONORÁRIOS PERICIAIS', {b: true})
+    + dxRun(', nos termos que seguem.'), {recuo: 1134, antes: 120});
+  const alineas = [
+    `a homologação da presente proposta, fixando-se os honorários periciais em R$ ${brl(d.valor)} (${porExtenso(d.valor)}), correspondentes a ${d.totalHoras} (${extensoFeminino(d.totalHoras)}) horas técnicas;`,
+    d.pct > 0 ? `a liberação, no início dos trabalhos, de ${d.pct}% (${inteiroExtenso(Math.round(d.pct))} por cento) dos honorários, o que corresponde a R$ ${brl(d.adiantado)}, e do saldo remanescente após a entrega do laudo e a prestação de eventuais esclarecimentos, nos termos do art. 465, § 4º, do CPC;` : '',
+    d.requerimento || '',
+  ].filter(Boolean);
+  const contatoTxt = [email ? 'o endereço eletrônico ' + email : '', f.telefone ? 'o telefone ' + f.telefone : ''].filter(Boolean).join(' e ');
+  const corpo = [
+    dxP(dxRun(d.juizo, {b: true}), {jc: 'center', depois: 480, linha: 300}),
+    dxP(dxRun('PROCESSO: ' + (d.processo || '')), {jc: 'left', depois: 0, linha: 276}),
+    ...linhasAcao.map((t, i) => dxP(dxRun(t), {jc: 'left', depois: i === linhasAcao.length - 1 ? 360 : 0, linha: 276})),
+    abertura,
+    secao('I – DO OBJETO E DA COMPLEXIDADE DA PERÍCIA'),
+    d.resumo ? item(d.resumo) : '',
+    d.complexidade ? item(d.complexidade) : '',
+    secao('II – DA ESTIMATIVA DOS HONORÁRIOS'),
+    item('Para elaboração desta proposta foram considerados a relevância, o vulto e a complexidade dos serviços a executar, o volume documental, a quantidade de quesitos, o lapso temporal e as horas estimadas para cada fase do trabalho, em conformidade com as Normas Brasileiras de Contabilidade aplicáveis à perícia contábil (NBC TP 01 – Perícia Contábil e NBC PP 01 – Perito Contábil).'),
+    item(`O valor da hora técnica adotado, de R$ ${brl(d.horaTecnica)} (${porExtenso(d.horaTecnica)}), observa os padrões da ${f.referenciaHora || 'entidade de classe da categoria'} e foi aplicado a uma estimativa restrita às etapas indispensáveis à execução do trabalho.`),
+    item(`Para a apresentação do laudo pericial e dos elementos que formarão prova no processo, estima-se a necessidade de ${d.totalHoras} (${extensoFeminino(d.totalHoras)}) horas técnicas, conforme quadro orçamentário abaixo:`),
+    tabela,
+    dxP('', {depois: 120, linha: 240}),
+    secao('III – DOS REQUERIMENTOS'),
+    corrido('Diante do exposto, o perito requer:'),
+    ...alineas.map((t, i) => dxP(dxRun(String.fromCharCode(97 + i) + ') ' + t), {esq: 567})),
+    corrido('Os honorários ora propostos abrangem a resposta aos quesitos já apresentados. Eventuais quesitos suplementares (art. 469 do CPC) que ampliem o escopo do trabalho poderão ensejar estimativa complementar, submetida previamente à apreciação deste Juízo, e não estão incluídos deslocamentos, hospedagens e outras despesas adicionais.'),
+    corrido('Conforme o art. 465, § 2º, II e III, do CPC, seguem anexos o curriculum vitae atualizado e a Certidão de Regularidade Profissional emitida pelo Conselho Regional de Contabilidade' + (contatoTxt ? `, informando-se, para as intimações pessoais, ${contatoTxt}.` : '.')),
+    corrido('Antecipadamente, coloca-se ao inteiro dispor de Vossa Excelência para quaisquer esclarecimentos.'),
+    dxP(dxRun('Termos em que,'), {jc: 'left', depois: 0, antes: 120}),
+    dxP(dxRun('Pede deferimento.'), {jc: 'left', depois: 360}),
+    dxP(dxRun(d.dataLinha + '.'), {jc: 'left', depois: 960}),
+    dxP(dxRun((f.nomeCompleto || '').toUpperCase(), {b: true}), {jc: 'center', depois: 0, linha: 276}),
+    dxP(dxRun('Contador' + (crc ? ' – ' + crc : '')), {jc: 'center', depois: 0, linha: 276}),
+    dxP(dxRun('Perito Judicial'), {jc: 'center', depois: 0, linha: 276}),
+  ].join('');
+
+  /* rodapé: ícones + contato */
+  const relsRodape = [];
+  const icone = (nome, rid) => {
+    const b = dxIconePng(nome);
+    if(!b) return '';
+    zip.file(`word/media/ic_${nome}.png`, b);
+    relsRodape.push(`<Relationship Id="${rid}" Type="${DX_REL_IMG}" Target="media/ic_${nome}.png"/>`);
+    return dxImagem(rid, 118800, 118800, 200 + relsRodape.length);
+  };
+  const linhaRod = (ic, txt, o = {}) => txt ? dxP(ic + dxTab + dxRun(txt, {sz: 16, cor: o.cor || '404040', u: o.u}), {jc: 'left', depois: 20, linha: 240, tabs: [340]}) : '';
+  const rodape = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr ${DX_NS}>`
+    + linhaRod(f.telefone ? icone('tel', 'rIdIcTel') : '', f.telefone)
+    + linhaRod(email ? icone('mail', 'rIdIcMail') : '', email, {cor: '0563C1', u: true})
+    + linhaRod(f.endereco ? icone('local', 'rIdIcLoc') : '', f.endereco)
+    + (f.telefone || email || f.endereco ? '' : dxP(dxRun([f.nomeCompleto, crc].filter(Boolean).join(' · '), {sz: 16, cor: '404040'}), {jc: 'center', depois: 0}))
+    + `</w:ftr>`;
+  zip.file('word/footer1.xml', rodape);
+  zip.file('word/_rels/footer1.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${relsRodape.join('')}</Relationships>`);
+
+  /* cabeçalho: logo + fio até a margem */
+  if(logo){
+    const {cx, cy} = logoEmu(logo);
+    const ext = logoExt(logo);
+    zip.file(`word/media/logo.${ext}`, logoBytes(logo));
+    const img = dxImagem('rIdLogo', cx, cy, 1);
+    const larguraLogo = Math.min(DX_LARG - 1500, Math.round(cx / 635) + 160);
+    const fio = `<w:tc><w:tcPr><w:tcW w:w="${DX_LARG - larguraLogo}" w:type="dxa"/><w:vAlign w:val="center"/></w:tcPr>${dxP('', {bordaBaixo: true, depois: 0, linha: 240, esq: logo.posicao === 'direita' ? 0 : 120})}</w:tc>`;
+    const cel = `<w:tc><w:tcPr><w:tcW w:w="${larguraLogo}" w:type="dxa"/><w:vAlign w:val="center"/></w:tcPr>${dxP(img, {jc: logo.posicao === 'direita' ? 'right' : 'left', depois: 0, linha: 240})}</w:tc>`;
+    const tabelaCab = (a, b, ga, gb) => `<w:tbl><w:tblPr><w:tblW w:w="${DX_LARG}" w:type="dxa"/>${dxSemBorda}<w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="${ga}"/><w:gridCol w:w="${gb}"/></w:tblGrid><w:tr>${a}${b}</w:tr></w:tbl>`;
+    const cab = logo.posicao === 'centro'
+      ? dxP(img, {jc: 'center', depois: 60, linha: 240}) + dxP('', {bordaBaixo: true, depois: 0, linha: 120})
+      : logo.posicao === 'direita'
+        ? tabelaCab(fio, cel, DX_LARG - larguraLogo, larguraLogo)
+        : tabelaCab(cel, fio, larguraLogo, DX_LARG - larguraLogo);
+    zip.file('word/header1.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr ${DX_NS}>${cab}${dxP('', {depois: 0, linha: 240})}</w:hdr>`);
+    zip.file('word/_rels/header1.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdLogo" Type="${DX_REL_IMG}" Target="media/logo.${ext}"/></Relationships>`);
+  }
+  const sect = `<w:sectPr>${logo ? '<w:headerReference w:type="default" r:id="rIdHdr"/>' : ''}<w:footerReference w:type="default" r:id="rIdFtr"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1134" w:bottom="1418" w:left="1701" w:header="454" w:footer="397" w:gutter="0"/></w:sectPr>`;
+  zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${DX_NS}><w:body>${corpo}${sect}</w:body></w:document>`);
+  zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="200" w:line="360" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`);
+  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+    + `<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
+    + `<Relationship Id="rIdFtr" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>`
+    + (logo ? `<Relationship Id="rIdHdr" Type="${DX_REL_HDR}" Target="header1.xml"/>` : '')
+    + `</Relationships>`);
+  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">`
+    + `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>`
+    + `<Default Extension="png" ContentType="image/png"/><Default Extension="jpeg" ContentType="image/jpeg"/>`
+    + `<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>`
+    + `<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>`
+    + `<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>`
+    + (logo ? `<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>` : '')
+    + `</Types>`);
+  return await zip.generateAsync({type: 'uint8array'});
+}
+
 /* ---------- tela ---------- */
+function propPreviaHtml(c, r, ficha){
+  const d = dadosDoDocumento(c, r, ficha);
+  const l = propLogo();
+  const t = totaisProposta();
+  const linha = (txt, cls) => `<div class="pp-folha-l ${cls || ''}">${escapeHtml(txt)}</div>`;
+  return `
+    <div class="pp-folha" aria-label="Prévia da proposta">
+      ${l ? `<div class="pp-folha-logo pos-${l.posicao}"><img src="${l.dataUrl}" alt="Logo" style="height:${Math.round(LOGO_TAMANHOS[l.tamanho].cm * 9)}px;"><i></i></div>` : `<div class="pp-folha-logo"><button class="pp-folha-semlogo" onclick="logoEscolher()">+ logo</button><i></i></div>`}
+      <div class="pp-folha-juizo">${escapeHtml(d.juizo || 'EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO…')}</div>
+      ${linha('PROCESSO: ' + (d.processo || '—'))}
+      ${String(d.acao || 'AÇÃO: …').split(/\s+(?=REQUERENTES?\s*:|REQUERID[OA]S?\s*:)/i).map((t, i, a) => linha(t, i === a.length - 1 ? 'pp-folha-acao' : '')).join('')}
+      <div class="pp-folha-txt"><b>${escapeHtml(ficha.nomeCompleto || 'Seu nome')}</b>, Contador${ficha.crcRegistro ? ', ' + escapeHtml(dxCrc(ficha)) : ''}, … vem apresentar <b>PROPOSTA DE HONORÁRIOS PERICIAIS</b>, nos termos que seguem.</div>
+      <div class="pp-folha-sec">I – DO OBJETO E DA COMPLEXIDADE DA PERÍCIA</div>
+      <div class="pp-folha-barras"><i></i><i></i><i style="width:72%"></i></div>
+      <div class="pp-folha-sec">II – DA ESTIMATIVA DOS HONORÁRIOS</div>
+      <div class="pp-folha-quadro"><span>QUADRO ORÇAMENTÁRIO</span><b>${t.horas} h × R$ ${brl(r.horaTecnica)} = R$ ${brl(t.valor)}</b></div>
+      <div class="pp-folha-sec">III – DOS REQUERIMENTOS</div>
+      <div class="pp-folha-barras"><i></i><i style="width:84%"></i></div>
+      ${linha(d.dataLinha + '.')}
+      <div class="pp-folha-ass">${escapeHtml((ficha.nomeCompleto || 'Seu nome (Meu perfil)').toUpperCase())}<br><small>Contador${ficha.crcRegistro ? ' – ' + escapeHtml(dxCrc(ficha)) : ''}<br>Perito Judicial</small></div>
+      <div class="pp-folha-rodape">
+        ${ficha.telefone ? `<span>${svg('<path d="' + DX_ICONES.tel + '"/>')}${escapeHtml(ficha.telefone)}</span>` : ''}
+        ${donoDe(c) ? `<span class="mail">${svg('<path d="' + DX_ICONES.mail + '"/>')}${escapeHtml(donoDe(c))}</span>` : ''}
+        ${ficha.endereco ? `<span>${svg('<path d="' + DX_ICONES.local + '"/>')}${escapeHtml(ficha.endereco)}</span>` : ''}
+      </div>
+    </div>`;
+}
+let propPreviaTimer = null;
+function atualizarPrevia(){
+  clearTimeout(propPreviaTimer);
+  propPreviaTimer = setTimeout(() => {
+    const alvo = document.getElementById('ppPrevia');
+    const c = casoDaProposta();
+    if(alvo && c && rascunho) alvo.innerHTML = propPreviaHtml(c, rascunho, fichaDe(donoDe(c)));
+  }, 150);
+}
 function renderProposta(){
   const c = casoDaProposta();
   if(c && !souDono(c)){
@@ -5233,123 +5738,153 @@ function renderProposta(){
   const ficha = fichaDe(donoDe(c));
   const analise = analisarPericia(c);
   const totais = totaisProposta();
+  const l = propLogo();
+  const faltam = ['nomeCompleto', 'crcRegistro', 'cpf', 'telefone', 'endereco'].filter(k => !String(ficha[k] || '').trim());
+  const nomesFalta = {nomeCompleto: 'nome completo', crcRegistro: 'CRC', cpf: 'CPF', telefone: 'telefone', endereco: 'endereço'};
 
-  const avisoFicha = ficha.nomeCompleto ? '' : `
-      <div class="banner" style="margin-bottom:12px;">
-        ${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')}
-        <span>A ficha de ${escapeHtml(membroDe(donoDe(c)).nome)} está incompleta. Preencha nome, CRC e CPF em Meu perfil.</span>
-      </div>`;
+  const passo = (n, titulo, nota, corpo, id) => `
+    <section class="pp-passo" id="${id}">
+      <header class="pp-passo-cab"><i>${n}</i><div><h3>${titulo}</h3>${nota ? `<span>${nota}</span>` : ''}</div></header>
+      ${corpo}
+    </section>`;
 
-  const corpoModelo = (modeloProposta ? `
-      <div class="rows" style="margin-bottom:12px;">
-        <div class="row-item" style="cursor:default;">
-          <div class="row-main">
-            <div class="row-title">${escapeHtml(modeloProposta.nome)}</div>
-            <div class="row-sub">Importado em ${fmtDate(modeloProposta.quando)} · ${fmtBytes(modeloProposta.tamanho || Math.round(modeloProposta.base64.length*3/4))}</div>
-          </div>
-          <div class="row-side"><button class="btn btn-ghost btn-sm" onclick="removerModelo()">Remover</button></div>
+  /* 1. identidade: logo, contato e modelo */
+  const corpoIdentidade = `
+      <input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden onchange="logoArquivo(this)">
+      <div class="pp-ident">
+        <div class="pp-logo-zona ${l ? 'tem' : ''}" id="logoZona" tabindex="0" role="button" aria-label="Adicionar logo"
+             onclick="logoEscolher()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); logoEscolher();}"
+             ondragover="logoArrastar(event, true)" ondragenter="logoArrastar(event, true)" ondragleave="logoArrastar(event, false)" ondrop="logoSoltar(event)">
+          ${l ? `<img src="${l.dataUrl}" alt="Logo atual">`
+              : `${svg('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/>')}
+                 <b>Adicione a sua logo</b><span>Clique, arraste a imagem aqui ou cole com Ctrl+V</span>`}
+        </div>
+        <div class="pp-logo-opcoes">
+          ${l ? `
+            <div class="pp-seg-l"><span>Tamanho</span><div class="pp-seg">${Object.entries(LOGO_TAMANHOS).map(([k, v]) => `<button class="${l.tamanho === k ? 'sel' : ''}" onclick="logoAjustar('tamanho', ${jsq(k)})">${v.rot}</button>`).join('')}</div></div>
+            <div class="pp-seg-l"><span>Posição</span><div class="pp-seg">${Object.entries(LOGO_POSICOES).map(([k, v]) => `<button class="${l.posicao === k ? 'sel' : ''}" onclick="logoAjustar('posicao', ${jsq(k)})">${v.rot}</button>`).join('')}</div></div>
+            ${modeloProposta ? `<label class="pp-check"><input type="checkbox" ${l.noModelo ? 'checked' : ''} onchange="logoAjustar('noModelo', this.checked)"> Pôr também no modelo importado (troca a imagem do cabeçalho dele)</label>` : ''}
+            <div class="pp-logo-acoes"><button class="btn btn-ghost btn-sm" onclick="logoEscolher()">Trocar imagem</button><button class="btn btn-ghost btn-sm" onclick="logoRemover()">Remover</button></div>`
+          : `
+            <div class="pp-logo-metodos">
+              <button class="btn btn-ghost btn-sm" onclick="logoEscolher()">${svg('<path d="M12 21V9M7 13l5-5 5 5M4 4h16"/>')} Enviar arquivo</button>
+              <button class="btn btn-ghost btn-sm" onclick="logoIniciais()">${svg('<circle cx="12" cy="12" r="9"/><path d="M9 15V9l3 4 3-4v6"/>')} Criar com as iniciais</button>
+            </div>
+            <span class="dica">PNG com fundo transparente fica melhor. As bordas vazias são cortadas sozinhas.</span>`}
+          <div id="logoStatus" class="hint"></div>
         </div>
       </div>
-      <div class="calc-nota" style="margin-top:0;">
-        O documento gerado sai do seu arquivo: mesma fonte, mesmas margens, mesmo rodapé.
-        O carimbo de assinatura digital que veio no modelo é retirado e no lugar fica a linha de assinatura em branco — assine o novo documento com o seu certificado.
-      </div>`
-    : `
-      <div class="banner banner-info" style="margin-bottom:12px;">
-        ${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}
-        <span>Nenhum modelo importado. Por enquanto o app gera uma proposta com a mesma estrutura, em arquivo que abre no Word.</span>
-      </div>`)
-    + `
-      <input type="file" id="modeloInput" accept=".docx" style="display:none" onchange="importarModelo(this)">
-      <div class="acoes">
-        <button class="btn btn-primary" onclick="document.getElementById('modeloInput').click()">
-          ${svg('<path d="M12 21V9M7 13l5-5 5 5M4 4h16"/>')} ${modeloProposta ? 'Trocar modelo' : 'Importar modelo'}
-        </button>
-        <span class="dica" style="font-size:11.5px; color:var(--muted);">Arquivo .docx do Word</span>
+      <div class="pp-contato">
+        <div class="pp-contato-tit">Dados do rodapé e da assinatura <a href="#" onclick="setSection('perfil'); return false;">editar em Meu perfil</a></div>
+        <div class="pp-contato-grade">
+          <span><small>Perito</small>${escapeHtml(ficha.nomeCompleto || '—')}</span>
+          <span><small>CRC</small>${escapeHtml(ficha.crcRegistro || '—')}</span>
+          <span><small>Telefone</small>${escapeHtml(ficha.telefone || '—')}</span>
+          <span><small>E-mail</small>${escapeHtml(donoDe(c) || '—')}</span>
+          <span class="largo"><small>Endereço</small>${escapeHtml(ficha.endereco || '—')}</span>
+        </div>
+        ${faltam.length ? `<div class="pp-falta">${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')} Falta ${faltam.map(k => nomesFalta[k]).join(', ')} em <a href="#" onclick="setSection('perfil'); return false;">Meu perfil</a>.</div>` : ''}
+      </div>
+      <div class="pp-modelo">
+        <div>
+          <b>${modeloProposta ? escapeHtml(modeloProposta.nome) : 'Modelo do sistema'}</b>
+          <span>${modeloProposta ? `seu modelo .docx · importado em ${fmtDate(modeloProposta.quando)}` : 'documento .docx com logo, quadro e rodapé prontos'}</span>
+        </div>
+        <input type="file" id="modeloInput" accept=".docx" hidden onchange="importarModelo(this)">
+        <div class="pp-modelo-acoes">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('modeloInput').click()">${modeloProposta ? 'Trocar modelo' : 'Usar meu modelo .docx'}</button>
+          ${modeloProposta ? `<button class="btn btn-ghost btn-sm" onclick="removerModelo()">Voltar ao do sistema</button>` : ''}
+        </div>
       </div>
       <div id="modeloStatus" class="hint"></div>`;
 
+  /* 2. perícia */
   const corpoProcesso = `
-      <div class="form-grid">
-        <div class="field" style="grid-column:1/-1;"><label for="propCaso">Perícia</label>
-          <select id="propCaso" onchange="trocarPericiaProposta(this)">
-            ${lista.map(x => `<option value="${x.id}" ${x.id===c.id?'selected':''}>${escapeHtml(x.codigo)} — ${escapeHtml(x.nome)}</option>`).join('')}
-          </select></div>
-        <div class="field" style="grid-column:1/-1;"><label for="propJuizo">Endereçamento ao juízo</label>
-          <input id="propJuizo" value="${escapeHtml(r.juizo)}" oninput="propCampo('juizo', this.value)">
-          <span class="dica">Montado a partir da vara e da comarca cadastradas · <a href="#" onclick="event.preventDefault();refazerTexto('juizo')">refazer</a></span></div>
-        <div class="field" style="grid-column:1/-1;"><label for="propAcao">Linha da ação e das partes</label>
-          <input id="propAcao" value="${escapeHtml(r.acao)}" oninput="propCampo('acao', this.value)">
-          <span class="dica">Requerente e requerido saem do campo Partes · <a href="#" onclick="event.preventDefault();refazerTexto('acao')">refazer</a></span></div>
+      <div class="field"><label for="propCaso">Perícia</label>
+        <select id="propCaso" onchange="trocarPericiaProposta(this)">
+          ${lista.map(x => `<option value="${escapeHtml(x.id)}" ${x.id === c.id ? 'selected' : ''}>${escapeHtml(x.codigo)} — ${escapeHtml(casoNomeCurto(x))}${x.numeroProcesso ? ' · ' + escapeHtml(x.numeroProcesso) : ''}</option>`).join('')}
+        </select></div>
+      <div class="pp-chips-info">
+        <span><small>Processo</small><b class="mono">${escapeHtml(c.numeroProcesso || '—')}</b></span>
+        <span><small>Natureza</small><b>${escapeHtml(analise.area)}</b></span>
+        <span><small>Valor da causa</small><b>${c.valorCausa ? 'R$ ' + brl(num(c.valorCausa)) : '—'}</b></span>
       </div>
-      <div class="kv-grid" style="margin-top:12px;">
-        <div class="kv"><div class="k">Processo</div><div class="v mono" style="font-size:13px;">${escapeHtml(c.numeroProcesso || '—')}</div></div>
-        <div class="kv"><div class="k">Natureza identificada</div><div class="v" style="font-size:13px;">${escapeHtml(analise.area)}</div></div>
-        <div class="kv"><div class="k">Perito</div><div class="v" style="font-size:13px;">${escapeHtml(ficha.nomeCompleto || membroDe(donoDe(c)).nome)}</div></div>
-        <div class="kv"><div class="k">Valor da causa</div><div class="v num">${c.valorCausa ? 'R$ ' + brl(num(c.valorCausa)) : '—'}</div></div>
-      </div>`;
+      <div class="field"><label for="propJuizo">Endereçamento ao juízo</label>
+        <input id="propJuizo" value="${escapeHtml(r.juizo)}" oninput="propCampo('juizo', this.value)">
+        <span class="dica">Da vara e da comarca cadastradas · <a href="#" onclick="event.preventDefault();refazerTexto('juizo')">refazer</a></span></div>
+      <div class="field"><label for="propAcao">Ação e partes</label>
+        <input id="propAcao" value="${escapeHtml(r.acao)}" oninput="propCampo('acao', this.value)">
+        <span class="dica">Requerente e requerido saem do campo Partes · <a href="#" onclick="event.preventDefault();refazerTexto('acao')">refazer</a></span></div>`;
 
+  /* 3. textos */
   const corpoTextos = `
-      <div class="field" style="margin-bottom:14px;">
+      <div class="field">
         <label for="propResumo">Resumo do processo</label>
         <textarea id="propResumo" rows="5" oninput="propCampo('resumo', this.value)">${escapeHtml(r.resumo)}</textarea>
-        <span class="dica">Rascunho a partir da natureza e das partes · <a href="#" onclick="event.preventDefault();refazerTexto('resumo')">refazer rascunho</a></span>
+        <span class="dica">Rascunho pela natureza e pelas partes · <a href="#" onclick="event.preventDefault();refazerTexto('resumo')">refazer rascunho</a></span>
       </div>
       <div class="field">
         <label for="propComplexidade">Justificativa da complexidade</label>
-        <textarea id="propComplexidade" rows="7" oninput="propCampo('complexidade', this.value)">${escapeHtml(r.complexidade)}</textarea>
-        <span class="dica">Descreva aqui o volume documental e as particularidades do caso · <a href="#" onclick="event.preventDefault();refazerTexto('complexidade')">refazer rascunho</a></span>
+        <textarea id="propComplexidade" rows="6" oninput="propCampo('complexidade', this.value)">${escapeHtml(r.complexidade)}</textarea>
+        <span class="dica">Volume documental e particularidades do caso · <a href="#" onclick="event.preventDefault();refazerTexto('complexidade')">refazer rascunho</a></span>
       </div>`;
 
+  /* 4. horas e valores */
   const corpoQuadro = `
-      <div class="tabela-wrap" style="margin-top:0;">
-        <table class="memoria">
-          <thead><tr><th>Tarefa</th><th style="width:118px;">Horas</th></tr></thead>
-          <tbody>
-            ${TAREFAS.map((t,i) => `
-              <tr>
-                <td style="white-space:normal; font-family:inherit;">${escapeHtml(t)}</td>
-                <td><input inputmode="numeric" value="${r.horas[i]}" oninput="propHora(${i}, this.value)" class="celula-horas"></td>
-              </tr>`).join('')}
-          </tbody>
-        </table>
+      <div class="pp-horas">
+        ${TAREFAS.map((t, i) => `
+          <label class="pp-hora">
+            <span>${escapeHtml(t)}</span>
+            <input inputmode="numeric" value="${r.horas[i]}" oninput="propHora(${i}, this.value)" aria-label="Horas: ${escapeHtml(t)}">
+          </label>`).join('')}
       </div>
-      <div class="form-grid" style="margin-top:14px;">
+      <div class="pp-valores">
         <div class="field"><label for="propHoraTec">Hora técnica (R$)</label>
           <input id="propHoraTec" inputmode="decimal" value="${brl(r.horaTecnica)}" oninput="propCampo('horaTecnica', this.value)">
-          <span class="dica">Padrão da ficha do perito · <a href="#" onclick="event.preventDefault();refazerTexto('horas')">refazer horas sugeridas</a></span></div>
+          <span class="dica">Padrão de Meu perfil · <a href="#" onclick="event.preventDefault();refazerTexto('horas')">refazer horas sugeridas</a></span></div>
         <div class="field"><label for="propAdiant">Adiantamento (%)</label>
           <input id="propAdiant" inputmode="numeric" value="${escapeHtml(r.adiantamento)}" oninput="propCampo('adiantamento', this.value)">
           <span class="dica">Art. 465, §4º, do CPC</span></div>
-      </div>
-      <div class="kv-grid" style="margin-top:14px;">
-        <div class="kv"><div class="k">Total de horas</div><div class="v num"><span id="propTotalHoras">${totais.horas}</span> <span id="propHorasExtenso" style="font-size:12px; font-weight:400; color:var(--muted);">${totais.horas ? '(' + extensoFeminino(totais.horas) + ')' : ''}</span></div></div>
-        <div class="kv"><div class="k">Honorários</div><div class="v num" id="propValor">R$ ${brl(totais.valor)}</div></div>
-        <div class="kv"><div class="k">Adiantamento</div><div class="v num" id="propAdiantValor">R$ ${brl(totais.adiantado)}</div></div>
-        <div class="kv"><div class="k">Saldo na entrega</div><div class="v num" id="propSaldo">R$ ${brl(totais.valor - totais.adiantado)}</div></div>
-      </div>
-      <div class="calc-nota">Por extenso: <span id="propValorExtenso">${totais.valor ? porExtenso(totais.valor) : ''}</span></div>`;
+      </div>`;
 
+  /* 5. requerimento */
   const corpoRequerimento = `
       <div class="field">
         <label for="propRequerimento">Requerimento adicional (opcional)</label>
-        <textarea id="propRequerimento" rows="4" placeholder="Ex.: Em atenção ao art. 473, §3º, do CPC/2015, requer-se que a parte junte aos autos..." oninput="propCampo('requerimento', this.value)">${escapeHtml(r.requerimento || '')}</textarea>
-        <span class="dica">Entra logo antes do pedido final. Deixe em branco para omitir.</span>
-      </div>
-      <div class="acoes" style="margin-top:16px;">
-        <button class="btn btn-primary" onclick="gerarProposta(false)">Gerar documento</button>
-        <button class="btn btn-ghost" onclick="gerarProposta(true)">Gerar e anexar à perícia</button>
-        <span id="propStatus" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
+        <textarea id="propRequerimento" rows="3" placeholder="Ex.: Em atenção ao art. 473, §3º, do CPC/2015, requer-se que a parte junte aos autos..." oninput="propCampo('requerimento', this.value)">${escapeHtml(r.requerimento || '')}</textarea>
+        <span class="dica">Entra antes do pedido final. Em branco, fica de fora.</span>
       </div>`;
 
+  /* coluna da direita: prévia, valores e geração */
+  const lateral = `
+    <aside class="pp-lado">
+      <div class="pp-totais">
+        <div class="pp-total-principal"><small>Honorários</small><b id="propValor">R$ ${brl(totais.valor)}</b><span id="propValorExtenso">${totais.valor ? porExtenso(totais.valor) : ''}</span></div>
+        <div class="pp-total-linhas">
+          <span><small>Horas</small><b><span id="propTotalHoras">${totais.horas}</span></b> <em id="propHorasExtenso">${totais.horas ? '(' + extensoFeminino(totais.horas) + ')' : ''}</em></span>
+          <span><small>Adiantamento</small><b id="propAdiantValor">R$ ${brl(totais.adiantado)}</b></span>
+          <span><small>Saldo na entrega</small><b id="propSaldo">R$ ${brl(totais.valor - totais.adiantado)}</b></span>
+        </div>
+        <div class="pp-gerar">
+          <button class="btn btn-primary" onclick="gerarProposta(false)">${svg('<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>')} Baixar proposta (.docx)</button>
+          <button class="btn btn-ghost" onclick="gerarProposta(true)">Gerar e anexar à perícia</button>
+          <span id="propStatus" class="pp-status" role="status"></span>
+        </div>
+      </div>
+      <div class="pp-previa-tit">Prévia</div>
+      <div id="ppPrevia">${propPreviaHtml(c, r, ficha)}</div>
+    </aside>`;
+
   return `
-    <div class="section-gap">
-      ${avisoFicha}
-      ${panel('propModelo', 'Modelo do escritório', modeloProposta ? 'importado' : 'nenhum importado', corpoModelo)}
-      ${panel('propProcesso', 'Perícia e endereçamento', escapeHtml(c.codigo), corpoProcesso)}
-      ${panel('propTextos', 'Resumo e complexidade', 'rascunho automático, editável', corpoTextos)}
-      ${panel('propQuadro', 'Quadro orçamentário', totais.horas + ' horas · R$ ' + brl(totais.valor), corpoQuadro)}
-      ${panel('propFinal', 'Requerimentos e geração', '', corpoRequerimento)}
+    <div class="pp">
+      <div class="pp-main">
+        ${passo(1, 'Identidade da proposta', 'logo, rodapé e modelo', corpoIdentidade, 'ppIdent')}
+        ${passo(2, 'Perícia e endereçamento', escapeHtml(c.codigo), corpoProcesso, 'ppProc')}
+        ${passo(3, 'Resumo e complexidade', 'rascunho automático, editável', corpoTextos, 'ppTextos')}
+        ${passo(4, 'Horas e valores', `<span id="ppHorasNota">${totais.horas} horas</span>`, corpoQuadro, 'ppQuadro')}
+        ${passo(5, 'Requerimento final', 'opcional', corpoRequerimento, 'ppReq')}
+      </div>
+      ${lateral}
     </div>`;
 }
 
