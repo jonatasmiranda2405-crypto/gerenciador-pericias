@@ -9,6 +9,7 @@
 //     salvo    {pedidoId, ok}          o site gravou o arquivo recebido; pode mandar o próximo
 //     cancelar {pedidoId}
 //     entrar                           abre a tela de login do PROJUDI
+//     djen     {params}                consulta o DJEN (comunicações do CNJ) e devolve {ok, count, items}
 //
 //   extensão → site  { __pf:"ext", tipo, ... }
 //     pronta {versao} · resposta {ref, ...} · oferta {pedido} · status {pedidoId, etapa, texto}
@@ -104,6 +105,7 @@
         break;
       }
       case "entrar": responder(await enviar({ type: "PF_ENTRAR" })); break;
+      case "djen": responder(await enviar({ type: "PF_DJEN", params: d.params })); break;
     }
   });
 

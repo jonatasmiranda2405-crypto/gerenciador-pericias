@@ -48,3 +48,7 @@ const ROBO_MAX_TENTATIVAS = 4;
 const ROBO_CLICA_BUSCAR = false;
 // O formulário do PROJUDI pede o número curto: número e dígito ("5151870-23"), até 18 caracteres.
 const PROJUDI_NUMERO_CURTO = true;
+
+// 5) Diário de Justiça Eletrônico Nacional (DJEN): API pública de comunicações do CNJ.
+//    Consulta sem chave; só responde a quem está no Brasil, por isso é feita daqui, do navegador do perito.
+const DJEN_API = "https://comunicaapi.pje.jus.br/api/v1/comunicacao";

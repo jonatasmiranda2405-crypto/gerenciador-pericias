@@ -19,7 +19,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
     channel: "chromium", headless: true, ignoreHTTPSErrors: true, acceptDownloads: true, viewport: { width: 1360, height: 900 },
     env: { ...process.env, HTTPS_PROXY: "", HTTP_PROXY: "", https_proxy: "", http_proxy: "" },
     args: ["--no-proxy-server", `--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, "--ignore-certificate-errors",
-      "--host-resolver-rules=MAP projudi.tjgo.jus.br 127.0.0.1:8443, MAP jonatasmiranda2405-crypto.github.io 127.0.0.1:8443, MAP script.google.com 127.0.0.1:8443, EXCLUDE localhost"]
+      "--host-resolver-rules=MAP projudi.tjgo.jus.br 127.0.0.1:8443, MAP jonatasmiranda2405-crypto.github.io 127.0.0.1:8443, MAP script.google.com 127.0.0.1:8443, MAP comunicaapi.pje.jus.br 127.0.0.1:8443, EXCLUDE localhost"]
   });
   await ctx.grantPermissions(["notifications"], { origin: "https://jonatasmiranda2405-crypto.github.io" });
   let sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js"));
@@ -160,11 +160,12 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
 
   console.log("\n7) Publicações e Integrações");
   await ir("publicacoes");
-  check("Publicações explica o DJEN e lista o que será monitorado", /a conectar/.test(await pf.textContent("#view")) && (await pf.textContent("#view")).includes(NUM));
+  check("Publicações mostra o DJEN, a extensão conectada e os processos acompanhados", /Diário de Justiça Eletrônico Nacional/.test(await pf.textContent("#view")) && /conectado/.test(await pf.textContent("#view")) && /\d+ processos? em andamento/.test(await pf.textContent("#view")));
   await foto("publicacoes");
   await ir("integracoes");
   const integ = await pf.textContent("#view");
   check("Integrações mostra a extensão instalada e as notificações ligadas", /v1\.7\.\d instalada/.test(integ) && /ligadas/.test(integ), integ.slice(0, 160).replace(/\s+/g, " "));
+  check("Integrações mostra o DJEN ligado pela extensão", /pela extensão/.test(integ));
   await foto("integracoes");
   await ir("visao");
   check("Visão geral mostra a agenda da semana", /Agenda da semana/.test(await pf.textContent("#view")));
@@ -375,6 +376,30 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await pf.keyboard.press("Escape");
   await pf.evaluate(() => abrirLogin(false));
   check("ao entrar, a apresentação some", !(await pf.isVisible("#login .lp")));
+
+  console.log("\n17) Publicações do DJEN pela extensão");
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await pf.evaluate(() => { perfil.ficha = { ...(perfil.ficha || {}), nomeCompleto: "Perito de Teste da Silva" }; perfil.pubVistos = []; PUB.itens = []; PUB.ultima = null; localStorage.removeItem("pf_djen_cache"); setSection("publicacoes"); });
+  await sleep(300);
+  check("tela de publicações com a extensão conectada", /conectado/.test(await pf.textContent(".pub-topo")) && !(await pf.locator('button:has-text("Buscar agora")').isDisabled()));
+  await pf.click('button:has-text("Buscar agora")');
+  await pf.waitForFunction(() => !PUB.rodando && (PUB.itens || []).length >= 2, null, { timeout: 30000 });
+  await sleep(300);
+  const pubInfo = await pf.evaluate(() => ({ cards: document.querySelectorAll(".pub-card").length, nomeacao: document.querySelectorAll(".pub-card.nomeacao").length, abrir: [...document.querySelectorAll(".pub-card")].some((c) => /Abrir perícia/.test(c.textContent) && /quesitos complementares/.test(c.textContent)), badge: (document.querySelector('#nav .nav-item[data-sec="publicacoes"] .nav-badge') || {}).textContent || "" }));
+  check("busca pelo nome e pelo processo: nomeação nova e intimação da perícia", pubInfo.cards === 2 && pubInfo.nomeacao === 1 && pubInfo.abrir && pubInfo.badge === "2", JSON.stringify(pubInfo));
+  check("nome do perito realçado no texto", await pf.locator(".pub-card.nomeacao mark").count() >= 1);
+  await pf.click('.pub-card:has-text("quesitos complementares") button:has-text("Marcar como lida")');
+  await sleep(200);
+  check("marcar como lida tira do contador", await pf.evaluate(() => pubNaoLidas()) === 1 && (await pf.textContent('#nav .nav-item[data-sec="publicacoes"] .nav-badge')).trim() === "1");
+  const antesCasos = await pf.evaluate(() => casos.length);
+  await pf.click('.pub-card.nomeacao button:has-text("Criar perícia")');
+  await sleep(500);
+  check("nomeação vira perícia com o número do processo", await pf.evaluate((n) => casos.length === n + 1 && casos.some((c) => c.numeroProcesso === "0000099-00.2026.8.09.0001" && c.origem === "djen"), antesCasos));
+  await pf.evaluate(() => { closeDrawer(); setSection("publicacoes"); });
+  await sleep(200);
+  check("depois de criada, a publicação aponta para a perícia", await pf.locator('.pub-card:has-text("0000099-00.2026.8.09.0001") button:has-text("Abrir perícia")').count() >= 1);
+  await pf.screenshot({ path: path.join(SAIDA, "tela-publicacoes.png"), fullPage: true });
+  await pf.evaluate(() => { const c = casos.find((x) => x.origem === "djen"); if (c) { casos = casos.filter((x) => x.id !== c.id); persistCasosToLocalStorage(); } perfil.pubVistos = []; PUB.itens = []; localStorage.removeItem("pf_djen_cache"); setSection("visao"); });
 
   console.log("\n16) Proposta de honorários com logo");
   await pf.setViewportSize({ width: 1360, height: 900 });

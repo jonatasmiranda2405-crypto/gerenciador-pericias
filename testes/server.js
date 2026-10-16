@@ -7,6 +7,7 @@ const APP = path.join(__dirname, "..", "index.html");
 const NUM = "5151870-23.2026.8.09.0051";
 const COD = "Zrrxk42nj8DcwbqmZd"; // o PROJUDI diferencia maiúsculas de minúsculas
 let extraLiberado = false; // simula um arquivo novo juntado depois
+const djenPedidos = []; // consultas recebidas pelo DJEN simulado
 
 const ARQS = {
   "1001": { nome: "peticao_inicial.pdf", file: "peticao.pdf", mov: 1 },
@@ -144,6 +145,17 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
     if (u.pathname.startsWith("/gerenciador-pericias/novo/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(path.join(__dirname, "..", "novo", "index.html"))); }
     if (u.pathname.startsWith("/gerenciador-pericias/")) { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(fs.readFileSync(APP)); }
   }
+  if (host === "comunicaapi.pje.jus.br" && u.pathname === "/api/v1/comunicacao") {
+    // DJEN simulado: uma nomeação pelo nome do perito e uma intimação no processo de teste
+    djenPedidos.push(Object.fromEntries(u.searchParams));
+    const q = u.searchParams;
+    const itens = [];
+    if (q.get("nomeParte")) itens.push({ id: 900001, data_disponibilizacao: "2026-10-14", siglaTribunal: "TJGO", tipoComunicacao: "Intimação", nomeOrgao: "2ª Vara Cível da Comarca de Cidade Exemplo", texto: "<p>DECISÃO</p><p>Nomeio como perito o contador " + q.get("nomeParte").toUpperCase() + ", que deverá apresentar proposta de honorários em 5 dias.</p>", numero_processo: "00000990020268090001", numeroprocessocommascara: "0000099-00.2026.8.09.0001", tipoDocumento: "Decisão", nomeClasse: "Procedimento Comum Cível", hash: "hashNomeacao01", destinatarios: [{ nome: q.get("nomeParte").toUpperCase(), polo: "P" }] });
+    if (q.get("numeroProcesso") === NUM.replace(/\D/g, "")) itens.push({ id: 900002, data_disponibilizacao: "2026-10-13", siglaTribunal: "TJGO", tipoComunicacao: "Intimação", nomeOrgao: "3ª Vara Cível de Goiânia", texto: "Fica o perito intimado para manifestar-se sobre os quesitos complementares no prazo de 15 dias.", numero_processo: NUM.replace(/\D/g, ""), numeroprocessocommascara: NUM, hash: "hashIntimacao2" });
+    res.writeHead(200, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ status: "success", message: "", count: itens.length, items: itens }));
+  }
+  if (u.pathname === "/__djen_pedidos") { res.writeHead(200, { "Content-Type": "application/json" }); return res.end(JSON.stringify(djenPedidos)); }
   if (host === "script.google.com") {
     let corpo = ""; req.on("data", (c) => (corpo += c));
     req.on("end", () => {

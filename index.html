@@ -1638,6 +1638,34 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
   .pp-passo{padding:16px;}
   .pp-total-linhas{grid-template-columns:1fr 1fr;}
 }
+/* ---------- publicações (DJEN) ---------- */
+.pub-topo{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;}
+.pub-topo-txt{display:flex; flex-direction:column; gap:4px; min-width:0; flex:1 1 320px;}
+.pub-topo-tit{display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:15px;}
+.pub-topo-txt > span{font-size:12.5px; color:var(--muted); line-height:1.45;}
+.pub-progresso{color:var(--accent-deep) !important; font-weight:500; min-height:0;}
+.pub-topo-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+.pub-ferramentas{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;}
+.pub-ferr-dir{display:flex; gap:8px; align-items:center; flex-wrap:wrap; flex:1 1 280px; justify-content:flex-end;}
+.pub-busca{flex:1 1 240px; max-width:340px;}
+.pub-dia h4{display:flex; align-items:center; gap:8px; margin:6px 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+.pub-dia h4 i{font-style:normal; font-weight:500;}
+.pub-dia h4::after{content:''; flex:1; height:1px; background:var(--line);}
+.pub-card{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; margin-bottom:10px; min-width:0;}
+.pub-card.lida{border-left-color:var(--line);}
+.pub-card.nomeacao{border-left-color:var(--ok); background:linear-gradient(90deg, var(--ok-soft), var(--surface) 40%);}
+.pub-card-cab{display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--muted);}
+.pub-trib{font-weight:700; color:var(--ink-2);}
+.pub-orgao{flex:1; min-width:0; overflow-wrap:anywhere;}
+.pub-nova{width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.pub-proc{display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:13px;}
+.pub-proc .link-sutil{margin:0; padding:0; font-size:12.5px; display:inline; width:auto; text-align:left;}
+.pub-classe{font-size:12px; color:var(--muted);}
+.pub-texto{font-size:13px; line-height:1.6; color:var(--ink-2); white-space:pre-wrap; overflow-wrap:anywhere;}
+.pub-texto mark{background:var(--warn-soft); color:inherit; border-radius:3px; padding:0 2px;}
+.pub-card.lida .pub-texto{color:var(--muted);}
+.pub-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+@media (max-width:700px){ .pub-busca{max-width:none;} .pub-ferr-dir{justify-content:stretch;} .pub-card{padding:12px;} }
 .adm-erro-acoes{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;}
 .mk-parado .mk-lupa{animation:none;}
 </style>
@@ -2095,7 +2123,7 @@ const SECTIONS = [
   {id:'visao',    titulo:'Visão geral',   sub:'Indicadores das perícias sob sua responsabilidade'},
   {id:'pericias', titulo:'Perícias',      sub:'Todas as perícias, com busca e filtros'},
   {id:'importar', titulo:'Importar processo', sub:'PROJUDI pela extensão, arquivo ZIP ou outros tribunais'},
-  {id:'publicacoes', titulo:'Publicações', sub:'Diário de Justiça Eletrônico Nacional (DJEN)'},
+  {id:'publicacoes', titulo:'Publicações', sub:'Nomeações e intimações do DJEN, pelo seu nome e pelos seus processos'},
   {id:'prazos',   titulo:'Prazos e alertas', sub:'Entregas por urgência e avisos antes do vencimento'},
   {id:'tarefas',  titulo:'Tarefas',       sub:'Quadro por etapa, ligado a cada perícia'},
   {id:'agenda',   titulo:'Agenda',        sub:'Diligências, vistorias, audiências e prazos'},
@@ -2537,7 +2565,7 @@ function pfFavicon(){
    ========================================================================== */
 const ADMINS = ['jonatasmiranda2405@gmail.com', 'rodrigodosantosmiranda@gmail.com'];
 const APP_VERSAO = '2026.10.15';
-const EXT_VERSAO_ATUAL = '1.7.4';
+const EXT_VERSAO_ATUAL = '1.7.5';
 const SITE_DOMINIO = 'gerenciadorpericias.com.br';
 const VIGIA_API = 'https://api.github.com/repos/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml/runs?per_page=5';
 const VIGIA_LINK = 'https://github.com/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml';
@@ -8786,7 +8814,9 @@ function renderAll(){
         : activeSection === 'agenda' ? renderAgenda() : renderFinanceiro();
     }
   }
-  else if(activeSection === 'publicacoes') view.innerHTML = renderPublicacoes();
+  else if(activeSection === 'publicacoes'){
+    if(!(document.activeElement && document.activeElement.id === 'pubBusca')) view.innerHTML = renderPublicacoes();
+  }
   else if(activeSection === 'integracoes') view.innerHTML = renderIntegracoes();
   else if(activeSection === 'privacidade') view.innerHTML = renderPrivacidade();
   else if(activeSection === 'config') view.innerHTML = renderConfig();
@@ -9774,7 +9804,8 @@ window.addEventListener('message', (ev) => {
   switch(d.tipo){
     case 'pronta': {
       const antes = PJ.versao; PJ.versao = d.versao || '0';
-      if(antes !== PJ.versao && ['perfil','projudi'].includes(activeSection)) renderAll();
+      if(antes !== PJ.versao && ['perfil','projudi','publicacoes','integracoes'].includes(activeSection)) renderAll();
+      if(!antes) setTimeout(pubVerificarDoDia, 4000);
       break;
     }
     case 'resposta': { const r = PJ.respostas.get(d.ref); if(r){ PJ.respostas.delete(d.ref); r(d); } break; }
@@ -10173,18 +10204,231 @@ function renderImportar(){
   </div>`;
 }
 
-/* ---------- Publicações (DJEN) ---------- */
+/* ---------- Publicações (DJEN) ----------
+   O DJEN (Comunica API do CNJ) é público, mas só responde a quem está no Brasil e não
+   aceita chamada direta de outro site. Por isso a consulta passa pela extensão PROJUDI PDFs,
+   que roda no navegador do perito. Busca pelo nome do perito (nomeações e intimações) e
+   pelos números das perícias em andamento. O resultado fica guardado neste navegador; o que
+   já foi lido fica no perfil, para valer em qualquer computador. */
+const DJEN_VERSAO_EXT = '1.7.5';
+const DJEN_LS = 'pf_djen_cache';
+const PUB = {itens: null, rodando: false, progresso: '', erro: '', filtro: 'todas', busca: '', abertos: new Set(), ultima: null};
+function djenExtOk(){
+  if(!PJ.versao) return false;
+  const a = PJ.versao.split('.').map(Number), b = DJEN_VERSAO_EXT.split('.').map(Number);
+  for(let i = 0; i < 3; i++){ if((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); }
+  return true;
+}
+function pubCarregarCache(){
+  if(PUB.itens) return;
+  try{
+    const c = JSON.parse(localStorage.getItem(DJEN_LS) || '{}');
+    PUB.itens = Array.isArray(c.itens) ? c.itens.filter(x => x && typeof x.id === 'string') : [];
+    PUB.ultima = typeof c.ultima === 'string' ? c.ultima : null;
+  }catch(e){ PUB.itens = []; }
+}
+function pubGuardarCache(){
+  try{ localStorage.setItem(DJEN_LS, JSON.stringify({ultima: PUB.ultima, itens: (PUB.itens || []).slice(0, 400)})); }catch(e){}
+}
+function pubVistos(){ const v = perfil && perfil.pubVistos; return new Set(Array.isArray(v) ? v.map(String) : []); }
+let pubVistosTimer = null;
+function pubMarcarVisto(ids, render){
+  const v = pubVistos();
+  [].concat(ids).forEach(id => v.add(String(id)));
+  perfil = {...perfil, pubVistos: [...v].slice(-1500)};
+  persistirPerfilLocal();
+  clearTimeout(pubVistosTimer);
+  pubVistosTimer = setTimeout(() => salvarPerfil({pubVistos: perfil.pubVistos}), 800);
+  if(render !== false) renderAll();
+}
+function pubNaoLidas(){ pubCarregarCache(); const v = pubVistos(); return (PUB.itens || []).filter(x => !v.has(x.id)).length; }
+
+/* deixa cada comunicação num formato só, aceitando as variações de nome de campo da API */
+function djenTextoLimpo(h){
+  const div = document.createElement('div');
+  div.innerHTML = String(h || '').replace(/<(br|\/p|\/div|\/li|\/tr)\s*\/?>/gi, '\n');
+  return (div.textContent || '').replace(/ /g, ' ').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n\n').trim();
+}
+function djenNormalizar(it, origem){
+  const pega = (...ks) => { for(const k of ks){ if(it[k] != null && it[k] !== '') return it[k]; } return ''; };
+  const id = String(pega('id', 'idComunicacao', 'hash') || '').slice(0, 80);
+  if(!id) return null;
+  const digitos = String(pega('numero_processo', 'numeroProcesso', 'numeroprocessocommascara')).replace(/\D/g, '');
+  const mascara = String(pega('numeroprocessocommascara', 'numeroProcessoComMascara')) || (digitos.length === 20 ? `${digitos.slice(0,7)}-${digitos.slice(7,9)}.${digitos.slice(9,13)}.${digitos.slice(13,14)}.${digitos.slice(14,16)}.${digitos.slice(16)}` : digitos);
+  const data = String(pega('data_disponibilizacao', 'dataDisponibilizacao', 'datadisponibilizacao')).slice(0, 10);
+  const dest = Array.isArray(it.destinatarios) ? it.destinatarios.map(d => String((d && (d.nome || d.nomeDestinatario)) || '')).filter(Boolean).slice(0, 12) : [];
+  const hash = String(pega('hash') || '');
+  return {
+    id, origem: [origem], hash: /^[A-Za-z0-9_-]{4,80}$/.test(hash) ? hash : '',
+    data: /^\d{4}-\d{2}-\d{2}$/.test(data) ? data : todayIso(),
+    tribunal: String(pega('siglaTribunal', 'sigla_tribunal')).slice(0, 20),
+    orgao: String(pega('nomeOrgao', 'nome_orgao', 'orgao')).slice(0, 200),
+    tipo: String(pega('tipoComunicacao', 'tipo_comunicacao')).slice(0, 60) || 'Comunicação',
+    tipoDoc: String(pega('tipoDocumento', 'tipo_documento')).slice(0, 80),
+    classe: String(pega('nomeClasse', 'nome_classe')).slice(0, 160),
+    processo: digitos.length === 20 ? digitos : '', processoMascara: String(mascara).slice(0, 30),
+    texto: djenTextoLimpo(pega('texto', 'conteudo')).slice(0, 20000),
+    destinatarios: dest,
+  };
+}
+function pubCasoDe(p){ return p.processo ? casosVisiveis().find(c => String(c.numeroProcesso || '').replace(/\D/g, '') === p.processo) : null; }
+function pubEhNomeacao(p){ return /nomeio|nomead[oa] (como |para )?perit|nomea[çc][ãa]o d[oa] perit|designo .{0,40}perit|perit[oa] nomead/i.test(p.texto); }
+
+async function pubVerificar(automatico){
+  if(PUB.rodando) return;
+  if(!djenExtOk()){ if(!automatico) pfAviso(`Instale ou atualize a extensão PROJUDI PDFs (versão ${DJEN_VERSAO_EXT} ou mais nova) para buscar no DJEN.`); return; }
+  pubCarregarCache();
+  const nome = String((fichaDe(meuEmail()) || {}).nomeCompleto || '').trim();
+  const processos = [...new Set(casosVisiveis().filter(c => !(STATUS[c.statusCaso] || {}).final).map(c => String(c.numeroProcesso || '').replace(/\D/g, '')).filter(d => d.length === 20))].slice(0, 40);
+  if(!nome && !processos.length){ if(!automatico) pfAviso('Preencha o seu nome completo em Meu perfil ou o número do processo nas perícias para buscar no DJEN.'); return; }
+  PUB.rodando = true; PUB.erro = ''; renderPub();
+  const hoje = todayIso();
+  const menos = d => { const x = new Date(); x.setDate(x.getDate() - d); return x.toISOString().slice(0, 10); };
+  const consultas = [];
+  if(nome) consultas.push({origem: 'nome', rotulo: 'pelo seu nome', params: {nomeParte: nome, dataDisponibilizacaoInicio: menos(30), dataDisponibilizacaoFim: hoje, itensPorPagina: 100, pagina: 1}});
+  processos.forEach(n => consultas.push({origem: 'processo', rotulo: 'processo ' + n.slice(0, 7), params: {numeroProcesso: n, dataDisponibilizacaoInicio: menos(90), dataDisponibilizacaoFim: hoje, itensPorPagina: 100, pagina: 1}}));
+  const mapa = new Map((PUB.itens || []).map(x => [x.id, x]));
+  let novos = 0, falhas = 0, ultimoErro = '';
+  for(let i = 0; i < consultas.length; i++){
+    const q = consultas[i];
+    PUB.progresso = `Consultando ${q.rotulo} (${i + 1} de ${consultas.length})…`; renderPubProgresso();
+    const r = await pjPedir({tipo: 'djen', params: q.params}, 40000);
+    if(!r || !r.ok){ falhas++; ultimoErro = (r && r.erro) || 'sem resposta'; if(r && (r.status === 403 || r.status === 429)) break; continue; }
+    for(const bruto of r.items || []){
+      const n = djenNormalizar(bruto, q.origem);
+      if(!n) continue;
+      const ja = mapa.get(n.id);
+      if(ja){ if(!ja.origem.includes(q.origem)) ja.origem.push(q.origem); continue; }
+      mapa.set(n.id, n); novos++;
+    }
+  }
+  PUB.itens = [...mapa.values()].sort((a, b) => b.data.localeCompare(a.data) || b.id.localeCompare(a.id));
+  PUB.ultima = new Date().toISOString();
+  try{ localStorage.setItem('pf_djen_dia', hoje); }catch(e){}
+  pubGuardarCache();
+  PUB.rodando = false; PUB.progresso = '';
+  PUB.erro = falhas === consultas.length ? ultimoErro : falhas ? `${falhas} consulta${falhas === 1 ? '' : 's'} falharam (${ultimoErro}).` : '';
+  if(!automatico || novos) pfAviso(novos ? `${novos} publicaç${novos === 1 ? 'ão nova' : 'ões novas'} no DJEN.` : PUB.erro ? 'O DJEN não respondeu como esperado.' : 'Nenhuma publicação nova no DJEN.');
+  renderAll();
+}
+/* uma vez por dia, ao abrir o sistema com a extensão instalada */
+function pubVerificarDoDia(){
+  let dia = '';
+  try{ dia = localStorage.getItem('pf_djen_dia') || ''; }catch(e){}
+  if(dia !== todayIso() && djenExtOk() && meuEmail()) pubVerificar(true);
+}
+function renderPubProgresso(){ const el = document.getElementById('pubProgresso'); if(el) el.textContent = PUB.progresso; }
+function renderPub(){ if(activeSection === 'publicacoes'){ const v = document.getElementById('view'); if(v && !(document.activeElement && document.activeElement.id === 'pubBusca')) v.innerHTML = renderPublicacoes(); } }
+function pubAlternar(id){
+  if(PUB.abertos.has(id)) PUB.abertos.delete(id); else { PUB.abertos.add(id); pubMarcarVisto(id, false); }
+  renderPub(); renderNav();
+}
+async function pubCriarPericia(id){
+  const p = (PUB.itens || []).find(x => x.id === id);
+  if(!p || !p.processo) return;
+  if(pubCasoDe(p)){ openDrawer(pubCasoDe(p).id); return; }
+  if(!possoCriar()){ pfAviso('Confirme o seu e-mail para criar perícias.'); return; }
+  const dono = meuEmail();
+  const comarca = (p.orgao.match(/comarca de ([^,–-]+)/i) || p.orgao.match(/ de ([A-ZÁ-Úa-zá-ú ]+)$/) || [])[1] || '';
+  const casoId = await criarCaso({dono, emails: [dono], editores: [dono], compartilhamentos: [], codigo: nextCodigo(), nome: p.classe || `Processo ${p.processoMascara}`,
+    numeroProcesso: p.processoMascara, codigoAcesso: '', vara: p.orgao, comarca: comarca.trim(), partes: '', dataNomeacao: p.data, prazoEntrega: p.data,
+    honorarios: 0, valorRecebido: 0, statusCaso: 'aguardando_nomeacao', observacoes: [], origem: 'djen'});
+  pubMarcarVisto(id, false);
+  pfAviso('Perícia criada a partir da publicação. Confira os dados e o prazo.');
+  openDrawer(casoId);
+  renderAll();
+}
+function pubMarcarTodas(){ pubMarcarVisto((PUB.itens || []).map(x => x.id)); }
+
 function renderPublicacoes(){
-  const numeros = casosVisiveis().filter(c => c.numeroProcesso && !(STATUS[c.statusCaso] || {}).final);
-  return `<div class="section-gap">
-    <div class="pf-card">
-      <div class="pf-linha"><b style="flex:1">Diário de Justiça Eletrônico Nacional (DJEN)</b><span class="pill pill-muted">a conectar</span></div>
-      <p class="hint" style="margin:0;">Quando estiver ligado, o Gerenciador de Perícia vai conferir o DJEN toda manhã pelo seu nome e pelos números das suas perícias. Nomeações novas viram perícias, e intimações viram tarefas com prazo. Isso depende de um servidor que rode mesmo com o app fechado, e ele está na próxima etapa.</p>
-      <div class="pf-linha"><a class="btn btn-ghost" href="https://comunica.pje.jus.br/" target="_blank" rel="noopener">Consultar o DJEN agora</a></div>
+  pubCarregarCache();
+  const lista = PUB.itens || [];
+  const vistos = pubVistos();
+  const extOk = djenExtOk();
+  const nome = String((fichaDe(meuEmail()) || {}).nomeCompleto || '').trim();
+  const ativos = casosVisiveis().filter(c => !(STATUS[c.statusCaso] || {}).final && String(c.numeroProcesso || '').replace(/\D/g, '').length === 20);
+  const cont = {
+    todas: lista.length,
+    naolidas: lista.filter(x => !vistos.has(x.id)).length,
+    nomeacoes: lista.filter(x => pubEhNomeacao(x) && !pubCasoDe(x)).length,
+    processos: lista.filter(x => pubCasoDe(x)).length,
+    nome: lista.filter(x => x.origem.includes('nome')).length,
+  };
+  const filtros = [['todas', 'Todas'], ['naolidas', 'Não lidas'], ['nomeacoes', 'Nomeações novas'], ['processos', 'Das minhas perícias'], ['nome', 'Pelo meu nome']];
+  const q = normalizeText(PUB.busca);
+  const visiveis = lista.filter(x => {
+    if(PUB.filtro === 'naolidas' && vistos.has(x.id)) return false;
+    if(PUB.filtro === 'nomeacoes' && !(pubEhNomeacao(x) && !pubCasoDe(x))) return false;
+    if(PUB.filtro === 'processos' && !pubCasoDe(x)) return false;
+    if(PUB.filtro === 'nome' && !x.origem.includes('nome')) return false;
+    return !q || normalizeText(`${x.texto} ${x.processoMascara} ${x.orgao} ${x.tipo} ${x.classe}`).includes(q);
+  });
+  const grupos = new Map();
+  visiveis.slice(0, 200).forEach(x => { const k = x.data; if(!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(x); });
+  const realce = t => {
+    let h = escapeHtml(t);
+    const termos = [nome, PUB.busca].filter(s => s && s.trim().length >= 3);
+    termos.forEach(s => { const re = new RegExp(escapeHtml(s.trim()).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'); h = h.replace(re, m => `<mark>${m}</mark>`); });
+    return h;
+  };
+  const cartao = x => {
+    const c = pubCasoDe(x);
+    const lida = vistos.has(x.id);
+    const aberto = PUB.abertos.has(x.id);
+    const nomeacao = pubEhNomeacao(x) && !c;
+    const trecho = aberto ? x.texto : x.texto.slice(0, 320) + (x.texto.length > 320 ? '…' : '');
+    return `<article class="pub-card ${lida ? 'lida' : ''} ${nomeacao ? 'nomeacao' : ''}">
+      <header class="pub-card-cab">
+        <span class="pill ${nomeacao ? 'pill-success' : /intima/i.test(x.tipo) ? 'pill-accent' : 'pill-muted'}">${nomeacao ? 'Nomeação' : escapeHtml(x.tipo)}</span>
+        ${x.tribunal ? `<span class="pub-trib">${escapeHtml(x.tribunal)}</span>` : ''}
+        <span class="pub-orgao">${escapeHtml(x.orgao)}</span>
+        ${lida ? '' : '<span class="pub-nova" title="não lida"></span>'}
+      </header>
+      <div class="pub-proc">
+        <span class="mono">${escapeHtml(x.processoMascara || 'sem número')}</span>
+        ${c ? `<button class="link-sutil" onclick="openDrawer(${jsq(c.id)})">${escapeHtml(c.codigo)} · ${escapeHtml(casoNomeCurto(c))}</button>` : x.classe ? `<span class="pub-classe">${escapeHtml(x.classe)}</span>` : ''}
+      </div>
+      <div class="pub-texto ${aberto ? 'aberto' : ''}">${realce(trecho)}</div>
+      <footer class="pub-acoes">
+        ${x.texto.length > 320 ? `<button class="btn btn-ghost btn-sm" onclick="pubAlternar(${jsq(x.id)})">${aberto ? 'Mostrar menos' : 'Ler tudo'}</button>` : ''}
+        ${c ? `<button class="btn btn-ghost btn-sm" onclick="openDrawer(${jsq(c.id)})">Abrir perícia</button>` : x.processo ? `<button class="btn ${nomeacao ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="pubCriarPericia(${jsq(x.id)})">Criar perícia</button>` : ''}
+        ${x.hash ? `<a class="btn btn-ghost btn-sm" href="https://comunicaapi.pje.jus.br/api/v1/comunicacao/${encodeURIComponent(x.hash)}/certidao" target="_blank" rel="noopener">Certidão</a>` : ''}
+        ${lida ? '' : `<button class="btn btn-ghost btn-sm" onclick="pubMarcarVisto(${jsq(x.id)})">Marcar como lida</button>`}
+      </footer>
+    </article>`;
+  };
+
+  const status = !PJ.versao
+    ? `<span class="pill pill-muted">extensão não encontrada</span>`
+    : !extOk ? `<span class="pill pill-warning">atualize a extensão para ${DJEN_VERSAO_EXT}</span>`
+    : `<span class="pill pill-success">conectado</span>`;
+  const ultima = PUB.ultima ? new Date(PUB.ultima) : null;
+
+  return `<div class="section-gap pub">
+    <div class="pub-topo">
+      <div class="pub-topo-txt">
+        <div class="pub-topo-tit"><b>Diário de Justiça Eletrônico Nacional</b>${status}</div>
+        <span>${ultima ? `Última busca ${ultima.toLocaleDateString('pt-BR')} às ${ultima.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}` : 'Ainda não buscado neste navegador'} · ${nome ? `pelo nome <b>${escapeHtml(nome)}</b>` : '<a href="#" onclick="setSection(\'perfil\'); return false;">preencha o seu nome em Meu perfil</a>'} e ${ativos.length} processo${ativos.length === 1 ? '' : 's'} em andamento</span>
+        <span id="pubProgresso" class="pub-progresso">${escapeHtml(PUB.progresso)}</span>
+      </div>
+      <div class="pub-topo-acoes">
+        <button class="btn btn-primary" onclick="pubVerificar(false)" ${PUB.rodando || !extOk ? 'disabled' : ''}>${svg('<path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7"/>')} ${PUB.rodando ? 'Buscando…' : 'Buscar agora'}</button>
+        <a class="btn btn-ghost" href="https://comunica.pje.jus.br/" target="_blank" rel="noopener">Abrir o portal</a>
+      </div>
     </div>
-    ${panel('pubMonitorar', 'O que será monitorado', `${numeros.length} processo${numeros.length === 1 ? '' : 's'} em andamento`, numeros.length
-      ? `<div class="rows">${numeros.map(c => `<div class="row-item" onclick="openDrawer(${jsq(c.id)})"><div class="row-main"><div class="row-title">${escapeHtml(c.nome)}</div><div class="row-sub"><span class="mono">${escapeHtml(c.numeroProcesso)}</span> · ${escapeHtml(c.vara || 'vara não informada')}</div></div></div>`).join('')}</div>`
-      : `<div class="chart-empty">Nenhuma perícia em andamento com número de processo.</div>`)}
+    ${!extOk ? `<div class="banner banner-info">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}<span>O DJEN só responde a acessos do Brasil e não deixa outro site consultá-lo direto. A busca passa pela extensão PROJUDI PDFs (versão ${DJEN_VERSAO_EXT} ou mais nova), que roda no seu navegador. Enquanto isso, use o botão "Abrir o portal".</span></div>` : ''}
+    ${PUB.erro ? `<div class="banner">${svg('<path d="M12 9v4M12 17v.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/>')}<span>${escapeHtml(PUB.erro)}</span></div>` : ''}
+    <div class="pub-ferramentas">
+      <div class="chips">${filtros.map(([k, r]) => `<button class="chip ${PUB.filtro === k ? 'active' : ''}" onclick="PUB.filtro=${jsq(k)}; renderPub();">${r} <span class="chip-num">${cont[k]}</span></button>`).join('')}</div>
+      <div class="pub-ferr-dir">
+        <div class="search pub-busca">${svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')}<input id="pubBusca" type="search" placeholder="Buscar no texto, processo ou vara" value="${escapeHtml(PUB.busca)}" oninput="PUB.busca = this.value; clearTimeout(window.__pubB); window.__pubB = setTimeout(() => { const v = document.getElementById('view'); const pos = this.selectionStart; v.innerHTML = renderPublicacoes(); const n = document.getElementById('pubBusca'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} }, 250);"></div>
+        ${cont.naolidas ? `<button class="btn btn-ghost btn-sm" onclick="pubMarcarTodas()">Marcar todas como lidas</button>` : ''}
+      </div>
+    </div>
+    ${!lista.length
+      ? `<div class="empty-state"><h3>${PUB.rodando ? 'Buscando no DJEN…' : 'Nenhuma publicação ainda'}</h3><p>${extOk ? 'Clique em "Buscar agora". Depois, a busca roda sozinha uma vez por dia quando você abrir o sistema.' : 'Com a extensão atualizada, as nomeações e intimações aparecem aqui.'}</p></div>`
+      : !visiveis.length ? `<div class="chart-empty">Nada neste filtro.</div>`
+      : [...grupos.entries()].map(([dia, itens]) => `<section class="pub-dia"><h4>${escapeHtml(fmtDate(dia))}<i>${itens.length}</i></h4>${itens.map(cartao).join('')}</section>`).join('')}
   </div>`;
 }
 
@@ -10269,12 +10513,12 @@ function renderIntegracoes(){
       'Resumo do processo, pontos de atenção, quesitos e prazos, com a sua própria chave.', `<button class="btn btn-ghost btn-sm" onclick="setSection('ia')">Abrir</button>`],
     ['Agenda (.ics)', st(true, 'disponível'), 'Exporta compromissos e prazos para o Google Agenda, Outlook ou celular.', `<button class="btn btn-ghost btn-sm" onclick="setSection('agenda')">Abrir</button>`],
     ['Notificações do navegador', pfAlertas().navegador ? st(true, 'ligadas') : st(null, 'desligadas'), 'Avisos de prazo e de tarefas enquanto o app está aberto.', `<button class="btn btn-ghost btn-sm" onclick="setSection('prazos')">Configurar</button>`],
-    ['DJEN (publicações)', st(false, 'a conectar'), 'Nomeações e intimações conferidas toda manhã.', ''],
+    ['DJEN (publicações)', djenExtOk() ? st(true, 'pela extensão') : st(null, 'precisa da extensão ' + DJEN_VERSAO_EXT), 'Nomeações e intimações pelo seu nome e pelos seus processos, uma vez por dia ao abrir o sistema.', `<button class="btn btn-ghost btn-sm" onclick="setSection('publicacoes')">Abrir</button>`],
     ['DataJud (outros tribunais)', st(false, 'a conectar'), 'Capa e movimentações de qualquer tribunal pelo número.', ''],
     ['E-mail diário', st(false, 'a conectar'), 'Avisos de prazo às 7h, mesmo com o app fechado.', ''],
   ];
   return `<div class="section-gap">
-    <div class="banner banner-info">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}<span>Só o PROJUDI precisa da extensão, porque depende do seu login. DJEN, DataJud e e-mail vão rodar num pequeno servidor, que é a próxima etapa.</span></div>
+    <div class="banner banner-info">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>')}<span>A extensão faz o que precisa do seu navegador: os autos do PROJUDI (com o seu login) e as publicações do DJEN (que só responde a acessos do Brasil). DataJud e o e-mail diário dependem de um pequeno servidor, que é a próxima etapa.</span></div>
     <div class="pf-grid3">${L.map(([n, s, d, acao]) => `<div class="pf-card"><b>${n}</b>${s}<p class="hint" style="margin:0;">${d}</p>${acao ? `<div>${acao}</div>` : ''}</div>`).join('')}</div>
   </div>`;
 }
@@ -10332,6 +10576,8 @@ function renderNav(){
     prazos: atrasadas ? `<span class="nav-badge alert" title="${atrasadas} prazo(s) vencido(s)">${atrasadas}</span>` : '',
     tarefas: tarefasUrgentes ? `<span class="nav-badge warn" title="${tarefasUrgentes} tarefa(s) para hoje ou atrasada(s)">${tarefasUrgentes}</span>` : '',
   };
+  const pubNovas = pubNaoLidas();
+  if(pubNovas) selos.publicacoes = `<span class="nav-badge" title="${pubNovas} publicação(ões) não lida(s)">${pubNovas > 99 ? '99+' : pubNovas}</span>`;
   const abertos = pfGruposAbertos();
   if(souAdmin() && ADM.sondas.some(x => x.ok === false && (x.grav === 'critico' || x.grav === 'alto'))) selos.admin = '<span class="nav-badge alert" title="pontos de segurança para corrigir">!</span>';
   const item = (id) => {

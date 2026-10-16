@@ -194,7 +194,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 // Gerenciador de Perícia, os "PROJUDI_"/"PJ_" só do site do PROJUDI. E só baixamos arquivos do PROJUDI.
 const ORIGENS_PF = ["https://gerenciadorpericias.com.br", "https://www.gerenciadorpericias.com.br", "https://jonatasmiranda2405-crypto.github.io", "http://localhost:8080"];
 const ORIGEM_PJ = "https://projudi.tjgo.jus.br";
-const TIPOS_PF = new Set(["PF_ACEITAR", "PF_BAIXAR", "PF_CANCELAR", "PF_ENTRAR", "PF_FIM", "PF_LICENCA", "PF_PENDENTES"]);
+const TIPOS_PF = new Set(["PF_ACEITAR", "PF_BAIXAR", "PF_CANCELAR", "PF_DJEN", "PF_ENTRAR", "PF_FIM", "PF_LICENCA", "PF_PENDENTES"]);
 const TIPOS_PJ = new Set(["PROJUDI_CHECKOUT", "PROJUDI_LICENSE", "PROJUDI_LISTA", "PROJUDI_TAREFA", "PROJUDI_ZIP", "PJ_TAREFA", "PJ_TENTATIVA", "PJ_PRECISA"]);
 function origemDe(sender) {
   if (sender.origin) return sender.origin;
@@ -367,6 +367,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  // Consulta ao DJEN (comunicações processuais do CNJ), uma de cada vez e com intervalo,
+  // só com os parâmetros previstos na API pública.
+  if (msg?.type === "PF_DJEN") {
+    djenConsultar(msg.params).then(sendResponse);
+    return true;
+  }
+
   if (msg?.type === "PF_LICENCA") {
     checkLicense().then((lic) => sendResponse({ ativo: !!lic.ativo, motivo: lic.motivo || "", assinar: lic.assinar, modoTeste: !!lic.modoTeste }));
     return true;
@@ -466,3 +473,44 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 });
+
+// ---------- DJEN ----------
+const DJEN_PARAMS = {
+  nomeParte: /^[\p{L} .'-]{3,120}$/u, nomeAdvogado: /^[\p{L} .'-]{3,120}$/u,
+  numeroOab: /^\d{1,8}$/, ufOab: /^[A-Za-z]{2}$/, numeroProcesso: /^\d{20}$/, siglaTribunal: /^[A-Za-z0-9]{2,12}$/,
+  dataDisponibilizacaoInicio: /^\d{4}-\d{2}-\d{2}$/, dataDisponibilizacaoFim: /^\d{4}-\d{2}-\d{2}$/,
+  pagina: /^\d{1,3}$/, itensPorPagina: /^(5|10|20|50|100)$/, meio: /^[DE]$/,
+};
+let djenFila = Promise.resolve();
+let djenUltima = 0;
+function djenConsultar(params) {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params || {})) {
+    const re = DJEN_PARAMS[k];
+    if (!re) return Promise.resolve({ ok: false, erro: "Parâmetro não permitido: " + k });
+    const s = String(v ?? "").trim();
+    if (!re.test(s)) return Promise.resolve({ ok: false, erro: "Valor inválido em " + k });
+    q.set(k, s);
+  }
+  const tarefa = djenFila.then(async () => {
+    const espera = djenUltima + 700 - Date.now();
+    if (espera > 0) await new Promise((r) => setTimeout(r, espera));
+    djenUltima = Date.now();
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 25000);
+    try {
+      const r = await fetch(DJEN_API + "?" + q.toString(), { headers: { Accept: "application/json" }, credentials: "omit", signal: ctl.signal });
+      const texto = await r.text();
+      if (!r.ok) return { ok: false, status: r.status, erro: r.status === 429 ? "O DJEN pediu uma pausa (muitas consultas). Tente de novo em alguns minutos." : r.status === 403 ? "O DJEN recusou a consulta. Ele só responde a acessos do Brasil: confira se não há VPN ligada." : "O DJEN respondeu com erro " + r.status + "." };
+      let dados = null;
+      try { dados = JSON.parse(texto); } catch (_) { return { ok: false, erro: "O DJEN devolveu uma resposta que não é JSON." }; }
+      const itens = Array.isArray(dados.items) ? dados.items : Array.isArray(dados.itens) ? dados.itens : [];
+      return { ok: true, count: Number(dados.count ?? itens.length) || itens.length, items: itens.slice(0, 100) };
+    } catch (e) {
+      return { ok: false, erro: e && e.name === "AbortError" ? "O DJEN demorou demais para responder." : "Não foi possível falar com o DJEN agora." };
+    } finally { clearTimeout(t); }
+  });
+  djenFila = tarefa.catch(() => {});
+  return tarefa;
+}
+
