@@ -67,6 +67,8 @@ async function ensureOffscreen() {
 // Fecha o documento offscreen quando não há mais ZIP guardado (download ou envio pendente).
 async function closeOffscreenIfIdle(remaining) {
   if (remaining !== 0 || pendingRevoke.size !== 0) return;
+  const sess = await chrome.storage.session.get(null);
+  if (Object.keys(sess).some((k) => k.startsWith("rv_"))) return;
   const ativos = await listarPedidos();
   if (ativos.some((p) => p.etapa === "transferindo" || p.etapa === "oferta")) return;
   try { await chrome.offscreen.closeDocument(); } catch (_) {}
@@ -82,10 +84,14 @@ function download(opts) {
 }
 
 // Libera a memória do ZIP depois que o download termina.
+const RV = "rv_";
+async function guardarRevoke(id, url) { pendingRevoke.set(id, url); await chrome.storage.session.set({ [RV + id]: url }); }
 chrome.downloads.onChanged.addListener(async (d) => {
-  const url = pendingRevoke.get(d.id);
-  if (!url || !d.state || d.state.current === "in_progress") return;
+  if (!d.state || d.state.current === "in_progress") return;
+  const url = pendingRevoke.get(d.id) || (await chrome.storage.session.get(RV + d.id))[RV + d.id];
+  if (!url) return;
   pendingRevoke.delete(d.id);
+  await chrome.storage.session.remove(RV + d.id);
   try {
     const res = await chrome.runtime.sendMessage({ target: "offscreen", type: "REVOKE", url });
     if (res) await closeOffscreenIfIdle(res.remaining);
@@ -239,7 +245,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return;
   }
 
-  // Pedido de ZIP vindo da página
+  // Pedido de ZIP vindo da página: só dispara o trabalho e responde na hora.
+  // O resultado chega depois em ZIP_PRONTO (do offscreen) e vai para a aba em ZIP_FIM.
   if (msg?.type === "PROJUDI_ZIP") {
     (async () => {
       const tabId = sender.tab?.id;
@@ -250,26 +257,43 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const lic = await checkLicense();
         if (!lic.ativo) { sendResponse({ ok: false, license: lic }); return; }
         await ensureOffscreen();
-        const res = await chrome.runtime.sendMessage({ target: "offscreen", type: "BUILD_ZIP", files, tabId });
-        let zipOk = false;
-        if (res?.ok) {
-          const dl = await download({ url: res.url, filename: zipFilename });
-          zipOk = dl.ok;
-          if (dl.ok) pendingRevoke.set(dl.id, res.url);
-        }
-        // Arquivos que não entraram no ZIP são baixados avulsos, para não perder nada.
-        const failed = res?.failed || files;
-        let avulsos = 0;
-        for (const f of failed) {
-          const r = await download({ url: f.url, filename: `${folder}/${nomeSeguro(f.zipName, "arquivo.pdf")}` });
-          if (r.ok) avulsos++;
-        }
-        sendResponse({ ok: zipOk, count: zipOk ? res.count : 0, bytes: res?.bytes || 0, avulsos, falhas: failed.length - avulsos });
+        const jobId = crypto.randomUUID();
+        const r = await chrome.runtime.sendMessage({ target: "offscreen", type: "BUILD_ZIP", files, tabId, jobId, zipFilename, folder });
+        if (!r?.iniciado) { sendResponse({ ok: false, error: "Não foi possível começar o ZIP." }); return; }
+        sendResponse({ ok: true, iniciado: true, jobId, total: files.length });
       } catch (e) {
         sendResponse({ ok: false, error: String(e && e.message || e) });
       }
     })();
     return true;
+  }
+
+  // ZIP terminado no offscreen → baixa e avisa a aba do PROJUDI.
+  if (msg?.type === "ZIP_PRONTO") {
+    if (!String(sender.url || "").startsWith(chrome.runtime.getURL("offscreen.html"))) return;
+    (async () => {
+      const { jobId, tabId, zipFilename, folder } = msg;
+      let zipOk = false;
+      try {
+        if (msg.ok && msg.url) {
+          const dl = await download({ url: msg.url, filename: nomeSeguro(zipFilename, "PROJUDI.zip") });
+          zipOk = dl.ok;
+          if (dl.ok) await guardarRevoke(dl.id, msg.url);
+        }
+        // Arquivos que não entraram no ZIP são baixados avulsos, para não perder nada.
+        const failed = soArquivosDoProjudi(msg.failed || []);
+        let avulsos = 0;
+        for (const f of failed) {
+          const r = await download({ url: f.url, filename: `${nomeSeguro(folder, "PROJUDI")}/${nomeSeguro(f.zipName, "arquivo.pdf")}` });
+          if (r.ok) avulsos++;
+        }
+        const res = { ok: zipOk, count: zipOk ? msg.count : 0, bytes: msg.bytes || 0, avulsos, falhas: failed.length - avulsos, error: zipOk ? null : (msg.error || "Não foi possível salvar o ZIP.") };
+        if (tabId != null) chrome.tabs.sendMessage(tabId, { type: "ZIP_FIM", jobId, res }).catch(() => {});
+      } catch (e) {
+        if (tabId != null) chrome.tabs.sendMessage(tabId, { type: "ZIP_FIM", jobId, res: { ok: false, error: String(e && e.message || e) } }).catch(() => {});
+      }
+    })();
+    return;
   }
 
   // ----- Assinatura pelo Mercado Pago (Checkout Pro criado no Apps Script) -----
