@@ -51,7 +51,42 @@ async function obterArquivo(f) {
   throw ultimo;
 }
 
-const restantes = () => blobUrls.size + pedidos.size;
+let zipsAtivos = 0;
+const restantes = () => blobUrls.size + pedidos.size + zipsAtivos;
+
+async function montarZip(msg) {
+  const { files, tabId, jobId, zipFilename, folder } = msg;
+  const fim = (r) => chrome.runtime.sendMessage({ type: "ZIP_PRONTO", jobId, tabId, zipFilename, folder, ...r }).catch(() => {});
+  const progresso = (text) => chrome.runtime.sendMessage({ type: "ZIP_PROGRESS", tabId, text }).catch(() => {});
+  zipsAtivos++;
+  try {
+    const out = [];
+    const failed = [];
+    const used = new Set();
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      progresso(`Buscando ${i + 1}/${files.length}…`);
+      try {
+        const data = await obterArquivo(f);
+        // guarda como Blob (o Chrome pode tirar da memória) e já calcula o CRC do ZIP
+        out.push({ name: uniqueName(f.zipName, used), data: new Blob([data]), crc: crc32(data), size: data.length });
+      } catch (e) {
+        failed.push(f);
+      }
+      await new Promise((r) => setTimeout(r, 120)); // ritmo gentil com o servidor do tribunal
+    }
+    if (!out.length) { fim({ ok: false, failed, error: "Nenhum arquivo pôde ser obtido. Confira se o login no PROJUDI ainda está ativo." }); return; }
+    progresso(`Montando o ZIP (${out.length} arquivos)…`);
+    const blob = buildZip(out);
+    const url = URL.createObjectURL(blob);
+    blobUrls.add(url);
+    fim({ ok: true, url, count: out.length, bytes: blob.size, failed });
+  } catch (e) {
+    fim({ ok: false, failed: files, error: String(e && e.message || e) });
+  } finally {
+    zipsAtivos--;
+  }
+}
 
 function base64(blob) {
   return new Promise((resolve, reject) => {
@@ -65,30 +100,13 @@ function base64(blob) {
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.target !== "offscreen") return;
 
+  // Responde na hora e trabalha em segundo plano: com muitos arquivos o ZIP leva mais de 5 min,
+  // e o Chrome fecha mensagens que esperam resposta por tanto tempo
+  // ("message channel closed before a response was received"). O resultado volta em ZIP_PRONTO.
   if (msg.type === "BUILD_ZIP") {
-    (async () => {
-      const { files, tabId } = msg;
-      const out = [];
-      const failed = [];
-      const used = new Set();
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        chrome.runtime.sendMessage({ type: "ZIP_PROGRESS", tabId, text: `Buscando ${i + 1}/${files.length}…` });
-        try {
-          const data = await obterArquivo(f);
-          out.push({ name: uniqueName(f.zipName, used), data });
-        } catch (e) {
-          failed.push(f);
-        }
-      }
-      if (!out.length) { sendResponse({ ok: false, failed, error: "Nenhum arquivo pôde ser obtido." }); return; }
-      chrome.runtime.sendMessage({ type: "ZIP_PROGRESS", tabId, text: `Montando o ZIP (${out.length} arquivos)…` });
-      const blob = buildZip(out);
-      const url = URL.createObjectURL(blob);
-      blobUrls.add(url);
-      sendResponse({ ok: true, url, count: out.length, bytes: blob.size, failed });
-    })();
-    return true;
+    sendResponse({ ok: true, iniciado: true });
+    montarZip(msg);
+    return;
   }
 
   if (msg.type === "REVOKE") {
