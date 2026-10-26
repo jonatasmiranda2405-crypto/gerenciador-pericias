@@ -11,15 +11,21 @@ window.addEventListener("message", (ev) => {
   else if (kind === "checkout") msg = { type: "PROJUDI_CHECKOUT", plano: ev.data.plano, email: ev.data.email };
   else if (kind === "license") msg = { type: "PROJUDI_LICENSE", email: ev.data.email };
   else return;
-  chrome.runtime.sendMessage(msg, (res) => {
-    const err = chrome.runtime.lastError;
-    reply(id, err ? { ok: false, error: err.message } : res || { ok: false });
-  });
+  try {
+    chrome.runtime.sendMessage(msg, (res) => {
+      const err = chrome.runtime.lastError;
+      reply(id, err ? { ok: false, error: err.message } : res || { ok: false });
+    });
+  } catch (e) {
+    reply(id, { ok: false, error: "A extensão foi atualizada. Recarregue esta página (F5)." });
+  }
 });
 
 // Progresso do ZIP → página
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "ZIP_PROGRESS") {
     window.postMessage({ __projudiPdf: "progress", text: msg.text }, window.location.origin);
+  } else if (msg?.type === "ZIP_FIM") {
+    window.postMessage({ __projudiPdf: "zipfim", jobId: msg.jobId, res: msg.res }, window.location.origin);
   }
 });
