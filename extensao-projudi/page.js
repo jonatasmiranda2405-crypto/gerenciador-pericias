@@ -18,6 +18,15 @@
   window.addEventListener("message", (ev) => {
     if (ev.source === window && ev.data && ev.data.__projudiPdf === "progress" && onProgress) onProgress(ev.data.text);
   });
+  // Fim do ZIP (chega quando o trabalho termina, mesmo depois de muitos minutos)
+  const zipEsperas = new Map();
+  window.addEventListener("message", (ev) => {
+    if (ev.source !== window || !ev.data || ev.data.__projudiPdf !== "zipfim") return;
+    const cb = zipEsperas.get(ev.data.jobId);
+    if (cb) { zipEsperas.delete(ev.data.jobId); cb(ev.data.res || { ok: false }); }
+  });
+  const esperarZip = (jobId) => new Promise((resolve) => zipEsperas.set(jobId, resolve));
+
   function request(payload, timeoutMs) {
     return new Promise((resolve) => {
       const id = ++reqId;
@@ -255,7 +264,8 @@
         if (!zipFiles.length) { setStatus("Nenhum PDF encontrado neste processo."); return; }
         onProgress = setStatus;
         setStatus(`Preparando ${zipFiles.length} arquivo(s)…`);
-        const res = await request({ kind: "zip", files: zipFiles, zipFilename: `PROJUDI_${proc}.zip`, folder: `PROJUDI/${proc}` }, 30 * 60 * 1000);
+        let res = await request({ kind: "zip", files: zipFiles, zipFilename: `PROJUDI_${proc}.zip`, folder: `PROJUDI/${proc}` }, 60000);
+        if (res.ok && res.iniciado) res = await esperarZip(res.jobId);
         onProgress = null;
         if (res.license) { showLicense(res.license); setStatus(""); return; }
         if (res.error && !res.ok && !res.avulsos) { setStatus("Erro: " + res.error); return; }
