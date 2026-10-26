@@ -32,8 +32,8 @@ function buildZip(files) {
 
   for (const f of files) {
     const name = enc.encode(f.name);
-    const crc = crc32(f.data);
-    const size = f.data.length;
+    const crc = f.crc != null ? f.crc : crc32(f.data);
+    const size = f.size != null ? f.size : (f.data.size != null ? f.data.size : f.data.length);
 
     const lh = new DataView(new ArrayBuffer(30));
     lh.setUint32(0, 0x04034b50, true);
