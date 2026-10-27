@@ -74,3 +74,16 @@ O teste de ponta a ponta roda o Chromium com esta extensão, um PROJUDI simulado
 consulta por código, `.p7s`) e o `index.html` do repositório. Foram 24 verificações no site do GitHub e 13 no PHP (inclui Cloudflare, clique do
 perito, criptografia e Mercado Pago), todas aprovadas: código de acesso, login, sem duplicados, só arquivos novos, envio iniciado no
 PROJUDI, ZIP antigo e nenhum erro de JavaScript.
+
+## Assinatura, teste grátis e Gerenciador PRO (v1.8.0, 27/10/2026)
+
+- Uma assinatura só libera a extensão e o **Gerenciador PRO**: Mensal R$ 49,90 · Trimestral R$ 130,00 · Anual R$ 350,00
+  (Mercado Pago, liberação automática pelo e-mail). Valores em `PLANOS` do Code.gs (Apps Script) e do `config.js`.
+- **Quem já assinava antes de 27/10/2026 mantém os valores antigos** (15,99 · 45 · 150), inclusive na renovação:
+  o Apps Script reconhece o e-mail e devolve os preços dele (`precos`), e o link de pagamento já sai com o valor certo.
+- **Teste grátis:** sem assinatura, cada e-mail baixa até 3 arquivos no total (`DEMO_LIMITE`). O contador fica na aba
+  "Demo" da planilha (`{acao:'demo', email, n}` reserva os arquivos), então reinstalar a extensão não zera.
+- "Enviar ao Gerenciador de Perícia" continua só para assinantes.
+- No site, Revisão IA, Proposta de honorários, Publicações (busca automática no DJEN) e Projudi/baixar autos
+  (`PRO_SECOES`, `pjBaixarAutos`, `iaAnalisar`, `gerarProposta`, `pubVerificar`) pedem o PRO; administradores têm tudo.
+  O site confere o e-mail da conta (só e-mail confirmado) no mesmo Apps Script. O bloqueio no site é de interface.
