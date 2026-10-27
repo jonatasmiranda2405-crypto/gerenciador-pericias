@@ -9,6 +9,7 @@ const COD = "Zrrxk42nj8DcwbqmZd"; // o PROJUDI diferencia maiúsculas de minúsc
 let extraLiberado = false; // simula um arquivo novo juntado depois
 const djenPedidos = []; // consultas recebidas pelo DJEN simulado
 let claudeUltimo = null; // último pedido recebido pela API do Claude simulada
+const demoUsados = {}; // teste grátis da extensão: arquivos usados por e-mail
 
 const ARQS = {
   "1001": { nome: "peticao_inicial.pdf", file: "peticao.pdf", mov: 1 },
@@ -186,9 +187,14 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
     let corpo = ""; req.on("data", (c) => (corpo += c));
     req.on("end", () => {
       let j = {}; try { j = JSON.parse(corpo); } catch (e) {}
-      res.writeHead(200, { "Content-Type": "application/json" });
+      res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+      if (j.acao === "demo") {
+        const usados = demoUsados[j.email] || 0, k = Math.min(Number(j.n) || 0, Math.max(0, 3 - usados));
+        demoUsados[j.email] = usados + k;
+        return res.end(JSON.stringify({ permitidos: k, restantes: 3 - usados - k, limite: 3 }));
+      }
       if (j.acao === "checkout") return res.end(JSON.stringify({ ok: true, url: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=teste-" + j.plano + "&email=" + encodeURIComponent(j.email) }));
-      if (j.email === "novo@exemplo.com") return res.end(JSON.stringify({ ativo: false, validade: "" }));
+      if (j.email === "novo@exemplo.com" || j.email === "demo@exemplo.com") return res.end(JSON.stringify({ ativo: false, validade: "", demoRestantes: Math.max(0, 3 - (demoUsados[j.email] || 0)), demoLimite: 3 }));
       res.end(JSON.stringify({ ativo: true, validade: "2026-12-31" }));
     });
     return;
