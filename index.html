@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Segurança: de onde a página aceita carregar e para onde pode mandar dados. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src https://api.anthropic.com 'self' data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br https://api.github.com; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.gstatic.com; connect-src https://api.anthropic.com 'self' https://script.google.com https://script.googleusercontent.com data: blob: https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.bcb.gov.br https://api.github.com; frame-src 'self' data: blob: https://gerenciador-pericias-app.firebaseapp.com https://accounts.google.com https://apis.google.com https://firebasestorage.googleapis.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script>
   /* Anti-clickjacking: o Gerenciador de Perícia nunca roda dentro de moldura de outro site. */
@@ -253,6 +253,15 @@ body.rail .perfil-nums{display:none;}
 .nav-item:hover{background:var(--surface-2); color:var(--ink);}
 .nav-item.active{background:var(--accent-soft); color:var(--accent-deep); font-weight:600;}
 .nav-item svg{width:17px; height:17px; flex-shrink:0; stroke-width:1.75;}
+.nav-pro{margin-left:auto; font-size:9.5px; font-weight:700; letter-spacing:.06em; padding:1px 5px; border-radius:5px; border:1px solid var(--accent); color:var(--accent);}
+.pro-planos{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin:14px 0 6px;}
+.pro-plano{display:flex; flex-direction:column; gap:4px; align-items:flex-start; padding:14px; border:1px solid var(--line-strong); border-radius:12px; background:var(--surface); text-align:left; cursor:pointer; font:inherit; color:inherit;}
+.pro-plano:hover{border-color:var(--accent);}
+.pro-plano b{font-size:13px;}
+.pro-plano .pro-preco{font-size:20px; font-weight:700;}
+.pro-plano small{color:var(--muted);}
+.pro-plano.destaque{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset;}
+.pro-lista{margin:6px 0 0 18px; display:grid; gap:4px;}
 .nav-badge{
   margin-left:auto; font-size:11px; font-family:'IBM Plex Mono',monospace;
   background:var(--surface-3); color:var(--muted);
@@ -2215,11 +2224,13 @@ const SECTIONS = [
   {id:'privacidade', titulo:'Termos e privacidade', sub:'Termos de uso, política de privacidade e segurança'},
   {id:'comercial', titulo:'Agente comercial', sub:'Convide peritos por e-mail, acompanhe quem abriu conta e não insista com quem não quer'},
   {id:'admin',    titulo:'Central do administrador', sub:'Vigia de segurança, erros dos usuários e pontos frágeis para corrigir'},
+  {id:'pro',      titulo:'Gerenciador PRO', sub:'Revisão IA, busca de processo, proposta de honorários e publicações automáticas'},
   {id:'config',   titulo:'Configurações', sub:'Tema, cores e manuais de uso'},
   {id:'perfil',   titulo:'Meu perfil',    sub:'Seu cadastro profissional, conta e acesso ao PROJUDI'},
 ];
 
 const ICONS = {
+  pro:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
   importar:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>',
   publicacoes:'<path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
   tarefas:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/>',
@@ -2641,12 +2652,127 @@ function pfFavicon(){
    erros são as regras do Firestore (somente os dois e-mails abaixo).
    ========================================================================== */
 const ADMINS = ['jonatasmiranda2405@gmail.com', 'rodrigodosantosmiranda@gmail.com'];
-const APP_VERSAO = '2026.10.15';
-const EXT_VERSAO_ATUAL = '1.7.6';
+const APP_VERSAO = '2026.10.27';
+const EXT_VERSAO_ATUAL = '1.8.0';
 const SITE_DOMINIO = 'gerenciadorpericias.com.br';
 const VIGIA_API = 'https://api.github.com/repos/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml/runs?per_page=5';
 const VIGIA_LINK = 'https://github.com/jonatasmiranda2405-crypto/gerenciador-pericias/actions/workflows/vigia.yml';
 function souAdmin(){ return !!(currentUser && contaVerificada() && ADMINS.includes(meuEmail())); }
+
+/* ==========================================================================
+   GERENCIADOR PRO
+   Revisão IA, busca de processo no PROJUDI (extensão e consulta), proposta de
+   honorários e busca automática de publicações (DJEN) ficam para quem assina.
+   A assinatura é a mesma da extensão PROJUDI PDFs: Mercado Pago, liberação
+   automática, conferida no Apps Script pelo e-mail da conta (só e-mail confirmado).
+   Quem já assinava antes de 27/10/2026 mantém os valores antigos (o Apps Script
+   devolve os preços daquele e-mail). O bloqueio aqui é de interface.
+   ========================================================================== */
+const PRO_URL = 'https://script.google.com/macros/s/AKfycbxDK9lZorhunpNNK8k1_zghlP9PQJhhb0Hyv1Ngr8fX7n_4Z_eQqx0FH1LmhIEWrCET/exec';
+const PRO_SECOES = ['ia', 'proposta', 'publicacoes', 'projudi'];
+const PRO_PLANOS = [
+  {id:'mensal',     nome:'Mensal',     preco:49.90,  dias:30},
+  {id:'trimestral', nome:'Trimestral', preco:130.00, dias:90},
+  {id:'anual',      nome:'Anual',      preco:350.00, dias:365},
+];
+const PRO_RECURSOS = [
+  ['Revisão IA', 'erros e inconsistências dos autos, com o lugar exato para conferir'],
+  ['Busca de processo no PROJUDI', 'baixa os autos pela extensão, com login ou código de acesso'],
+  ['Proposta de honorários', 'com a sua logo e os dados da perícia, pronta em .docx'],
+  ['Publicações automáticas', 'nomeações e intimações do DJEN, buscadas sozinhas todo dia'],
+  ['Extensão PROJUDI PDFs', 'baixar o processo inteiro em ZIP, sem limite'],
+];
+const PRO_CACHE_H = 6;
+const PRO = {ativo:false, email:'', validade:'', precos:null, quando:0, rodando:false, erro:''};
+const proReais = v => 'R$ ' + Number(v).toFixed(2).replace('.', ',');
+const proData = d => d ? d.split('-').reverse().join('/') : '';
+function temPro(){
+  if(souAdmin()) return true;
+  if(!PRO.ativo || PRO.email !== meuEmail()) return false;
+  return !PRO.validade || PRO.validade >= todayIso();
+}
+function proLimpar(){ Object.assign(PRO, {ativo:false, email:'', validade:'', precos:null, quando:0, erro:''}); }
+async function proVerificar(forcar){
+  const email = meuEmail();
+  if(!email || !contaVerificada()){ proLimpar(); return; }
+  if(!forcar){
+    if(PRO.email === email && Date.now() - PRO.quando < PRO_CACHE_H * 3600e3) return;
+    try{
+      const c = JSON.parse(localStorage.getItem('pf_pro') || 'null');
+      if(c && c.email === email && Date.now() - c.quando < PRO_CACHE_H * 3600e3){ Object.assign(PRO, c); renderAll(); return; }
+    }catch(e){}
+  }
+  PRO.rodando = true; PRO.erro = '';
+  if(activeSection === 'pro' || PRO_SECOES.includes(activeSection)) renderAll();
+  try{
+    const r = await fetch(PRO_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({email})});
+    const j = await r.json();
+    if(meuEmail() !== email) return; /* trocou de conta no meio */
+    Object.assign(PRO, {ativo: !!j.ativo, email, validade: j.validade || '', precos: j.precos || null, quando: Date.now()});
+    try{ localStorage.setItem('pf_pro', JSON.stringify({ativo:PRO.ativo, email, validade:PRO.validade, precos:PRO.precos, quando:PRO.quando})); }catch(e){}
+  }catch(e){
+    PRO.erro = 'Não foi possível conferir a assinatura agora. Confira a internet e tente de novo.';
+  }finally{
+    PRO.rodando = false;
+  }
+  renderAll();
+}
+async function proAssinar(plano){
+  const email = meuEmail();
+  if(!email){ pfAviso('Entre com a sua conta para assinar o Gerenciador PRO.'); return; }
+  if(!contaVerificada()){ pfAviso('Confirme o seu e-mail (link enviado no cadastro) antes de assinar.'); return; }
+  const janela = window.open('about:blank', '_blank');
+  try{
+    const r = await fetch(PRO_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({acao:'checkout', email, plano, volta:'site'})});
+    const j = await r.json();
+    let host = '';
+    try{ host = new URL(j.url).hostname; }catch(e){}
+    if(!/(^|\.)mercadopago\.com(\.br)?$/.test(host)) throw new Error(j.erro || 'sem link');
+    if(janela){ janela.opener = null; janela.location.href = j.url; } else location.href = j.url;
+    pfAviso('Conclua o pagamento na aba do Mercado Pago. A liberação é automática: depois clique em "Já assinei, conferir".');
+  }catch(e){
+    if(janela) janela.close();
+    pfAviso('Não foi possível abrir o pagamento agora. Tente de novo em instantes.');
+  }
+}
+function proPlanosHtml(){
+  const precos = PRO.precos || {};
+  return `<div class="pro-planos">${PRO_PLANOS.map(p => {
+    const v = precos[p.id] != null ? precos[p.id] : p.preco;
+    const mes = v / (p.dias / 30);
+    return `<button type="button" class="pro-plano ${p.id === 'anual' ? 'destaque' : ''}" onclick="proAssinar(${jsq(p.id)})">
+      <b>${escapeHtml(p.nome)}</b><span class="pro-preco">${proReais(v)}</span>
+      <small>${p.dias} dias${p.id !== 'mensal' ? ` · ${proReais(mes)} por mês` : ''}</small></button>`;
+  }).join('')}</div>`;
+}
+function proSituacaoHtml(){
+  const email = meuEmail();
+  if(souAdmin()) return `<div class="hint">Administrador: todos os recursos PRO liberados.</div>`;
+  if(!currentUser) return `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>Entre com a sua conta para assinar ou liberar o PRO. A assinatura fica ligada ao e-mail da conta.</span></div>`;
+  if(!contaVerificada()) return `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>Confirme o seu e-mail (link enviado no cadastro) para usar a assinatura.</span></div>`;
+  if(PRO.rodando) return `<div class="hint">Conferindo a assinatura de ${escapeHtml(email)}…</div>`;
+  if(PRO.erro) return `<div class="banner">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>')}<span>${escapeHtml(PRO.erro)}</span></div>`;
+  if(temPro()) return `<div class="hint"><span class="pill pill-success">PRO ativo</span> ${escapeHtml(email)}${PRO.validade ? ` · válido até ${proData(PRO.validade)}` : ''}</div>`;
+  if(PRO.email === email && PRO.validade) return `<div class="hint">A assinatura de ${escapeHtml(email)} venceu em ${proData(PRO.validade)}. Renove abaixo.</div>`;
+  return `<div class="hint">Nenhuma assinatura ativa para ${escapeHtml(email)}. Assine com este mesmo e-mail (o da extensão PROJUDI PDFs, se você já assina, vale também aqui).</div>`;
+}
+function proCorpoHtml(){
+  const pro = temPro();
+  return `
+    ${proSituacaoHtml()}
+    <ul class="pro-lista">${PRO_RECURSOS.map(([t, d]) => `<li><b>${escapeHtml(t)}</b>: ${escapeHtml(d)}</li>`).join('')}</ul>
+    ${pro && !souAdmin() ? `<div class="hint" style="margin-top:12px;">Para renovar antes do vencimento, escolha um plano: os dias são somados ao que ainda resta.</div>` : ''}
+    ${souAdmin() ? '' : proPlanosHtml()}
+    <div class="hint">Pagamento pelo Mercado Pago (Pix, cartão ou boleto). A liberação é automática, pelo e-mail da conta. A mesma assinatura libera a extensão PROJUDI PDFs. Quem já assinava mantém o valor de antes.</div>
+    ${currentUser && contaVerificada() && !souAdmin() ? `<div style="margin-top:12px;"><button class="btn btn-ghost btn-sm" onclick="proVerificar(true)" ${PRO.rodando ? 'disabled' : ''}>Já assinei, conferir</button></div>` : ''}`;
+}
+function renderPro(){
+  return `<div class="section-gap">${panel('proAssinatura', 'Gerenciador PRO', temPro() ? 'ativo' : 'assinatura', proCorpoHtml())}</div>`;
+}
+function renderProBloqueio(secao){
+  const s = SECTIONS.find(x => x.id === secao) || {titulo: 'Este recurso'};
+  return `<div class="section-gap">${panel('proBloqueio', `${s.titulo}: recurso do Gerenciador PRO`, 'assinatura', proCorpoHtml())}</div>`;
+}
 
 /* ---------- registro de erros (todos os usuários logados) ---------- */
 const PF_ERROS = {enviados: new Set(), n: 0, fila: []};
@@ -5330,6 +5456,7 @@ function removerModelo(){
 
 /* ---------- geração ---------- */
 async function gerarProposta(anexar){
+  if(!temPro()){ setSection('proposta'); return; }
   const status = document.getElementById('propStatus');
   const c = casoDaProposta();
   if(!c || !rascunho){ if(status) status.textContent = 'Escolha a perícia.'; return; }
@@ -6412,7 +6539,7 @@ const LEGAL = {
                   'Cadastro profissional (Meu perfil): nome completo, CRC, CPF, telefone, endereço, cidade e hora técnica.',
                   'Perícias: número do processo, vara, comarca, partes, prazos, honorários, tarefas, compromissos, comentários e os documentos que você anexa ou importa do PROJUDI.',
                   'Revisão IA, se usada: a sua chave da API (Anthropic ou Google), a IA escolhida e o resultado das revisões.',
-                  'Assinatura da extensão: e-mail, plano e situação do pagamento informada pelo Mercado Pago.',
+                  'Assinatura (extensão PROJUDI PDFs e Gerenciador PRO): e-mail, plano, situação do pagamento informada pelo Mercado Pago e quantos arquivos do teste grátis da extensão já foram usados.',
                   'Dados técnicos: o GitHub, que hospeda o site, a Cloudflare, que protege e entrega o site, e o Google registram endereço IP e dados do navegador para segurança e funcionamento.',
                   'Registros de erro: quando algo falha na tela, o sistema guarda a mensagem técnica e o rastro do erro (que pode trazer um trecho do que estava na tela), a tela, o navegador e o e-mail da conta. Só os administradores veem, para corrigir o problema. Registros com mais de 90 dias são apagados na verificação seguinte dos administradores.',
                   'Convites: quando um administrador convida um perito por e-mail, guardamos o e-mail, o nome e a cidade informados, a situação do convite e um código de convite. Se você criou a conta por um link de convite, guardamos esse código com o seu e-mail, para saber de qual convite veio.']],
@@ -8681,6 +8808,7 @@ async function iaAnalisar(casoId, silencioso){
   const c = casos.find(x => x.id === casoId);
   if(!c) return;
   if(iaRodando.has(casoId)) return;
+  if(!temPro()){ if(!silencioso) setSection('ia'); return; }
   if(!iaPronta()){ setSection('ia'); return; }
   if(!podeEditar(c)){
     iaEstado[casoId] = 'Só quem tem acesso de edição pode gravar a análise nesta perícia.';
@@ -8717,7 +8845,7 @@ async function iaAnalisar(casoId, silencioso){
 /* Automático: só quando a pessoa liga a opção. Espera a poeira baixar depois
    de um anexo, para não disparar uma análise por arquivo de um lote. */
 function iaAgendarAuto(casoId){
-  if(!iaAuto() || !iaPronta()) return;
+  if(!temPro() || !iaAuto() || !iaPronta()) return;
   clearTimeout(iaAutoTimer);
   iaAutoTimer = setTimeout(() => iaAnalisar(casoId, true), 25000);
 }
@@ -9256,7 +9384,9 @@ function renderAll(){
   renderAccount();
   renderThemeButton();
   const view = document.getElementById('view');
-  if(activeSection === 'visao') view.innerHTML = renderVisao();
+  if(PRO_SECOES.includes(activeSection) && !temPro()) view.innerHTML = renderProBloqueio(activeSection);
+  else if(activeSection === 'pro') view.innerHTML = renderPro();
+  else if(activeSection === 'visao') view.innerHTML = renderVisao();
   else if(activeSection === 'pericias') view.innerHTML = renderPericias();
   else if(activeSection === 'prazos') view.innerHTML = renderPrazos();
   else if(activeSection === 'calculos') view.innerHTML = renderCalculos();
@@ -9367,6 +9497,7 @@ function firebaseInit(){
 
 async function applyAuthState(){
   if(auth) abrirLogin(!currentUser);
+  if(!currentUser || !currentUser.emailVerified) proLimpar();
   if(currentUser && !currentUser.emailVerified){
     /* a conta existe e o cadastro já foi gravado, mas nada mais acontece
        antes de a pessoa abrir o link que chegou no e-mail */
@@ -9384,6 +9515,7 @@ async function applyAuthState(){
     await startDbSync();
     cloudSetBanner('');   /* conta e sincronização já aparecem no rodapé da barra lateral */
     comRegistrarConversao();
+    proVerificar(false);
   } else {
     usingDb = false;
     db = null;
@@ -10110,6 +10242,7 @@ async function pjIdsJaImportados(casoId){
 async function pjBaixarAutos(casoId){
   const c = casos.find(x => x.id === casoId);
   if(!c) return;
+  if(!temPro()){ pjStatus(casoId, {etapa:'erro', texto:'A busca de processo no PROJUDI faz parte do Gerenciador PRO. Veja os planos em Sistema > Gerenciador PRO.'}); return; }
   if(!podeEditar(c)){ pjStatus(casoId, {etapa:'erro', texto:'Só quem pode editar esta perícia consegue baixar os autos.'}); return; }
   if(!PJ.versao){ pjStatus(casoId, {etapa:'erro', texto:'Extensão PROJUDI PDFs não encontrada neste navegador. Instale a versão 1.7 ou mais nova e recarregue a página.'}); return; }
   if(!pjVersaoOk()){ pjStatus(casoId, {etapa:'erro', texto:`A extensão instalada é a ${PJ.versao}. Atualize para a ${PJ_VERSAO_MINIMA} ou mais nova.`}); return; }
@@ -10750,6 +10883,7 @@ function pubCasoDe(p){ return p.processo ? casosVisiveis().find(c => String(c.nu
 function pubEhNomeacao(p){ return /nomeio|nomead[oa] (como |para )?perit|nomea[çc][ãa]o d[oa] perit|designo .{0,40}perit|perit[oa] nomead/i.test(p.texto); }
 
 async function pubVerificar(automatico){
+  if(!temPro()){ if(!automatico) setSection('publicacoes'); return; }
   if(PUB.rodando) return;
   if(!djenExtOk()){ if(!automatico) pfAviso(`Instale ou atualize a extensão PROJUDI PDFs (versão ${DJEN_VERSAO_EXT} ou mais nova) para buscar no DJEN.`); return; }
   pubCarregarCache();
@@ -10790,7 +10924,7 @@ async function pubVerificar(automatico){
 function pubVerificarDoDia(){
   let dia = '';
   try{ dia = localStorage.getItem('pf_djen_dia') || ''; }catch(e){}
-  if(dia !== todayIso() && djenExtOk() && meuEmail()) pubVerificar(true);
+  if(dia !== todayIso() && djenExtOk() && meuEmail() && temPro()) pubVerificar(true);
 }
 function renderPubProgresso(){ const el = document.getElementById('pubProgresso'); if(el) el.textContent = PUB.progresso; }
 function renderPub(){ if(activeSection === 'publicacoes'){ const v = document.getElementById('view'); if(v && !(document.activeElement && document.activeElement.id === 'pubBusca')) v.innerHTML = renderPublicacoes(); } }
@@ -11026,7 +11160,7 @@ const PF_NAV = [
   {id:'processos', titulo:'Processos',        itens:['importar','publicacoes','docs']},
   {id:'producao',  titulo:'Produção técnica', itens:['calculos','proposta','ia']},
   {id:'escritorio',titulo:'Escritório',       itens:['financeiro','equipe','comercial']},
-  {id:'sistema',   titulo:'Sistema',          itens:['admin','integracoes','projudi','privacidade','config'], fechado:true},
+  {id:'sistema',   titulo:'Sistema',          itens:['pro','admin','integracoes','projudi','privacidade','config'], fechado:true},
 ];
 function pfGruposAbertos(){
   let salvo = {};
@@ -11059,7 +11193,7 @@ function renderNav(){
     const s = SECTIONS.find(x => x.id === id);
     if(!s || ((id === 'admin' || id === 'comercial') && !souAdmin())) return '';
     return `<button class="nav-item ${activeSection === id ? 'active' : ''}" data-sec="${id}" onclick="setSection(${jsq(id)})" title="${escapeHtml(s.titulo)}" ${activeSection === id ? 'aria-current="page"' : ''}>
-      ${svg(ICONS[id] || ICONS.docs)}<span>${escapeHtml(s.titulo)}</span>${selos[id] || ''}</button>`;
+      ${svg(ICONS[id] || ICONS.docs)}<span>${escapeHtml(s.titulo)}</span>${selos[id] || ''}${PRO_SECOES.includes(id) && !temPro() ? '<span class="nav-pro" title="Recurso do Gerenciador PRO">PRO</span>' : ''}</button>`;
   };
   const html = PF_NAV.map(g => {
     if(!g.id) return `<div class="pf-grupo-itens">${g.itens.map(item).join('')}</div>`;
