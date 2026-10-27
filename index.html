@@ -1391,6 +1391,42 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
   .lp-flut, .mk-varre .mk-lupa{animation:none !important;}
 }
 
+.lp-pro{display:inline-block; font-style:normal; font-size:10px; font-weight:700; letter-spacing:.06em; padding:1px 6px; border-radius:6px; border:1px solid var(--accent); color:var(--accent-deep); vertical-align:2px; margin-left:7px; line-height:1.5; text-transform:none;}
+.lp-legenda{margin:18px 0 0; text-align:center; font-size:13px; color:var(--muted);}
+.lp-legenda .lp-pro{margin:0 4px 0 0;}
+.lp-periodo{display:flex; gap:4px; width:max-content; max-width:100%; margin:0 auto 30px; padding:4px; border:1px solid var(--line); border-radius:40px; background:var(--surface);}
+.lp-periodo button{border:0; background:none; padding:8px 18px; border-radius:30px; font:inherit; font-size:13.5px; font-weight:600; color:var(--ink-2); cursor:pointer; white-space:nowrap;}
+.lp-periodo button:hover{color:var(--ink);}
+.lp-periodo button.on{background:var(--accent); color:var(--surface);}
+.lp-periodo em{font-style:normal; font-size:11px; font-weight:700; margin-left:6px; color:var(--ok);}
+.lp-periodo button.on em{color:inherit; opacity:.85;}
+.lp-planos{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:20px; max-width:920px; margin:0 auto;}
+.lp-plano{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:30px 28px 28px; display:flex; flex-direction:column; gap:16px;}
+.lp-plano.pro{border:2px solid var(--accent); box-shadow:var(--shadow);}
+.lp-plano-tag{position:absolute; top:-12px; left:26px; background:var(--accent); color:var(--surface); font-size:11.5px; font-weight:700; letter-spacing:.04em; padding:4px 11px; border-radius:20px;}
+.lp-plano h3{margin:0; font-family:Montserrat,'IBM Plex Sans',sans-serif; font-size:21px; letter-spacing:-.01em;}
+.lp-plano-desc{margin:-8px 0 0; font-size:13.5px; line-height:1.55; color:var(--muted);}
+.lp-preco{display:flex; align-items:baseline; gap:6px;}
+.lp-preco strong{font-family:Montserrat,'IBM Plex Sans',sans-serif; font-size:42px; font-weight:700; letter-spacing:-.03em; line-height:1;}
+.lp-preco span{font-size:14px; color:var(--muted);}
+.lp-preco-sub{margin-top:6px; font-size:12.5px; color:var(--muted); min-height:1.3em;}
+.lp-plano .lp-lista{gap:10px; padding-top:16px; border-top:1px solid var(--line);}
+.lp-plano .lp-lista li{font-size:14px;}
+.lp-plano .lp-lista li.lp-mais{font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+.lp-plano .btn{justify-content:center; margin-top:auto;}
+.lp-comparar{max-width:920px; margin:34px auto 0; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--surface);}
+.lp-comparar table{width:100%; border-collapse:collapse; font-size:14px;}
+.lp-comparar th, .lp-comparar td{padding:12px 16px; border-bottom:1px solid var(--line); text-align:left;}
+.lp-comparar tbody tr:last-child th, .lp-comparar tbody tr:last-child td{border-bottom:0;}
+.lp-comparar thead th{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--surface-2);}
+.lp-comparar tbody th{font-weight:500; color:var(--ink);}
+.lp-comparar td, .lp-comparar thead th:not(:first-child){text-align:center; width:150px;}
+.lp-comparar thead th:last-child{color:var(--accent-deep);}
+.lp-comparar .lp-sim svg{width:18px; height:18px; color:var(--ok); stroke-width:2.4; vertical-align:middle;}
+.lp-comparar .lp-nao{color:var(--muted);}
+.lp-comparar .lp-parcial{font-size:12.5px; color:var(--ink-2);}
+.lp-comparar .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+.lp-planos-nota{max-width:720px; margin:20px auto 0; text-align:center;}
 @media (max-width:1060px){
   .lp-nav{display:none;}
   .lp-cab-acoes{margin-left:auto;}
@@ -1406,7 +1442,10 @@ a.lp-sup-card:hover{border-color:var(--accent); color:var(--ink);}
   .lp-marca .wordmark{display:none;}
   .lp-heroi{padding-top:30px;}
   .lp-heroi-txt > p{font-size:15.5px;}
-  .lp-beneficios, .lp-modulos, .lp-passos, .lp-form-linha{grid-template-columns:1fr;}
+  .lp-beneficios, .lp-modulos, .lp-passos, .lp-form-linha, .lp-planos{grid-template-columns:1fr;}
+  .lp-comparar th, .lp-comparar td{padding:10px 10px; font-size:13px;}
+  .lp-comparar td, .lp-comparar thead th:not(:first-child){width:auto;}
+  .lp-periodo button{padding:8px 12px;}
   .lp-flut{display:none;}
   .lp-sec{padding:60px 0;}
   .lp-demo-aba{flex:0 0 auto;}
@@ -2671,9 +2710,9 @@ function souAdmin(){ return !!(currentUser && contaVerificada() && ADMINS.includ
 const PRO_URL = 'https://script.google.com/macros/s/AKfycbxDK9lZorhunpNNK8k1_zghlP9PQJhhb0Hyv1Ngr8fX7n_4Z_eQqx0FH1LmhIEWrCET/exec';
 const PRO_SECOES = ['ia', 'proposta', 'publicacoes', 'projudi'];
 const PRO_PLANOS = [
-  {id:'mensal',     nome:'Mensal',     preco:49.90,  dias:30},
-  {id:'trimestral', nome:'Trimestral', preco:130.00, dias:90},
-  {id:'anual',      nome:'Anual',      preco:350.00, dias:365},
+  {id:'mensal',     nome:'Mensal',     preco:49.90,  dias:30,  meses:1},
+  {id:'trimestral', nome:'Trimestral', preco:130.00, dias:90,  meses:3},
+  {id:'anual',      nome:'Anual',      preco:350.00, dias:365, meses:12},
 ];
 const PRO_RECURSOS = [
   ['Revisão IA', 'erros e inconsistências dos autos, com o lugar exato para conferir'],
@@ -2739,7 +2778,7 @@ function proPlanosHtml(){
   const precos = PRO.precos || {};
   return `<div class="pro-planos">${PRO_PLANOS.map(p => {
     const v = precos[p.id] != null ? precos[p.id] : p.preco;
-    const mes = v / (p.dias / 30);
+    const mes = v / p.meses;
     return `<button type="button" class="pro-plano ${p.id === 'anual' ? 'destaque' : ''}" onclick="proAssinar(${jsq(p.id)})">
       <b>${escapeHtml(p.nome)}</b><span class="pro-preco">${proReais(v)}</span>
       <small>${p.dias} dias${p.id !== 'mensal' ? ` · ${proReais(mes)} por mês` : ''}</small></button>`;
@@ -2767,7 +2806,10 @@ function proCorpoHtml(){
     ${currentUser && contaVerificada() && !souAdmin() ? `<div style="margin-top:12px;"><button class="btn btn-ghost btn-sm" onclick="proVerificar(true)" ${PRO.rodando ? 'disabled' : ''}>Já assinei, conferir</button></div>` : ''}`;
 }
 function renderPro(){
-  return `<div class="section-gap">${panel('proAssinatura', 'Gerenciador PRO', temPro() ? 'ativo' : 'assinatura', proCorpoHtml())}</div>`;
+  return `<div class="section-gap">
+    ${panel('proAssinatura', 'Gerenciador PRO', temPro() ? 'ativo' : 'assinatura', proCorpoHtml())}
+    ${panel('proComparar', 'O que é grátis e o que é PRO', 'planos', lpTabelaHtml())}
+  </div>`;
 }
 function renderProBloqueio(secao){
   const s = SECTIONS.find(x => x.id === secao) || {titulo: 'Este recurso'};
@@ -7124,20 +7166,70 @@ const LP_TELAS = [
 ];
 const LP_MODULOS = [
   ['pericias', 'Perícias', 'Cadastro completo, status, partes, vara e honorários de cada nomeação.'],
-  ['importar', 'Autos do PROJUDI', 'A extensão traz os PDFs do TJGO direto para a perícia, sem repetir arquivo.'],
+  ['importar', 'Autos do PROJUDI', 'A extensão traz os PDFs do TJGO direto para a perícia, sem repetir arquivo.', 'pro'],
   ['prazos', 'Prazos e alertas', 'Avisos 15, 7, 3 e 1 dia antes e no dia do vencimento.'],
   ['agenda', 'Agenda', 'Compromissos ligados à perícia e arquivo .ics para o seu calendário.'],
   ['tarefas', 'Tarefas', 'Quadro a fazer, em andamento e feito, com prioridade e data.'],
   ['docs', 'Documentos', 'Os autos organizados por fase, com visualização e download.'],
   ['financeiro', 'Financeiro', 'O que foi arbitrado, depositado e levantado, e o que falta receber.'],
   ['calculos', 'Cálculos periciais', 'Price, SAC, correção pelo Banco Central, rescisão, VPL e TIR.'],
-  ['proposta', 'Proposta de honorários', 'Gerada com os dados da perícia, a sua hora técnica e o seu cadastro.'],
-  ['ia', 'Revisão IA', 'Erros e inconsistências dos autos, com o lugar exato para conferir. Com o Claude, o Gemini ou a sua conta de IA.'],
+  ['proposta', 'Proposta de honorários', 'Gerada com os dados da perícia, a sua hora técnica e o seu cadastro.', 'pro'],
+  ['ia', 'Revisão IA', 'Erros e inconsistências dos autos, com o lugar exato para conferir. Com o Claude, o Gemini ou a sua conta de IA.', 'pro'],
+  ['publicacoes', 'Publicações do DJEN', 'Nomeações e intimações pelo seu nome e pelos seus processos, buscadas sozinhas todo dia.', 'pro'],
   ['equipe', 'Equipe', 'Compartilhe cada perícia com edição ou só leitura.'],
 ];
+/* Plano grátis x Gerenciador PRO. Preços em PRO_PLANOS (os mesmos do Apps Script). */
+const LP_COMPARA = [
+  ['Perícias, prazos e alertas, agenda e tarefas', true, true],
+  ['Documentos e importação por arquivo ZIP', true, true],
+  ['Financeiro e cálculos periciais', true, true],
+  ['Equipe: compartilhar perícias com colegas', true, true],
+  ['Extensão PROJUDI PDFs', '3 arquivos de teste', 'Processo inteiro, sem limite'],
+  ['Busca de processo no PROJUDI, com os autos direto na perícia', false, true],
+  ['Revisão IA dos autos', false, true],
+  ['Proposta de honorários pronta em .docx', false, true],
+  ['Publicações automáticas do DJEN', false, true],
+];
+const LP_GRATIS = ['Perícias, prazos e alertas', 'Agenda, tarefas e documentos', 'Financeiro e cálculos periciais', 'Equipe e compartilhamento', 'Extensão PROJUDI: 3 arquivos de teste'];
+const LP_PRO = ['Busca de processo no PROJUDI', 'Revisão IA dos autos', 'Proposta de honorários em .docx', 'Publicações automáticas do DJEN', 'Extensão PROJUDI PDFs sem limite'];
+let lpPeriodoAtual = 'mensal';
+function lpPlanoPro(id){ return PRO_PLANOS.find(p => p.id === id) || PRO_PLANOS[0]; }
+function lpEconomia(id){
+  const p = lpPlanoPro(id), m = lpPlanoPro('mensal');
+  return Math.round((1 - p.preco / (m.preco * p.meses)) * 100);
+}
+function lpPrecoHtml(id){
+  const p = lpPlanoPro(id);
+  const mes = p.preco / p.meses;
+  const sub = id === 'mensal' ? 'por 30 dias de acesso' : `${proReais(p.preco)} por ${p.dias} dias · economia de ${lpEconomia(id)}%`;
+  return `<div class="lp-preco"><strong>${proReais(mes)}</strong><span>/mês</span></div><div class="lp-preco-sub">${sub}</div>`;
+}
+function lpTabelaHtml(){
+  const cel = v => v === true ? `<td class="lp-sim">${svg('<path d="M5 12.5l4 4L19 7"/>')}<span class="sr">sim</span></td>`
+    : v === false ? `<td class="lp-nao">—<span class="sr">não</span></td>` : `<td class="lp-parcial">${escapeHtml(v)}</td>`;
+  return `<div class="lp-comparar"><table>
+    <thead><tr><th scope="col">Recurso</th><th scope="col">Grátis</th><th scope="col">PRO</th></tr></thead>
+    <tbody>${LP_COMPARA.map(([t, g, p]) => `<tr><th scope="row">${escapeHtml(t)}</th>${cel(g)}${cel(p)}</tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function lpPeriodo(id){
+  lpPeriodoAtual = id;
+  document.querySelectorAll('.lp-periodo button').forEach(b => { const on = b.dataset.p === id; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  const el = document.getElementById('lpProPreco');
+  if(el) el.innerHTML = lpPrecoHtml(id);
+}
+/* Assinar a partir da apresentação: cria a conta (ou entra) e cai direto na tela do PRO. */
+function lpAssinarPro(){
+  activeSection = 'pro';
+  try{ localStorage.setItem('pericias.section', 'pro'); }catch(e){}
+  lpEntrar('criar');
+}
 const LP_DUVIDAS = [
   ['Preciso instalar algum programa?', 'Não. O sistema funciona no navegador, no computador ou no celular. Para baixar os autos do PROJUDI direto para a perícia, instale a extensão PROJUDI PDFs no Google Chrome.'],
-  ['Quanto custa?', 'Criar a conta e usar o sistema é grátis. A extensão PROJUDI PDFs tem assinatura própria, a partir de R$ 15,99 por mês. A Revisão IA usa a sua chave do Claude (Anthropic) ou do Gemini (Google), cobrada direto na sua conta, ou a assinatura de IA que você já tem (Claude, ChatGPT ou Gemini), sem custo a mais.'],
+  ['Quanto custa?', 'Criar a conta e usar o plano grátis não custa nada, para sempre: perícias, prazos, agenda, tarefas, documentos, financeiro, cálculos e equipe. O Gerenciador PRO custa R$ 49,90 por mês, R$ 130,00 por trimestre ou R$ 350,00 por ano, e libera a Revisão IA, a busca de processo no PROJUDI, a proposta de honorários, as publicações automáticas do DJEN e a extensão PROJUDI PDFs sem limite.'],
+  ['O PRO renova sozinho?', 'Não. Você paga o período escolhido pelo Mercado Pago (Pix, cartão ou boleto) e a liberação é automática pelo e-mail da conta. Para continuar, é só renovar: os dias novos são somados aos que ainda restam.'],
+  ['Posso testar antes de assinar?', 'Sim. O plano grátis não tem prazo, e a extensão PROJUDI PDFs baixa 3 arquivos de teste com o seu e-mail, sem assinatura.'],
+  ['A Revisão IA tem custo a mais?', 'A Revisão IA faz parte do PRO. A leitura dos autos usa a sua chave do Claude (Anthropic) ou do Gemini (Google), cobrada direto na sua conta, ou a assinatura de IA que você já tem (Claude, ChatGPT ou Gemini), sem custo a mais.'],
   ['Como os autos chegam do PROJUDI?', 'Você pede os autos na perícia, a aba do PROJUDI abre com o número e o código de acesso preenchidos e você clica em Consultar. Os arquivos chegam sozinhos, um a um, e nada se repete na próxima vez.'],
   ['O sistema pede a minha senha do PROJUDI?', 'Nunca. O login no tribunal é sempre seu, com certificado digital ou CPF e senha, no site do próprio tribunal. A extensão só usa a sessão que você abriu.'],
   ['A IA faz o laudo?', 'Não. A Revisão IA aponta erros e inconsistências e mostra onde conferir. O laudo, a resposta aos quesitos e as conclusões são do perito.'],
@@ -7160,6 +7252,7 @@ function renderApresentacao(){
         <nav class="lp-nav" aria-label="Seções">
           <button onclick="lpIr('lpRecursos')">Recursos</button>
           <button onclick="lpIr('lpDemo')">Demonstração</button>
+          <button onclick="lpIr('lpPlanos')">Planos</button>
           <button onclick="lpIr('lpIA')">IA</button>
           <button onclick="lpIr('lpFerramentas')">Ferramentas</button>
           <button onclick="lpIr('lpSeguranca')">Segurança</button>
@@ -7185,8 +7278,8 @@ function renderApresentacao(){
             <button class="btn btn-ghost lp-btn-g" onclick="lpIr('lpDemo')">${svg('<path d="M8 5v14l11-7z"/>')} Ver o sistema funcionando</button>
           </div>
           <ul class="lp-heroi-pts">
-            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Sem cartão para começar</li>
-            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Entre com a conta Google</li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Plano grátis para sempre, sem cartão</li>
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} <button class="lg-link" onclick="lpIr('lpPlanos')">PRO a partir de ${proReais(lpPlanoPro('anual').preco / lpPlanoPro('anual').meses)}/mês</button></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Seus dados só seus</li>
           </ul>
         </div>
@@ -7228,8 +7321,9 @@ function renderApresentacao(){
 
         <div class="lp-tit lp-rev" style="margin-top:72px;"><span>${LP_MODULOS.length} módulos</span><h2>Tudo o que a perícia pede, sem ferramenta de fora.</h2></div>
         <div class="lp-modulos">
-          ${LP_MODULOS.map(([k, t, x]) => `<div class="lp-mod lp-rev"><span class="lp-ic">${lpIcone(k)}</span><div><b>${t}</b><p>${x}</p></div></div>`).join('')}
+          ${LP_MODULOS.map(([k, t, x, pro]) => `<div class="lp-mod lp-rev"><span class="lp-ic">${lpIcone(k)}</span><div><b>${t}${pro ? '<em class="lp-pro">PRO</em>' : ''}</b><p>${x}</p></div></div>`).join('')}
         </div>
+        <p class="lp-legenda lp-rev"><em class="lp-pro">PRO</em> recursos do Gerenciador PRO. Os demais são grátis. <button class="lg-link" onclick="lpIr('lpPlanos')">Comparar os planos</button></p>
       </div>
     </section>
 
@@ -7252,7 +7346,7 @@ function renderApresentacao(){
     <section class="lp-sec" id="lpIA">
       <div class="lp-lim lp-ia">
         <div class="lp-rev">
-          <div class="lp-tit lp-tit-esq"><span>Revisão IA</span><h2>A IA confere. Quem conclui é você.</h2></div>
+          <div class="lp-tit lp-tit-esq"><span>Revisão IA <em class="lp-pro">PRO</em></span><h2>A IA confere. Quem conclui é você.</h2></div>
           <ul class="lp-lista">
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Erros por categoria:</b> cálculo, valores, índices, datas, documentos, prazos e honorários.</span></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>Onde conferir:</b> cada achado vem com a peça, a página e o trecho dos autos.</span></li>
@@ -7301,7 +7395,7 @@ function renderApresentacao(){
               <span id="lpHoras">0 horas</span>
               <div class="lp-ferr-linha"><span>Adiantamento de 50%</span><b id="lpAdiant">R$ 0,00</b></div>
               <button class="btn btn-primary" onclick="lpEntrar('criar')">Gerar a proposta completa</button>
-              <p>Valores de exemplo. No sistema, a proposta sai com os dados da perícia, o seu cadastro e a referência da sua entidade.</p>
+              <p>Valores de exemplo. No Gerenciador PRO, a proposta sai em .docx com os dados da perícia, o seu cadastro e a referência da sua entidade.</p>
             </div>
           </div>
           <div class="lp-ferr-corpo" id="lpFerrPrazo" hidden>
@@ -7322,7 +7416,35 @@ function renderApresentacao(){
       </div>
     </section>
 
-    <section class="lp-sec" id="lpSeguranca">
+    <section class="lp-sec" id="lpPlanos">
+      <div class="lp-lim">
+        <div class="lp-tit lp-rev"><span>Planos</span><h2>Comece grátis. Assine o PRO quando precisar.</h2><p>O dia a dia da perícia é grátis para sempre. O PRO traz a IA, a busca de processo, a proposta e as publicações automáticas.</p></div>
+        <div class="lp-periodo lp-rev" role="group" aria-label="Período do PRO">
+          ${PRO_PLANOS.map(p => `<button type="button" data-p="${p.id}" class="${p.id === lpPeriodoAtual ? 'on' : ''}" aria-pressed="${p.id === lpPeriodoAtual}" onclick="lpPeriodo(${jsq(p.id)})">${escapeHtml(p.nome)}${p.id !== 'mensal' ? `<em>-${lpEconomia(p.id)}%</em>` : ''}</button>`).join('')}
+        </div>
+        <div class="lp-planos">
+          <div class="lp-plano lp-rev">
+            <h3>Grátis</h3>
+            <p class="lp-plano-desc">Para organizar as perícias, os prazos e os honorários.</p>
+            <div><div class="lp-preco"><strong>R$ 0</strong><span>para sempre</span></div><div class="lp-preco-sub">sem cartão</div></div>
+            <ul class="lp-lista">${LP_GRATIS.map(t => `<li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span>${escapeHtml(t)}</span></li>`).join('')}</ul>
+            <button class="btn btn-ghost lp-btn-g" onclick="lpEntrar('criar')">Criar conta grátis</button>
+          </div>
+          <div class="lp-plano pro lp-rev">
+            <span class="lp-plano-tag">Mais completo</span>
+            <h3>Gerenciador PRO</h3>
+            <p class="lp-plano-desc">Tudo do grátis, mais as ferramentas que economizam horas em cada perícia.</p>
+            <div id="lpProPreco">${lpPrecoHtml(lpPeriodoAtual)}</div>
+            <ul class="lp-lista"><li class="lp-mais"><span>Tudo do plano grátis, mais:</span></li>${LP_PRO.map(t => `<li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>${escapeHtml(t)}</b></span></li>`).join('')}</ul>
+            <button class="btn btn-primary lp-btn-g" onclick="lpAssinarPro()">Assinar o PRO</button>
+          </div>
+        </div>
+        <div class="lp-rev">${lpTabelaHtml()}</div>
+        <p class="lp-nota lp-planos-nota lp-rev">Pagamento pelo Mercado Pago (Pix, cartão ou boleto), com liberação automática pelo e-mail da conta. Sem renovação automática nem fidelidade. A mesma assinatura libera a extensão PROJUDI PDFs. Quem já assina mantém o valor contratado.</p>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-sec-alt" id="lpSeguranca">
       <div class="lp-lim">
         <div class="lp-tit lp-rev"><span>Segurança e LGPD</span><h2>Os dados da perícia tratados como devem ser.</h2></div>
         <div class="lp-beneficios">
@@ -7336,7 +7458,7 @@ function renderApresentacao(){
       </div>
     </section>
 
-    <section class="lp-sec lp-sec-alt" id="lpDuvidas">
+    <section class="lp-sec" id="lpDuvidas">
       <div class="lp-lim lp-duvidas">
         <div class="lp-tit lp-tit-esq lp-rev"><span>Dúvidas</span><h2>Perguntas frequentes.</h2><p>Não achou a sua? <button class="lg-link" onclick="lpIr('lpSuporte')">Fale com o suporte</button>.</p></div>
         <div class="lp-faq lp-rev">
@@ -7345,7 +7467,7 @@ function renderApresentacao(){
       </div>
     </section>
 
-    <section class="lp-sec" id="lpSuporte">
+    <section class="lp-sec lp-sec-alt" id="lpSuporte">
       <div class="lp-lim">
         <div class="lp-tit lp-rev"><span>Suporte</span><h2>Fale com a gente.</h2><p>Respondemos por e-mail${zap ? ' e pelo WhatsApp' : ''}. Os manuais em PDF tiram a maior parte das dúvidas.</p></div>
         <div class="lp-suporte">
@@ -7378,6 +7500,7 @@ function renderApresentacao(){
         <h2>Comece hoje. Suas perícias em ordem em minutos.</h2>
         <div class="lp-heroi-cta">
           <button class="btn btn-primary lp-btn-g" onclick="lpEntrar('criar')">Criar conta grátis</button>
+          <button class="btn btn-ghost lp-btn-g lp-btn-claro" onclick="lpIr('lpPlanos')">Ver os planos</button>
           <button class="btn btn-ghost lp-btn-g lp-btn-claro" onclick="lpEntrar('entrar')">Já tenho conta</button>
         </div>
       </div>
@@ -7389,7 +7512,7 @@ function renderApresentacao(){
           <div class="lp-marca">${lpMarca()}<span class="wordmark"><b>Gerenciador</b><i>de Perícia</i></span></div>
           <p>Gestão de perícias contábeis judiciais.</p>
         </div>
-        <div><b>Produto</b><button onclick="lpIr('lpRecursos')">Recursos</button><button onclick="lpIr('lpDemo')">Demonstração</button><button onclick="lpIr('lpIA')">Revisão IA</button><button onclick="lpIr('lpFerramentas')">Ferramentas</button></div>
+        <div><b>Produto</b><button onclick="lpIr('lpRecursos')">Recursos</button><button onclick="lpIr('lpDemo')">Demonstração</button><button onclick="lpIr('lpPlanos')">Planos</button><button onclick="lpIr('lpIA')">Revisão IA</button><button onclick="lpIr('lpFerramentas')">Ferramentas</button></div>
         <div><b>Suporte</b><button onclick="lpIr('lpSuporte')">Fale conosco</button><button onclick="lpIr('lpDuvidas')">Dúvidas</button><button onclick="manualBaixar('todos')">Manuais</button></div>
         <div><b>Legal</b>${LEGAL_ORDEM.map(k => `<button onclick="abrirLegal(${jsq(k)})">${escapeHtml(LEGAL[k].aba)}</button>`).join('')}</div>
       </div>
