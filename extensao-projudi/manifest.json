@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Baixador de PDFs para PROJUDI (TJGO)",
   "short_name": "PROJUDI PDFs",
-  "version": "1.7.6",
+  "version": "1.8.0",
   "description": "Baixa os autos do PROJUDI/TJGO em ZIP ou direto no Gerenciador de Perícia, pelo seu login ou código de acesso. Extensão não oficial.",
   "icons": {
     "16": "icons/icon16.png",
