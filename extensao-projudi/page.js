@@ -184,7 +184,7 @@
     const sendBtn = box.querySelector("#projudi-pdf-send");
     const status = box.querySelector("#projudi-pdf-status");
     const setStatus = (t) => (status.textContent = t);
-    const setBusy = (busy) => { btn.disabled = sendBtn.disabled = busy || !licenciado; };
+    const setBusy = (busy) => { btn.disabled = busy || !(licenciado || demoRestantes > 0); sendBtn.disabled = busy || !licenciado; };
     box.querySelector("#projudi-pdf-close").onclick = () => box.remove();
 
     // ---------- Assinatura ----------
@@ -194,6 +194,8 @@
     const assinar = box.querySelector("#projudi-pdf-assinar");
     const fmt = (d) => (d ? d.split("-").reverse().join("/") : "");
     let licenciado = false;
+    let demoRestantes = 0;
+    const ROTULO_ZIP = btn.textContent;
 
     // Botões dos planos (Mercado Pago). O pagamento abre numa aba nova; a liberação é automática.
     function desenharPlanos(lic) {
@@ -226,6 +228,9 @@
 
     function showLicense(lic) {
       licenciado = !!lic.ativo;
+      demoRestantes = licenciado ? 0 : Math.max(0, Number(lic.demoRestantes) || 0);
+      btn.textContent = demoRestantes > 0 ? `⬇ Teste grátis: baixar ${demoRestantes} arquivo(s) (ZIP)` : ROTULO_ZIP;
+      sendBtn.title = licenciado ? "" : "Envio ao Gerenciador de Perícia: só para assinantes.";
       setBusy(false);
       desenharPlanos(lic);
       if (licenciado && lic.modoTeste) {
@@ -240,7 +245,12 @@
         licInfo.append(trocar);
         licForm.hidden = true; assinar.hidden = true;
       } else {
-        licInfo.textContent = lic.motivo || "Assinatura necessária.";
+        const limite = lic.demoLimite || 3;
+        let texto = lic.motivo || "Assinatura necessária.";
+        if (!lic.email) texto = `Teste grátis: informe o seu e-mail e baixe até ${limite} arquivos sem assinar.`;
+        else if (demoRestantes > 0) texto += ` Teste grátis: ainda pode baixar ${demoRestantes} de ${limite} arquivo(s).`;
+        else texto += ` O teste grátis (${limite} arquivos) já foi usado; assine para baixar tudo.`;
+        licInfo.textContent = texto;
         licForm.hidden = false; assinar.hidden = false;
         if (lic.email && !licEmail.value) licEmail.value = lic.email;
       }
@@ -265,14 +275,19 @@
         onProgress = setStatus;
         setStatus(`Preparando ${zipFiles.length} arquivo(s)…`);
         let res = await request({ kind: "zip", files: zipFiles, zipFilename: `PROJUDI_${proc}.zip`, folder: `PROJUDI/${proc}` }, 60000);
-        if (res.ok && res.iniciado) res = await esperarZip(res.jobId);
-        onProgress = null;
         if (res.license) { showLicense(res.license); setStatus(""); return; }
-        if (res.error && !res.ok && !res.avulsos) { setStatus("Erro: " + res.error); return; }
+        const demo = res.demo || null;
+        if (res.ok && res.iniciado) res = { ...(await esperarZip(res.jobId)), demo };
+        if (!res.ok && res.error && !res.avulsos) { setStatus("Erro: " + res.error); return; }
         const mb = (res.bytes / 1048576).toFixed(1);
         let txt = res.ok ? `Pronto: PROJUDI_${proc}.zip com ${res.count} arquivo(s) (${mb} MB) na pasta Downloads.` : "Não foi possível montar o ZIP.";
         if (res.avulsos) txt += ` ${res.avulsos} arquivo(s) baixado(s) avulso(s) em Downloads/PROJUDI/${proc}.`;
         if (res.falhas) txt += ` ${res.falhas} falharam.`;
+        if (res.demo) {
+          txt += ` Teste grátis: ${res.demo.arquivos} de ${res.demo.total} arquivo(s) deste processo.` +
+            (res.demo.restantes ? ` Ainda restam ${res.demo.restantes} no teste.` : " O teste acabou: assine para baixar o processo inteiro.");
+          request({ kind: "license" }, 30000).then(showLicense);
+        }
         setStatus(txt);
       } catch (e) {
         setStatus("Erro: " + (e && e.message ? e.message : e));
