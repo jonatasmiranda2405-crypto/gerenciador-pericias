@@ -367,7 +367,14 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   console.log("\n12) Página de apresentação (antes do login)");
   await pf.evaluate(() => { closeDrawer(); abrirLogin(true); });
   await sleep(400);
-  check("apresentação aparece com as seções", await pf.isVisible("#login .lp-heroi") && await pf.locator("#login .lp-mod").count() === 11 && await pf.locator("#login .lp-faq details").count() >= 8);
+  check("apresentação aparece com as seções", await pf.isVisible("#login .lp-heroi") && await pf.locator("#login .lp-mod").count() === 12 && await pf.locator("#login .lp-faq details").count() >= 8);
+  { const planos = await pf.textContent("#login #lpPlanos");
+    check("apresentação mostra os planos grátis e PRO com os preços", /Grátis[\s\S]*R\$ 0[\s\S]*Gerenciador PRO[\s\S]*R\$ 49,90/.test(planos) && await pf.locator("#login .lp-comparar tbody tr").count() === 9);
+    check("módulos PRO marcados na apresentação", await pf.locator("#login .lp-mod .lp-pro").count() === 4);
+    await pf.click('#login .lp-periodo button[data-p="anual"]');
+    check("período anual mostra o preço por mês e o total", /R\$ 29,17[\s\S]*R\$ 350,00 por 365 dias/.test(await pf.textContent("#lpProPreco")), await pf.textContent("#lpProPreco"));
+    await pf.click('#login .lp-periodo button[data-p="mensal"]');
+    check("FAQ explica o que é grátis e o PRO", /Gerenciador PRO custa R\$ 49,90/.test(await pf.textContent("#login .lp-faq"))); }
   check("telas reais carregam na demonstração", await pf.evaluate(() => new Promise((ok) => { const i = document.getElementById("lpDemoImg"); if (i.complete) ok(i.naturalWidth > 0); else { i.onload = () => ok(i.naturalWidth > 0); i.onerror = () => ok(false); } })));
   await pf.click('#login .lp-demo-aba:has-text("Revisão IA")');
   await sleep(300);
