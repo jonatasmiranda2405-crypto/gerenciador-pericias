@@ -3,14 +3,17 @@
 const LICENSE_URL = "https://script.google.com/macros/s/AKfycbxDK9lZorhunpNNK8k1_zghlP9PQJhhb0Hyv1Ngr8fX7n_4Z_eQqx0FH1LmhIEWrCET/exec";
 
 // 2) Texto mostrado para quem ainda não é assinante (como assinar / pagar).
-const SUBSCRIBE_TEXT = "Assine com o e-mail acima: o pagamento é pelo Mercado Pago e a liberação é automática. Dúvidas: WhatsApp (62) 98411-7863.";
+const SUBSCRIBE_TEXT = "A assinatura inclui o Gerenciador de Perícia PRO. Pagamento pelo Mercado Pago, liberação automática pelo e-mail acima. Dúvidas: WhatsApp (62) 98411-7863.";
 
 // Planos vendidos pelo Mercado Pago. Os ids precisam bater com PLANOS do Code.gs (Apps Script).
 const PLANOS = [
-  { id: "mensal",     nome: "Mensal",     preco: "R$ 15,99",  dias: 30 },
-  { id: "trimestral", nome: "Trimestral", preco: "R$ 45,00",  dias: 90 },
-  { id: "anual",      nome: "Anual",      preco: "R$ 150,00", dias: 365 }
+  { id: "mensal",     nome: "Mensal",     preco: "R$ 49,90",  dias: 30 },
+  { id: "trimestral", nome: "Trimestral", preco: "R$ 130,00", dias: 90 },
+  { id: "anual",      nome: "Anual",      preco: "R$ 350,00", dias: 365 }
 ];
+
+// Teste grátis: arquivos que cada e-mail pode baixar sem assinar (o limite de verdade fica no Apps Script).
+const DEMO_LIMITE = 3;
 
 // Tempo que uma verificação bem-sucedida fica válida sem consultar de novo (horas).
 const LICENSE_CACHE_HOURS = 12;
