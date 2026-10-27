@@ -13,7 +13,25 @@ async function remoteCheck(email) {
     body: JSON.stringify({ email })
   });
   if (!r.ok) throw new Error("HTTP " + r.status);
-  return r.json(); // { ativo, validade }
+  return r.json(); // { ativo, validade, demoRestantes, precos }
+}
+
+// Assinante antigo continua com os preços de antes: o Apps Script devolve os valores daquele e-mail.
+const reais = (v) => "R$ " + Number(v).toFixed(2).replace(".", ",");
+function planosDe(res) {
+  const p = res && res.precos;
+  return p ? PLANOS.map((pl) => (p[pl.id] != null ? { ...pl, preco: reais(p[pl.id]) } : pl)) : PLANOS;
+}
+
+// Reserva arquivos do teste grátis no Apps Script; devolve quantos foram liberados.
+async function reservarDemo(email, n) {
+  const r = await fetch(LICENSE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ acao: "demo", email, n })
+  });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json(); // { permitidos, restantes }
 }
 
 // Retorna { ativo, email, validade, motivo, assinar }
@@ -22,23 +40,25 @@ async function checkLicense(newEmail) {
   if (!LICENSE_URL || LICENSE_URL.includes("COLE_AQUI")) {
     return { ativo: true, email: "", validade: "", assinar: SUBSCRIBE_TEXT, planos: PLANOS, modoTeste: true };
   }
-  const st = await chrome.storage.local.get(["email", "lastOk", "validade"]);
+  const st = await chrome.storage.local.get(["email", "lastOk", "validade", "planosEmail"]);
   const email = (newEmail || st.email || "").trim().toLowerCase();
   const base = { email, assinar: SUBSCRIBE_TEXT, planos: PLANOS };
   if (!email) return { ...base, ativo: false, motivo: "Informe o e-mail da sua assinatura." };
 
   const cacheValid = !newEmail && st.lastOk && Date.now() - st.lastOk < LICENSE_CACHE_HOURS * HOUR && st.validade >= today();
-  if (cacheValid) return { ...base, ativo: true, validade: st.validade };
+  if (cacheValid) return { ...base, planos: st.planosEmail || PLANOS, ativo: true, validade: st.validade };
 
   try {
     const res = await remoteCheck(email);
+    const planos = planosDe(res);
     if (res.ativo) {
-      await chrome.storage.local.set({ email, lastOk: Date.now(), validade: res.validade });
-      return { ...base, ativo: true, validade: res.validade };
+      await chrome.storage.local.set({ email, lastOk: Date.now(), validade: res.validade, planosEmail: planos });
+      return { ...base, planos, ativo: true, validade: res.validade };
     }
-    await chrome.storage.local.set({ email, lastOk: 0, validade: res.validade || "" });
+    await chrome.storage.local.set({ email, lastOk: 0, validade: res.validade || "", planosEmail: planos });
+    const demoRestantes = Math.max(0, Number(res.demoRestantes) || 0);
     const motivo = res.validade ? `Assinatura vencida em ${res.validade.split("-").reverse().join("/")}.` : "E-mail sem assinatura ativa.";
-    return { ...base, ativo: false, validade: res.validade || "", motivo };
+    return { ...base, planos, ativo: false, validade: res.validade || "", motivo, demoRestantes, demoLimite: Number(res.demoLimite) || DEMO_LIMITE };
   } catch (e) {
     const offlineOk = !newEmail && st.lastOk && Date.now() - st.lastOk < LICENSE_OFFLINE_DAYS * 24 * HOUR && st.validade >= today();
     if (offlineOk) return { ...base, ativo: true, validade: st.validade };
@@ -255,12 +275,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const folder = nomeSeguro(msg.folder, "PROJUDI");
       try {
         const lic = await checkLicense();
-        if (!lic.ativo) { sendResponse({ ok: false, license: lic }); return; }
+        let lista = files, demo = null;
+        if (!lic.ativo) {
+          // Teste grátis: sem assinatura, cada e-mail pode baixar DEMO_LIMITE arquivos no total.
+          if (!lic.email || !(lic.demoRestantes > 0)) { sendResponse({ ok: false, license: lic }); return; }
+          const d = await reservarDemo(lic.email, files.length);
+          const k = Math.max(0, Math.min(files.length, Number(d.permitidos) || 0));
+          if (!k) { sendResponse({ ok: false, license: { ...lic, demoRestantes: 0 } }); return; }
+          lista = files.slice(0, k);
+          demo = { arquivos: k, restantes: Math.max(0, Number(d.restantes) || 0), total: files.length };
+        }
         await ensureOffscreen();
         const jobId = crypto.randomUUID();
-        const r = await chrome.runtime.sendMessage({ target: "offscreen", type: "BUILD_ZIP", files, tabId, jobId, zipFilename, folder });
+        const r = await chrome.runtime.sendMessage({ target: "offscreen", type: "BUILD_ZIP", files: lista, tabId, jobId, zipFilename, folder });
         if (!r?.iniciado) { sendResponse({ ok: false, error: "Não foi possível começar o ZIP." }); return; }
-        sendResponse({ ok: true, iniciado: true, jobId, total: files.length });
+        sendResponse({ ok: true, iniciado: true, jobId, total: lista.length, demo });
       } catch (e) {
         sendResponse({ ok: false, error: String(e && e.message || e) });
       }
@@ -308,7 +337,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const r = await fetch(LICENSE_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ acao: "checkout", email, plano: plano.id })
+          body: JSON.stringify({ acao: "checkout", email, plano: plano.id, volta: "projudi" })
         });
         const res = await r.json();
         const link = res && (res.url || res.link || res.init_point || res.checkout || res.checkoutUrl);
