@@ -56,6 +56,10 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
   // ---------- 1) pelo código de acesso, sem login ----------
   console.log("\n1) Baixar autos pelo código de acesso (sem login)");
   const c1 = await novoCaso({ nome: "Teste código", numero: NUM, codigo: "Zrrxk42nj8DcwbqmZd" });
+  // sem o Gerenciador PRO a busca de processo fica bloqueada
+  await pf.click(`button[onclick="pjBaixarAutos('${c1}')"]`);
+  { const b0 = await esperarEtapa(c1, ["erro"], 5000); check("sem PRO, a busca de processo pede a assinatura", /Gerenciador PRO/.test(b0.s.texto || ""), b0.s.texto); }
+  await pf.evaluate(() => { PRO.ativo = true; PRO.email = meuEmail(); PRO.validade = ""; renderAll(); });
   await pf.click(`button[onclick="pjBaixarAutos('${c1}')"]`);
   let e = await esperarEtapa(c1, ["captcha", "confirmar", "fim", "erro", "assistido", "login"], 30000);
   check("detecta a verificação do Cloudflare e pede ao perito", e.s.etapa === "captcha", e.s.texto);
