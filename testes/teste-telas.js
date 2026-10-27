@@ -59,6 +59,34 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   check("menu com as telas novas", ["Importar processo", "Publicações", "Prazos e alertas", "Tarefas", "Agenda", "Financeiro", "Integrações"].every((t) => nav.includes(t)), nav.join(" · "));
   check("telas antigas continuam no menu", ["Perícias", "Cálculos", "Proposta de honorários", "Documentos", "Revisão IA", "Equipe", "Projudi", "Configurações"].every((t) => nav.includes(t)));
 
+  console.log("\n1b) Gerenciador PRO");
+  check("recursos PRO marcados no menu", await pf.locator('#nav .nav-item[data-sec="ia"] .nav-pro').count() === 1 && await pf.locator('#nav .nav-item[data-sec="visao"] .nav-pro').count() === 0);
+  for (const s of ["ia", "proposta", "publicacoes", "projudi"]) {
+    await ir(s);
+    check(`sem PRO, "${s}" mostra a assinatura`, /recurso do Gerenciador PRO/.test(await pf.textContent("#view")));
+  }
+  { const t = await pf.textContent("#view"); check("planos PRO com os preços novos", ["R$ 49,90", "R$ 130,00", "R$ 350,00"].every((x) => t.includes(x))); }
+  await pf.evaluate(() => { currentUser = { email: "assinante@exemplo.com", emailVerified: true, providerData: [] }; localStorage.removeItem("pf_pro"); });
+  await pf.evaluate(() => proVerificar(true));
+  await ir("ia");
+  check("assinante PRO entra na Revisão IA", !/recurso do Gerenciador PRO/.test(await pf.textContent("#view")) && await pf.evaluate(() => temPro()));
+  await ir("pro");
+  check("tela PRO mostra a validade", /PRO ativo[\s\S]*31\/12\/2026/.test(await pf.textContent("#view")));
+  await pf.evaluate(() => { currentUser = { email: "novo@exemplo.com", emailVerified: true, providerData: [] }; });
+  await pf.evaluate(() => proVerificar(true));
+  await ir("proposta");
+  check("sem assinatura ativa continua bloqueado", /recurso do Gerenciador PRO/.test(await pf.textContent("#view")) && !(await pf.evaluate(() => temPro())));
+  { let pedido = "";
+    const ver = (r) => { if (/mercadopago\.com\.br/.test(r.url())) pedido = r.url(); };
+    ctx.on("request", ver);
+    const np = ctx.waitForEvent("page", { timeout: 10000 });
+    await pf.click('.pro-plano:has-text("Anual")');
+    const p2 = await np;
+    for (let i = 0; i < 40 && !pedido; i++) await sleep(250);
+    ctx.off("request", ver);
+    check("plano anual abre o Mercado Pago", /teste-anual&email=novo%40exemplo\.com/.test(pedido), pedido); await p2.close(); }
+  await pf.evaluate(() => { currentUser = null; proLimpar(); window.temPro = () => true; renderAll(); }); // daqui em diante, as telas PRO liberadas
+
   console.log("\n2) Tarefas");
   await ir("tarefas");
   await pf.fill("#pfTarefaTitulo", "Responder quesitos complementares");
@@ -164,7 +192,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await foto("publicacoes");
   await ir("integracoes");
   const integ = await pf.textContent("#view");
-  check("Integrações mostra a extensão instalada e as notificações ligadas", /v1\.7\.\d instalada/.test(integ) && /ligadas/.test(integ), integ.slice(0, 160).replace(/\s+/g, " "));
+  check("Integrações mostra a extensão instalada e as notificações ligadas", /v1\.\d+\.\d+ instalada/.test(integ) && /ligadas/.test(integ), integ.slice(0, 160).replace(/\s+/g, " "));
   check("Integrações mostra o DJEN ligado pela extensão", /pela extensão/.test(integ));
   await foto("integracoes");
   await ir("visao");
