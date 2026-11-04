@@ -84,6 +84,24 @@ test('editor não tira nem rebaixa ninguém; o dono pode', async () => {
   await assertSucceeds(updateDoc(doc(d, 'casos/c1'), { emails: [DONO, LEITOR], editores: [DONO] }));
   await assertFails(updateDoc(doc(d, 'casos/c1'), { dono: LEITOR }));
 });
+test('o dono tira alguém e a pessoa perde a perícia, os documentos e os arquivos', async () => {
+  await assertSucceeds(updateDoc(doc(db('u-dona', DONO), 'casos/c1'), { emails: [DONO, EDITOR], editores: [DONO, EDITOR], compartilhamentos: [{ email: EDITOR, nivel: 'editar' }] }));
+  await assertFails(getDoc(doc(db('u-leitor', LEITOR), 'casos/c1')));
+  await assertFails(getDoc(doc(db('u-leitor', LEITOR), 'casos/c1/documentos/d1')));
+  await assertFails(getBytes(ref(st('u-leitor', LEITOR), 'casos/c1/documentos/d1/peticao.pdf')));
+  const lista = await assertSucceeds(getDocs(query(collection(db('u-leitor', LEITOR), 'casos'), where('emails', 'array-contains', LEITOR))));
+  if (lista.size !== 0) throw new Error('a perícia ainda aparece para quem foi tirado');
+});
+test('quem não é dono pode sair da perícia, mas não tira mais ninguém', async () => {
+  const fl = db('u-leitor', LEITOR);
+  await assertFails(updateDoc(doc(fl, 'casos/c1'), { emails: [DONO, LEITOR], compartilhamentos: [] }));
+  await assertFails(updateDoc(doc(fl, 'casos/c1'), { emails: [DONO, EDITOR], nome: 'mudei' }));
+  await assertSucceeds(updateDoc(doc(fl, 'casos/c1'), { emails: [DONO, EDITOR], compartilhamentos: [{ email: EDITOR, nivel: 'editar' }] }));
+  await assertFails(getDoc(doc(fl, 'casos/c1')));
+  const fe = db('u-editor', EDITOR);
+  await assertSucceeds(updateDoc(doc(fe, 'casos/c1'), { emails: [DONO], editores: [DONO], compartilhamentos: [] }));
+  await assertFails(updateDoc(doc(db('u-dona', DONO), 'casos/c1'), { emails: [EDITOR], editores: [EDITOR], dono: EDITOR }));
+});
 test('quem só lê não vira editor sozinho', async () => {
   await assertFails(updateDoc(doc(db('u-leitor', LEITOR), 'casos/c1'), { editores: [DONO, EDITOR, LEITOR] }));
 });
