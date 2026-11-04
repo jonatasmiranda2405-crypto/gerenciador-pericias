@@ -60,6 +60,14 @@ test('a consulta por e-mail passa; a coleção inteira não', async () => {
   await assertFails(getDocs(collection(db('u-leitor', LEITOR), 'casos')));
   await assertFails(getDocs(query(collection(db('u-x', ESTRANHO), 'casos'), where('emails', 'array-contains', DONO))));
 });
+test('nem as contas antigas nem os administradores listam a coleção inteira', async () => {
+  const f = db('u-antiga', ANTIGA);
+  await assertFails(getDocs(collection(f, 'casos')));
+  await assertFails(getDocs(query(collection(f, 'casos'), where('dono', '==', DONO))));
+  await assertSucceeds(getDocs(query(collection(f, 'casos'), where('emails', 'array-contains', ANTIGA))));
+  await assertSucceeds(getDoc(doc(f, 'casos/antigo')));
+  await assertFails(getDoc(doc(f, 'casos/c1')));
+});
 test('criar perícia: só como dono, com acessos coerentes e id seguro', async () => {
   const f = db('u-x', ESTRANHO);
   await assertSucceeds(setDoc(doc(f, 'casos/c2'), { nome: 'Nova', dono: ESTRANHO, emails: [ESTRANHO], editores: [ESTRANHO], compartilhamentos: [] }));
