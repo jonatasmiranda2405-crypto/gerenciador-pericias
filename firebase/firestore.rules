@@ -7,7 +7,7 @@ rules_version = '2';
 // Modelo de acesso:
 //   usuarios/{uid}         só o próprio usuário (cadastro, preferências, chave da IA)
 //   casos/{casoId}         lê quem está em `emails`; altera quem está em `editores` (só o `dono`
-//                          tira ou rebaixa alguém); apaga só o `dono`
+//                          tira ou rebaixa alguém; qualquer membro pode sair); apaga só o `dono`
 //   casos/{id}/documentos  lê quem lê a perícia; grava quem edita a perícia
 //   config/*               só leitura, só para as três contas antigas (migração do cadastro)
 //   erros/*                cada conta registra o próprio erro; só os administradores leem
@@ -111,6 +111,12 @@ service cloud.firestore {
               && request.resource.data.dono == resource.data.dono
               && request.resource.data.emails.hasAll(resource.data.emails)
               && request.resource.data.editores.hasAll(resource.data.editores))
+          // quem não é dono pode sair da perícia: tira só o próprio e-mail, sem mexer em mais nada
+          || (ehMembro(resource.data)
+              && resource.data.dono != email()
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emails', 'editores', 'compartilhamentos'])
+              && request.resource.data.emails.toSet() == resource.data.emails.toSet().difference([email()].toSet())
+              && request.resource.data.editores.toSet() == resource.data.editores.toSet().difference([email()].toSet()))
           // migração das perícias antigas, feita por uma das contas antigas
           || (semAcessos(resource.data) && legado())
         );
