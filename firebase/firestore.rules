@@ -93,8 +93,12 @@ service cloud.firestore {
     }
 
     match /casos/{casoId} {
-      allow read: if verificado()
+      // abrir uma perícia: só quem está em `emails` (as contas antigas abrem as que ainda não têm acessos)
+      allow get: if verificado()
         && (ehMembro(resource.data) || (semAcessos(resource.data) && legado()));
+      // listar: só as perícias em que o meu e-mail está, sempre com where('emails', 'array-contains', ...).
+      // Sem o caminho das contas antigas aqui: com ele, o Firestore deixava essas contas listarem a coleção inteira.
+      allow list: if verificado() && ehMembro(resource.data);
 
       allow create: if verificado()
         && idValido(casoId)
