@@ -624,6 +624,36 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   check("conta comum não vê o Agente comercial", /Área restrita/.test(await pf.textContent("#view")) && await pf.locator('#nav .nav-item[data-sec="comercial"]').count() === 0);
   await pf.evaluate(() => { currentUser = null; perfil.adminFeitos = {}; setSection("visao"); });
 
+  console.log("\n14b) Quem tem acesso: tirar alguém e sair da perícia");
+  {
+    const cid = await pf.evaluate(async () => {
+      currentUser = { email: "dona@exemplo.com", emailVerified: true, providerData: [] };
+      const id = await criarCaso({ dono: "dona@exemplo.com", emails: ["dona@exemplo.com", "colega@exemplo.com", "assistente@exemplo.com"], editores: ["dona@exemplo.com", "colega@exemplo.com"],
+        compartilhamentos: [{ email: "colega@exemplo.com", nivel: "editar" }, { email: "assistente@exemplo.com", nivel: "leitura" }], codigo: nextCodigo(), nome: "Perícia compartilhada",
+        numeroProcesso: "", codigoAcesso: "", vara: "", comarca: "", partes: "", dataNomeacao: todayIso(), prazoEntrega: todayIso(), honorarios: 0, valorRecebido: 0, statusCaso: "em_andamento", observacoes: [] });
+      openDrawer(id); return id;
+    });
+    await sleep(300);
+    check("dono vê o botão Tirar acesso para cada pessoa", await pf.locator(".btn-tirar:has-text('Tirar acesso')").count() === 2 && await pf.locator(`[id="shareConfirma-${cid}"]`).count() === 1);
+    await pf.locator(".btn-tirar:has-text('Tirar acesso')").last().click();
+    check("tirar acesso pede confirmação", /deixa de ver a perícia, os documentos e os arquivos/.test(await pf.textContent(`[id="shareConfirma-${cid}"]`)));
+    await pf.click(`[id="shareConfirma-${cid}"] .btn-danger`);
+    await sleep(300);
+    const r = await pf.evaluate((id) => { const c = casos.find((x) => x.id === id); return { emails: c.emails, editores: c.editores, comp: c.compartilhamentos.map((x) => x.email) }; }, cid);
+    check("a pessoa sai de emails, editores e compartilhamentos", !r.emails.includes("assistente@exemplo.com") && !r.comp.includes("assistente@exemplo.com") && r.emails.length === 2, JSON.stringify(r));
+    await pf.evaluate(() => { closeDrawer(); setSection("equipe"); });
+    await sleep(250);
+    check("Equipe: botão para tirar a pessoa de todas as minhas perícias", await pf.locator("#view .btn-tirar:has-text('Tirar das minhas perícias')").count() >= 1);
+    await pf.evaluate((id) => { currentUser = { email: "colega@exemplo.com", emailVerified: true, providerData: [] }; openDrawer(id); }, cid);
+    await sleep(300);
+    check("quem não é dono não vê Tirar acesso, mas pode sair", await pf.locator(".btn-tirar:has-text('Tirar acesso')").count() === 0 && await pf.locator("button:has-text('Sair desta perícia')").count() === 1);
+    await pf.click("button:has-text('Sair desta perícia')");
+    await pf.click(`[id="shareConfirma-${cid}"] .btn-danger`);
+    await sleep(300);
+    check("ao sair, a perícia some da lista", await pf.evaluate((id) => !casos.some((x) => x.id === id), cid));
+    await pf.evaluate(() => { currentUser = null; closeDrawer(); setSection("visao"); });
+  }
+
   console.log("\n9) Barra lateral e paleta de comandos");
   await pf.setViewportSize({ width: 1360, height: 900 });
   await pf.evaluate(() => { document.documentElement.setAttribute("data-theme", "light"); setSection("visao"); });
