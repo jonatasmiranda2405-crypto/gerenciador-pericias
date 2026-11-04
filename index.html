@@ -309,6 +309,7 @@ body.rail .perfil-nums{display:none;}
 .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line-strong);}
 .btn-ghost:hover{background:var(--surface-2);}
 .btn-danger{background:transparent; color:var(--danger); border-color:var(--danger);}
+.btn-tirar{color:var(--danger);}
 .btn-danger:hover{background:var(--danger-soft);}
 .btn-sm{padding:6px 11px; font-size:12.5px;}
 .btn[disabled]{opacity:.5; cursor:default;}
@@ -2154,16 +2155,108 @@ async function mudarNivel(casoId, email, nivel){
   });
   renderAll();
 }
-async function descompartilhar(casoId, email){
+/* Tirar alguém de uma perícia (só o dono). As regras do Firestore e do Storage cortam o acesso
+   na hora: a pessoa deixa de ver a perícia, os documentos e os arquivos. */
+async function tirarAcesso(casoId, email){
   const c = casos.find(x => x.id === casoId);
-  if(!c) return;
+  if(!c) return {erro:'Perícia não encontrada.'};
   const e = String(email).toLowerCase();
-  await saveCaso(casoId, {
+  if(e === donoDe(c)) return {erro:'O dono não pode ser tirado da perícia.'};
+  if(!souDono(c)) return {erro:'Só o dono da perícia tira o acesso de alguém.'};
+  const antes = {emails: c.emails, editores: c.editores, compartilhamentos: c.compartilhamentos};
+  const patch = {
     emails: acessosDe(c).filter(x => x !== e),
     editores: editoresDe(c).filter(x => x !== e),
     compartilhamentos: compartilhamentosDe(c).filter(s => s.email !== e),
-  });
+  };
+  Object.assign(c, patch);
+  if(usingDb && db){
+    try{ await db.collection('casos').doc(casoId).update(patch); }
+    catch(err){ Object.assign(c, antes); return {erro:'O servidor recusou a mudança (' + (err.code || 'erro') + '). Tente de novo.'}; }
+  } else persistCasosToLocalStorage();
+  return {ok:true};
+}
+async function descompartilhar(casoId, email){
+  const r = await tirarAcesso(casoId, email);
+  const aviso = document.getElementById(`shareConfirma-${casoId}`);
+  renderAll(); if(drawerCasoId === casoId) renderDrawer();
+  const novo = document.getElementById(`shareConfirma-${casoId}`) || aviso;
+  if(novo) novo.innerHTML = r.ok
+    ? `<div class="hint" style="color:var(--ok);">${escapeHtml(membroDe(email).nome)} não tem mais acesso a esta perícia.</div>`
+    : `<div class="hint" style="color:var(--danger);">${escapeHtml(r.erro)}</div>`;
+}
+function pedirRemocao(casoId, email){
+  const el = document.getElementById(`shareConfirma-${casoId}`);
+  if(!el) return;
+  const m = membroDe(email);
+  el.innerHTML = `
+    <div class="confirm-box" style="margin:12px 0 0;">
+      Tirar <b>${escapeHtml(m.nome)}</b> (${escapeHtml(email)}) desta perícia? A pessoa deixa de ver a perícia, os documentos e os arquivos na hora.
+      <div class="row">
+        <button class="btn btn-danger btn-sm" onclick="descompartilhar(${jsq(casoId)},${jsq(email)})">Sim, tirar o acesso</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('shareConfirma-${casoId}').innerHTML=''">Cancelar</button>
+      </div>
+    </div>`;
+}
+/* Quem não é dono pode sair de uma perícia que foi compartilhada com ele. */
+function pedirSaida(casoId){
+  const el = document.getElementById(`shareConfirma-${casoId}`);
+  if(!el) return;
+  el.innerHTML = `
+    <div class="confirm-box" style="margin:12px 0 0;">
+      Sair desta perícia? Ela some da sua lista e só volta se o dono compartilhar de novo.
+      <div class="row">
+        <button class="btn btn-danger btn-sm" onclick="sairDaPericia(${jsq(casoId)})">Sim, sair</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('shareConfirma-${casoId}').innerHTML=''">Cancelar</button>
+      </div>
+    </div>`;
+}
+async function sairDaPericia(casoId){
+  const c = casos.find(x => x.id === casoId);
+  const e = meuEmail();
+  if(!c || !e || donoDe(c) === e) return;
+  const patch = {
+    emails: acessosDe(c).filter(x => x !== e),
+    editores: editoresDe(c).filter(x => x !== e),
+    compartilhamentos: compartilhamentosDe(c).filter(s => s.email !== e),
+  };
+  if(usingDb && db){
+    try{ await db.collection('casos').doc(casoId).update(patch); }
+    catch(err){
+      const el = document.getElementById(`shareConfirma-${casoId}`);
+      if(el) el.innerHTML = `<div class="hint" style="color:var(--danger);">Não foi possível sair agora (${escapeHtml(err.code || 'erro')}).</div>`;
+      return;
+    }
+  }
+  casos = casos.filter(x => x.id !== casoId);
+  if(drawerCasoId === casoId) closeDrawer();
   renderAll();
+  pfAviso('Você saiu da perícia.');
+}
+/* Equipe: tirar uma pessoa de todas as perícias de que eu sou dono. */
+function minhasComPessoa(email){
+  const e = String(email || '').toLowerCase();
+  return casos.filter(c => souDono(c) && donoDe(c) !== e && acessosDe(c).includes(e));
+}
+function pedirRemocaoGeral(email, alvoId){
+  const el = document.getElementById(alvoId);
+  if(!el) return;
+  const n = minhasComPessoa(email).length;
+  el.innerHTML = `
+    <div class="confirm-box" style="margin:8px 0 0;">
+      Tirar <b>${escapeHtml(membroDe(email).nome)}</b> de ${n} perícia${n === 1 ? '' : 's'} sua${n === 1 ? '' : 's'}? O acesso acaba na hora.
+      <div class="row">
+        <button class="btn btn-danger btn-sm" onclick="removerDeTodas(${jsq(email)}, ${jsq(alvoId)})">Sim, tirar de todas</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById(${jsq(alvoId)}).innerHTML=''">Cancelar</button>
+      </div>
+    </div>`;
+}
+async function removerDeTodas(email, alvoId){
+  const lista = minhasComPessoa(email);
+  let ok = 0, falhas = 0;
+  for(const c of lista){ const r = await tirarAcesso(c.id, email); if(r.ok) ok++; else falhas++; }
+  renderAll();
+  pfAviso(falhas ? `Acesso tirado de ${ok} perícia(s); ${falhas} não foram alteradas. Tente de novo.` : `${membroDe(email).nome} não tem mais acesso às suas perícias.`);
 }
 
 /* ---------- convite por e-mail ---------- */
@@ -6225,7 +6318,7 @@ function linhaCompartilhamento(c, email, editavel){
              </select>
              <button class="btn btn-ghost btn-sm" onclick="abrirConvite(${jsq(c.id)},${jsq(email)})" title="Abrir no seu programa de e-mail">Enviar convite</button>
              <button class="btn btn-ghost btn-sm" onclick="copiarConvite(${jsq(c.id)},${jsq(email)},${jsq(avisoId)})" title="Copiar o texto do convite">Copiar</button>
-             ${editavel ? `<button class="btn btn-ghost btn-sm" onclick="descompartilhar(${jsq(c.id)},${jsq(email)})">Remover</button>` : ''}`}
+             ${editavel ? `<button class="btn btn-ghost btn-sm btn-tirar" onclick="pedirRemocao(${jsq(c.id)},${jsq(email)})" title="A pessoa deixa de ver a perícia e os documentos">Tirar acesso</button>` : ''}`}
       </div>
       <span id="${avisoId}" class="row-full dica" style="text-align:right; color:var(--accent-deep);"></span>
     </div>`;
@@ -6255,7 +6348,10 @@ function renderCompartilhamento(c){
         <button class="btn btn-primary btn-sm" onclick="enviarCompartilhamento(${jsq(c.id)})">Compartilhar</button>
         <span id="shareAviso-${c.id}" style="font-size:12px; color:var(--accent-deep); font-weight:500;"></span>
       </div>`
-      : `<div class="hint">Você tem acesso somente de leitura nesta perícia, então não pode alterar quem mais a enxerga.</div>`}`;
+      : `<div class="hint">Você tem acesso somente de leitura nesta perícia, então não pode alterar quem mais a enxerga.</div>`}
+      ${!souDono(c) && meuEmail() ? `<div class="acoes" style="margin-top:10px;"><button class="btn btn-ghost btn-sm" onclick="pedirSaida(${jsq(c.id)})">Sair desta perícia</button>
+        <span class="dica">Só o dono (${escapeHtml(donoDe(c))}) tira outras pessoas.</span></div>` : ''}
+      <div id="shareConfirma-${c.id}"></div>`;
   const nota = outros.length ? `${outros.length} pessoa${outros.length===1?'':'s'} além do dono` : 'só o dono';
   return panel('share-'+c.id, 'Quem tem acesso', nota, corpo);
 }
@@ -6319,9 +6415,11 @@ function renderEquipe(){
                      onblur="this.style.borderColor='transparent'; this.style.background='transparent'">
               <div class="row-sub mono" style="font-size:11.5px;">${escapeHtml(m.email)}</div>
             </div>
-            <div class="row-side">
+            <div class="row-side" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
               <span class="pill ${n ? 'pill-accent' : 'pill-muted'}">${n} perícia${n===1?'':'s'}</span>
+              ${minhasComPessoa(m.email).length ? `<button class="btn btn-ghost btn-sm btn-tirar" onclick="pedirRemocaoGeral(${jsq(m.email)}, ${jsq('eqTirar-' + m.email.replace(/[^a-z0-9]/gi, ''))})">Tirar das minhas perícias</button>` : ''}
             </div>
+            <div class="row-full" id="eqTirar-${m.email.replace(/[^a-z0-9]/gi, '')}"></div>
           </div>`;
         }).join('')}
       </div>
@@ -7146,9 +7244,11 @@ function loginCaixaHtml(){
    Mostra o que o sistema oferece, com telas reais (pasta apresentacao/),
    ferramentas que funcionam sem conta (simulador de honorários e contador de
    prazo), dúvidas, suporte e o login numa janela por cima.
-   Nada aqui inventa número, depoimento ou cliente: só o que o sistema faz.
+   Nada aqui inventa número, depoimento ou cliente: só o que o sistema faz. O número de peritos
+   cadastrados (LP_PERITOS) foi informado pelo Jonatas em 04/11/2026; atualize quando crescer.
    ========================================================================== */
 const LP_VERSAO = '3';   /* suba quando trocar as imagens de apresentacao/ (o navegador busca as novas) */
+const LP_PERITOS = 200;   /* "mais de N peritos cadastrados" na apresentação */
 const SUPORTE_EMAIL = LEGAL_CONTATO;
 const SUPORTE_WHATSAPP = '';   /* só dígitos com DDI e DDD, ex.: '5562999999999'. Vazio esconde o botão. */
 let lpEntrarAberto = false;
@@ -7278,6 +7378,7 @@ function renderApresentacao(){
             <button class="btn btn-ghost lp-btn-g" onclick="lpIr('lpDemo')">${svg('<path d="M8 5v14l11-7z"/>')} Ver o sistema funcionando</button>
           </div>
           <ul class="lp-heroi-pts">
+            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} <b>Mais de ${LP_PERITOS} peritos cadastrados</b></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Plano grátis para sempre, sem cartão</li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} <button class="lg-link" onclick="lpIr('lpPlanos')">PRO a partir de ${proReais(lpPlanoPro('anual').preco / lpPlanoPro('anual').meses)}/mês</button></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Seus dados só seus</li>
@@ -7418,7 +7519,7 @@ function renderApresentacao(){
 
     <section class="lp-sec" id="lpPlanos">
       <div class="lp-lim">
-        <div class="lp-tit lp-rev"><span>Planos</span><h2>Comece grátis. Assine o PRO quando precisar.</h2><p>O dia a dia da perícia é grátis para sempre. O PRO traz a IA, a busca de processo, a proposta e as publicações automáticas.</p></div>
+        <div class="lp-tit lp-rev"><span>Planos</span><h2>Comece grátis. Assine o PRO quando precisar.</h2><p>Mais de ${LP_PERITOS} peritos já usam o Gerenciador de Perícia. O dia a dia da perícia é grátis para sempre. O PRO traz a IA, a busca de processo, a proposta e as publicações automáticas.</p></div>
         <div class="lp-periodo lp-rev" role="group" aria-label="Período do PRO">
           ${PRO_PLANOS.map(p => `<button type="button" data-p="${p.id}" class="${p.id === lpPeriodoAtual ? 'on' : ''}" aria-pressed="${p.id === lpPeriodoAtual}" onclick="lpPeriodo(${jsq(p.id)})">${escapeHtml(p.nome)}${p.id !== 'mensal' ? `<em>-${lpEconomia(p.id)}%</em>` : ''}</button>`).join('')}
         </div>
@@ -7497,7 +7598,7 @@ function renderApresentacao(){
     <section class="lp-final">
       <div class="lp-lim lp-final-in lp-rev">
         ${lpMarca('lp-final-marca')}
-        <h2>Comece hoje. Suas perícias em ordem em minutos.</h2>
+        <h2>Junte-se a mais de ${LP_PERITOS} peritos. Suas perícias em ordem em minutos.</h2>
         <div class="lp-heroi-cta">
           <button class="btn btn-primary lp-btn-g" onclick="lpEntrar('criar')">Criar conta grátis</button>
           <button class="btn btn-ghost lp-btn-g lp-btn-claro" onclick="lpIr('lpPlanos')">Ver os planos</button>
@@ -9655,10 +9756,14 @@ async function applyAuthState(){
 
 async function startDbSync(){
   try{
-    const snap = await db.collection('casos').get();
+    /* só as minhas perícias: ninguém lê a coleção inteira */
+    const email = meuEmail();
+    const snap = await db.collection('casos').where('emails', 'array-contains', email).limit(1).get();
     if(snap.empty && casos.length){
       for(const c of casos){
-        const {id, documentos, ...data} = c;
+        const {id, documentos, ...base} = c;
+        /* o que estava só neste navegador sobe como meu, sem levar acessos de outra pessoa */
+        const data = {...base, dono: email, emails: [email], editores: [email], compartilhamentos: []};
         await db.collection('casos').doc(id).set(data);
         for(const d of (documentos||[])){
           const {id:docId, ...docData} = d;
@@ -9667,15 +9772,14 @@ async function startDbSync(){
       }
     }
   }catch(e){ /* segue para a inscrição mesmo assim */ }
-  assinarCasos(false);
+  assinarCasos(true);
   await carregarPerfil();
   migrarAcessos();
   if(drawerCasoId) subscribeDocumentos(drawerCasoId);
 }
 
-/* A consulta ampla só passa enquanto as regras antigas valem. Com as regras
-   por perícia, o servidor recusa ler a coleção inteira, e aí a inscrição é
-   refeita filtrando pelo meu e-mail — o mesmo código serve aos dois momentos. */
+/* Só as perícias em que o meu e-mail está em `emails`. As regras do Firestore recusam a
+   coleção inteira; a consulta ampla fica só como reserva para a conta sem e-mail. */
 function assinarCasos(filtrado){
   if(casosUnsub){ casosUnsub(); casosUnsub = null; }
   const email = meuEmail();
