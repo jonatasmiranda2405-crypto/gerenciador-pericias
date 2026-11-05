@@ -2800,6 +2800,18 @@ function souAdmin(){ return !!(currentUser && contaVerificada() && ADMINS.includ
    Quem já assinava antes de 27/10/2026 mantém os valores antigos (o Apps Script
    devolve os preços daquele e-mail). O bloqueio aqui é de interface.
    ========================================================================== */
+/* App Android (Play Store): o app abre o site com ?origem=android. Dentro do app não há compra
+   (política de pagamentos do Google Play: app só de consumo). A assinatura continua no site.
+   Fica em sessionStorage porque o app divide o armazenamento com o Chrome do celular. */
+const APP_ANDROID = (() => {
+  const daUrl = /[?&]origem=android(&|$)/.test(location.search) || String(document.referrer).startsWith('android-app://');
+  try{
+    if(daUrl) sessionStorage.setItem('pf_app', 'android');
+    return sessionStorage.getItem('pf_app') === 'android';
+  }catch(e){ return daUrl; }
+})();
+if(APP_ANDROID) document.documentElement.classList.add('app-android');
+const APP_ASSINAR_TXT = 'A assinatura do Gerenciador PRO é feita no site gerenciadorpericias.com.br, pelo navegador. Depois de assinar, volte ao app e toque em "Já assinei, conferir".';
 const PRO_URL = 'https://script.google.com/macros/s/AKfycbxDK9lZorhunpNNK8k1_zghlP9PQJhhb0Hyv1Ngr8fX7n_4Z_eQqx0FH1LmhIEWrCET/exec';
 const PRO_SECOES = ['ia', 'proposta', 'publicacoes', 'projudi'];
 const PRO_PLANOS = [
@@ -2850,6 +2862,7 @@ async function proVerificar(forcar){
   renderAll();
 }
 async function proAssinar(plano){
+  if(APP_ANDROID){ pfAviso(APP_ASSINAR_TXT); return; }
   const email = meuEmail();
   if(!email){ pfAviso('Entre com a sua conta para assinar o Gerenciador PRO.'); return; }
   if(!contaVerificada()){ pfAviso('Confirme o seu e-mail (link enviado no cadastro) antes de assinar.'); return; }
@@ -2893,9 +2906,9 @@ function proCorpoHtml(){
   return `
     ${proSituacaoHtml()}
     <ul class="pro-lista">${PRO_RECURSOS.map(([t, d]) => `<li><b>${escapeHtml(t)}</b>: ${escapeHtml(d)}</li>`).join('')}</ul>
-    ${pro && !souAdmin() ? `<div class="hint" style="margin-top:12px;">Para renovar antes do vencimento, escolha um plano: os dias são somados ao que ainda resta.</div>` : ''}
-    ${souAdmin() ? '' : proPlanosHtml()}
-    <div class="hint">Pagamento pelo Mercado Pago (Pix, cartão ou boleto). A liberação é automática, pelo e-mail da conta. A mesma assinatura libera a extensão PROJUDI PDFs. Quem já assinava mantém o valor de antes.</div>
+    ${pro && !souAdmin() && !APP_ANDROID ? `<div class="hint" style="margin-top:12px;">Para renovar antes do vencimento, escolha um plano: os dias são somados ao que ainda resta.</div>` : ''}
+    ${souAdmin() ? '' : APP_ANDROID ? `<div class="hint" style="margin-top:12px;">${escapeHtml(APP_ASSINAR_TXT)}</div>` : proPlanosHtml()}
+    ${APP_ANDROID ? '' : `<div class="hint">Pagamento pelo Mercado Pago (Pix, cartão ou boleto). A liberação é automática, pelo e-mail da conta. A mesma assinatura libera a extensão PROJUDI PDFs. Quem já assinava mantém o valor de antes.</div>`}
     ${currentUser && contaVerificada() && !souAdmin() ? `<div style="margin-top:12px;"><button class="btn btn-ghost btn-sm" onclick="proVerificar(true)" ${PRO.rodando ? 'disabled' : ''}>Já assinei, conferir</button></div>` : ''}`;
 }
 function renderPro(){
@@ -6727,7 +6740,8 @@ const LEGAL = {
         ['p','Pela LGPD (art. 18), você pode pedir confirmação e acesso aos dados, correção, anonimização, bloqueio ou eliminação, portabilidade, informação sobre compartilhamento e revisão do consentimento, quando for o caso.'],
         ['lista',['Acesso e correção do cadastro: direto em Meu perfil.',
                   'Correção e exclusão de perícias: direto na perícia, pelo dono.',
-                  `Demais pedidos, inclusive a exclusão da conta: ${LEGAL_CONTATO}. Respondemos em até 15 dias.`,
+                  'Exclusão da conta: em Meu perfil > Conta e sincronização > Excluir minha conta, no site ou no app (passo a passo em gerenciadorpericias.com.br/excluir-conta.html).',
+                  `Demais pedidos, ou se você não consegue entrar na conta: ${LEGAL_CONTATO}. Respondemos em até 15 dias.`,
                   'Recebeu um convite e não quer mais mensagens: responda com "remover" e o seu e-mail sai da lista de envio para sempre.',
                   'Se não ficar satisfeito, você pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).']],
       ]},
@@ -7380,7 +7394,7 @@ function renderApresentacao(){
           <ul class="lp-heroi-pts">
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} <b>Mais de ${LP_PERITOS} peritos cadastrados</b></li>
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Plano grátis para sempre, sem cartão</li>
-            <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} <button class="lg-link" onclick="lpIr('lpPlanos')">PRO a partir de ${proReais(lpPlanoPro('anual').preco / lpPlanoPro('anual').meses)}/mês</button></li>
+            ${APP_ANDROID ? '' : `<li>${svg('<path d="M5 12.5l4 4L19 7"/>')} <button class="lg-link" onclick="lpIr('lpPlanos')">PRO a partir de ${proReais(lpPlanoPro('anual').preco / lpPlanoPro('anual').meses)}/mês</button></li>`}
             <li>${svg('<path d="M5 12.5l4 4L19 7"/>')} Seus dados só seus</li>
           </ul>
         </div>
@@ -7520,9 +7534,9 @@ function renderApresentacao(){
     <section class="lp-sec" id="lpPlanos">
       <div class="lp-lim">
         <div class="lp-tit lp-rev"><span>Planos</span><h2>Comece grátis. Assine o PRO quando precisar.</h2><p>Mais de ${LP_PERITOS} peritos já usam o Gerenciador de Perícia. O dia a dia da perícia é grátis para sempre. O PRO traz a IA, a busca de processo, a proposta e as publicações automáticas.</p></div>
-        <div class="lp-periodo lp-rev" role="group" aria-label="Período do PRO">
+        ${APP_ANDROID ? '' : `<div class="lp-periodo lp-rev" role="group" aria-label="Período do PRO">
           ${PRO_PLANOS.map(p => `<button type="button" data-p="${p.id}" class="${p.id === lpPeriodoAtual ? 'on' : ''}" aria-pressed="${p.id === lpPeriodoAtual}" onclick="lpPeriodo(${jsq(p.id)})">${escapeHtml(p.nome)}${p.id !== 'mensal' ? `<em>-${lpEconomia(p.id)}%</em>` : ''}</button>`).join('')}
-        </div>
+        </div>`}
         <div class="lp-planos">
           <div class="lp-plano lp-rev">
             <h3>Grátis</h3>
@@ -7535,13 +7549,13 @@ function renderApresentacao(){
             <span class="lp-plano-tag">Mais completo</span>
             <h3>Gerenciador PRO</h3>
             <p class="lp-plano-desc">Tudo do grátis, mais as ferramentas que economizam horas em cada perícia.</p>
-            <div id="lpProPreco">${lpPrecoHtml(lpPeriodoAtual)}</div>
+            ${APP_ANDROID ? '' : `<div id="lpProPreco">${lpPrecoHtml(lpPeriodoAtual)}</div>`}
             <ul class="lp-lista"><li class="lp-mais"><span>Tudo do plano grátis, mais:</span></li>${LP_PRO.map(t => `<li>${svg('<path d="M5 12.5l4 4L19 7"/>')}<span><b>${escapeHtml(t)}</b></span></li>`).join('')}</ul>
-            <button class="btn btn-primary lp-btn-g" onclick="lpAssinarPro()">Assinar o PRO</button>
+            ${APP_ANDROID ? '' : `<button class="btn btn-primary lp-btn-g" onclick="lpAssinarPro()">Assinar o PRO</button>`}
           </div>
         </div>
         <div class="lp-rev">${lpTabelaHtml()}</div>
-        <p class="lp-nota lp-planos-nota lp-rev">Pagamento pelo Mercado Pago (Pix, cartão ou boleto), com liberação automática pelo e-mail da conta. Sem renovação automática nem fidelidade. A mesma assinatura libera a extensão PROJUDI PDFs. Quem já assina mantém o valor contratado.</p>
+        <p class="lp-nota lp-planos-nota lp-rev">${APP_ANDROID ? escapeHtml(APP_ASSINAR_TXT) : 'Pagamento pelo Mercado Pago (Pix, cartão ou boleto), com liberação automática pelo e-mail da conta. Sem renovação automática nem fidelidade. A mesma assinatura libera a extensão PROJUDI PDFs. Quem já assina mantém o valor contratado.'}</p>
       </div>
     </section>
 
@@ -7563,7 +7577,7 @@ function renderApresentacao(){
       <div class="lp-lim lp-duvidas">
         <div class="lp-tit lp-tit-esq lp-rev"><span>Dúvidas</span><h2>Perguntas frequentes.</h2><p>Não achou a sua? <button class="lg-link" onclick="lpIr('lpSuporte')">Fale com o suporte</button>.</p></div>
         <div class="lp-faq lp-rev">
-          ${LP_DUVIDAS.map(([q, r]) => `<details><summary>${escapeHtml(q)}${svg('<path d="M6 9l6 6 6-6"/>')}</summary><p>${escapeHtml(r)}</p></details>`).join('')}
+          ${LP_DUVIDAS.filter(([q]) => !APP_ANDROID || !['Quanto custa?', 'O PRO renova sozinho?'].includes(q)).map(([q, r]) => `<details><summary>${escapeHtml(q)}${svg('<path d="M6 9l6 6 6-6"/>')}</summary><p>${escapeHtml(r)}</p></details>`).join('')}
         </div>
       </div>
     </section>
@@ -7781,7 +7795,9 @@ function renderMeuPerfil(){
         <div class="hint" style="margin-top:12px;">
           Sem login, os dados ficam apenas neste navegador e não acompanham você em outro dispositivo.
           Ao entrar com uma conta autorizada, tudo passa a sincronizar automaticamente.
-        </div>`;
+        </div>
+        ${currentUser ? `<div style="margin-top:14px;"><button class="btn btn-ghost btn-sm btn-tirar" onclick="pedirExclusaoConta()">Excluir minha conta</button></div>
+        <div id="contaExcluir"></div>` : ''}`;
 
   const corpoContas = `
         <div class="kv-grid">
@@ -9697,10 +9713,95 @@ async function signInGoogle(){
   if(!auth){ cloudSetBanner(bannerAviso('Sincronização com a nuvem ainda não está configurada neste app.')); return; }
   try{
     const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(provider);
+    try{ await auth.signInWithPopup(provider); }
+    catch(e){
+      if(e && /popup-blocked|operation-not-supported|web-storage-unsupported/.test(e.code || '')){ await auth.signInWithRedirect(provider); return; }
+      throw e;
+    }
   }catch(e){
+    if(e && /popup-closed-by-user|cancelled-popup-request/.test(e.code || '')) return;
     cloudSetBanner(bannerAviso('Não foi possível entrar com o Google. Tente novamente.'));
   }
+}
+/* ---------- Excluir a minha conta ----------
+   Exigência do Google Play (app com conta precisa oferecer a exclusão) e direito do titular pela LGPD.
+   Apaga as perícias de que eu sou dono (com os documentos e os arquivos), me tira das perícias que
+   outras pessoas compartilharam comigo, apaga o meu cadastro e, por fim, a conta de acesso.
+   Os registros de pagamento da assinatura ficam no Mercado Pago e na planilha pelo prazo legal. */
+function pedirExclusaoConta(){
+  const el = document.getElementById('contaExcluir');
+  if(!el || !currentUser) return;
+  const email = meuEmail();
+  const minhas = casos.filter(c => donoDe(c) === email).length;
+  const recebidas = casos.filter(c => donoDe(c) !== email && acessosDe(c).includes(email)).length;
+  el.innerHTML = `
+    <div class="confirm-box" style="margin:12px 0 0;">
+      <b>Excluir a conta ${escapeHtml(email)}?</b> Não tem volta.
+      <ul style="margin:8px 0 8px 18px;">
+        <li>Perícias suas (você é o dono): <b>${minhas}</b>. São apagadas com os documentos e os arquivos, também para quem as recebeu.</li>
+        <li>Perícias recebidas de outras pessoas: <b>${recebidas}</b>. Você sai delas; elas continuam com o dono.</li>
+        <li>O seu cadastro e a sua conta de acesso são apagados.</li>
+      </ul>
+      Para guardar algo, baixe os documentos antes. Os registros de pagamento da assinatura ficam guardados pelo prazo que a lei exige.
+      <div class="field" style="margin-top:10px; max-width:260px;"><label for="contaExcluirConf">Digite EXCLUIR para confirmar</label><input id="contaExcluirConf" autocomplete="off"></div>
+      <div class="row">
+        <button class="btn btn-danger btn-sm" onclick="excluirMinhaConta()">Excluir minha conta</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contaExcluir').innerHTML=''">Cancelar</button>
+      </div>
+      <div id="contaExcluirMsg" class="hint" aria-live="polite"></div>
+    </div>`;
+}
+async function excluirMinhaConta(){
+  const msg = t => { const m = document.getElementById('contaExcluirMsg'); if(m) m.textContent = t; };
+  const conf = document.getElementById('contaExcluirConf');
+  if(!conf || conf.value.trim().toUpperCase() !== 'EXCLUIR'){ msg('Digite EXCLUIR para confirmar.'); return; }
+  if(!currentUser || !auth) return;
+  const ultimo = Date.parse((currentUser.metadata || {}).lastSignInTime || '') || 0;
+  if(Date.now() - ultimo > 4 * 60e3){
+    msg('Por segurança, o Google pede um login recente para excluir a conta. Saia, entre de novo e volte aqui em até 4 minutos.');
+    return;
+  }
+  const email = meuEmail();
+  msg('Excluindo… não feche esta tela.');
+  let falhas = 0;
+  if(usingDb && db){
+    for(const c of [...casos]){
+      const dono = donoDe(c) === email;
+      if(!dono && !acessosDe(c).includes(email)) continue;
+      const ref = db.collection('casos').doc(c.id);
+      try{
+        if(dono){
+          const snap = await ref.collection('documentos').get();
+          for(const d of snap.docs){
+            const caminho = ((d.data() || {}).arquivo || {}).storagePath;
+            if(caminho && storage){ try{ await storage.ref().child(caminho).delete(); }catch(e){} }
+            await d.ref.delete();
+          }
+          await ref.delete();
+        } else {
+          await ref.update({
+            emails: acessosDe(c).filter(x => x !== email),
+            editores: editoresDe(c).filter(x => x !== email),
+            compartilhamentos: compartilhamentosDe(c).filter(x => x.email !== email),
+          });
+        }
+      }catch(e){ falhas++; }
+    }
+    try{ await db.collection('usuarios').doc(currentUser.uid).delete(); }catch(e){ falhas++; }
+  }
+  if(falhas){ msg(`${falhas} item(ns) não puderam ser apagados agora e a conta continua ativa. Tente de novo em instantes; se continuar, escreva para ${LEGAL_CONTATO}.`); return; }
+  try{
+    await currentUser.delete();
+  }catch(e){
+    msg(e && e.code === 'auth/requires-recent-login'
+      ? 'Os dados foram apagados, mas o Google pediu um login recente para apagar a conta. Saia, entre de novo e toque em Excluir minha conta outra vez.'
+      : `Os dados foram apagados, mas a conta não pôde ser excluída agora (${(e && e.code) || 'erro'}). Tente de novo ou escreva para ${LEGAL_CONTATO}.`);
+    return;
+  }
+  try{ ['pf_pro', 'pericias.section'].forEach(k => localStorage.removeItem(k)); }catch(e){}
+  casos = [];
+  renderAll();
+  pfAviso('Sua conta foi excluída.');
 }
 async function signOutGoogle(){
   if(!auth) return;
@@ -9858,7 +9959,12 @@ async function excluirCaso(id){
   if(usingDb){
     try{
       const snap = await db.collection('casos').doc(id).collection('documentos').get();
-      for(const d of snap.docs){ await db.collection('casos').doc(id).collection('documentos').doc(d.id).delete(); }
+      for(const d of snap.docs){
+        /* a política de privacidade promete apagar também os arquivos no Storage */
+        const caminho = ((d.data() || {}).arquivo || {}).storagePath;
+        if(caminho && storage){ try{ await storage.ref().child(caminho).delete(); }catch(e){} }
+        await db.collection('casos').doc(id).collection('documentos').doc(d.id).delete();
+      }
     }catch(e){}
     try{ await db.collection('casos').doc(id).delete(); }catch(e){}
   } else {
@@ -11574,10 +11680,15 @@ document.addEventListener('keydown', (e) => {
 setTimeout(() => { const k = document.getElementById('pfAtalho'); if(k && /Mac|iPhone|iPad/.test(navigator.platform)) k.textContent = '⌘K'; }, 0);
 
 /* ========================================================================== */
+if(location.hash === '#excluir-conta'){ activeSection = 'perfil'; setTimeout(() => { if(currentUser) pedirExclusaoConta(); }, 2500); }
+/* links diretos para a ficha da Play Store: #privacidade, #termos, #seguranca */
+if(LEGAL_ORDEM.includes(location.hash.slice(1))) setTimeout(() => verLegal(location.hash.slice(1)), 600);
 aplicarRail();
 aplicarAparencia();
 renderAll();
 initDb();
+/* deixa o site instalável como app e mostra um aviso quando não há internet (sw.js não guarda páginas) */
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 
 </body>
