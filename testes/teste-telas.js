@@ -684,6 +684,40 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   check("modo recolhido mostra só ícones", await pf.$eval('#nav .nav-item[data-sec="financeiro"] span', (s) => getComputedStyle(s).display) === "none");
   await pf.evaluate(() => toggleRail());
 
+  console.log("\n15) App Android (Play Store): só consumo, sem compra dentro do app");
+  { const pa = await ctx.newPage();
+    const errosApp = [];
+    pa.on("pageerror", (e) => errosApp.push(e.message));
+    await pa.goto(PF + "?origem=android", { waitUntil: "domcontentloaded" });
+    await pa.waitForFunction(() => typeof proCorpoHtml === "function" && typeof renderAll === "function", null, { timeout: 15000 });
+    check("app reconhece o modo Android", await pa.evaluate(() => APP_ANDROID && document.documentElement.classList.contains("app-android")));
+    await pa.evaluate(() => { currentUser = { email: "novo@exemplo.com", emailVerified: true, providerData: [], uid: "u1", metadata: { lastSignInTime: new Date().toUTCString() } }; proLimpar(); closeDrawer(); setSection("pro"); });
+    await sleep(300);
+    { const t = await pa.textContent("#view");
+      check("tela PRO no app sem planos, preços nem Mercado Pago", (await pa.locator(".pro-plano").count()) === 0 && !/R\$ 49,90|Mercado Pago/.test(t) && /feita no site gerenciadorpericias\.com\.br/.test(t), t.slice(0, 160)); }
+    { const antes = ctx.pages().length; await pa.evaluate(() => proAssinar("anual")); await sleep(500);
+      check("assinar no app não abre pagamento", ctx.pages().length === antes && /feita no site/.test(await pa.textContent("body"))); }
+    await pa.evaluate(() => { setSection("perfil"); });
+    await sleep(300);
+    check("Meu perfil tem Excluir minha conta", await pa.isVisible('button:has-text("Excluir minha conta")'));
+    await pa.click('button:has-text("Excluir minha conta")');
+    check("exclusão pede para digitar EXCLUIR", /Não tem volta[\s\S]*Digite EXCLUIR/.test(await pa.textContent("#contaExcluir")));
+    await pa.click('#contaExcluir .btn-danger');
+    check("sem digitar EXCLUIR nada é apagado", /Digite EXCLUIR para confirmar/.test(await pa.textContent("#contaExcluirMsg")) && !!(await pa.evaluate(() => currentUser)));
+    await pa.evaluate(() => { currentUser = null; proLimpar(); closeDrawer(); abrirLogin(true); });
+    await sleep(400);
+    { const planos = await pa.textContent("#login #lpPlanos");
+      check("apresentação no app sem preço do PRO nem botão de assinar", !/R\$ 49,90|R\$ 29,17|Assinar o PRO|Mercado Pago/.test(planos) && (await pa.locator("#login .lp-periodo").count()) === 0 && /feita no site/.test(planos));
+      check("FAQ do app sem perguntas de preço", !/Quanto custa\?|renova sozinho/.test(await pa.textContent("#login .lp-faq")));
+      check("topo do app sem 'PRO a partir de'", !/PRO a partir de/.test(await pa.textContent("#login .lp-heroi"))); }
+    await pa.goto(PF, { waitUntil: "domcontentloaded" });
+    await pa.waitForFunction(() => typeof APP_ANDROID !== "undefined", null, { timeout: 15000 });
+    check("modo app continua depois de navegar dentro do app", await pa.evaluate(() => APP_ANDROID));
+    check("service worker registrado (site instalável)", await pa.evaluate(async () => { for (let i = 0; i < 20; i++) { const r = await navigator.serviceWorker.getRegistrations(); if (r.length) return true; await new Promise((ok) => setTimeout(ok, 250)); } return false; }));
+    check("app sem erros de JavaScript", errosApp.length === 0, errosApp.slice(0, 3).join(" | "));
+    await pa.close(); }
+  check("site normal continua mostrando os preços", await pf.evaluate(() => !APP_ANDROID && proPlanosHtml().includes("49,90")));
+
   check("sem erros de JavaScript", erros.length === 0, erros.slice(0, 3).join(" | "));
   await ctx.close();
   console.log(`\n${res.filter(Boolean).length}/${res.length} verificações passaram`);
