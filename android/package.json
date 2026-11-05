@@ -1,0 +1,7 @@
+{
+  "name": "gerenciador-pericias-android",
+  "private": true,
+  "type": "module",
+  "description": "Gera o app Android (Trusted Web Activity) do Gerenciador de Perícia. Veja android/LEIA-ME.md.",
+  "dependencies": { "@bubblewrap/core": "1.27.0" }
+}
