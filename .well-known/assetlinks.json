@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "br.com.gerenciadorpericias.app",
+      "sha256_cert_fingerprints": [
+        "15:53:C6:6B:9C:2C:6E:41:0E:C2:FA:5C:1B:51:AF:C2:7C:FB:88:C1:B7:47:9E:F0:10:0D:2F:E5:5B:28:A5:B5"
+      ]
+    }
+  }
+]
