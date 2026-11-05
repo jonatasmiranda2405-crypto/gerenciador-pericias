@@ -1,0 +1,72 @@
+# Gera o app Android do Gerenciador de Perícia (Trusted Web Activity: o app abre o próprio site).
+# Com os segredos ANDROID_KEYSTORE_B64 e ANDROID_KEYSTORE_SENHA, sai o .aab assinado para a Play Store.
+# Sem eles, sai só um APK de teste (debug), para instalar no celular e conferir.
+name: App Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: 'Versão mostrada na loja (ex.: 1.0.0)'
+        required: false
+        default: '1.0.0'
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Gerar o projeto Android
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          VERSAO_CODIGO: ${{ github.run_number }}
+          VERSAO_NOME: ${{ inputs.versao || '1.0.0' }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "PF_KEYSTORE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            export PF_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          fi
+          python3 -m http.server 8099 --directory "$GITHUB_WORKSPACE" >/dev/null 2>&1 &
+          sleep 2
+          cd android
+          npm install --no-audit --no-fund
+          ICONES_BASE=http://127.0.0.1:8099 node gerar.mjs "$GITHUB_WORKSPACE/build-android"
+
+      - name: Compilar
+        env:
+          PF_SENHA: ${{ secrets.ANDROID_KEYSTORE_SENHA }}
+        run: |
+          cd build-android
+          if [ -n "$PF_KEYSTORE" ]; then
+            ./gradlew --no-daemon bundleRelease assembleRelease
+            echo "Impressão digital da chave de upload (precisa estar em .well-known/assetlinks.json):"
+            keytool -list -v -keystore "$PF_KEYSTORE" -storepass "$PF_SENHA" | grep SHA256
+          else
+            ./gradlew --no-daemon assembleDebug
+            echo "::warning::Sem os segredos da chave: saiu só o APK de teste (debug). Para a Play Store, cadastre ANDROID_KEYSTORE_B64 e ANDROID_KEYSTORE_SENHA."
+          fi
+          mkdir -p ../saida
+          find app/build/outputs -name '*.aab' -exec cp {} ../saida/gerenciador-pericia.aab \;
+          find app/build/outputs -name '*.apk' -exec cp {} ../saida/ \;
+          ls -la ../saida
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-android-${{ github.run_number }}
+          path: saida/
+          if-no-files-found: error
