@@ -1,0 +1,40 @@
+{
+  "packageId": "br.com.gerenciadorpericias.app",
+  "host": "gerenciadorpericias.com.br",
+  "name": "Gerenciador de Perícia",
+  "launcherName": "Gerenciador",
+  "display": "standalone",
+  "themeColor": "#1A3650",
+  "themeColorDark": "#1A3650",
+  "navigationColor": "#1A3650",
+  "navigationColorDark": "#1A3650",
+  "navigationDividerColor": "#1A3650",
+  "navigationDividerColorDark": "#1A3650",
+  "backgroundColor": "#F3F5F4",
+  "enableNotifications": false,
+  "startUrl": "/?origem=android",
+  "iconUrl": "https://gerenciadorpericias.com.br/icones/icone-512.png",
+  "maskableIconUrl": "https://gerenciadorpericias.com.br/icones/icone-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload.jks",
+    "alias": "upload"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-core",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 23,
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}
