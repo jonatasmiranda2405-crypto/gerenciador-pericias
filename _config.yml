@@ -1,0 +1,2 @@
+# GitHub Pages: publica a pasta .well-known (assetlinks.json do app Android).
+include: [".well-known"]
