@@ -136,7 +136,7 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
   if (host === "jonatasmiranda2405-crypto.github.io") {
     // Os testes rodam no modo local (sem Firebase), como antes, quando o SDK vinha da gstatic e não carregava aqui.
     if (u.pathname.startsWith("/gerenciador-pericias/vendor/firebase-")) { res.writeHead(404); return res.end(); }
-    const estatico = u.pathname.match(/^\/gerenciador-pericias\/(vendor|icones|apresentacao)\/(.+)$/) || u.pathname.match(/^\/gerenciador-pericias\/()(site\.webmanifest|favicon\.ico)$/);
+    const estatico = u.pathname.match(/^\/gerenciador-pericias\/(vendor|icones|apresentacao)\/(.+)$/) || u.pathname.match(/^\/gerenciador-pericias\/()(site\.webmanifest|favicon\.ico|sw\.js|excluir-conta\.html)$/);
     if (estatico) {
       const base = path.join(__dirname, "..", estatico[1]);
       const arq = path.normalize(path.join(base, decodeURIComponent(estatico[2])));
