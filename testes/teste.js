@@ -30,7 +30,7 @@ const check = (nome, ok, extra) => { resultados.push([ok ? "OK " : "FALHOU", nom
     await sleep(250);
     sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js")) || sw; // pode ter reiniciado
   }
-  await sw.evaluate(() => chrome.storage.local.set({ email: "teste@exemplo.com" }));
+  await sw.evaluate(() => chrome.storage.local.set({ email: "teste@gmail.com" }));
   { const r0 = await ctx.newPage(); await r0.goto("https://projudi.tjgo.jus.br/__reiniciar").catch(() => {}); await r0.close(); }
 
   const pf = await ctx.newPage();
