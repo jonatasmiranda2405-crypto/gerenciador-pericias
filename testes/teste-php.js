@@ -73,7 +73,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   check("API devolve 'duplicado' para o mesmo arquivo", dup.ok && dup.duplicado === true, JSON.stringify(dup));
 
   console.log("\n3) Assinatura pelo Mercado Pago");
-  await sw.evaluate(() => chrome.storage.local.set({ email: "novo@exemplo.com", lastOk: 0, validade: "" }));
+  await sw.evaluate(() => chrome.storage.local.set({ email: "novo@gmail.com", lastOk: 0, validade: "" }));
   const pj = await ctx.newPage();
   await pj.goto("https://projudi.tjgo.jus.br/");                 // perito logado (cookie de sessão)
   await pj.evaluate(() => { document.cookie = "sess=1; path=/; Secure"; });
@@ -88,8 +88,28 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   await sleep(1500);
   const abas = await sw.evaluate(() => self.__abertas || []);
   const mp = abas.find((u) => /mercadopago/.test(u)) || "";
-  check("abre o checkout do plano anual no Mercado Pago", /mercadopago\.com\.br\/checkout.*pref_id=teste-anual.*novo%40exemplo\.com/.test(mp), mp || abas.join(" "));
+  check("abre o checkout do plano anual no Mercado Pago", /mercadopago\.com\.br\/checkout.*pref_id=teste-anual.*novo%40gmail\.com/.test(mp), mp || abas.join(" "));
   check("aviso no painel depois de abrir o pagamento", /Conclua o pagamento/.test(await pj.textContent("#projudi-pdf-lic-info")), await pj.textContent("#projudi-pdf-lic-info"));
+
+  console.log("\n4) Só e-mail de domínio real (teste grátis e assinatura)");
+  const tentar = async (email) => {
+    await pj.fill("#projudi-pdf-email", email);
+    await pj.click("#projudi-pdf-lic-form button[type=submit]");
+    await sleep(1200);
+    return { texto: await pj.textContent("#projudi-pdf-lic-info"), travado: await pj.$eval("#projudi-pdf-btn", (b) => b.disabled).catch(() => null) };
+  };
+  for (const [email, re] of [["fulano@exemplo.com", /exemplo ou de teste/], ["perito@empresa.test", /exemplo ou de teste/], ["a@mailinator.com", /descartáveis/],
+    ["fulano@gmial.com", /quis dizer @gmail\.com/], ["x@dominio-inventado-xyz.com.br", /não recebe e-mails/]]) {
+    const r = await tentar(email);
+    check(`recusa ${email}`, re.test(r.texto) && !/Teste grátis: ainda pode/.test(r.texto), r.texto);
+  }
+  abas.length = 0; await sw.evaluate(() => { self.__abertas = []; });
+  await pj.fill("#projudi-pdf-email", "fulano@exemplo.com");
+  await pj.click(".projudi-pdf-planos button:nth-child(1)");
+  await sleep(1200);
+  check("e-mail de exemplo não abre o pagamento", (await sw.evaluate(() => self.__abertas.length)) === 0 && /exemplo ou de teste/.test(await pj.textContent("#projudi-pdf-lic-info")), await pj.textContent("#projudi-pdf-lic-info"));
+  const okReal = await tentar("demo@gmail.com");
+  check("e-mail real libera o teste grátis", /Teste grátis: ainda pode baixar 3 de 3/.test(okReal.texto), okReal.texto);
 
   check("sem erros de JavaScript na página PHP", erros.length === 0, erros.join(" | "));
   await ctx.close();
