@@ -25,7 +25,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   let sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js"));
   while (!sw) { const w = await ctx.waitForEvent("serviceworker", { timeout: 10000 }); if (w.url().endsWith("/background.js")) sw = w; }
   for (let i = 0; i < 40 && !(await sw.evaluate(() => !!(self.chrome && chrome.storage && chrome.storage.local)).catch(() => false)); i++) { await sleep(250); sw = ctx.serviceWorkers().find((w) => w.url().endsWith("/background.js")) || sw; }
-  await sw.evaluate(() => chrome.storage.local.set({ email: "teste@exemplo.com" }));
+  await sw.evaluate(() => chrome.storage.local.set({ email: "teste@gmail.com" }));
   { const r0 = await ctx.newPage(); await r0.goto("https://projudi.tjgo.jus.br/__reiniciar").catch(() => {}); await r0.close(); }
 
   const pf = await ctx.newPage();
@@ -72,7 +72,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
   check("assinante PRO entra na Revisão IA", !/recurso do Gerenciador PRO/.test(await pf.textContent("#view")) && await pf.evaluate(() => temPro()));
   await ir("pro");
   check("tela PRO mostra a validade", /PRO ativo[\s\S]*31\/12\/2026/.test(await pf.textContent("#view")));
-  await pf.evaluate(() => { currentUser = { email: "novo@exemplo.com", emailVerified: true, providerData: [] }; });
+  await pf.evaluate(() => { currentUser = { email: "novo@gmail.com", emailVerified: true, providerData: [] }; });
   await pf.evaluate(() => proVerificar(true));
   await ir("proposta");
   check("sem assinatura ativa continua bloqueado", /recurso do Gerenciador PRO/.test(await pf.textContent("#view")) && !(await pf.evaluate(() => temPro())));
@@ -84,7 +84,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
     const p2 = await np;
     for (let i = 0; i < 40 && !pedido; i++) await sleep(250);
     ctx.off("request", ver);
-    check("plano anual abre o Mercado Pago", /teste-anual&email=novo%40exemplo\.com/.test(pedido), pedido); await p2.close(); }
+    check("plano anual abre o Mercado Pago", /teste-anual&email=novo%40gmail\.com/.test(pedido), pedido); await p2.close(); }
   await pf.evaluate(() => { currentUser = null; proLimpar(); window.temPro = () => true; renderAll(); }); // daqui em diante, as telas PRO liberadas
 
   console.log("\n2) Tarefas");
@@ -691,7 +691,7 @@ const check = (n, ok, x) => { res.push(ok); console.log(ok ? "  ✔" : "  ✘", 
     await pa.goto(PF + "?origem=android", { waitUntil: "domcontentloaded" });
     await pa.waitForFunction(() => typeof proCorpoHtml === "function" && typeof renderAll === "function", null, { timeout: 15000 });
     check("app reconhece o modo Android", await pa.evaluate(() => APP_ANDROID && document.documentElement.classList.contains("app-android")));
-    await pa.evaluate(() => { currentUser = { email: "novo@exemplo.com", emailVerified: true, providerData: [], uid: "u1", metadata: { lastSignInTime: new Date().toUTCString() } }; proLimpar(); closeDrawer(); setSection("pro"); });
+    await pa.evaluate(() => { currentUser = { email: "novo@gmail.com", emailVerified: true, providerData: [], uid: "u1", metadata: { lastSignInTime: new Date().toUTCString() } }; proLimpar(); closeDrawer(); setSection("pro"); });
     await sleep(300);
     { const t = await pa.textContent("#view");
       check("tela PRO no app sem planos, preços nem Mercado Pago", (await pa.locator(".pro-plano").count()) === 0 && !/R\$ 49,90|Mercado Pago/.test(t) && /feita no site gerenciadorpericias\.com\.br/.test(t), t.slice(0, 160)); }
