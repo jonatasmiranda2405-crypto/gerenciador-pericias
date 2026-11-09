@@ -248,6 +248,7 @@
         const limite = lic.demoLimite || 3;
         let texto = lic.motivo || "Assinatura necessária.";
         if (!lic.email) texto = `Teste grátis: informe o seu e-mail e baixe até ${limite} arquivos sem assinar.`;
+        else if (lic.emailInvalido) texto = lic.motivo;
         else if (demoRestantes > 0) texto += ` Teste grátis: ainda pode baixar ${demoRestantes} de ${limite} arquivo(s).`;
         else texto += ` O teste grátis (${limite} arquivos) já foi usado; assine para baixar tudo.`;
         licInfo.textContent = texto;
