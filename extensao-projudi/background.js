@@ -1,6 +1,6 @@
 // Service worker: coordena downloads, a geração do ZIP, a verificação da assinatura
 // e o envio do ZIP para o Gerenciador de Perícia.
-importScripts("config.js");
+importScripts("config.js", "emails.js");
 
 // ---------- Assinatura ----------
 const HOUR = 3600 * 1000;
@@ -44,12 +44,19 @@ async function checkLicense(newEmail) {
   const email = (newEmail || st.email || "").trim().toLowerCase();
   const base = { email, assinar: SUBSCRIBE_TEXT, planos: PLANOS };
   if (!email) return { ...base, ativo: false, motivo: "Informe o e-mail da sua assinatura." };
+  // e-mail novo digitado agora: só domínio de verdade (o servidor confere de novo, inclusive se o domínio recebe e-mail)
+  const falso = newEmail ? emailFalso(email) : "";
+  if (falso) return { ...base, ativo: false, emailInvalido: true, motivo: falso, demoRestantes: 0, demoLimite: DEMO_LIMITE };
 
   const cacheValid = !newEmail && st.lastOk && Date.now() - st.lastOk < LICENSE_CACHE_HOURS * HOUR && st.validade >= today();
   if (cacheValid) return { ...base, planos: st.planosEmail || PLANOS, ativo: true, validade: st.validade };
 
   try {
     const res = await remoteCheck(email);
+    if (res.emailInvalido) {
+      if (newEmail) await chrome.storage.local.remove(["email", "lastOk", "validade"]);
+      return { ...base, ativo: false, emailInvalido: true, motivo: res.erro || "Use o seu e-mail de verdade.", demoRestantes: 0, demoLimite: Number(res.demoLimite) || DEMO_LIMITE };
+    }
     const planos = planosDe(res);
     if (res.ativo) {
       await chrome.storage.local.set({ email, lastOk: Date.now(), validade: res.validade, planosEmail: planos });
@@ -280,6 +287,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           // Teste grátis: sem assinatura, cada e-mail pode baixar DEMO_LIMITE arquivos no total.
           if (!lic.email || !(lic.demoRestantes > 0)) { sendResponse({ ok: false, license: lic }); return; }
           const d = await reservarDemo(lic.email, files.length);
+          if (d.emailInvalido) { sendResponse({ ok: false, license: { ...lic, emailInvalido: true, motivo: d.erro, demoRestantes: 0 } }); return; }
           const k = Math.max(0, Math.min(files.length, Number(d.permitidos) || 0));
           if (!k) { sendResponse({ ok: false, license: { ...lic, demoRestantes: 0 } }); return; }
           lista = files.slice(0, k);
@@ -332,6 +340,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const st = await chrome.storage.local.get(["email"]);
         const email = String(msg.email || st.email || "").trim().toLowerCase();
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { sendResponse({ ok: false, erro: "Escreva o seu e-mail antes de escolher o plano." }); return; }
+        const falso = msg.email ? emailFalso(email) : "";
+        if (falso) { sendResponse({ ok: false, erro: falso }); return; }
         const plano = PLANOS.find((p) => p.id === msg.plano);
         if (!plano) { sendResponse({ ok: false, erro: "Plano desconhecido." }); return; }
         const r = await fetch(LICENSE_URL, {
