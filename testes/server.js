@@ -194,7 +194,9 @@ https.createServer({ key: fs.readFileSync(CERT + "/k.pem"), cert: fs.readFileSyn
         return res.end(JSON.stringify({ permitidos: k, restantes: 3 - usados - k, limite: 3 }));
       }
       if (j.acao === "checkout") return res.end(JSON.stringify({ ok: true, url: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=teste-" + j.plano + "&email=" + encodeURIComponent(j.email) }));
-      if (j.email === "novo@exemplo.com" || j.email === "demo@exemplo.com") return res.end(JSON.stringify({ ativo: false, validade: "", demoRestantes: Math.max(0, 3 - (demoUsados[j.email] || 0)), demoLimite: 3 }));
+      // o Apps Script de verdade recusa domínios que não recebem e-mail (MX); aqui, um domínio inventado
+      if (/@dominio-inventado-xyz\.com\.br$/.test(j.email || "")) return res.end(JSON.stringify({ ativo: false, validade: "", emailInvalido: true, erro: "O domínio @dominio-inventado-xyz.com.br não recebe e-mails. Confira se o endereço está certo.", demoRestantes: 0, demoLimite: 3 }));
+      if (j.email === "novo@gmail.com" || j.email === "demo@gmail.com") return res.end(JSON.stringify({ ativo: false, validade: "", demoRestantes: Math.max(0, 3 - (demoUsados[j.email] || 0)), demoLimite: 3 }));
       res.end(JSON.stringify({ ativo: true, validade: "2026-12-31" }));
     });
     return;
